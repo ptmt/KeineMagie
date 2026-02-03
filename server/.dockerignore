@@ -1,0 +1,7 @@
+.env
+.env.*
+cache/
+server
+*.log
+*.tmp
+.DS_Store
