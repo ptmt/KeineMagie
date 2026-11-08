@@ -1,46 +1,26 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# macOS
+.DS_Store
 
-# dependencies
-node_modules/
+# Swift / Xcode local build artifacts
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+native/*.xcodeproj/
 
-# Expo
-.expo/
-dist/
-web-build/
-expo-env.d.ts
-
-# Native
-.kotlin/
-*.orig.*
-*.jks
+# Signing credentials
 *.p8
 *.p12
 *.key
+*.pem
 *.mobileprovision
 
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# server
-server/.env
-server/cache/
+# Go server build and private data
 server/server
+server/cache/
+server/data/
 
-# typescript
-*.tsbuildinfo
-
-# generated native folders
-/ios
-/android
+# Local credentials (keep examples tracked)
+.env
+.env.*
+!.env.example

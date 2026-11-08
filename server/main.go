@@ -5,9 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -32,15 +32,21 @@ type errorResponse struct {
 }
 
 type serverConfig struct {
-	apiKey     string
-	baseURL    string
-	model      string
-	voice      string
-	format     string
-	cacheDir   string
-	authToken  string
-	maxChars   int
-	httpClient *http.Client
+	authPath        string
+	appleClientID   string
+	appleHTTPClient *http.Client
+	auth            *appleAuth
+	textModel       string
+	historyPath     string
+	apiKey          string
+	baseURL         string
+	model           string
+	voice           string
+	format          string
+	cacheDir        string
+	authToken       string
+	maxChars        int
+	httpClient      *http.Client
 }
 
 func main() {
@@ -51,12 +57,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", withCORS(cfg.handleHealth))
-	mux.HandleFunc("/tts", withCORS(cfg.handleTTS))
+	mux, err := newHandler(cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "history error: %v\n", err)
+		os.Exit(1)
+	}
 
-	port := getenv("PORT", "8787")
-	addr := ":" + port
+	addr := listenAddress()
 	fmt.Printf("Diktat TTS server listening on %s\n", addr)
 	if err := http.ListenAndServe(addr, logRequests(mux)); err != nil {
 		fmt.Fprintf(os.Stderr, "server error: %v\n", err)
@@ -95,9 +102,6 @@ func loadDotEnv(path string) error {
 
 func loadConfig() (*serverConfig, error) {
 	apiKey := strings.TrimSpace(os.Getenv("OPENAI_API_KEY"))
-	if apiKey == "" {
-		return nil, errors.New("OPENAI_API_KEY is required")
-	}
 
 	baseURL := strings.TrimSpace(os.Getenv("OPENAI_BASE_URL"))
 	if baseURL == "" {
@@ -136,15 +140,19 @@ func loadConfig() (*serverConfig, error) {
 	client := &http.Client{Timeout: 60 * time.Second}
 
 	return &serverConfig{
-		apiKey:     apiKey,
-		baseURL:    strings.TrimRight(baseURL, "/"),
-		model:      model,
-		voice:      voice,
-		format:     format,
-		cacheDir:   cacheDir,
-		authToken:  authToken,
-		maxChars:   maxChars,
-		httpClient: client,
+		authPath:      getenv("AUTH_PATH", "data/auth.json"),
+		appleClientID: getenv("APPLE_CLIENT_ID", "de.keinemagie.app"),
+		apiKey:        apiKey,
+		textModel:     getenv("OPENAI_TEXT_MODEL", "gpt-4o-mini"),
+		historyPath:   getenv("HISTORY_PATH", "data/history.json"),
+		baseURL:       strings.TrimRight(baseURL, "/"),
+		model:         model,
+		voice:         voice,
+		format:        format,
+		cacheDir:      cacheDir,
+		authToken:     authToken,
+		maxChars:      maxChars,
+		httpClient:    client,
 	}, nil
 }
 
@@ -169,8 +177,19 @@ func (cfg *serverConfig) handleTTS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if cfg.authToken != "" && !authorized(r, cfg.authToken) {
+	if cfg.sessionProviderPending(w, r) {
+		return
+	}
+	if cfg.authToken == "" {
+		writeError(w, http.StatusServiceUnavailable, "TTS_AUTH_TOKEN is required")
+		return
+	}
+	if !authorized(r, cfg.authToken) {
 		writeError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+	if cfg.apiKey == "" {
+		writeError(w, http.StatusServiceUnavailable, "OPENAI_API_KEY is required")
 		return
 	}
 
@@ -405,6 +424,10 @@ func clamp(value, min, max float64) float64 {
 
 func runeCount(value string) int {
 	return len([]rune(value))
+}
+
+func listenAddress() string {
+	return net.JoinHostPort(getenv("HOST", "127.0.0.1"), getenv("PORT", "8787"))
 }
 
 func getenv(key, fallback string) string {

@@ -1,6 +1,7 @@
 .env
 .env.*
 cache/
+data/
 server
 *.log
 *.tmp
