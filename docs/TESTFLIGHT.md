@@ -3,10 +3,41 @@
 ## Status and scope
 
 The pipeline is implemented in `.github/workflows/ios-testflight.yml`.
-Cloud run **42521748687** reached archive but failed to discover profile
-`D78E856B-FB81-4D46-BB18-7DEAB629BCE7` for team `49PJNAT2WC`.
-The local fix installs the validated profile at both UUID discovery paths;
-a successful signed archive or Apple upload after this fix remains unverified.
+Cloud run **42524035277** at `ac630ae03e8a1951b8cdfe8f6be35b49ba62485c`
+failed at profile lookup on Xcode **26.6 (17F113)** even after dual-path
+installation. The archive requested UUID `D78E856B-FB81-4D46-BB18-7DEAB629BCE7`.
+This revision uses independent regular copies, preserves the profile's exact
+UUID spelling, selects its validated **Name** plus explicit UUID, and adds
+sanitized installation/resolved-Xcode-setting diagnostics. A successful signed
+archive or Apple upload after these changes remains unverified.
+
+### Evidence and limits of the diagnosis
+
+- The failed job passed CMS metadata/certificate validation, private-key identity
+  lookup, and both profile install calls; it failed at `GatherProvisioningInputs`
+  with “No profile for team … matching … found”, not at codesign or upload.
+- Working comparison: `ptmt/weirdstats` run **42523087367**, Xcode **26.3
+  (17C529)**, copied regular files to both paths, used the original lowercase
+  UUID as specifier, and packaged the modern-directory profile. Its signed
+  archive and Apple upload succeeded using the **same certificate fingerprint**
+  `FEC48BE6EA231D59959312D382A060EA39FA29A2`. A generic invalid certificate is
+  therefore not supported by the evidence; the keychain setup is not identical.
+- Our old installer created three links to one inode. The validator also
+  uppercased UUIDs before putting them in filenames/specifiers. Both are
+  concrete differences, not demonstrated Xcode bugs. Existing logs do **not**
+  reveal the raw profile Name/UUID spelling, installed sizes, or scanner contents.
+  They cannot establish whether hardlinks, UUID case/specifier matching, or an
+  Xcode-version difference caused rejection. We do not claim a proven root cause.
+- Keep Xcode 26.6 pinned for the next run; changing it simultaneously would
+  confound the comparison. If lookup still fails despite verified regular copies
+  and exact Name/UUID, compare 26.3 only if available in the live runner inventory.
+- New diagnostics decode **only the two owned profiles**, printing path,
+  existence, size, regular-file flag, link count, Name and UUID. The selected
+  Xcode's `-showBuildSettings -json` output is privately captured and reduced to
+  signing style/team/profile settings. `EXPANDED_PROVISIONING_PROFILE` may be
+  absent: these settings are **not** proof of scanner acceptance. The real archive
+  remains the discovery test. No full plist, certificate list, API key, private
+  key, or unrestricted environment/build-settings dump is printed.
 No credentials are included. The existing server workflow is independent.
 
 - Push to `main` changing `native/**` or this workflow: validate, then deploy.
@@ -146,10 +177,16 @@ archive, IPA, and local helper files). The profile is installed as
 - `~/Library/Developer/Xcode/UserData/Provisioning Profiles/`
 
 Installation checks both destinations first and fails rather than replacing any
-existing file or symlink. Atomic, non-overwriting hard links to the decoded
-profile identify ownership by device/inode, journaled before installation;
-runner temp and HOME must share a filesystem, otherwise installation fails
-safely. Cleanup handles a failure after only one destination was installed,
+existing file or symlink. Each destination is exclusively created using
+`O_CREAT|O_EXCL` with mode 0600 and filled by copying bytes (no hardlinks and no
+same-filesystem requirement). Its device/inode and birth time when available are
+journaled via atomic journal replacement **before** sensitive bytes are copied.
+Atomicity here means non-overwriting creation/journal replacement, not an atomic
+publication of the completed copy; Xcode starts only after both copies finish.
+An ordinary journal-write failure removes the still-empty reserved file if its
+identity matches. A hard process kill between creation and journal persistence
+can leave an empty file rather than risk deleting an unowned replacement.
+Cleanup handles copy/partial-install failures,
 attempts both destinations even if one removal fails, and refuses to delete a
 profile replaced by another owner. Unrelated profiles remain untouched.
 If cleanup/restoration fails, standalone sensitive files are wiped but the
@@ -198,11 +235,13 @@ simulator build with Xcode 27.2 (not the cloud-selected 26.6).
 The simulator build emitted only the harmless AppIntents metadata warning
 because this app has no AppIntents dependency.
 
-**Post-fix local verification:** offline profile/build-number/cleanup tests,
-ShellCheck, actionlint, shell syntax, and diff whitespace checks. The tests cover
-both UUID discovery paths, preexisting files/symlinks, partial installation,
-independent cleanup and recovery retries, and build-number component rollover,
-timezone equivalence, format bounds, and horizon rejection.
+**Post-fix local verification:** **22** offline profile/build-number/cleanup tests,
+ShellCheck, actionlint, shell syntax, and diff whitespace checks. Added regressions
+cover independent mode-0600 single-link copies, copy/journal failures, a racing
+owner, exact UUID case preservation, validated Name/control-character rejection,
+and allowlisted diagnostics that never print unrelated plist fields. Existing
+tests still cover both UUID discovery paths, preexisting files/symlinks,
+independent cleanup/recovery retries, and build-number rollover/bounds.
 
 **Still unverified:** a post-fix Xcode 26.6 cloud archive, Apple validation/upload,
 App Store Connect processing, compliance, and tester access. No commit, push,

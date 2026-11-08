@@ -42,11 +42,16 @@ class SigningConfigTests(unittest.TestCase):
             },
         }
         self.assertEqual(config.validate_profile(profile, b'certificate', now), profile['UUID'])
+        lowercase = copy.deepcopy(profile)
+        lowercase['UUID'] = profile['UUID'].lower()
+        self.assertEqual(config.validate_profile(lowercase, b'certificate', now), lowercase['UUID'],
+                         'Preserve the profile identifier, not an uppercased approximation')
         mutations = [
             ('TeamIdentifier', ['WRONG']), ('Platform', ['macOS']),
             ('ExpirationDate', dt.datetime(2026, 1, 1)),
             ('CreationDate', dt.datetime(2027, 1, 1)),
             ('DeveloperCertificates', [b'wrong']), ('UUID', '../escape'),
+            ('UUID', 'FD91EDAC8DF34AEF90813028F101E204'), ('Name', ''),
             ('ProvisionedDevices', ['DEVICE']), ('ProvisionsAllDevices', True),
         ]
         for key, value in mutations:
@@ -64,6 +69,26 @@ class SigningConfigTests(unittest.TestCase):
             invalid['Entitlements'][key] = value
             with self.subTest(key=key), self.assertRaises(ValueError):
                 config.validate_profile(invalid, b'certificate', now)
+    def test_archive_uses_uuid_and_validated_name_with_selected_xcode_diagnostics(self):
+        script = PATH.with_name('testflight.sh').read_text()
+        self.assertIn('profile_name="$(< "$root/profile-name")"', script)
+        self.assertIn('PROVISIONING_PROFILE="$uuid"', script)
+        self.assertIn('PROVISIONING_PROFILE_SPECIFIER="$profile_name"', script)
+        self.assertIn('--profile-diagnostics', script)
+        self.assertIn('-showBuildSettings -json', script)
+        self.assertIn('EXPANDED_PROVISIONING_PROFILE', script)
+        self.assertNotIn('PROVISIONING_PROFILE_SPECIFIER="$uuid"', script)
+
+    def test_profile_name_is_required_and_preserved_without_log_injection(self):
+        import signing_config as config
+        self.assertTrue(hasattr(config, 'profile_name'), 'validated Name accessor missing')
+        self.assertEqual(config.profile_name({'Name': 'KeineMagie App Store CI'}), 'KeineMagie App Store CI')
+        for name in (None, '', '   ', 'bad\n::warning::injected', 'bad\rname', 'bad\x00name', 'bad\x1bname'):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                config.profile_name({'Name': name})
+        with self.assertRaises(ValueError):
+            config.profile_name({})
+
     def test_certificate_requires_distribution_and_exact_team(self):
         import signing_config as config
         self.assertTrue(hasattr(config, 'validate_certificate_subject'), 'certificate validator missing')

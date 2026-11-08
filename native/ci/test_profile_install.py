@@ -27,6 +27,92 @@ class ProfileInstallTests(unittest.TestCase):
             'Library/Developer/Xcode/UserData/Provisioning Profiles',
         )]
 
+    def test_installed_profiles_are_independent_regular_private_copies(self):
+        import stat
+        config.install_profiles(self.root, self.home)
+        source = self.root / 'profile.mobileprovision'
+        identities = {(source.stat().st_dev, source.stat().st_ino)}
+        for path in self.paths:
+            metadata = path.lstat()
+            self.assertTrue(stat.S_ISREG(metadata.st_mode))
+            self.assertEqual(metadata.st_nlink, 1, 'Xcode receives regular copies, not hardlinks')
+            self.assertEqual(stat.S_IMODE(metadata.st_mode), 0o600)
+            identities.add((metadata.st_dev, metadata.st_ino))
+        self.assertEqual(len(identities), 3)
+        source.write_bytes(b'changed source')
+        for path in self.paths:
+            self.assertEqual(path.read_bytes(), b'synthetic profile')
+
+    def test_profile_diagnostics_are_allowlisted_and_decode_installed_files(self):
+        import contextlib
+        import io
+        import json
+        import plistlib
+        self.assertTrue(hasattr(config, 'profile_diagnostics'), 'sanitized diagnostics missing')
+        (self.root / 'profile-name').write_text('KeineMagie App Store CI')
+        config.install_profiles(self.root, self.home)
+        decoded = plistlib.dumps({'UUID': UUID, 'Name': 'KeineMagie App Store CI',
+                                  'SecretSentinel': 'MUST_NOT_PRINT'})
+        output = io.StringIO()
+        with mock.patch.object(subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, decoded, b'')) as run:
+            with contextlib.redirect_stdout(output):
+                config.profile_diagnostics(self.root, self.home)
+        records = [json.loads(line) for line in output.getvalue().splitlines()]
+        self.assertEqual(len(records), 2)
+        self.assertEqual(run.call_count, 2)
+        self.assertEqual([Path(call.args[0][-1]) for call in run.call_args_list], self.paths)
+        for record in records:
+            self.assertEqual(set(record), {'path', 'exists', 'bytes', 'links', 'regular', 'uuid', 'name'})
+            self.assertTrue(record['exists'])
+            self.assertTrue(record['regular'])
+            self.assertEqual(record['links'], 1)
+            self.assertEqual(record['uuid'], UUID)
+        self.assertNotIn('MUST_NOT_PRINT', output.getvalue())
+
+    def test_racing_destination_is_not_overwritten_or_removed(self):
+        open_file = os.open
+
+        def race(path, flags, mode=0o777, **kwargs):
+            if path == self.paths[1]:
+                path.write_bytes(b'racing owner')
+            return open_file(path, flags, mode, **kwargs)
+
+        with mock.patch.object(os, 'open', race):
+            with self.assertRaises(FileExistsError):
+                config.install_profiles(self.root, self.home)
+        with self.assertRaises(OSError):
+            config.cleanup_profiles(self.root, self.home)
+        self.assertFalse(self.paths[0].exists())
+        self.assertEqual(self.paths[1].read_bytes(), b'racing owner')
+
+    def test_failed_copy_is_journaled_and_cleaned(self):
+        import shutil
+        with mock.patch.object(shutil, 'copyfileobj', side_effect=OSError('injected copy failure')):
+            with self.assertRaises(OSError):
+                config.install_profiles(self.root, self.home)
+        self.assertTrue(self.paths[0].exists())
+        config.cleanup_profiles(self.root, self.home)
+        self.assertFalse(self.paths[0].exists())
+        self.assertFalse(self.paths[1].exists())
+
+    def test_ownership_journal_failure_removes_empty_reserved_file(self):
+        replace = os.replace
+        count = 0
+
+        def fail_ownership(source, destination):
+            nonlocal count
+            count += 1
+            if count == 2:
+                raise OSError('injected journal failure')
+            return replace(source, destination)
+
+        with mock.patch.object(os, 'replace', fail_ownership):
+            with self.assertRaises(OSError):
+                config.install_profiles(self.root, self.home)
+        self.assertFalse(self.paths[0].exists())
+        self.assertFalse(self.paths[1].exists())
+        config.cleanup_profiles(self.root, self.home)
+
     def test_preexisting_profile_fails_before_mutating_either_path(self):
         for existing in self.paths:
             with self.subTest(existing=existing):
@@ -56,18 +142,18 @@ class ProfileInstallTests(unittest.TestCase):
         config.cleanup_profiles(self.root, self.home)
         self.assertFalse(self.paths[0].exists())
 
-    def test_partial_install_failure_cleans_owned_link_and_keeps_other_profiles(self):
+    def test_partial_install_failure_cleans_owned_copy_and_keeps_other_profiles(self):
         other = self.paths[0].with_name('unrelated.mobileprovision')
         other.parent.mkdir(parents=True)
         other.write_bytes(b'keep unrelated')
-        link = os.link
+        open_file = os.open
 
-        def fail_second(source, destination):
-            if destination == self.paths[1]:
+        def fail_second(path, flags, mode=0o777, **kwargs):
+            if path == self.paths[1]:
                 raise OSError('injected second install failure')
-            return link(source, destination)
+            return open_file(path, flags, mode, **kwargs)
 
-        with mock.patch.object(os, 'link', fail_second):
+        with mock.patch.object(os, 'open', fail_second):
             with self.assertRaises(OSError):
                 config.install_profiles(self.root, self.home)
         self.assertTrue(self.paths[0].exists())

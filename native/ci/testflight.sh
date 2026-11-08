@@ -46,6 +46,7 @@ openssl x509 -in "$root/cert.pem" -subject -nameopt RFC2253 -noout | sed 's/^sub
 openssl x509 -in "$root/cert.pem" -outform DER -out "$root/cert.der"
 python3 "$repo/native/ci/signing_config.py" "$root"
 uuid="$(< "$root/profile-uuid")"
+profile_name="$(< "$root/profile-name")"
 fingerprint="$(< "$root/certificate-sha1")"
 keychain="$root/signing.keychain-db"
 printf '%s\n' "$keychain" > "$root/keychain-path"
@@ -66,17 +67,38 @@ security find-identity -v -p codesigning "$keychain" > "$root/identities"
 grep -F "$fingerprint" "$root/identities" > /dev/null || {
   printf '%s\n' 'No valid signing identity matching the profile certificate' >&2; exit 1;
 }
-# Xcode discovery requires the UUID filename in both legacy and modern locations.
+# Install independent regular files in both legacy and modern discovery locations.
 python3 "$repo/native/ci/signing_config.py" --install-profiles "$root"
+python3 "$repo/native/ci/signing_config.py" --profile-diagnostics "$root"
+printf '%s\n' 'Validated matching private-key signing identity is available.'
+xcodebuild -version
 # Seconds-resolution UTC numbers are monotonic across serialized runs/reruns.
 build="$(python3 "$repo/native/ci/signing_config.py" --build-number)"
+archive_args=(-project "$repo/native/KeineMagie.xcodeproj" -scheme KeineMagie
+  -configuration Release -destination 'generic/platform=iOS'
+  -archivePath "$root/KeineMagie.xcarchive" -derivedDataPath "$root/DerivedData"
+  CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=49PJNAT2WC
+  CODE_SIGN_IDENTITY="$fingerprint" PROVISIONING_PROFILE="$uuid"
+  PROVISIONING_PROFILE_SPECIFIER="$profile_name"
+  OTHER_CODE_SIGN_FLAGS="--keychain $keychain" CURRENT_PROJECT_VERSION="$build")
+# This reports the selected Xcode's resolved settings, NOT proof that its scanner
+# accepted the profile. Archive's GatherProvisioningInputs is the actual test.
+if xcodebuild "${archive_args[@]}" -showBuildSettings -json > "$root/build-settings.json" 2> "$root/build-settings.stderr"; then
+  python3 - "$root/build-settings.json" <<'PY'
+import json, sys
+for target in json.load(open(sys.argv[1])):
+    if target.get('target') != 'KeineMagie':
+        continue
+    settings = target['buildSettings']
+    keys = ('CODE_SIGN_STYLE', 'DEVELOPMENT_TEAM', 'PROVISIONING_PROFILE',
+            'PROVISIONING_PROFILE_SPECIFIER', 'EXPANDED_PROVISIONING_PROFILE')
+    print('Xcode resolved signing settings: ' + json.dumps({k: settings.get(k, '<not reported>') for k in keys}))
+PY
+else
+  printf '%s\n' 'Xcode signing-settings probe failed; archive will report the discovery error.'
+fi
 printf 'Archiving build %s with manually validated signing\n' "$build"
-xcodebuild -project "$repo/native/KeineMagie.xcodeproj" -scheme KeineMagie \
-  -configuration Release -destination 'generic/platform=iOS' \
-  -archivePath "$root/KeineMagie.xcarchive" -derivedDataPath "$root/DerivedData" \
-  CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=49PJNAT2WC \
-  CODE_SIGN_IDENTITY="$fingerprint" PROVISIONING_PROFILE_SPECIFIER="$uuid" \
-  OTHER_CODE_SIGN_FLAGS="--keychain $keychain" CURRENT_PROJECT_VERSION="$build" archive
+xcodebuild "${archive_args[@]}" archive
 xcodebuild -exportArchive -archivePath "$root/KeineMagie.xcarchive" \
   -exportOptionsPlist "$root/ExportOptions.plist" -exportPath "$root/export"
 ipas=("$root/export/"*.ipa)
