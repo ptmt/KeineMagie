@@ -11,8 +11,81 @@ def validate_certificate_subject(subject):
         raise ValueError('Certificate must be Apple Distribution for team 49PJNAT2WC')
 
 
+def install_profiles(root, home):
+    import json
+    import os
+    from pathlib import Path
+
+    root, home = Path(root), Path(home)
+    profile_uuid = (root / 'profile-uuid').read_text().strip()
+    if not re.fullmatch(r'[0-9A-F]{8}(?:-[0-9A-F]{4}){3}-[0-9A-F]{12}', profile_uuid):
+        raise ValueError('Invalid canonical profile UUID')
+    paths = [home / directory / (profile_uuid + '.mobileprovision') for directory in (
+        'Library/MobileDevice/Provisioning Profiles',
+        'Library/Developer/Xcode/UserData/Provisioning Profiles',
+    )]
+    for path in paths:
+        if os.path.lexists(path):
+            raise FileExistsError(f'Refusing to replace existing profile: {path}')
+    source = root / 'profile.mobileprovision'
+    stat = source.stat()
+    # Journal before mutation; hard links make ownership atomic and verifiable.
+    (root / 'profile-install.json').write_text(json.dumps({
+        'uuid': profile_uuid, 'device': stat.st_dev, 'inode': stat.st_ino,
+    }))
+    for path in paths:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        os.link(source, path)
+
+
+def cleanup_profiles(root, home):
+    import json
+    from pathlib import Path
+
+    root, home = Path(root), Path(home)
+    journal = root / 'profile-install.json'
+    if not journal.exists():
+        return
+    record = json.loads(journal.read_text())
+    profile_uuid = record['uuid']
+    if not re.fullmatch(r'[0-9A-F]{8}(?:-[0-9A-F]{4}){3}-[0-9A-F]{12}', profile_uuid):
+        raise ValueError('Invalid canonical profile UUID in cleanup journal')
+    errors = []
+    for directory in ('Library/MobileDevice/Provisioning Profiles',
+                      'Library/Developer/Xcode/UserData/Provisioning Profiles'):
+        path = home / directory / (profile_uuid + '.mobileprovision')
+        try:
+            stat = path.lstat()
+            if (stat.st_dev, stat.st_ino) != (record['device'], record['inode']):
+                raise ValueError('Refusing to delete an unowned provisioning profile')
+            path.unlink()
+        except FileNotFoundError:
+            continue
+        except (OSError, ValueError) as exc:
+            errors.append(str(exc))
+    if errors:
+        raise OSError('; '.join(errors))
+
+
+BUILD_EPOCH = dt.datetime(2026, 1, 1, tzinfo=dt.timezone.utc)
+
+
+def validate_build_number(value):
+    if not isinstance(value, str) or not re.fullmatch(r'[1-9][0-9]{0,3}\.[0-9]{1,2}\.[0-9]{1,2}', value):
+        raise ValueError('Build number must have three numeric components (4/2/2 digits)')
+    return value
+
+
 def build_number(now=None):
-    return (now or dt.datetime.now(dt.timezone.utc)).astimezone(dt.timezone.utc).strftime('%Y%m%d%H%M%S')
+    now = now or dt.datetime.now(dt.timezone.utc)
+    if now.tzinfo is None:
+        raise ValueError('Build time must be timezone-aware')
+    seconds = int((now.astimezone(dt.timezone.utc) - BUILD_EPOCH).total_seconds() // 1)
+    if not 0 <= seconds < 99990000:
+        raise ValueError('Build time outside supported epoch horizon')
+    major, remainder = divmod(seconds, 10000)
+    minor, patch = divmod(remainder, 100)
+    return validate_build_number(f'{major + 1}.{minor}.{patch}')
 
 
 TEAM = '49PJNAT2WC'
@@ -69,6 +142,10 @@ if __name__ == '__main__':
 
     if sys.argv[1:] == ['--build-number']:
         print(build_number())
+    elif sys.argv[1:2] in (['--install-profiles'], ['--cleanup-profiles']):
+        import os
+        operation = install_profiles if sys.argv[1] == '--install-profiles' else cleanup_profiles
+        operation(Path(sys.argv[2]), Path(os.environ['HOME']))
     else:
         root = Path(sys.argv[1])
         try:

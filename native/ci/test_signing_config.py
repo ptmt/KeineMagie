@@ -74,14 +74,32 @@ class SigningConfigTests(unittest.TestCase):
             with self.subTest(subject=subject), self.assertRaises(ValueError):
                 config.validate_certificate_subject(subject)
 
-    def test_timestamp_build_version_is_numeric_and_ordered(self):
+    def test_build_version_is_apple_bounded_and_seconds_ordered(self):
         import signing_config as config
-        self.assertTrue(hasattr(config, 'build_number'), 'build number generator missing')
-        now = dt.datetime(2026, 11, 8, 12, 34, 56, tzinfo=dt.timezone.utc)
-        value = config.build_number(now)
-        self.assertTrue(value.isdigit())
-        self.assertEqual(value, '20261108123456')
-        self.assertGreater(int(config.build_number(now + dt.timedelta(seconds=1))), int(value))
+        epoch = dt.datetime(2026, 1, 1, tzinfo=dt.timezone.utc)
+        previous = None
+        for seconds in (0, 1, 99, 100, 9999, 10000, 86399, 86400, 99989999):
+            now = epoch + dt.timedelta(seconds=seconds)
+            value = config.build_number(now)
+            self.assertRegex(value, r'^[1-9][0-9]{0,3}\.[0-9]{1,2}\.[0-9]{1,2}$')
+            parts = tuple(map(int, value.split('.')))
+            if previous is not None:
+                self.assertGreater(parts, previous)
+            previous = parts
+            self.assertEqual(config.build_number(now.astimezone(dt.timezone(dt.timedelta(hours=3)))), value)
+        for now in (epoch - dt.timedelta(seconds=1), epoch + dt.timedelta(seconds=99990000)):
+            with self.assertRaises(ValueError):
+                config.build_number(now)
+
+    def test_build_number_validator_rejects_oversized_or_malformed_versions(self):
+        import signing_config as config
+        for value in ('1.0.0', '9999.99.99'):
+            self.assertEqual(config.validate_build_number(value), value)
+        for value in ('20261108123456', '10000.0.0', '1.100.0', '1.0.100',
+                      '0.1.1', '1.2', '1.2.3.4', '1.2.3b1', '1.2.3\n', None):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                config.validate_build_number(value)
+
     def test_cli_generates_plist_and_nonsecret_build_settings(self):
         import plistlib
         import subprocess
@@ -90,7 +108,7 @@ class SigningConfigTests(unittest.TestCase):
             root = Path(temp)
             result = subprocess.run(['python3', str(PATH), '--build-number'], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertRegex(result.stdout.strip(), r'^\d{14}$')
+            self.assertRegex(result.stdout.strip(), r'^[1-9][0-9]{0,3}\.[0-9]{1,2}\.[0-9]{1,2}$')
             # Invalid profile must fail closed, before producing export configuration.
             (root / 'profile.plist').write_bytes(plistlib.dumps({}))
             (root / 'cert.der').write_bytes(b'certificate')

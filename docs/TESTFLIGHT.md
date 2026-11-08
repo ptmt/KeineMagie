@@ -2,10 +2,12 @@
 
 ## Status and scope
 
-The local pipeline is implemented in `.github/workflows/ios-testflight.yml`.
-It has **not** been run on GitHub or uploaded to Apple. No credentials are
-included, and no commit/push is part of preparation. The existing server
-workflow is independent.
+The pipeline is implemented in `.github/workflows/ios-testflight.yml`.
+Cloud run **42521748687** reached archive but failed to discover profile
+`D78E856B-FB81-4D46-BB18-7DEAB629BCE7` for team `49PJNAT2WC`.
+The local fix installs the validated profile at both UUID discovery paths;
+a successful signed archive or Apple upload after this fix remains unverified.
+No credentials are included. The existing server workflow is independent.
 
 - Push to `main` changing `native/**` or this workflow: validate, then deploy.
 - Manual **Actions → iOS TestFlight → Run workflow**, choosing `main`: same path.
@@ -105,10 +107,19 @@ no `-allowProvisioningUpdates` calls.
 
 `MARKETING_VERSION` in `native/project.yml` is the release version (currently
 `1.0`). Both Info plists use `$(MARKETING_VERSION)` and
-`$(CURRENT_PROJECT_VERSION)`, not hardcoded values. CI sets a fresh numeric
-UTC timestamp `YYYYMMDDHHMMSS` immediately before archiving; serialization
-and normal run duration make subsequent runs/reruns distinct and increasing.
-Do not upload a manually assigned larger build number in parallel. Change the
+`$(CURRENT_PROJECT_VERSION)`, not hardcoded values. CI generates a validated
+three-component Apple build number (at most **4/2/2 digits**, first positive)
+immediately before archiving. For elapsed UTC seconds `s` since
+**2026-01-01 00:00:00Z**, the components are
+`1 + s // 10000`, `(s % 10000) // 100`, and `s % 100`.
+The supported interval ends exclusively at **2029-03-03 07:00:00Z**;
+out-of-range times fail closed, never wrap. Numeric component ordering increases
+every second, including day boundaries and serialized reruns; runs started
+within the same second share a number (the serialized archive/upload path takes
+longer than one second). Timezone offsets do not change the result. This replaces
+the invalid 14-digit timestamp; plan a new numbering scheme before the horizon,
+without lowering previously uploaded numbers. Do not upload a manually assigned
+larger build number in parallel. Change the
 marketing version intentionally in `project.yml`; it is not inferred from tags.
 The configured AppIcon is supplied by `native/App/Assets.xcassets`.
 
@@ -126,14 +137,27 @@ tester assignment, and beta review remain in App Store Connect.
 
 A shell EXIT/INT/TERM trap and a separate Actions `if: always()` step call
 `native/ci/cleanup.sh`. It restores the exact prior user keychain search list,
-deletes only the unique keychain and installed unique profile, and removes the
+deletes only the unique keychain and owned installed profiles, and removes the
 run's temporary directory (including `.p12`, `.p8`, decoded profile, certificate,
-archive, IPA, and local helper files). If restoration fails, cleanup removes
-sensitive standalone files but retains the restoration journal and any
-undeletable keychain for the `always()` retry, and reports failure. Profiles go in Xcode 16+'s
-`~/Library/Developer/Xcode/UserData/Provisioning Profiles`. Existing profiles
-and keychains are not replaced/deleted. The default keychain is never changed.
-No artifact upload action runs, and no signing material is cached. Shell
+archive, IPA, and local helper files). The profile is installed as
+`<validated-UUID>.mobileprovision` in **both** discovery locations:
+
+- `~/Library/MobileDevice/Provisioning Profiles/`
+- `~/Library/Developer/Xcode/UserData/Provisioning Profiles/`
+
+Installation checks both destinations first and fails rather than replacing any
+existing file or symlink. Atomic, non-overwriting hard links to the decoded
+profile identify ownership by device/inode, journaled before installation;
+runner temp and HOME must share a filesystem, otherwise installation fails
+safely. Cleanup handles a failure after only one destination was installed,
+attempts both destinations even if one removal fails, and refuses to delete a
+profile replaced by another owner. Unrelated profiles remain untouched.
+If cleanup/restoration fails, standalone sensitive files are wiped but the
+nonsecret ownership/keychain journal and any undeletable keychain remain for
+the `always()` retry; cleanup reports failure. A replaced profile conflict must
+be resolved by its owner before retry can complete. The default keychain is
+never changed. No artifact upload action runs, and no signing material is
+cached. Shell
 tracing is disabled. A hard runner kill can prevent all cleanup; this workflow
 uses disposable GitHub-hosted runners, not self-hosted machines.
 
@@ -167,21 +191,24 @@ its source of truth. The Python tests use synthetic metadata, never real Apple
 credentials. GitHub uses the selected full Xcode toolchain for `swift test`;
 the local wrapper supports this machine's standalone CLT workaround.
 
-Locally verified: Python tests, ShellCheck, actionlint, bash/plist syntax,
+Previously verified before this CI fix: Python tests, ShellCheck, actionlint,
+bash/plist syntax,
 XcodeGen 2.46.0 generation, 23 Swift core tests, and an unsigned Release
 simulator build with Xcode 27.2 (not the cloud-selected 26.6).
 The simulator build emitted only the harmless AppIntents metadata warning
 because this app has no AppIntents dependency.
 
-**Not verified / blockers:** GitHub authentication is absent locally, the
-workflow is not committed/pushed, and environment/signing/ASC credentials have
-not been supplied. A real Xcode 26.6 runner execution, signed device archive,
-profile/keychain import, Apple API validation/upload, App Store Connect
-processing, compliance, and tester access therefore remain unverified.
-The app's other uncommitted source files must be deliberately reviewed and
-included before the workflow can build the app on GitHub; do not blindly
-commit all local changes. Configure production HTTPS backend/Apple audience
-and verify real-device Apple sign-in before distributing to testers.
+**Post-fix local verification:** offline profile/build-number/cleanup tests,
+ShellCheck, actionlint, shell syntax, and diff whitespace checks. The tests cover
+both UUID discovery paths, preexisting files/symlinks, partial installation,
+independent cleanup and recovery retries, and build-number component rollover,
+timezone equivalence, format bounds, and horizon rejection.
+
+**Still unverified:** a post-fix Xcode 26.6 cloud archive, Apple validation/upload,
+App Store Connect processing, compliance, and tester access. No commit, push,
+or cloud rerun was performed as part of this local fix. Configure production
+HTTPS backend/Apple audience and verify real-device Apple sign-in before
+distributing to testers.
 
 ## References
 

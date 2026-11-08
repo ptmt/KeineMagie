@@ -19,6 +19,9 @@ if [[ -f "$root/keychain-path" ]]; then
     security delete-keychain "$keychain" || status=1
   fi
 fi
+if [[ -f "$root/profile-install.json" ]]; then
+  python3 "$(dirname "$0")/signing_config.py" --cleanup-profiles "$root" || status=1
+fi
 if [[ -f "$root/profile-path" ]]; then
   IFS= read -r profile < "$root/profile-path"
   expected="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/km-$(basename "$root").mobileprovision"
@@ -32,7 +35,7 @@ else
   shopt -s dotglob nullglob
   for entry in "$root"/*; do
     case "$(basename "$entry")" in
-      owned-by-testflight|keychains-before|keychain-path|profile-path|signing.keychain-db) ;;
+      owned-by-testflight|keychains-before|keychain-path|profile-path|profile-install.json|signing.keychain-db) ;;
       *) rm -rf -- "$entry" ;;
     esac
   done

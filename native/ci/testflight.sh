@@ -66,12 +66,8 @@ security find-identity -v -p codesigning "$keychain" > "$root/identities"
 grep -F "$fingerprint" "$root/identities" > /dev/null || {
   printf '%s\n' 'No valid signing identity matching the profile certificate' >&2; exit 1;
 }
-profiles="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
-mkdir -p "$profiles"
-profile="$profiles/km-$(basename "$root").mobileprovision"
-[[ ! -e "$profile" ]] || exit 1
-printf '%s\n' "$profile" > "$root/profile-path"
-cp "$root/profile.mobileprovision" "$profile"
+# Xcode discovery requires the UUID filename in both legacy and modern locations.
+python3 "$repo/native/ci/signing_config.py" --install-profiles "$root"
 # Seconds-resolution UTC numbers are monotonic across serialized runs/reruns.
 build="$(python3 "$repo/native/ci/signing_config.py" --build-number)"
 printf 'Archiving build %s with manually validated signing\n' "$build"
