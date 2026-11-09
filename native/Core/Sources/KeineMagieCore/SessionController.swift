@@ -94,24 +94,46 @@ public final class SessionController {
         } catch { phase = .offline; message = CoreL10n.text("session.keychain") }
     }
     private func client() throws -> AuthClient { AuthClient(endpoint: try ServerEndpoint(serverURL, allowLocalHTTP: allowLocalHTTP), transport: transport) }
+    private func invalidateCredential() {
+        // Fail closed before touching Keychain: deletion can fail independently.
+        generation += 1; user = nil
+        do { try saveToken(""); phase = .signedOut; message = CoreL10n.text("session.expired") }
+        catch { phase = .offline; message = CoreL10n.text("session.keychain") }
+    }
+    private var validationID: UUID?
     public func restore() async {
-        generation += 1
+        guard validationID == nil, [.signedOut, .offline, .signedIn].contains(phase) else { return }
+        let id = UUID()
+        validationID = id
+        defer { if validationID == id { validationID = nil } }
+        let preservesContent = phase == .signedIn && user != nil
+        if !preservesContent { generation += 1 }
         let version = generation
-        phase = .restoring; user = nil; message = nil
+        if !preservesContent { phase = .restoring; user = nil }
+        message = nil
         do {
             let token = try readToken()
-            guard !token.isEmpty else { phase = .signedOut; return }
+            guard !token.isEmpty else {
+                user = nil; phase = .signedOut
+                if preservesContent { generation += 1 }
+                return
+            }
             let session = try await client().session(token: token)
             guard version == generation else { return }
             guard session.expiresAt > Date(), !session.user.id.isEmpty else { throw APIError.http(401) }
+            // Silent validation preserves content only for the same account. Root's
+            // generation observer clears content; pending API work rejects this epoch.
+            if preservesContent && user?.id != session.user.id { generation += 1 }
             user = session.user; phase = .signedIn
         } catch APIError.http(401) {
             guard version == generation else { return }
-            do { try saveToken(""); phase = .signedOut; message = CoreL10n.text("session.expired") }
-            catch { phase = .offline; message = error.localizedDescription }
+            invalidateCredential()
+        } catch AuthError.invalidCredential {
+            guard version == generation else { return }
+            invalidateCredential()
         } catch {
             guard version == generation else { return }
-            phase = .offline
+            if !preservesContent { phase = .offline }
             message = CoreL10n.text("session.offline")
         }
     }

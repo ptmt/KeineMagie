@@ -18,8 +18,16 @@ final class AppModel {
     private(set) var busy = false
     private(set) var translatorError: String?
 
+    #if targetEnvironment(simulator)
+    private var fixtureTransport: AuthClient.Transport?
+    #endif
     func api() throws -> APIClient {
         guard session.phase == .signedIn else { throw APIError.http(401) }
+        #if targetEnvironment(simulator)
+        if let fixtureTransport {
+            return APIClient(endpoint: try ServerEndpoint(session.serverURL), token: "synthetic-session-not-a-credential", transport: fixtureTransport)
+        }
+        #endif
         return APIClient(endpoint: try ServerEndpoint(session.serverURL, allowLocalHTTP: Self.allowLocalHTTP), token: try TokenStore.read())
     }
     func refreshTranslator(connection: UUID? = nil) async {
@@ -95,6 +103,16 @@ final class AppModel {
     }
 
     init() {
+        #if targetEnvironment(simulator)
+        // Explicit simulator-only, in-memory fixture. Never reads/writes Keychain,
+        // contacts a server, signs in with Apple, or claims a provider connection.
+        if let mode = ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] {
+            let fixture = SimulatorSessionFixture(mode: mode)
+            fixtureTransport = { request in try await fixture.send(request) }
+            session = SessionController(serverURL: "https://fixture.invalid", readToken: { "synthetic-session-not-a-credential" }, saveToken: { _ in }, transport: { request in try await fixture.send(request) })
+            return
+        }
+        #endif
         let url = UserDefaults.standard.string(forKey: "serverURL") ?? ProductIdentity.defaultServerURL
         session = SessionController(serverURL: url, allowLocalHTTP: Self.allowLocalHTTP,
                                     readToken: { try TokenStore.read() }, saveToken: { try TokenStore.save($0) })

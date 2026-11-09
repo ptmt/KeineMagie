@@ -14,6 +14,7 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var showSettings = false
     @State private var started = false
+    @State private var enteredBackground = false
     var body: some View {
         NavigationStack {
             Group {
@@ -40,8 +41,12 @@ struct RootView: View {
         .onChange(of: model.session.generation) { _, _ in model.resetSessionContent() }
         .onChange(of: model.session.phase) { _, _ in model.resetSessionContent() }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active && started && model.session.phase == .signedIn {
-                Task { await model.session.restore() }
+            if phase == .background { enteredBackground = true }
+            if phase == .active && enteredBackground {
+                enteredBackground = false
+                if started && model.session.phase == .signedIn {
+                    Task { await model.session.restore() }
+                }
             }
         }
     }

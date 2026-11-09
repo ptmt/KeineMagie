@@ -10,6 +10,10 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    Text(verbatim: "\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"))")
+                        .accessibilityIdentifier("app-version-build")
+                }
                 Section("Server") {
                     TextField(text: $url) { Text(verbatim: ProductIdentity.defaultServerURL) }
                         .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()

@@ -50,4 +50,15 @@ targets:
         Debug:
           INFOPLIST_FILE: Config/Info-Debug.plist
     scheme:
-      testTargets: []
+      testTargets: [KeineMagieUITests]
+  KeineMagieUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: KeineMagie
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: de.keinemagie.app.uitests
+        GENERATE_INFOPLIST_FILE: YES
