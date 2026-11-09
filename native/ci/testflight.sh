@@ -77,10 +77,10 @@ build="$(python3 "$repo/native/ci/signing_config.py" --build-number)"
 archive_args=(-project "$repo/native/KeineMagie.xcodeproj" -scheme KeineMagie
   -configuration Release -destination 'generic/platform=iOS'
   -archivePath "$root/KeineMagie.xcarchive" -derivedDataPath "$root/DerivedData"
-  CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=49PJNAT2WC
-  CODE_SIGN_IDENTITY="$fingerprint" PROVISIONING_PROFILE="$uuid"
-  PROVISIONING_PROFILE_SPECIFIER="$profile_name"
-  OTHER_CODE_SIGN_FLAGS="--keychain $keychain" CURRENT_PROJECT_VERSION="$build")
+  KM_CI_CODE_SIGN_STYLE=Manual
+  KM_CI_CODE_SIGN_IDENTITY="$fingerprint" KM_CI_PROVISIONING_PROFILE="$uuid"
+  KM_CI_PROVISIONING_PROFILE_SPECIFIER="$profile_name"
+  KM_CI_OTHER_CODE_SIGN_FLAGS="--keychain $keychain" CURRENT_PROJECT_VERSION="$build")
 # This reports the selected Xcode's resolved settings, NOT proof that its scanner
 # accepted the profile. Archive's GatherProvisioningInputs is the actual test.
 if xcodebuild "${archive_args[@]}" -showBuildSettings -json > "$root/build-settings.json" 2> "$root/build-settings.stderr"; then

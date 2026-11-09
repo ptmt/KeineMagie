@@ -33,6 +33,15 @@ targets:
           - Default
     settings:
       base:
+        # Only this app consumes CI signing inputs. Standard command-line signing
+        # overrides would also provision SwiftPM resource bundles (unsupported).
+        KM_CI_CODE_SIGN_STYLE: Automatic
+        KM_CI_CODE_SIGN_IDENTITY: Apple Development
+        CODE_SIGN_STYLE: "$(KM_CI_CODE_SIGN_STYLE)"
+        "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "$(KM_CI_CODE_SIGN_IDENTITY)"
+        PROVISIONING_PROFILE: "$(KM_CI_PROVISIONING_PROFILE)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(KM_CI_PROVISIONING_PROFILE_SPECIFIER)"
+        OTHER_CODE_SIGN_FLAGS: "$(KM_CI_OTHER_CODE_SIGN_FLAGS)"
         PRODUCT_BUNDLE_IDENTIFIER: de.keinemagie.app
         PRODUCT_NAME: KeineMagie
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

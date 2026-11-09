@@ -72,8 +72,30 @@ class SigningConfigTests(unittest.TestCase):
     def test_archive_uses_uuid_and_validated_name_with_selected_xcode_diagnostics(self):
         script = PATH.with_name('testflight.sh').read_text()
         self.assertIn('profile_name="$(< "$root/profile-name")"', script)
-        self.assertIn('PROVISIONING_PROFILE="$uuid"', script)
-        self.assertIn('PROVISIONING_PROFILE_SPECIFIER="$profile_name"', script)
+        # Standard xcodebuild overrides reach every SwiftPM target, including
+        # resource bundles that cannot accept provisioning profiles.
+        archive_args = script.split('archive_args=(', 1)[1].split('\n#', 1)[0]
+        import re
+        for setting in ('CODE_SIGN_STYLE', 'CODE_SIGN_IDENTITY',
+                        'PROVISIONING_PROFILE', 'PROVISIONING_PROFILE_SPECIFIER',
+                        'OTHER_CODE_SIGN_FLAGS'):
+            self.assertIsNone(re.search(r'(?<![A-Z_])' + setting + '=', archive_args), setting)
+        for setting, value in (('CODE_SIGN_STYLE', 'Manual'),
+                               ('CODE_SIGN_IDENTITY', '"$fingerprint"'),
+                               ('PROVISIONING_PROFILE', '"$uuid"'),
+                               ('PROVISIONING_PROFILE_SPECIFIER', '"$profile_name"'),
+                               ('OTHER_CODE_SIGN_FLAGS', '"--keychain $keychain"')):
+            self.assertIn(f'KM_CI_{setting}={value}', archive_args)
+        project = PATH.parent.parent.joinpath('project.yml').read_text()
+        project_settings, app = project.split('targets:\n  KeineMagie:', 1)
+        self.assertNotIn('KM_CI_', project_settings)
+        self.assertIn('CODE_SIGN_STYLE: Automatic', project_settings)
+        self.assertIn('KM_CI_CODE_SIGN_STYLE: Automatic', app)
+        self.assertIn('KM_CI_CODE_SIGN_IDENTITY: Apple Development', app)
+        for setting in ('CODE_SIGN_STYLE', 'PROVISIONING_PROFILE',
+                        'PROVISIONING_PROFILE_SPECIFIER', 'OTHER_CODE_SIGN_FLAGS'):
+            self.assertIn(f'{setting}: "$(KM_CI_{setting})"', app)
+        self.assertIn('"CODE_SIGN_IDENTITY[sdk=iphoneos*]": "$(KM_CI_CODE_SIGN_IDENTITY)"', app)
         self.assertIn('--profile-diagnostics', script)
         self.assertIn('-showBuildSettings -json', script)
         self.assertIn('EXPANDED_PROVISIONING_PROFILE', script)
