@@ -79,10 +79,13 @@ class LocalizationTests(unittest.TestCase):
             data = plistlib.loads((NATIVE / 'Config' / name).read_bytes())
             self.assertEqual(data['CFBundleDevelopmentRegion'], 'de')
             self.assertEqual(set(data['CFBundleLocalizations']), LOCALES)
-        project = (NATIVE / 'KeineMagie.xcodeproj/project.pbxproj').read_text()
-        self.assertIn('developmentRegion = de;', project)
-        for locale in LOCALES:
-            self.assertRegex(project, r'\b' + locale + r',')
+        # Validate the tracked source, not an ignored generated project which
+        # is deliberately absent before XcodeGen in a clean CI checkout.
+        project = (NATIVE / 'project.yml').read_text()
+        self.assertRegex(project, r'developmentLanguage:\s*de\b')
+        regions = re.search(r'knownRegions:\s*\[([^\]]+)\]', project)
+        self.assertIsNotNone(regions)
+        self.assertEqual({item.strip() for item in regions.group(1).split(',')}, LOCALES)
 
 if __name__ == '__main__':
     unittest.main()
