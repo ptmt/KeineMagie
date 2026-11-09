@@ -27,6 +27,13 @@ export async function startBrowserPairing(api, csrf) {
  return value;
 }
 
+export async function startAppleLogin(api, csrf) {
+  const value = await api.request('/v1/auth/apple/start', { method: 'POST', body: {}, csrf });
+  const url = new URL(value?.authorization_url);
+  if (url.origin !== 'https://appleid.apple.com' || url.pathname !== '/auth/authorize' || url.username || url.password || url.hash) throw new Error('Invalid Apple authorization response');
+  return url.href;
+}
+
 export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
   return {
     async request(path, { method = 'GET', body, csrf, signal } = {}) {

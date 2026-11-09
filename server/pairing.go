@@ -22,6 +22,7 @@ type browserPair struct {
 	Approved                              bool
 }
 type browserAuth struct {
+	apple  *appleWeb
 	cfg    *serverConfig
 	mu     sync.Mutex
 	pairs  map[string]*browserPair
@@ -92,7 +93,11 @@ func (b *browserAuth) handle(w http.ResponseWriter, r *http.Request) {
 			secret = randomAuthToken()
 			browserSetCookie(w, pairingCookie, secret, 300)
 		}
-		writeJSON(w, 200, map[string]any{"apple_available": false, "apple_reason": "Apple web Services ID is not configured. Use approval in the signed-in iOS app.", "pairing_available": true, "csrf_token": browserCSRF(secret), "chatgpt_connect_available": len(b.cfg.provider.key) == 32})
+		reason := ""
+		if b.apple == nil {
+			reason = "Apple web Services ID is not configured. Use approval in the signed-in iOS app."
+		}
+		writeJSON(w, 200, map[string]any{"apple_available": b.apple != nil, "apple_reason": reason, "pairing_available": true, "csrf_token": browserCSRF(secret), "chatgpt_connect_available": len(b.cfg.provider.key) == 32})
 	case "/v1/web/session":
 		if r.Method != "GET" {
 			writeError(w, 405, "method not allowed")
@@ -129,6 +134,10 @@ func (b *browserAuth) handle(w http.ResponseWriter, r *http.Request) {
 		}
 		browserSetCookie(w, browserCookie, "", -1)
 		browserSetCookie(w, pairingCookie, "", -1)
+		if b.apple != nil {
+			b.apple.cancel(r)
+		}
+		appleTransactionSetCookie(w, "", -1)
 		w.WriteHeader(204)
 	case "/v1/web/pairing/start", "/v1/web/pairing/poll":
 		if r.Method != "POST" {

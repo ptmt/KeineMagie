@@ -1,6 +1,42 @@
 # KeineMagie browser login and translator
 
-## Ready path: approval in the signed-in iOS app
+## Direct Apple web sign-in
+
+The browser button starts a same-origin CSRF-protected `POST /v1/auth/apple/start`, then navigates to Apple. The exact registered return URL is **https://keinemagie.tinyserve.org/v1/auth/apple/callback** (no trailing slash). No native session, Apple token or application token is placed in browser storage or a redirect URL. The callback redirects to `/` after issuing a separate browser session.
+
+### Apple Developer setup (user-managed)
+
+1. Use Apple Developer team **49PJNAT2WC**. Under Identifiers, ensure the native App ID **de.keinemagie.app** has Sign in with Apple enabled. Preserve its existing primary-app grouping; if it is already grouped, use that same primary App ID throughout.
+2. Register/select the Services ID **de.keinemagie.web** (provided by the user, not the native bundle identifier). Enable Sign in with Apple → Configure → select the **same primary App ID as the native app**. This association is essential for the same Apple subject/account across web and native. The server only links verified issuer + subject; it never links by email, including private relay email. Incorrect grouping can create a separate account; do not try to repair that with email matching.
+3. Website domain/subdomain: **keinemagie.tinyserve.org** (no scheme/path). Return URL: **https://keinemagie.tinyserve.org/v1/auth/apple/callback**. Click Done, Continue and Save. Apple currently says no domain-verification file upload is required for this registration.
+4. Under Keys, create/select a key with **Sign in with Apple**, configured for that same primary App ID. Download the `.p8` once and install it through a secure local/server channel, never chat or source control. Record its Key ID. The user's current candidate Key ID is **2LC369M628**, inferred from its uploaded filename, not confirmed against Developer portal metadata. The user authorized testing this candidate; it has been exposed through chat, so rotation is still recommended. Do not automatically revoke it. A local parse cannot prove Apple capability, grouping, Key ID or registration.
+
+Server-only environment (there are deliberately no web defaults for these four values):
+
+```dotenv
+APPLE_CLIENT_ID=de.keinemagie.app
+APPLE_WEB_CLIENT_ID=de.keinemagie.web
+APPLE_TEAM_ID=49PJNAT2WC
+APPLE_KEY_ID=2LC369M628
+APPLE_PRIVATE_KEY_FILE=/run/secrets/keinemagie-apple.p8
+WEB_ORIGIN=https://keinemagie.tinyserve.org
+```
+
+`APPLE_CLIENT_ID` remains the **native** audience. `APPLE_WEB_CLIENT_ID` is separately validated for web ID tokens. The callback is fixed in code, not configurable/derived from a request. All four web values must be present; incomplete config keeps `apple_available:false` and app approval available. A complete but invalid configuration, unreadable/non-P256/non-PKCS8 key or group/world-readable key fails startup. The key file must be a private regular file (0600 or stricter), outside the repository, readable by the runtime account; it is loaded only into server memory. No private key contents, client-secret JWT, authorization code or Apple response bodies are logged.
+
+For the existing nonroot Docker runtime (UID 65532), securely install a dedicated server copy owned by UID 65532, mode 0600, then bind mount it read-only at `/run/secrets/keinemagie-apple.p8`; do **not** loosen permissions or bake it into the image. Example mount: `--mount type=bind,src=/secure/keinemagie/AuthKey_2LC369M628.p8,dst=/run/secrets/keinemagie-apple.p8,readonly`. Set the environment above explicitly and retain the existing persistent auth/history volume. The local candidate is at `/Users/tinyserve/Library/Application Support/tinyserve/secrets/keinemagie/AuthKey_2LC369M628.p8`; do not copy it into this repository. Deployment and real consent are separate acceptance steps, not performed by these tests.
+
+### Callback security and protocol
+
+- Start requires the bootstrap pairing cookie, exact Origin, `X-CSRF-Token`, and rejects cross-site Fetch Metadata. GET cannot start login. Response JSON contains only the Apple authorization URL (`response_type=code`, `response_mode=form_post`, independent random state/nonce); the frontend validates the Apple origin/path before navigating.
+- `__Host-km-apple`: dedicated 256-bit browser secret, Secure, HttpOnly, **SameSite=None**, Path=/, no Domain, five-minute lifetime. A Strict/Lax cookie would not reliably arrive on Apple's cross-site POST. Server state stores its hash plus state, nonce, expiration and consumption marker; max 1024 live transactions, endpoint/direct-peer limits, expiry/restart invalidation. A new attempt in that browser replaces its old transaction.
+- Only `POST /v1/auth/apple/callback` accepts the cross-site Apple form. Missing Origin is allowed for compatible user agents, but a supplied Origin must be exactly `https://appleid.apple.com`; neither this header nor any posted ID token authenticates a user. Require bounded URL-encoded body, no query parameters/duplicate security fields, matching live browser-secret + state. Mark used atomically **before** exchange (including cancel/error), reject replay/concurrent consumption. Failed binding does not consume another browser's attempt. Logout cancels an outstanding transaction and deletes its cookie.
+- Exchange the one-time code directly at Apple's fixed HTTPS token endpoint with exact callback, Services ID and a five-minute **ES256** client-secret JWT signed with the P-256 `.p8` (`kid`, team issuer, Services ID subject, Apple audience). No redirects; bounded response and ten-second exchange context. Apple access/refresh tokens are discarded, not stored.
+- Verify the exchanged ID token with Apple's fixed JWKS endpoint: **RS256**, exact Apple issuer, singleton Services ID audience, issued-at/expiry, nonempty subject and transaction nonce. Native verification remains unchanged. Mint a hashed, durable 24-hour `kind:browser` session using the same subject namespace as native login. Session cookie remains **SameSite=Strict**, Secure, HttpOnly. Clear transaction/bootstrap cookies, redirect to `/`; the page restores session via same-origin fetch. No callback exception is added to ordinary mutation Origin/CSRF middleware.
+- Apple’s current [authorize contract](https://developer.apple.com/documentation/signinwithapplerestapi/request-an-authorization-to-the-sign-in-with-apple-server.), [token contract](https://developer.apple.com/documentation/signinwithapplerestapi/generate-and-validate-tokens), and [OIDC discovery](https://appleid.apple.com/.well-known/openid-configuration) do **not** document/advertise PKCE parameters or challenge methods. Therefore this confidential-client integration does not send unsupported PKCE parameters or claim PKCE enforcement. It uses authenticated server code exchange plus browser-bound state/nonce.
+- Apple references: [web registration](https://developer.apple.com/help/account/capabilities/configure-sign-in-with-apple-for-the-web), [grouping](https://developer.apple.com/help/account/capabilities/group-apps-for-sign-in-with-apple/), [client-secret fields](https://developer.apple.com/documentation/accountorganizationaldatasharing/creating-a-client-secret).
+
+## Alternative: approval in the signed-in iOS app
 
 No Apple Services ID configuration is required for this deliberate alternative. The existing native Apple identity remains authoritative; the browser gets a **different application session**, never the native token.
 
@@ -19,7 +55,7 @@ No Apple Services ID configuration is required for this deliberate alternative. 
 
 ## HTTP contract
 
-- `GET /v1/web/config`: `apple_available:false`, `pairing_available:true`, `csrf_token`, `chatgpt_connect_available` (only with server encryption key configured). Creates a five-minute `__Host-km-pairing` secret cookie if absent. No secret in JSON. Bootstrap CSRF stays memory-only. Cross-site bootstrap fetches are rejected.
+- `GET /v1/web/config`: `apple_available` reflects complete locally validated Apple web configuration, `pairing_available:true`, `csrf_token`, `chatgpt_connect_available` (only with server encryption key configured). Creates a five-minute `__Host-km-pairing` secret cookie if absent. No secret in JSON. Bootstrap CSRF stays memory-only. Cross-site bootstrap fetches are rejected.
 - `POST /v1/web/pairing/start`: empty JSON, exact Origin and `X-CSRF-Token`. Returns `{user_code:"ABCD-EFGH",expires_in:300,interval:3}`. Replaces this browser's earlier attempt. Five creations per direct-peer minute; bounded active map 1024.
 - `POST /v1/web/pairing/poll`: same browser cookie, bootstrap CSRF and Origin; empty JSON. `202 {status:"pending"}`; `200 {status:"approved"}` sets a new `__Host-km-session` and removes pairing cookie. Invalid/denied/expired/consumed attempts return generic 404. Minimum three-second interval, at most 100 polls, five-minute lifetime, endpoint limit 100 per direct-peer minute.
 - Native only: `POST /v1/auth/browser/inspect {user_code}` authenticates the existing native bearer, claims the code for that session/account, and returns `{approval_token,user_code,origin,expires_at}`. No approval happens here. `POST /v1/auth/browser/approve {approval_token,approve:true|false}` requires that exact original native session; explicit one-time decision. Browser sessions and requests carrying Origin cannot use these routes. Inspection/decision attempts limited to ten per direct-peer minute per endpoint. Unknown/claimed/expired code responses do not expose a user identity.
@@ -35,7 +71,7 @@ From repository root: `docker build -f server/Dockerfile -t keinemagie .`. CI us
 
 Required for provider consent: mount a persistent, private auth/history/provider data directory and a separate `PROVIDER_KEY_FILE` containing **32 raw random bytes, mode 0600**, readable by runtime UID 65532. Keep that encryption key outside provider data and out of source control; retain it to decrypt refresh credentials. No key means pairing/history still work but provider connect fails closed and is not advertised. Existing provider integration encrypts access/refresh credentials server-side. Set `TRANSLATION_DAILY_ATTEMPTS` (default 100, valid 1–10000); quota file failures or invalid configuration fail closed. One active translation per user across processes, daily UTC attempts persisted before upstream work (failed attempts count), 8000 input characters, 8192 upstream output-token cap, 64 KiB translated text cap and bounded stream. No provider failure falls back to a paid key. Current provider service also serializes upstream work globally; optimization is out of this workstream.
 
-Standard Apple web authorization remains **planned and disabled** until a real Services ID, authorized callback, browser state/nonce flow and verification are implemented. Native bundle ID does not meet those requirements. This release uses explicit app approval instead, not a token-paste shortcut.
+Direct Apple web authorization is implemented behind the configuration gate above; explicit app approval remains an alternative. Neither uses a token-paste shortcut. Complete local configuration cannot establish that Apple Developer registration was saved correctly: a real user consent round-trip and matching native/web account are still required acceptance checks.
 
 ## Verification
 

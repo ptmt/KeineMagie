@@ -1,4 +1,4 @@
-import { createAPI, readiness, inputPayload, swapDraft, startProviderConnection, startBrowserPairing } from './core.mjs';
+import { createAPI, readiness, inputPayload, swapDraft, startProviderConnection, startBrowserPairing, startAppleLogin } from './core.mjs';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
@@ -98,7 +98,7 @@ function renderConnection() {
     setText('connection-detail', 'Der Server bestätigt noch keine sichere Browser-Sitzung. Dein Text bleibt in diesem Tab.');
   } else {
     setText('connection-title', config.pairing_available || config.apple_available ? 'Zum Übersetzen anmelden' : 'Web-Anmeldung wird noch eingerichtet');
-    setText('connection-detail', config.pairing_available || config.apple_available ? 'Mit deinem iPhone anmelden und dein persönliches ChatGPT-Konto verbinden.' : 'Die sichere Apple-Anmeldung für den Browser ist noch nicht freigeschaltet. Dein Text bleibt in diesem Tab.');
+    setText('connection-detail', config.apple_available ? 'Mit Apple anmelden und dein persönliches ChatGPT-Konto verbinden.' : config.pairing_available ? 'Mit deinem iPhone anmelden und dein persönliches ChatGPT-Konto verbinden.' : 'Die sichere Apple-Anmeldung für den Browser ist noch nicht freigeschaltet. Dein Text bleibt in diesem Tab.');
   }
   updateInput();
 }
@@ -287,7 +287,19 @@ $('pair-browser').addEventListener('click', async () => {
  } catch (error) { if (run === pairingRun) setText('account-error', errorMessage(error)); }
  finally { renderConnection(); }
 });
-$('apple-login').addEventListener('click', () => { if (config?.apple_available === true) location.assign('/v1/web/auth/apple/start'); });
+$('apple-login').addEventListener('click', async () => {
+  if (checking || config?.apple_available !== true || session?.user?.id) return;
+  const run = generation;
+  $('apple-login').disabled = true;
+  clearPairing();
+  try {
+    const boot = await api.request('/v1/web/config');
+    const url = await startAppleLogin(api, boot.csrf_token);
+    if (run !== generation || !$('account-dialog').open) return;
+    location.assign(url);
+  } catch (error) { if (run === generation) setText('account-error', errorMessage(error)); }
+  finally { renderConnection(); }
+});
 $('provider-connect').addEventListener('click', async () => {
   if (!session?.user?.id || config?.chatgpt_connect_available !== true) return;
   const run = generation;

@@ -61,6 +61,12 @@ func newHandler(cfg *serverConfig) (http.Handler, error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", publicWeb)
 	browser := newBrowserAuth(cfg)
+	browser.apple, err = newAppleWeb(browser)
+	if err != nil {
+		return nil, err
+	}
+	mux.HandleFunc("/v1/auth/apple/start", browser.appleHandle)
+	mux.HandleFunc("/v1/auth/apple/callback", browser.appleHandle)
 	mux.HandleFunc("/v1/web/", browser.handle)
 	mux.HandleFunc("/v1/auth/browser/inspect", browser.native)
 	mux.HandleFunc("/v1/auth/browser/approve", browser.native)

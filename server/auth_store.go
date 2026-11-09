@@ -82,6 +82,9 @@ func sessionHash(token string) string {
 	return hex.EncodeToString(sum[:])
 }
 func (s *authStore) create(subject string, now time.Time) (string, authSession, error) {
+	return s.createKind(subject, now, "")
+}
+func (s *authStore) createKind(subject string, now time.Time, kind string) (string, authSession, error) {
 	token := randomAuthToken()
 	var session authSession
 	err := s.lock.locked(func() error {
@@ -101,6 +104,10 @@ func (s *authStore) create(subject string, now time.Time) (string, authSession, 
 			}
 		}
 		session = authSession{UserID: id, Expires: now.Add(30 * 24 * time.Hour)}
+		if kind == "browser" {
+			session.Kind = kind
+			session.Expires = now.Add(24 * time.Hour)
+		}
 		d.Sessions[sessionHash(token)] = session
 		return s.write(d)
 	})
