@@ -6,6 +6,7 @@ Native iOS app for learning German, with a Go backend. Product specification: [d
 - `native/`: SwiftUI Apple sign-in and account/session UI, with four capability rows (translator, dictation, podcasts + shadowing, coach). Personal ChatGPT connection is not implemented; translation/history/audio remain unavailable in the app.
 - Native UI/settings/account and session/auth/errors ship in **German, English, Russian, Spanish and French**, automatically following the system/app language (German fallback). Apple’s native sign-in control localizes itself, including accessibility.
 - `server/`: authenticated translation/history API and existing cached TTS proxy. Provider credentials remain on the server.
+- `web/`: minimal translator (language controls, input/output, translate/cancel/copy/clear, personal history). No planned-feature navigation, hero copy, empty enrichment cards or slogans. Sign-in shows Apple and optional secondary iPhone pairing only; personal ChatGPT connection is available in the account after authentication. See [web UI notes](docs/WEB-UI.md).
 - Podcasts/shadowing and coach tabs are explicitly planned, not implemented.
 - The legacy Expo client has been removed; its sources remain available in Git history.
 

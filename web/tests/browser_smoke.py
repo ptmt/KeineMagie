@@ -22,12 +22,13 @@ const item = {id:'fixture-record',created_at:'2026-01-01T12:00:00Z',text:'Browse
 window.fetch = async (path, options = {}) => {
   window.__testCalls.push({path,method:options.method,headers:options.headers,credentials:options.credentials,body:options.body});
   const reply = (body,status=200) => new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}});
-  if(path === '/v1/web/config') return reply({apple_available:false,chatgpt_connect_available:true});
+  if(path === '/v1/web/config') return reply({apple_available:true,pairing_available:true,chatgpt_connect_available:true,csrf_token:'test-only-bootstrap-csrf'});
   if(path === '/v1/web/session') return window.__testSignedIn ? reply({user:{id:'test-only-user'},csrf_token:'test-only-csrf',provider:{connected:window.__testConnected}}) : reply({error:'expired'},401);
   if(path === '/v1/provider/connect') return reply({bootstrap_token:'TEST-ONLY-ONE-TIME-CODE',expires_in:300});
   if(path === '/v1/web/logout') { window.__testSignedIn=false; return new Response(null,{status:204}); }
   if(path === '/v1/translations' && options.method === 'GET') return reply({items:[]});
   if(path === '/v1/translations' && options.method === 'POST') {
+    if(window.__testMode === 'slow') return new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>reject(new DOMException('Canceled','AbortError')),{once:true}));
     if(window.__testMode === 'expired') { window.__testSignedIn=false; return reply({error:'expired'},401); }
     if(window.__testMode === 'upstream') return reply({error:'test-only upstream failure'},502);
     return reply({...item,...JSON.parse(options.body)},201);
@@ -50,16 +51,28 @@ try:
     check('confirmed session enables translator only after input', "document.querySelector('#translate').disabled && document.querySelector('#connection-title').textContent.includes('Bereit')")
     fill_input('#source-text', 'Browser test input')
     check('typing enables primary action', "!document.querySelector('#translate').disabled")
+    js("window.__testMode='slow';document.querySelector('#translation-form').requestSubmit()")
+    time.sleep(.1)
+    check('busy translation locks input and exposes cancel', "document.querySelector('#source-text').readOnly && document.querySelector('#translate').disabled && document.querySelector('#cancel').checkVisibility()")
+    js("document.querySelector('#cancel').click()")
+    time.sleep(.1)
+    check('cancel restores editing without a successful result', "!document.querySelector('#source-text').readOnly && document.querySelector('#cancel').hidden && document.querySelector('#translation-status').textContent.includes('abgebrochen') && !document.querySelector('#result').textContent")
+    js("window.__testMode='ok'")
     js("document.querySelector('#translation-form').requestSubmit()")
     time.sleep(.2)
     check('renders completed result and history', "document.querySelector('#result').textContent === 'TEST FIXTURE — not a live translation' && document.querySelectorAll('#history-list li').length === 1")
-    check('model output is text, never executable markup', "document.querySelector('#idioms').textContent.includes('<script>fixture</script>') && !document.querySelector('#idioms script')")
-    check('empty enrichment is explicit', "document.querySelector('#patterns').textContent.includes('Keine Muster')")
+    check('enrichment and planned features are removed from markup', "!document.querySelector('#idioms,#patterns,#vocabulary,.navigation,.page-heading,.page-footer')")
     check('post has cookie credentials and CSRF without bearer', "window.__testCalls.some(c => c.path === '/v1/translations' && c.method === 'POST' && c.credentials === 'same-origin' && c.headers['X-CSRF-Token'] === 'test-only-csrf' && !c.headers.Authorization)")
     js("document.querySelector('#swap').click()")
     check('swap reuses result as next input and clears stale result', "document.querySelector('#source-language').value === 'ru' && document.querySelector('#source-text').value === 'TEST FIXTURE — not a live translation' && document.querySelector('#copy').disabled")
     js("document.querySelector('#history-list button').click()")
     check('history reopens record', "document.querySelector('#source-language').value === 'de' && document.querySelector('#result').textContent === 'TEST FIXTURE — not a live translation'")
+    js("window.__copied='';Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.__copied=text}}});document.querySelector('#copy').click()")
+    time.sleep(.1)
+    check('copy uses actual result text', "window.__copied === 'TEST FIXTURE — not a live translation'")
+    js("document.querySelector('#clear').click()")
+    check('clear removes draft and result without deleting history', "!document.querySelector('#source-text').value && !document.querySelector('#result').textContent && document.querySelector('#copy').disabled && document.querySelectorAll('#history-list li').length===1")
+    js("document.querySelector('#history-list button').click()")
     js("window.__testMode='upstream';document.querySelector('#translation-form').requestSubmit()")
     time.sleep(.2)
     check('upstream error never renders a successful result', "document.querySelector('#translation-status').textContent.includes('nicht verfügbar') && document.querySelector('#copy').disabled && document.querySelectorAll('#history-list li').length === 1")
@@ -69,8 +82,9 @@ try:
     for width in [320,390,768,1440]:
         cdp('Emulation.setDeviceMetricsOverride', width=width, height=900, deviceScaleFactor=1, mobile=width<700)
         check(f'no horizontal overflow at {width}px', 'document.documentElement.scrollWidth <= innerWidth')
-    js("document.querySelector('.navigation a[href=\"#coach\"]').click()")
-    check('planned coach has no fabricated progress', "!document.querySelector('#coach').hidden && document.querySelector('#coach').textContent.includes('IN PLANUNG')")
+    js("document.querySelector('#account').click()")
+    check('guest account offers Apple without ChatGPT, status or retry', "document.querySelector('#account-title').textContent === 'Anmelden' && !document.querySelector('#provider-section').checkVisibility() && !document.querySelector('#retry-session').checkVisibility() && document.querySelector('#apple-login').checkVisibility() && !document.querySelector('#account-dialog').innerText.includes('ChatGPT')")
+    js("document.querySelector('#close-account').click()")
     js("window.__testSignedIn=true;window.__testConnected=false;document.querySelector('#retry-session').click()")
     time.sleep(.2)
     js("document.querySelector('#account').click();document.querySelector('#provider-connect').click()")

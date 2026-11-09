@@ -11,11 +11,12 @@ let controller = null;
 let generation = 0;
 let checking = false;
 let bootstrapTimer = null;
+let accountRun = 0;
 let pairingTimer = null;
 let pairingRun = 0;
 function clearPairing() { pairingRun++; clearTimeout(pairingTimer); pairingTimer = null; $('browser-pairing').hidden = true; setText('pairing-code', ''); }
 const names = { de: 'Deutsch', ru: 'Russisch' };
-const initialNotes = { idioms: 'Redewendungen und ihre Bedeutung erscheinen hier.', patterns: 'Grammatik und Strukturen aus deinem Text.', vocabulary: 'Nützliche Wörter zum Wiederentdecken.' };
+
 
 function setText(id, text) { $(id).textContent = text; }
 function status(message, error = false) {
@@ -24,20 +25,13 @@ function status(message, error = false) {
 }
 function resetResult() {
   record = null;
-  const empty = document.createElement('p');
-  empty.className = 'empty-result';
-  empty.textContent = 'Deine Übersetzung erscheint hier.';
-  $('result').replaceChildren(empty);
-  setText('result-caption', 'Noch keine Übersetzung');
+  $('result').replaceChildren();
+  setText('result-caption', '');
   $('copy').disabled = true;
-  $('model-note').hidden = true;
-  for (const [id, message] of Object.entries(initialNotes)) {
-    const p = document.createElement('p'); p.className = 'muted'; p.textContent = message;
-    $(id).replaceChildren(p);
-  }
 }
 function clearPrivateData() {
   generation++;
+  accountRun++;
   clearPairing();
   controller?.abort();
   clearBootstrap();
@@ -68,38 +62,40 @@ function updateInput() {
   setText('translate', busy ? 'Wird übersetzt …' : 'Übersetzen ↗');
 }
 function renderConnection() {
+  const signedIn = !!session?.user?.id;
   const phase = readiness(session);
-  $('connection-banner').classList.toggle('ready', phase === 'ready' && !checking);
-  $('account-indicator').classList.toggle('connected', !!session?.user?.id);
-  setText('account-label', session?.user?.id ? 'Dein Konto' : 'Anmelden');
-  $('apple-login').hidden = !!session?.user?.id || config?.apple_available !== true;
-  $('pair-browser').hidden = !!session?.user?.id;
-  $('pair-browser').disabled = checking || config?.pairing_available !== true;
-  $('logout').hidden = !session?.user?.id;
+  $('account-indicator').classList.toggle('connected', signedIn);
+  setText('account-label', signedIn ? 'Dein Konto' : 'Anmelden');
+  setText('account-title', signedIn ? 'Dein Konto' : 'Anmelden');
+  $('sign-in-options').hidden = signedIn;
+  $('signed-in-account').hidden = !signedIn;
+  $('provider-section').hidden = !signedIn;
+  $('retry-session').hidden = !signedIn;
+  $('apple-login').hidden = signedIn || config?.apple_available === false;
   $('apple-login').disabled = checking || config?.apple_available !== true;
-  $('provider-connect').disabled = checking || !session?.user?.id || config?.chatgpt_connect_available !== true || session?.provider?.connected === true;
-  $('refresh-history').disabled = checking || !session?.user?.id;
-  setText('apple-status', session?.user?.id ? 'Mit Apple angemeldet' : 'Nicht angemeldet');
-  setText('apple-detail', config?.apple_available === true ? 'Die Anmeldung öffnet Apple in diesem Browser.' : config?.pairing_available ? 'Mit der angemeldeten iOS-App bestätigen. Kein Apple Services ID nötig.' : 'Sichere Web-Anmeldung nicht verfügbar.');
-  setText('provider-status', session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden');
-  if (session?.provider?.connected === true) clearBootstrap();
-  setText('provider-detail', session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist vom Server bestätigt. Übersetzungen werden erst auf deine Anfrage gesendet.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar. Es wird kein gemeinsamer API-Schlüssel als Ersatz verwendet.');
-  if (checking) {
-    setText('connection-title', 'Sitzung wird geprüft …');
-    setText('connection-detail', 'Du kannst deinen Text bereits vorbereiten.');
-  } else if (phase === 'ready') {
-    setText('connection-title', 'Bereit zum Übersetzen');
-    setText('connection-detail', 'Mit deinem persönlichen ChatGPT-Konto verbunden.');
-  } else if (phase === 'provider-required') {
-    setText('connection-title', 'ChatGPT verbinden');
-    setText('connection-detail', 'Deine Apple-Anmeldung ist bestätigt. Für Übersetzungen fehlt noch die persönliche ChatGPT-Verbindung.');
-  } else if (phase === 'session-unavailable' || !config) {
-    setText('connection-title', 'Web-Verbindung noch nicht verfügbar');
-    setText('connection-detail', 'Der Server bestätigt noch keine sichere Browser-Sitzung. Dein Text bleibt in diesem Tab.');
-  } else {
-    setText('connection-title', config.pairing_available || config.apple_available ? 'Zum Übersetzen anmelden' : 'Web-Anmeldung wird noch eingerichtet');
-    setText('connection-detail', config.apple_available ? 'Mit Apple anmelden und dein persönliches ChatGPT-Konto verbinden.' : config.pairing_available ? 'Mit deinem iPhone anmelden und dein persönliches ChatGPT-Konto verbinden.' : 'Die sichere Apple-Anmeldung für den Browser ist noch nicht freigeschaltet. Dein Text bleibt in diesem Tab.');
-  }
+  $('pair-browser').hidden = signedIn || config?.pairing_available !== true;
+  $('pair-browser').disabled = checking || config?.pairing_available !== true;
+  $('logout').hidden = !signedIn;
+  $('provider-connect').disabled = checking || !signedIn || config?.chatgpt_connect_available !== true || session?.provider?.connected === true;
+  $('refresh-history').disabled = checking || !signedIn;
+  setText('apple-status', signedIn ? 'Mit Apple angemeldet' : '');
+  setText('provider-status', signedIn ? (session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden') : '');
+  if (!signedIn || session?.provider?.connected === true) clearBootstrap();
+  setText('provider-detail', !signedIn ? '' : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
+  $('connection-notice').hidden = !checking && phase === 'ready';
+  $('connection-action').hidden = checking;
+  setText('connection-action', signedIn ? 'Konto öffnen' : 'Anmelden');
+  setText('connection-detail', '');
+  if (checking) setText('connection-title', 'Sitzung wird geprüft …');
+  else if (phase === 'ready') setText('connection-title', 'Bereit zum Übersetzen');
+  else if (signedIn) setText('connection-title', 'ChatGPT im Konto verbinden.');
+  else if (!config) {
+    setText('connection-title', 'Anmeldung nicht erreichbar.');
+    setText('connection-action', 'Erneut prüfen');
+  } else if (!config.apple_available && !config.pairing_available) {
+    setText('connection-title', 'Anmeldung noch nicht verfügbar.');
+    setText('connection-action', 'Erneut prüfen');
+  } else setText('connection-title', 'Zum Übersetzen anmelden.');
   updateInput();
 }
 function errorMessage(error) {
@@ -140,19 +136,6 @@ async function restore() {
     checking = false; renderConnection();
   }
 }
-function renderNotes(id, entries, titleKey, bodyKey, empty) {
-  const nodes = [];
-  for (const entry of entries) {
-    const article = document.createElement('article');
-    const title = document.createElement('strong'); title.textContent = entry[titleKey];
-    const body = document.createElement('p'); body.textContent = entry[bodyKey];
-    article.append(title, body);
-    if (entry.example) { const p = document.createElement('p'); p.className = 'example'; p.textContent = entry.example; article.append(p); }
-    nodes.push(article);
-  }
-  if (!nodes.length) { const p = document.createElement('p'); p.className = 'muted'; p.textContent = empty; nodes.push(p); }
-  $(id).replaceChildren(...nodes);
-}
 function renderRecord(item) {
   record = item;
   $('source-language').value = item.source_language;
@@ -163,10 +146,6 @@ function renderRecord(item) {
   setText('result', item.translation);
   setText('result-caption', `${names[item.source_language]} → ${names[item.target_language]} · Gespeichert`);
   $('copy').disabled = false;
-  renderNotes('idioms', item.idioms, 'expression', 'meaning', 'Keine Hinweise zu Wendungen für dieses Ergebnis verfügbar.');
-  renderNotes('patterns', item.patterns, 'pattern', 'explanation', 'Keine Muster für dieses Ergebnis verfügbar.');
-  renderNotes('vocabulary', item.vocabulary, 'word', 'meaning', 'Kein zusätzlicher Wortschatz für dieses Ergebnis verfügbar.');
-  $('model-note').hidden = false;
   updateInput();
 }
 function validRecord(item) {
@@ -219,7 +198,7 @@ async function translate(event) {
     if (!validRecord(item)) throw new Error('Invalid result');
     renderRecord(item);
     history = [item, ...history.filter(existing => existing.id !== item.id)]; renderHistory();
-    status('Übersetzung und Lernhinweise gespeichert.');
+    status('Übersetzung gespeichert.');
   } catch (error) {
     if (run !== generation) return;
     handleUnauthorized(error);
@@ -234,15 +213,6 @@ function changeLanguage(source) {
   $('result').lang = source === 'de' ? 'ru' : 'de';
   resetResult(); updateInput(); status('Dein Text wird erst beim Übersetzen gesendet.');
 }
-function route() {
-  const id = location.hash.slice(1);
-  const selected = ['dictation', 'podcasts', 'coach'].includes(id) ? id : 'translator';
-  for (const section of document.querySelectorAll('.view')) section.hidden = section.id !== selected;
-  for (const link of document.querySelectorAll('.navigation>a')) {
-    if (link.hash === `#${selected}`) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
-  }
-  document.title = `Keine Magie · ${{ translator: 'Übersetzer', dictation: 'Diktat', podcasts: 'Podcasts', coach: 'Coach' }[selected]}`;
-}
 $('translation-form').addEventListener('submit', translate);
 $('source-text').addEventListener('input', () => { if (record) resetResult(); updateInput(); });
 $('source-text').addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); $('translation-form').requestSubmit(); } });
@@ -254,10 +224,11 @@ $('cancel').addEventListener('click', () => controller?.abort());
 $('copy').addEventListener('click', async () => { if (!record) return; try { await navigator.clipboard.writeText(record.translation); status('Übersetzung kopiert.'); } catch { status('Kopieren nicht erlaubt. Markiere den Text und kopiere ihn manuell.', true); } });
 $('refresh-history').addEventListener('click', loadHistory);
 $('account').addEventListener('click', () => $('account-dialog').showModal());
-$('connection-action').addEventListener('click', () => $('account-dialog').showModal());
-$('close-account').addEventListener('click', () => { clearBootstrap(); clearPairing(); $('account-dialog').close(); });
-$('account-dialog').addEventListener('cancel', () => { clearBootstrap(); clearPairing(); });
-$('account-dialog').addEventListener('close', () => { clearBootstrap(); clearPairing(); });
+$('connection-action').addEventListener('click', () => { if (!config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) restore(); else $('account-dialog').showModal(); });
+function resetAccountDialog() { accountRun++; clearBootstrap(); clearPairing(); setText('account-error', ''); }
+$('close-account').addEventListener('click', () => { resetAccountDialog(); $('account-dialog').close(); });
+$('account-dialog').addEventListener('cancel', resetAccountDialog);
+$('account-dialog').addEventListener('close', resetAccountDialog);
 $('retry-session').addEventListener('click', restore);
 $('pair-browser').addEventListener('click', async () => {
  clearPairing(); const run = pairingRun;
@@ -303,17 +274,18 @@ $('apple-login').addEventListener('click', async () => {
 $('provider-connect').addEventListener('click', async () => {
   if (!session?.user?.id || config?.chatgpt_connect_available !== true) return;
   const run = generation;
+  const dialogRun = accountRun;
   $('provider-connect').disabled = true;
   setText('account-error', '');
   try {
     const value = await startProviderConnection(api, session.csrf_token);
-    if (run !== generation || !$('account-dialog').open) return;
+    if (run !== generation || dialogRun !== accountRun || !session?.user?.id || !$('account-dialog').open) return;
     clearBootstrap();
     $('bootstrap-code').value = value.bootstrap_token;
     $('provider-bootstrap').hidden = false;
     setText('bootstrap-expiry', `Gültig bis ${new Date(Date.now() + value.expires_in * 1000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}. Danach „Verbindung erneut prüfen“. `);
     bootstrapTimer = setTimeout(clearBootstrap, value.expires_in * 1000);
-  } catch (error) { handleUnauthorized(error); setText('account-error', errorMessage(error)); }
+  } catch (error) { if (run !== generation || dialogRun !== accountRun) return; handleUnauthorized(error); setText('account-error', errorMessage(error)); }
   finally { renderConnection(); }
 });
 $('logout').addEventListener('click', async () => {
@@ -328,7 +300,6 @@ $('logout').addEventListener('click', async () => {
     status('Abgemeldet.'); $('account-dialog').close();
   } catch { setText('account-error', 'Lokale Inhalte entfernt, aber der Server-Widerruf ist nicht bestätigt. Bitte Verbindung erneut prüfen und nochmals abmelden.'); }
 });
-window.addEventListener('hashchange', route);
 window.addEventListener('pageshow', event => { if (event.persisted) { clearPrivateData(); restore(); } });
 window.addEventListener('online', restore);
-route(); updateInput(); restore();
+updateInput(); restore();

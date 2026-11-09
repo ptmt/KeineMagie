@@ -12,7 +12,7 @@ RUN mkdir -p /out/data /out/cache && chmod 700 /out/data /out/cache
 FROM gcr.io/distroless/base-debian12:nonroot
 WORKDIR /app
 COPY --from=build /out/server /app/server
-COPY web/index.html web/app.mjs web/core.mjs web/styles.css web/favicon.svg /app/web/
+COPY web/index.html web/app.mjs web/core.mjs web/styles.css web/favicon.svg web/apple-sign-in-de.png /app/web/
 ENV WEB_ASSET_DIR=/app/web
 COPY --from=build --chown=65532:65532 /out/data /app/data
 COPY --from=build --chown=65532:65532 /out/cache /app/cache

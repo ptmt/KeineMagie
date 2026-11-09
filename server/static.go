@@ -29,6 +29,8 @@ func publicWeb(w http.ResponseWriter, r *http.Request) {
 		name = "styles.css"
 	case "/favicon.svg":
 		name = "favicon.svg"
+	case "/apple-sign-in-de.png":
+		name = "apple-sign-in-de.png"
 	default:
 		http.NotFound(w, r)
 		return
@@ -45,6 +47,8 @@ func publicWeb(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/css; charset=utf-8")
 	case ".html":
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	case ".png":
+		w.Header().Set("Content-Type", "image/png")
 	case ".svg":
 		w.Header().Set("Content-Type", "image/svg+xml")
 	}
