@@ -1,5 +1,7 @@
 name: KeineMagie
 options:
+  developmentLanguage: de
+  knownRegions: [de, en, ru, es, fr]
   minimumXcodeGenVersion: 2.46.0
   deploymentTarget:
     iOS: '17.0'

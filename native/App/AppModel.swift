@@ -9,7 +9,7 @@ final class AppModel {
     private(set) var history: [TranslationRecord] = []
 
     init() {
-        let url = UserDefaults.standard.string(forKey: "serverURL") ?? "https://keinemagie.tinyserve.org"
+        let url = UserDefaults.standard.string(forKey: "serverURL") ?? ProductIdentity.defaultServerURL
         session = SessionController(serverURL: url, allowLocalHTTP: Self.allowLocalHTTP,
                                     readToken: { try TokenStore.read() }, saveToken: { try TokenStore.save($0) })
     }
@@ -47,8 +47,8 @@ private enum SettingsFailure: LocalizedError {
     case keychain, revocation
     var errorDescription: String? {
         switch self {
-        case .keychain: "Server nicht gewechselt: Schlüsselbund konnte nicht geleert werden. Bitte erneut abmelden."
-        case .revocation: "Server gewechselt und lokal abgemeldet. Widerruf beim bisherigen Server nicht bestätigt; die alte Sitzung könnte bis zum Ablauf gültig sein."
+        case .keychain: AppL10n.text("settings.keychain")
+        case .revocation: AppL10n.text("settings.revocation")
         }
     }
 }

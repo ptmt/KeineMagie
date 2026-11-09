@@ -3,7 +3,7 @@ import Foundation
 public enum Language: String, Codable, CaseIterable, Sendable {
     case german = "de", russian = "ru"
     public var opposite: Language { self == .german ? .russian : .german }
-    public var title: String { self == .german ? "Deutsch" : "Russisch" }
+    public var title: String { self == .german ? CoreL10n.text("language.german") : CoreL10n.text("language.russian") }
 }
 
 public struct TranslationRequest: Encodable, Sendable {

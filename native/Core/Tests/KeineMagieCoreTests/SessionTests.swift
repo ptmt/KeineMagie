@@ -37,7 +37,7 @@ import Testing
     let other = SessionController(serverURL: "https://example.com", readToken: { "" }, saveToken: { _ in })
     other.cancelLogin()
     #expect(other.phase == .signedOut)
-    #expect(other.message?.contains("abgebrochen") == true)
+    #expect(other.message == CoreL10n.text("login.cancelled"))
 }
 
 private actor SuspendedAuth {
@@ -77,7 +77,7 @@ private actor SuspendedAuth {
         await controller.logout()
         #expect(stored.isEmpty)
         #expect(controller.phase == .signedOut)
-        if status == 503 { #expect(controller.message?.contains("nicht bestätigt") == true) }
+        if status == 503 { #expect(controller.message == CoreL10n.text("session.revocation")) }
     }
 }
 
@@ -131,7 +131,7 @@ private actor SuspendedAuth {
     #expect(await controller.prepareLogin() == nil)
     #expect(controller.phase == .signedOut)
     #expect(controller.message?.contains("Server-Token") == false)
-    #expect(controller.message?.contains("Anmeldung") == true)
+    #expect(controller.message == CoreL10n.text("login.denied"))
 }
 
 @MainActor @Test func signedOutStartupNeverRequestsHistoryOrAnyNetwork() async throws {

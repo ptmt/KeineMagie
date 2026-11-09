@@ -25,7 +25,7 @@ public struct AppleSession: Decodable, Sendable {
 }
 public enum AuthError: LocalizedError, Equatable {
     case invalidCredential
-    public var errorDescription: String? { "Apple-Anmeldung ungültig oder Sicherheitsprüfung fehlgeschlagen. Bitte erneut anmelden." }
+    public var errorDescription: String? { CoreL10n.text("auth.invalid") }
 }
 public struct AuthClient: Sendable {
     public typealias Transport = @Sendable (URLRequest) async throws -> AuthResponse

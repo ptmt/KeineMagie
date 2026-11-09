@@ -23,7 +23,7 @@ struct RootView: View {
                     LoginGate()
                 }
             }
-            .navigationTitle("Keine Magie")
+            .navigationTitle(ProductIdentity.displayName)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Einstellungen", systemImage: "gearshape") { showSettings = true }
@@ -53,16 +53,21 @@ struct LoginGate: View {
     private var session: SessionController { model.session }
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                Image(systemName: "character.bubble.fill").font(.system(size: 48)).foregroundStyle(.indigo).accessibilityHidden(true)
-                Text("Dein Zugang.\nDein Lernweg.").font(.largeTitle.bold())
-                Text("Melde dich mit Apple bei Keine Magie an. Deine Sitzung wird sicher im Schlüsselbund gespeichert.")
-                    .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 0) {
+                FeatureRow("feature.translator", systemImage: "character.bubble")
+                FeatureRow("feature.dictation", systemImage: "waveform")
+                FeatureRow("feature.podcasts", systemImage: "headphones")
+                FeatureRow("feature.coach", systemImage: "bubble.left.and.bubble.right")
+            }.padding(.horizontal, 24).padding(.top, 32)
+                .frame(maxWidth: 600).frame(maxWidth: .infinity)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VStack(alignment: .leading, spacing: 16) {
+                if let message = session.message { ErrorNotice(text: message) }
                 switch session.phase {
                 case .signedOut:
                     NativeAppleButton { Task { await apple.signIn(session: session) } }
                         .frame(height: 50)
-                        .accessibilityLabel("Mit Apple anmelden")
                 case .offline:
                     Label("Sitzung nicht bestätigt", systemImage: "wifi.exclamationmark").font(.headline)
                     Button("Sitzung erneut prüfen") { Task { await session.restore() } }
@@ -84,13 +89,26 @@ struct LoginGate: View {
                 case .signedIn:
                     EmptyView()
                 }
-                if let message = session.message { ErrorNotice(text: message) }
-                Divider()
-                Label("ChatGPT noch nicht verbunden", systemImage: "link.badge.plus").font(.headline)
-                Text("Die persönliche ChatGPT-Anbindung ist geplant. Übersetzung, Verlauf und Sprachausgabe sind bis dahin nicht verfügbar. Die Apple-Anmeldung allein verbindet kein ChatGPT-Konto.")
-                    .font(.callout).foregroundStyle(.secondary)
             }.padding(24).frame(maxWidth: 600, alignment: .leading).frame(maxWidth: .infinity)
+                .background(.bar)
         }
+    }
+}
+
+private struct FeatureRow: View {
+    let title: LocalizedStringKey
+    let systemImage: String
+    init(_ title: LocalizedStringKey, systemImage: String) {
+        self.title = title
+        self.systemImage = systemImage
+    }
+    var body: some View {
+        Label { Text(title).font(.title3.weight(.medium)) } icon: {
+            Image(systemName: systemImage).font(.title2).frame(width: 36).accessibilityHidden(true)
+        }
+        .padding(.vertical, 22)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 }
 

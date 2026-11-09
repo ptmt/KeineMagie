@@ -35,7 +35,24 @@ Generation guards isolate late challenge/exchange/restore/logout and stale Apple
 - Translation/history/audio unavailable until personal provider integration. UI and app model never invoke legacy translation/history/TTS; no old shared history is loaded. Legacy core tests remain, not enabled features.
 - Canceled exchanges may already have created remote sessions. Stale responses are never persisted; such sessions remain subject to server expiry. No failed-logout background retry queue.
 - Verify deployment, actual Apple consent, persisted real-session restore, account isolation and physical-device provisioning before declaring end-to-end success.
-- No app icon yet.
+- App icon is included in the asset catalog.
+
+## Localization
+
+The app ships **German (`de`), English (`en`), Russian (`ru`), Spanish (`es`) and French (`fr`)** and automatically follows the system/app preferred language. German is the development/fallback language. No in-app language override is required. `CFBundleLocalizations` and XcodeGen's development language/regions advertise all five.
+
+SwiftUI/settings/account text and runtime app errors use `App/Localizable.xcstrings` in the main bundle; core session/auth/endpoint/API errors use SwiftPM `Resources/*.lproj/Localizable.strings` via `Bundle.module`. Debug local-network permission text uses localized `InfoPlist.strings`. `ProductIdentity` keeps the stable **Keine Magie** brand and default HTTPS URL separate from translated copy; wire keys, routes and Keychain identifiers are unchanged.
+
+The signed-out screen shows exactly four capability rows (translator, dictation, podcasts + shadowing, coach) and Apple's native sign-in control at the bottom. These are product capability names, not claims that a provider is connected. Errors, progress, cancellation and offline retry/local logout remain conditional. The account screen still reports that ChatGPT is not connected and language functionality is unavailable. The Apple control supplies both its visible title and native accessibility label in the selected system language; no German accessibility override masks it.
+
+Translation source: `ci/localization_data.py`; regenerate resources with `python3 native/ci/generate_localizations.py` and regenerate the Xcode project with `xcodegen generate` inside `native/`. CI checks complete locale/key coverage, format placeholders, bundle configuration and the four-row/native-auth contract:
+
+```sh
+python3 -m unittest discover -s native/ci -v
+bash native/test-core.sh
+```
+
+Verified: **27 Python CI tests and 24 Swift core tests pass**. Release iOS Simulator build with ad-hoc signing succeeds (`CODE_SIGN_IDENTITY=- CODE_SIGNING_ALLOWED=YES`); signature verified and app installed/launched without clearing simulator data or Keychain. Russian and English screenshots captured after `-AppleLanguages '(ru)' -AppleLocale ru_RU` and `-AppleLanguages '(en)' -AppleLocale en_US`. No real Apple/provider authentication is claimed. Existing SwiftPM native-build deprecation and optional AppIntents metadata warnings remain.
 
 ## Core tests
 
@@ -43,6 +60,6 @@ Generation guards isolate late challenge/exchange/restore/logout and stale Apple
 bash native/test-core.sh
 ```
 
-Verified **23 tests pass**, including existing ten. CLT script supplies Testing framework and generated-runner flags. Known SwiftPM native-engine deprecation warning remains; verify actual test count, not build completion alone.
+Verified **24 tests pass**, including five-language package resource and status-formatting coverage. CLT script supplies Testing framework and generated-runner flags. Known SwiftPM native-engine deprecation warning remains; verify actual test count, not build completion alone.
 
 Observed RED→GREEN slices cover exact challenge/exchange wire contract, state rejection, session/logout (including empty 204), signed-out no-network startup, restore/offline/401 policy, real-session persistence, configuration isolation, honest revocation failure, and stale callbacks. Extra regressions cover logout during suspended exchange and revocation-before-clear ordering. Transport and Keychain adapter closures injectable; tests require no live credentials.

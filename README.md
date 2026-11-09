@@ -3,7 +3,8 @@
 Native iOS app for learning German, with a Go backend. Product specification: [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ## Current implementation
-- `native/`: SwiftUI four-tab client, German ↔ Russian translation with idioms/patterns/vocabulary and server history; pasted-text listening dictation using OpenAI TTS.
+- `native/`: SwiftUI Apple sign-in and account/session UI, with four capability rows (translator, dictation, podcasts + shadowing, coach). Personal ChatGPT connection is not implemented; translation/history/audio remain unavailable in the app.
+- Native UI/settings/account and session/auth/errors ship in **German, English, Russian, Spanish and French**, automatically following the system/app language (German fallback). Apple’s native sign-in control localizes itself, including accessibility.
 - `server/`: authenticated translation/history API and existing cached TTS proxy. Provider credentials remain on the server.
 - Podcasts/shadowing and coach tabs are explicitly planned, not implemented.
 - The legacy Expo client has been removed; its sources remain available in Git history.
@@ -14,7 +15,7 @@ Native iOS app for learning German, with a Go backend. Product specification: [d
 - [Architecture and privacy boundaries](docs/ARCHITECTURE.md)
 - [Xcode and tinyserve deployment](docs/DEPLOYMENT.md)
 
-The private first version uses a server API key and a client bearer token. Eligible ChatGPT Pro/Business plans may supply API credits after activation; that is distinct from direct subscription sharing in participating apps. See the product document for official sources.
+The native app uses Apple sign-in and a device-Keychain session credential; it does not expose manual server/OpenAI tokens. The legacy backend translation endpoints use a server API key and bearer authentication, but are not invoked by the current native account UI. Eligible ChatGPT Pro/Business plans may supply API credits after activation; that is distinct from direct subscription sharing in participating apps. See the product document for official sources.
 
 ## Verification status
-Go race tests and vet pass; Swift core has ten passing tests, including history concurrency regressions. XcodeGen generates the project. Xcode 27.2 simulator build succeeded, and the app was installed and launched on iPhone 18 Pro (iOS 27.2). Light/dark translator screenshots were captured. Use ad-hoc signing for simulator runs: disabling signing caused Keychain error -34018; an ad-hoc signed rebuild correctly reaches the missing-server-token state. Live OpenAI requests, audio playback and tinyserve deployment are not verified. Independent code review passed after fixing a history refresh race. This is an initial implementation, not a finished four-feature release.
+Native verification: **24 Swift core tests and 27 Python CI tests pass**, including localization completeness/placeholders, four login rows, session/auth policy and signing configuration. XcodeGen generation and a real Release simulator build with ad-hoc signing succeeded; the installed app was launched in Russian and English and screenshots inspected. Existing simulator data and Keychain were not erased. Real Apple consent, physical-device provisioning, personal ChatGPT connection, live provider requests and audio playback are not claimed verified. See [native README](native/README.md) for architecture and limitations. Server verification is outside this native-only change.

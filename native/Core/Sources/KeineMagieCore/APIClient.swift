@@ -72,11 +72,11 @@ public enum APIError: LocalizedError {
     case missingToken, emptyText, invalidResponse, http(Int)
     public var errorDescription: String? {
         switch self {
-        case .missingToken: "Bitte einen gültigen Server-Token in den Einstellungen hinterlegen."
-        case .emptyText: "Bitte zuerst Text eingeben."
-        case .invalidResponse: "Der Server hat keine gültige Antwort geliefert."
-        case .http(401), .http(403): "Zugriff verweigert. Server-Token prüfen."
-        case .http(let status): "Serverfehler (HTTP \(status)). Bitte später erneut versuchen."
+        case .missingToken: CoreL10n.text("api.token")
+        case .emptyText: CoreL10n.text("api.empty")
+        case .invalidResponse: CoreL10n.text("api.response")
+        case .http(401), .http(403): CoreL10n.text("api.denied")
+        case .http(let status): CoreL10n.text("api.http", status)
         }
     }
 }

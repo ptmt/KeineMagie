@@ -53,22 +53,22 @@ public final class SessionController {
     private func loginMessage(_ error: Error) -> String {
         if let api = error as? APIError {
             switch api {
-            case .http(401), .http(403): return "Anmeldung vom Server abgelehnt. Bitte erneut mit Apple anmelden."
-            case .http(let status): return "Anmeldung derzeit nicht möglich (HTTP \(status)). Bitte später erneut versuchen."
+            case .http(401), .http(403): return CoreL10n.text("login.denied")
+            case .http(let status): return CoreL10n.text("login.http", status)
             default: break
             }
         }
-        if error is URLError { return "Anmeldung konnte den Server nicht erreichen. Bitte Verbindung und Server-URL prüfen." }
-        if error is DecodingError { return "Anmeldung fehlgeschlagen: unerwartetes Serverformat." }
+        if error is URLError { return CoreL10n.text("login.network") }
+        if error is DecodingError { return CoreL10n.text("login.format") }
         return error.localizedDescription
     }
     public func failLogin(attempt: LoginAttempt, cancelled: Bool) {
         guard attempt.generation == generation, phase == .authorizing else { return }
         generation += 1; user = nil; phase = .signedOut
-        message = cancelled ? "Apple-Anmeldung abgebrochen." : "Apple-Anmeldung fehlgeschlagen. Bitte erneut versuchen."
+        message = cancelled ? CoreL10n.text("login.cancelled") : CoreL10n.text("login.failed")
     }
     public func cancelLogin() {
-        generation += 1; user = nil; phase = .signedOut; message = "Apple-Anmeldung abgebrochen."
+        generation += 1; user = nil; phase = .signedOut; message = CoreL10n.text("login.cancelled")
     }
     public func switchServer(_ url: String) throws {
         let endpoint = try ServerEndpoint(url, allowLocalHTTP: allowLocalHTTP)
@@ -90,8 +90,8 @@ public final class SessionController {
         guard version == generation else { return }
         do {
             try saveToken(""); phase = .signedOut
-            if revocationFailed { message = "Lokal abgemeldet. Server-Widerruf nicht bestätigt; die Sitzung könnte bis zum Ablauf weiter gültig sein." }
-        } catch { phase = .offline; message = "Schlüsselbund konnte nicht geleert werden. Bitte Abmelden erneut versuchen." }
+            if revocationFailed { message = CoreL10n.text("session.revocation") }
+        } catch { phase = .offline; message = CoreL10n.text("session.keychain") }
     }
     private func client() throws -> AuthClient { AuthClient(endpoint: try ServerEndpoint(serverURL, allowLocalHTTP: allowLocalHTTP), transport: transport) }
     public func restore() async {
@@ -107,12 +107,12 @@ public final class SessionController {
             user = session.user; phase = .signedIn
         } catch APIError.http(401) {
             guard version == generation else { return }
-            do { try saveToken(""); phase = .signedOut; message = "Sitzung abgelaufen. Bitte erneut anmelden." }
+            do { try saveToken(""); phase = .signedOut; message = CoreL10n.text("session.expired") }
             catch { phase = .offline; message = error.localizedDescription }
         } catch {
             guard version == generation else { return }
             phase = .offline
-            message = "Sitzung konnte nicht bestätigt werden. Keine Verbindung hergestellt. Bitte Verbindung und Server prüfen und erneut versuchen."
+            message = CoreL10n.text("session.offline")
         }
     }
 }

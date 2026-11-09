@@ -39,5 +39,5 @@ enum TokenStore {
 }
 private struct KeychainFailure: LocalizedError {
     let status: OSStatus
-    var errorDescription: String? { "Schlüsselbund nicht verfügbar (\(status)). Gerät entsperren und erneut versuchen." }
+    var errorDescription: String? { AppL10n.text("keychain.failure", status) }
 }

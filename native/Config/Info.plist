@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>de</string>
+	<key>CFBundleLocalizations</key>
+	<array><string>de</string><string>en</string><string>ru</string><string>es</string><string>fr</string></array>
 	<key>CFBundleDisplayName</key>
 	<string>Keine Magie</string>
 	<key>CFBundleExecutable</key>

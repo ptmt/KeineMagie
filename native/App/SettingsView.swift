@@ -11,7 +11,7 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section("Server") {
-                    TextField("https://keinemagie.tinyserve.org", text: $url)
+                    TextField(text: $url) { Text(verbatim: ProductIdentity.defaultServerURL) }
                         .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
                         .accessibilityLabel("Server-URL")
                     Text("Standard: https://keinemagie.tinyserve.org. Ein Serverwechsel meldet dich ab und versucht zuvor, deine bisherige Sitzung zu widerrufen.")

@@ -21,8 +21,8 @@ public enum EndpointError: LocalizedError {
     case invalid, insecure
     public var errorDescription: String? {
         switch self {
-        case .invalid: "Ungültige Server-URL. Zugangsdaten, Abfrage und Fragment sind nicht erlaubt."
-        case .insecure: "HTTPS erforderlich. Nur im Debug-Simulator ist HTTP für localhost erlaubt."
+        case .invalid: CoreL10n.text("endpoint.invalid")
+        case .insecure: CoreL10n.text("endpoint.insecure")
         }
     }
 }
