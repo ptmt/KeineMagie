@@ -17,6 +17,29 @@ let pairingRun = 0;
 function clearPairing() { pairingRun++; clearTimeout(pairingTimer); pairingTimer = null; $('browser-pairing').hidden = true; setText('pairing-code', ''); }
 const names = { de: 'Deutsch', ru: 'Russisch' };
 
+const sectionLinks = [...document.querySelectorAll('.section-nav a')];
+let activeSection = 'translator';
+function renderRoute(focus = false) {
+  // Keep the existing DOM and all requests alive when changing sections.
+  // #main belongs to the skip link, not the section router.
+  if (location.hash === '#main') return;
+  const selected = sectionLinks.find(link => link.hash === location.hash) || sectionLinks[0];
+  const next = selected.hash.slice(1);
+  for (const link of sectionLinks) {
+    $(link.hash.slice(1)).hidden = link !== selected;
+    if (link === selected) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  }
+  document.title = `Keine Magie · ${selected.textContent}`;
+  if (focus && $('account-dialog').open) {
+    // Native fragment navigation may move focus outside an open modal.
+    if (!$('account-dialog').contains(document.activeElement)) $('close-account').focus({ preventScroll: true });
+  } else if (focus && next !== activeSection) $(next).focus({ preventScroll: true });
+  activeSection = next;
+}
+window.addEventListener('hashchange', () => renderRoute(true));
+renderRoute();
+
 
 function setText(id, text) { $(id).textContent = text; }
 function status(message, error = false) {

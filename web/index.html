@@ -15,10 +15,16 @@
   <a class="skip-link" href="#main">Zum Inhalt</a>
   <header class="topbar">
     <a href="#translator" class="wordmark" aria-label="Keine Magie Startseite">keine<span>magie</span><span class="brand-dot" aria-hidden="true">.</span></a>
+    <nav class="section-nav" aria-label="Bereiche">
+      <a href="#translator" aria-current="page">Übersetzer</a>
+      <a href="#dictation">Diktat</a>
+      <a href="#podcasts">Podcasts</a>
+      <a href="#coach">Coach</a>
+    </nav>
     <button id="account" class="account-button" aria-haspopup="dialog"><span id="account-indicator" class="status-dot" aria-hidden="true"></span><span id="account-label">Anmelden</span></button>
   </header>
   <main id="main">
-    <section id="translator" aria-label="Übersetzer">
+    <section id="translator" aria-label="Übersetzer" tabindex="-1">
       <form id="translation-form">
         <div class="language-bar">
           <label class="language-select">Von<select id="source-language" aria-label="Ausgangssprache"><option value="de">Deutsch</option><option value="ru">Russisch</option></select></label>
@@ -43,6 +49,18 @@
         </div>
       </form>
       <section id="history" class="history" aria-labelledby="history-title"><div class="section-heading"><h2 id="history-title">Verlauf</h2><button id="refresh-history" class="quiet-button" type="button" disabled>Aktualisieren</button></div><p id="history-status" class="muted">Melde dich an, um deinen persönlichen Verlauf zu laden.</p><ul id="history-list" class="history-list"></ul></section>
+    </section>
+    <section id="dictation" class="unavailable-page" aria-labelledby="dictation-title" tabindex="-1" hidden>
+      <h1 id="dictation-title">Diktat</h1>
+      <p class="muted">Noch nicht verfügbar</p>
+    </section>
+    <section id="podcasts" class="unavailable-page" aria-labelledby="podcasts-title" tabindex="-1" hidden>
+      <h1 id="podcasts-title">Podcasts</h1>
+      <p class="muted">Noch nicht verfügbar</p>
+    </section>
+    <section id="coach" class="unavailable-page" aria-labelledby="coach-title" tabindex="-1" hidden>
+      <h1 id="coach-title">Coach</h1>
+      <p class="muted">Noch nicht verfügbar</p>
     </section>
   </main>
   <dialog id="account-dialog" aria-labelledby="account-title">

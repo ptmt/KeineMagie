@@ -30,7 +30,8 @@ async function harness() {
     return {ok:status===200,status,json:async()=>body};
   };
   const app = (await readFile(new URL('../app.mjs', import.meta.url), 'utf8')).replace(/^import .*?;\n/, '');
-  vm.runInNewContext(app, {...core, createAPI:()=>core.createAPI(fetch), document:{ getElementById:id=>nodes.get(id), querySelectorAll:()=>[], createElement:()=>({append(){}}) }, window:{addEventListener(){}}, location:{hash:''}, setTimeout:()=>1, clearTimeout(){}, AbortController, console});
+  const links = [...html.matchAll(/<a href="#(translator|dictation|podcasts|coach)"[^>]*>([^<]+)<\/a>/g)].map(([,id,textContent]) => ({hash:`#${id}`,textContent,setAttribute(){},removeAttribute(){}}));
+  vm.runInNewContext(app, {...core, createAPI:()=>core.createAPI(fetch), document:{ getElementById:id=>nodes.get(id), querySelectorAll:()=>links, createElement:()=>({append(){}}) }, window:{addEventListener(){}}, location:{hash:''}, setTimeout:()=>1, clearTimeout(){}, AbortController, console});
   const settle = () => new Promise(resolve=>setImmediate(resolve));
   await settle();
   return {nodes, calls, settle, signIn(value){signedIn=value;}, defer(fn){deferConnect=fn;}};
