@@ -11,6 +11,7 @@ import (
 )
 
 type authSession struct {
+	Kind    string    `json:"kind,omitempty"`
 	UserID  string    `json:"user_id"`
 	Expires time.Time `json:"expires_at"`
 }

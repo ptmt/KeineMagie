@@ -20,7 +20,7 @@ struct SettingsView: View {
                 Section("Anmeldung & Datenschutz") {
                     Text("Die Anmeldung erfolgt ausschließlich mit Apple. Keine manuellen Server-Tokens oder OpenAI-Schlüssel erforderlich.")
                     Text("Der Server erhält Apples Identitätsnachweis und speichert deine Apple-Kontozuordnung. Die Keine-Magie-Sitzung liegt nur im Geräteschlüsselbund. Apple-Anmeldung verbindet kein ChatGPT-Konto.")
-                    Text("Übersetzung, Verlauf und Audio sind bis zur persönlichen Provider-Anbindung deaktiviert. Es wird kein gemeinsamer Alt-Verlauf geladen.")
+                    Text("Übersetzung und persönlicher Verlauf verwenden ausschließlich deine explizit verbundene ChatGPT-Sitzung. Die erste Verbindung benötigt den lokalen Desktop-Bootstrap. Audio bleibt ohne bestätigte Berechtigung deaktiviert.")
                 }.font(.callout)
                 if let error { Section { ErrorNotice(text: error) } }
                 if saved { Section { Label("Server gespeichert – bitte erneut anmelden", systemImage: "checkmark.circle") } }

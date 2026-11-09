@@ -32,6 +32,7 @@ type errorResponse struct {
 }
 
 type serverConfig struct {
+	provider        *providerService
 	authPath        string
 	appleClientID   string
 	appleHTTPClient *http.Client
@@ -50,6 +51,13 @@ type serverConfig struct {
 }
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "connect" {
+		if err := runBootstrap(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
 	_ = loadDotEnv(".env")
 	cfg, err := loadConfig()
 	if err != nil {
@@ -65,7 +73,14 @@ func main() {
 
 	addr := listenAddress()
 	fmt.Printf("Diktat TTS server listening on %s\n", addr)
-	if err := http.ListenAndServe(addr, logRequests(mux)); err != nil {
+	server := &http.Server{
+		Addr: addr, Handler: logRequests(mux),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		IdleTimeout:       60 * time.Second,
+		// No WriteTimeout: upstream inference/streaming may outlive body reads.
+	}
+	if err := server.ListenAndServe(); err != nil {
 		fmt.Fprintf(os.Stderr, "server error: %v\n", err)
 		os.Exit(1)
 	}

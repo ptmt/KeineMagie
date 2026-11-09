@@ -1,39 +1,58 @@
-# Authentication decision: Apple identity + connected ChatGPT
+# Apple identity + explicit personal ChatGPT connection
 
-## Deployment origin
-Chosen backend origin: `https://keinemagie.tinyserve.org`. DNS currently does not resolve. tinyserve daemon responds, but reports degraded state: Traefik and tunnel not running. No DNS record or service has been created for this origin yet. Configure and verify HTTPS before registering concrete server callbacks; callback paths must follow the chosen supported provider flow, not guessed paths.
+## Implemented vertical slice
 
-## Agreed direction
-Do not onboard users using a manually entered shared server token. Replace that initial implementation with Sign in with Apple for app identity and a separate, explicitly authorized ChatGPT connection for eligible AI workloads. This is the target architecture, not implemented authentication.
+Native Apple authentication is unchanged: server challenge, signed Apple ID-token verification, opaque hashed 30-day application sessions; native session token remains in Keychain. Session-authenticated translation **never** falls back to legacy shared bearer credentials or `OPENAI_API_KEY`. Legacy endpoints remain available only to explicitly configured legacy clients, not native account sessions.
 
-## Apple
-Use native AuthenticationServices Sign in with Apple. Server issues a short-lived, single-use nonce challenge; validate Apple's signed ID token against trusted Apple keys, issuer, configured audience, expiry and nonce. Exchange authorization code as required. Use the stable issuer/subject identity, not email, to identify the user. Never link accounts based only on matching email.
+See [TRANSLATOR-API.md](TRANSLATOR-API.md) for the shared contract. The native account screen now provides DE↔RU text translation, real per-owner history, provider status, local-bootstrap setup and disconnect. Fast translation returns empty enrichment arrays; idioms/grammar/vocabulary generation, audio, dictation, podcast and coach are deliberately not implemented.
 
-Server stores internal user ID, Apple subject, minimal profile, hashed application session credentials and encrypted provider refresh tokens where needed. Passwords and Apple account credentials are never collected. The iOS client still holds its own app session in Keychain; 'server-side storage' does not eliminate the client session credential. Logout/revocation/deletion must invalidate sessions and disconnect providers.
+## Supported connection shape and explicit consent
 
-Requires an Apple Developer team, correct bundle ID, enabled Sign in with Apple capability, and server-side Apple configuration/signing credentials for the code exchange. Private signing keys stay outside Git and chat.
+The official OSS flow uses dynamic registration (`dynamic_agent_client` **only initially**), a stable host ID, fresh state/nonce/PKCE, and an **HTTP 127.0.0.1 /auth/callback listener on the desktop running the browser**. Issued `oaiapp_…` client ID is saved and reused with validated subject identity. No client secret or paid API key is used. Native iOS and a remote website cannot simply redirect to their remote server in this OSS flow.
 
-## ChatGPT connection
-Connect only from an authenticated app session. Bind state, nonce and PKCE to that session and use one-time expiring challenges. Verify provider identity and actual granted Responses scopes before marking a connection usable. Encrypt refresh credentials at rest with an encryption key stored separately from the database, redact tokens from logs and define refresh/revocation/disconnect behavior. Isolate history and provider access by internal user ID.
+The implemented local bootstrap is a public-client loopback **bridge**: the user's desktop owns the browser and callback listener; the authenticated user's server owns pending PKCE/state, code exchange, ID-token/JWKS validation, encrypted credentials and refresh. The short-lived bridge carries a callback/code to that server over HTTPS, not provider tokens to the browser. The official self-hosted-VM recipe instead explicitly describes completing OAuth locally and securely transferring the protected credential record (e.g. SSH). This bridge follows the same OAuth public-client parameters but has **not been approved or live-tested with OpenAI**; do not represent it as a verified mobile/cloud integration or silently replace it with scraped/other-tool credentials. If OpenAI rejects this topology, use the documented local-completion + protected SSH-import design in a follow-up rather than weakening validation.
 
-Official documentation now provides dynamic registration for open-source/local tools and supports a self-hosted host model. Do not substitute Codex credentials or scrape browser sessions. Determine the supported mobile-to-self-hosted callback and credential transfer flow from the official guides before implementing it. Commercial remotely hosted distribution may require partner approval; do not assume personal self-hosted eligibility establishes a commercial deployment right.
+1. Configure server `PROVIDER_KEY_FILE` with an absolute path to **exactly 32 random raw bytes**, mode `0600`, outside provider data/backups. Example on the server: `umask 077; openssl rand -out /secure/keinemagie-provider.key 32`. Set `PROVIDER_KEY_FILE=/secure/keinemagie-provider.key`. Do not commit, send in chat or log this key. Keep a separately secured backup: loss makes existing encrypted credentials unreadable.
+2. Start the Go server normally. It persists its own stable opaque host ID under `<AUTH_PATH directory>/providers/host`.
+3. Sign in with Apple on the native app. Tap **Continue with ChatGPT**. This creates a five-minute single-use bootstrap secret tied to this exact live application session and user.
+4. On the desktop where the consent browser runs: `cd server && go run . connect`. Enter the server **HTTPS origin** and the one-time code via stdin (not shell args/history). `http://127.0.0.1:8787` is accepted only for local development. Listener starts before opening the browser. Review and approve ChatGPT permissions personally.
+5. Return to the app and tap **Verbindung prüfen**. Only successful signature/issuer/audience/expiry/nonce/subject/scope validation marks the grant usable. Callback replay, wrong state, missing issued client ID and session revocation fail closed. A prior valid connection is retained until a replacement validates.
 
-Inference uses the public Responses API, not ChatGPT backend-api or the current Chat Completions adapter. Discover account-specific models. Requests require store=false and stream=true; persist a translation only after response.completed, never on partial text or failed/incomplete streams.
+Do not paste passwords, provider access/refresh tokens, Hermes credentials or API keys. The one-time bootstrap code is a sensitive short-lived authorization capability, not a manual permanent shared-server token. No production credentials were created during implementation.
 
-The documented subscription grant covers eligible Responses requests. It does NOT establish audio/speech or transcription permission. Treat TTS/transcription as separate capabilities until verified; do not silently use a paid API key as fallback. Show an honest not-connected/not-supported status.
+## Credentials, lifecycle, ownership
 
-## Next acceptance gates
-1. Confirm Apple Developer team and signing capability, final bundle ID, self-hosted HTTPS origin and callback design.
-2. Verify applicable OpenAI self-hosted connection flow and audio limitations.
-3. Implement tests-first: identity verification, challenge replay rejection, sessions, per-user data isolation, encrypted connections and lifecycle.
-4. Replace shared-token settings with Apple sign-in and connected-account UI; no fake connected state.
-5. Exercise both real consent flows and a completed translation, then evaluate speech/transcription separately.
+Credentials are AES-256-GCM encrypted with owner ID as authenticated associated data, stored atomically with mode `0600` at `<AUTH_PATH directory>/providers/<SHA256(internal user ID)>.enc`. Registration ID, subject, retained ID token, scopes and rotating refresh token stay together. Encryption key is a separate file; startup rejects group/world-readable key files and a key placed directly in provider directory. User/history paths derive from internal authenticated owner IDs, never client input. Legacy unowned history is never shown to account sessions.
 
-## Sources
-- https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api
+Near expiry the server sends the standard refresh grant with the saved issued client ID and API resource; rotating credentials are saved together. Refresh identity, when supplied, must match the stored subject. The minimal runtime **must run one server process/replica**: in-process serialization protects refresh but credential rotation is not coordinated across replicas. Provider work is serialized per owner with context-cancelable waits; unrelated users do not share a network-operation lock. Request bodies are size-bounded, parsed and validated before provider/quota locks are acquired. Cross-process credential locking is still required before scaling. Host attribution/revocation of transferred sessions is documented by OpenAI as not yet available.
+
+Disconnect discovers the trusted OpenAI revocation endpoint and attempts refresh-token revocation, then clears access/refresh/ID tokens locally, retaining only the encrypted registration/subject mapping for later sign-in. HTTP 204 means local credentials were durably cleared and any available refresh token was revoked (or no local credential existed). When revocation cannot be confirmed, HTTP 200 explicitly returns `connected:false, revoked:false` plus `X-Revocation-Status: unconfirmed`: disconnect the app in ChatGPT Settings as well. If the encryption key is not configured, disconnect durably deletes the encrypted record, losing its registration metadata; restoring the key cannot reconnect that owner. Storage failures return non-2xx rather than claiming disconnect. Native UI gives this standing warning. Apple **logout revokes that app session**, cancels its pending bootstrap usability, clears local content/Keychain; it deliberately preserves the user's separately connected provider for another signed-in device. There is no account-deletion endpoint yet.
+
+## Inference and bounds
+
+Every personal translation fetches the same user's current `GET https://api.openai.com/v1/models` catalog; only `visibility:list` entries are eligible. Choose `gpt-6-luna` **only if offered**, otherwise the first visible entry in server order. No invented `gpt-6.1-luna` ID or assumed model entitlement.
+
+Calls use public `/v1/responses`, `store:false`, `stream:true`, with cancellation and no redirect forwarding. Parse SSE deltas and require `response.completed`; failed/incomplete/refused/oversized/interrupted streams are not saved. Errors returned to clients are bounded and do not expose upstream response bodies/tokens. Input: 8000 Unicode characters, 64 KiB JSON; output text: 64 KiB; upstream SSE total: 2 MiB. Translation rate: 20/minute/user, connect: 5/minute/user, provider status/mutations: 30/minute/user. Inbound HTTP headers have a 5-second deadline; the entire request body has a 10-second read deadline, and idle keep-alive connections expire after 60 seconds. There is no response write deadline that would truncate long inference/streaming; upstream HTTP client timeouts remain in effect. History files are owner-only; GET returns newest 100 (disk retention is not yet capped).
+
+## Precise remaining gates
+
+- **No live Apple/ChatGPT consent or real inference was performed.** User must approve ChatGPT plan scopes. No paid call, token reuse, commit, push or deployment happened.
+- Updated Release simulator app builds with ad-hoc signing and passes codesign verification; compiled pairing labels exist in de/en/ru/es/fr. English/Russian signed-out launch screens were inspected. Real authenticated iOS approval taps and production device signing remain acceptance gates.
+- Production origin HTTPS/DNS availability was not changed or re-verified in this task. It must be operational before remote bootstrap.
+- **Browser app approval is implemented** as a deliberate alternative requiring no Apple web Services ID; see [WEB.md](WEB.md) for exact cookie/CSRF, native inspection/Approve/Deny and one-time pairing contracts. Real local Chromium cookie/login/logout integration was verified with an explicitly synthetic native test identity, not live Apple/ChatGPT consent. Standard direct Apple web OAuth remains planned/disabled until a registered Services ID and callback exist. Browser sessions never contain a copied native token. Commercial website ChatGPT OAuth additionally requires selected-partner registration; OSS eligibility is not commercial approval.
+- This one-connection-per-Apple-user slice does not yet implement multi-account/workspace picker, protected SSH credential import, account deletion or cross-replica refresh locks.
+- ChatGPT Responses permission does not establish speech/transcription permission. These remain unavailable; no paid fallback.
+
+## Verified locally
+
+Go unit/integration tests use explicitly synthetic provider HTTP transports, signed test-only RSA identities and temporary encrypted stores; they cover callback state/replay/session binding, signature/issuer/audience/nonce/scope/subject rejection, refresh rotation, revocation, ownership, model selection and terminal stream handling. These are not live OpenAI test results. Swift core tests validate authenticated provider/translation request contracts. An unsigned iOS simulator build exercises native integration compilation.
+
+## Official references inspected
+
+- https://developers.openai.com/siwc/token-sharing-open-source/sign-in.md
+- https://developers.openai.com/siwc/token-sharing-open-source/self-hosted-vms.md
+- https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference.md
+- https://developers.openai.com/siwc/token-sharing-open-source/profiles-and-sessions.md
+- https://developers.openai.com/siwc/website.md
+- https://auth.openai.com/.well-known/openid-configuration
 - https://developer.apple.com/documentation/signinwithapple/verifying-a-user
-- https://developers.openai.com/siwc/quickstart
-- https://developers.openai.com/siwc/token-sharing-open-source
-- https://developers.openai.com/siwc/token-sharing-open-source/sign-in
-- https://developers.openai.com/siwc/token-sharing-open-source/self-hosted-vms
-- https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference

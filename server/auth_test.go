@@ -236,6 +236,15 @@ func TestAppleNewSessionsCannotUseSharedProviderOrHistory(t *testing.T) {
 		}
 		for _, route := range []struct{ method, path string }{{"GET", "/v1/translations"}, {"POST", "/v1/translations"}, {"POST", "/tts"}} {
 			w := authCall(h, route.method, route.path, `{"text":"Hallo"}`, token)
+			if route.method == "GET" && route.path == "/v1/translations" {
+				if w.Code != 200 || !strings.Contains(w.Body.String(), `"items":[]`) {
+					t.Fatalf("private history boundary: %d %s", w.Code, w.Body.String())
+				}
+				continue
+			}
+			if route.path == "/v1/translations" && w.Code == 400 {
+				continue
+			} // Invalid language pair is rejected before provider access.
 			if w.Code != 503 || !strings.Contains(w.Body.String(), "provider connection pending") || w.Header().Get("Cache-Control") != "no-store" {
 				t.Fatalf("new session crossed legacy boundary: %d %s", w.Code, w.Body.String())
 			}

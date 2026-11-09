@@ -1,0 +1,10 @@
+.git
+native
+**/.env
+**/.env.*
+!**/.env.example
+**/data
+**/cache
+**/.build
+**/node_modules
+**/*.log

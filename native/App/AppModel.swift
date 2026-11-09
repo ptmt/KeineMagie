@@ -7,6 +7,52 @@ final class AppModel {
     private(set) var input = ""
     private(set) var result: TranslationRecord?
     private(set) var history: [TranslationRecord] = []
+    var draft = ""
+    var source: Language = .german
+    private(set) var provider: ProviderStatus?
+    private(set) var bootstrap: ProviderBootstrap?
+    private(set) var busy = false
+    private(set) var translatorError: String?
+
+    func api() throws -> APIClient {
+        guard session.phase == .signedIn else { throw APIError.http(401) }
+        return APIClient(endpoint: try ServerEndpoint(session.serverURL, allowLocalHTTP: Self.allowLocalHTTP), token: try TokenStore.read())
+    }
+    func refreshTranslator() async {
+        let version = session.generation
+        do {
+            let client = try api()
+            let items = try await client.history()
+            let status = try await client.provider()
+            guard session.phase == .signedIn, version == session.generation else { return }
+            history = items; provider = status; translatorError = nil
+            if status.connected { bootstrap = nil }
+        } catch { if version == session.generation { translatorError = error.localizedDescription } }
+    }
+    func connectChatGPT() async {
+        let version = session.generation
+        busy = true; defer { busy = false }
+        do {
+            let code = try await api().connectProvider()
+            guard version == session.generation, session.phase == .signedIn else { return }
+            bootstrap = code; translatorError = nil
+        } catch { if version == session.generation { translatorError = error.localizedDescription } }
+    }
+    func disconnectChatGPT() async {
+        let version = session.generation
+        busy = true; defer { busy = false }
+        do { try await api().disconnectProvider(); guard version == session.generation else { return }; bootstrap = nil; provider = nil; await refreshTranslator() }
+        catch { if version == session.generation { translatorError = error.localizedDescription } }
+    }
+    func translate() async {
+        let version = session.generation
+        busy = true; defer { busy = false }
+        do {
+            let item = try await api().translate(text: draft, source: source)
+            guard version == session.generation, session.phase == .signedIn else { return }
+            result = item; history.insert(item, at: 0); translatorError = nil
+        } catch { if version == session.generation { translatorError = error.localizedDescription } }
+    }
 
     init() {
         let url = UserDefaults.standard.string(forKey: "serverURL") ?? ProductIdentity.defaultServerURL
@@ -24,7 +70,7 @@ final class AppModel {
         input = ""
         result = nil
         history = []
-        // No audio player or provider requests exist until account-scoped provider support is implemented.
+        draft = ""; provider = nil; bootstrap = nil; translatorError = nil; busy = false
     }
     func saveServer(url: String) async throws {
         let endpoint = try ServerEndpoint(url, allowLocalHTTP: Self.allowLocalHTTP)

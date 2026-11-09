@@ -5,10 +5,12 @@ on:
     branches: ["main"]
     paths:
       - "server/**"
+      - "web/**"
       - ".github/workflows/server-docker.yml"
   pull_request:
     paths:
       - "server/**"
+      - "web/**"
       - ".github/workflows/server-docker.yml"
 
 jobs:
@@ -44,7 +46,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v6
         with:
-          context: ./server
+          context: .
           file: ./server/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}

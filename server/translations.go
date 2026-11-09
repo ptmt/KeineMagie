@@ -53,7 +53,22 @@ func newHandler(cfg *serverConfig) (http.Handler, error) {
 		return nil, err
 	}
 	cfg.auth = auth
+	provider, err := newProvider(cfg)
+	if err != nil {
+		return nil, err
+	}
+	cfg.provider = provider
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", publicWeb)
+	browser := newBrowserAuth(cfg)
+	mux.HandleFunc("/v1/web/", browser.handle)
+	mux.HandleFunc("/v1/auth/browser/inspect", browser.native)
+	mux.HandleFunc("/v1/auth/browser/approve", browser.native)
+	mux.HandleFunc("/v1/provider", provider.handle)
+	mux.HandleFunc("/v1/provider/connect", provider.handle)
+	mux.HandleFunc("/v1/provider/disconnect", provider.handle)
+	mux.HandleFunc("/v1/provider/bootstrap/start", provider.bootstrap)
+	mux.HandleFunc("/v1/provider/bootstrap/complete", provider.bootstrap)
 	mux.HandleFunc("/v1/auth/apple", auth.exchange)
 	mux.HandleFunc("/v1/auth/session", auth.session)
 	mux.HandleFunc("/v1/auth/logout", auth.logout)
@@ -61,12 +76,16 @@ func newHandler(cfg *serverConfig) (http.Handler, error) {
 	mux.HandleFunc("/health", withCORS(cfg.handleHealth))
 	mux.HandleFunc("/tts", withCORS(cfg.handleTTS))
 	mux.HandleFunc("/v1/translations", withCORS(func(w http.ResponseWriter, r *http.Request) { cfg.handleTranslations(history, w, r) }))
-	return mux, nil
+	return browser.wrap(mux), nil
 }
 
 func (cfg *serverConfig) handleTranslations(history *historyStore, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if bearerSession(r) != "" && (cfg.authToken == "" || !constantAuthEqual(bearerSession(r), cfg.authToken)) {
+		cfg.accountTranslations(w, r)
 		return
 	}
 	if cfg.sessionProviderPending(w, r) {

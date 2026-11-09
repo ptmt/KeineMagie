@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <title>Keine Magie · Übersetzer</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.mjs" type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt</a>
+  <header class="topbar">
+    <a href="#translator" class="wordmark" aria-label="Keine Magie Startseite">keine<span>magie</span><span class="brand-dot" aria-hidden="true">.</span></a>
+    <button id="account" class="account-button" aria-haspopup="dialog"><span id="account-indicator" class="status-dot" aria-hidden="true"></span><span id="account-label">Konto</span></button>
+  </header>
+  <div class="app-layout">
+    <nav class="navigation" aria-label="Lernbereiche">
+      <p class="nav-caption">DEIN LERNRAUM</p>
+      <a href="#translator" aria-current="page"><span class="nav-icon" aria-hidden="true">Aa</span><span>Übersetzer</span></a>
+      <a href="#dictation"><span class="nav-icon" aria-hidden="true">≋</span><span>Diktat</span></a>
+      <a href="#podcasts"><span class="nav-icon" aria-hidden="true">◉</span><span>Podcasts</span></a>
+      <a href="#coach"><span class="nav-icon" aria-hidden="true">↗</span><span>Coach</span></a>
+      <div class="nav-footer">Deutsch lernen.<br>Mit deinen eigenen Worten.</div>
+    </nav>
+    <main id="main">
+      <section id="translator" class="view" aria-labelledby="translator-title">
+        <div class="page-heading"><div><p class="eyebrow">VERSTEHEN, NICHT NUR ÜBERSETZEN</p><h1 id="translator-title">Deine Worte. Mehr Bedeutung.</h1><p class="intro">Deutsch und Russisch — mit Wendungen, Mustern und Wortschatz.</p></div><a href="#history" class="text-link">Zum Verlauf <span aria-hidden="true">↘</span></a></div>
+        <div id="connection-banner" class="connection-banner"><div><strong id="connection-title">Sitzung wird geprüft …</strong><p id="connection-detail">Du kannst deinen Text bereits vorbereiten.</p></div><button id="connection-action" class="small-button">Konto öffnen</button></div>
+        <form id="translation-form">
+          <div class="language-bar"><label class="language-select">Von<select id="source-language" aria-label="Ausgangssprache"><option value="de">Deutsch</option><option value="ru">Russisch</option></select></label><button id="swap" type="button" class="swap-button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button><label class="language-select">Nach<select id="target-language" aria-label="Zielsprache"><option value="ru">Russisch</option><option value="de">Deutsch</option></select></label></div>
+          <div class="translation-panels">
+            <div class="input-panel"><div class="panel-top"><label for="source-text">Dein Text</label><button id="clear" type="button" class="quiet-button">Leeren</button></div><textarea id="source-text" name="text" placeholder="Schreib oder füge hier deinen Text ein …" spellcheck="true" aria-describedby="input-count" lang="de"></textarea><div class="panel-bottom"><span id="input-count">0 / 8.000</span><span class="keyboard-hint">⌘ / Ctrl + Enter</span></div></div>
+            <div class="output-panel"><div class="panel-top"><span>Übersetzung</span><button id="copy" type="button" class="quiet-button" disabled>Kopieren</button></div><div id="result" class="translation-output" aria-live="polite" lang="ru"><p class="empty-result">Hier wird aus deinem Text<br><span>eine neue Perspektive.</span></p></div><div class="panel-bottom"><span id="result-caption">Noch keine Übersetzung</span></div></div>
+          </div>
+          <div class="translate-toolbar"><p id="translation-status" role="status" aria-live="polite">Dein Text wird erst beim Übersetzen gesendet.</p><div class="translation-actions"><button id="cancel" type="button" class="quiet-button" hidden>Abbrechen</button><button id="translate" class="primary-button" type="submit" disabled>Übersetzen <span aria-hidden="true">↗</span></button></div></div>
+        </form>
+        <section class="learning" aria-labelledby="learning-title"><div class="section-heading"><h2 id="learning-title">Was steckt dahinter?</h2><span>Aus deiner Übersetzung</span></div><div class="learning-columns"><section><h3>Wendungen <span class="note-index">01</span></h3><div id="idioms" class="notes"><p class="muted">Redewendungen und ihre Bedeutung erscheinen hier.</p></div></section><section><h3>Muster <span class="note-index">02</span></h3><div id="patterns" class="notes"><p class="muted">Grammatik und Strukturen aus deinem Text.</p></div></section><section><h3>Wortschatz <span class="note-index">03</span></h3><div id="vocabulary" class="notes"><p class="muted">Nützliche Wörter zum Wiederentdecken.</p></div></section></div><p id="model-note" class="model-note" hidden>KI-generierte Hinweise können Fehler enthalten. Prüfe wichtige Formulierungen.</p></section>
+        <section id="history" class="history" aria-labelledby="history-title"><div class="section-heading"><h2 id="history-title">Dein Verlauf</h2><button id="refresh-history" class="quiet-button" type="button" disabled>Aktualisieren</button></div><p id="history-status" class="muted">Melde dich an, um deinen persönlichen Verlauf zu laden.</p><ul id="history-list" class="history-list"></ul></section>
+      </section>
+      <section id="dictation" class="view planned-view" hidden><p class="eyebrow">IN PLANUNG</p><h1>Diktat</h1><p>Hören. Schreiben. Genauer verstehen.</p><p class="muted">Eigene deutsche Texte Satz für Satz üben. Im Web noch nicht verfügbar; Audio-Berechtigungen und die persönliche Provider-Anbindung werden separat geprüft.</p><a href="#translator" class="text-link">Zum Übersetzer ↗</a></section>
+      <section id="podcasts" class="view planned-view" hidden><p class="eyebrow">IN PLANUNG</p><h1>Podcasts & Shadowing</h1><p>Mit echten Stimmen lernen.</p><p class="muted">Audio importieren, Transkripte verstehen und Abschnitte nachsprechen. Upload, Transkription und Wiedergabe sind im Web noch nicht implementiert.</p><a href="#translator" class="text-link">Zum Übersetzer ↗</a></section>
+      <section id="coach" class="view planned-view" hidden><p class="eyebrow">IN PLANUNG</p><h1>Dein Coach</h1><p>Der nächste Schritt beginnt bei dir.</p><p class="muted">Später entstehen Empfehlungen aus deinen tatsächlichen Übungen. Noch keine Auswertung, Fortschrittswerte oder Erinnerungen — und keine erfundenen Lerndaten.</p><a href="#translator" class="text-link">Zum Übersetzer ↗</a></section>
+      <footer class="page-footer"><span>Keine Magie. Einfach dranbleiben.</span><span>DE ⇄ RU</span></footer>
+    </main>
+  </div>
+  <dialog id="account-dialog" aria-labelledby="account-title"><div class="dialog-heading"><h2 id="account-title">Dein Konto</h2><button id="close-account" class="quiet-button" aria-label="Konto schließen">Schließen</button></div><section class="account-section"><h3>Apple</h3><p id="apple-status">Sitzung wird geprüft …</p><p id="apple-detail" class="muted"></p><button id="pair-browser" class="small-button" disabled>Mit iPhone anmelden</button><div id="browser-pairing" hidden><p>Keine Magie auf deinem angemeldeten iPhone öffnen → Browser verbinden. Nur diesen eigenen Browser bestätigen. Der Code gilt fünf Minuten.</p><output id="pairing-code" aria-live="polite"></output><p id="pairing-status" role="status"></p></div><button id="apple-login" class="apple-button" disabled>Mit Apple anmelden</button><button id="logout" class="quiet-button" hidden>Abmelden</button></section><section class="account-section"><h3>ChatGPT</h3><p id="provider-status">Nicht verbunden</p><p id="provider-detail" class="muted">Zuerst mit Apple anmelden. Die Verbindung gehört nur zu deinem Konto.</p><button id="provider-connect" class="small-button" disabled>Continue with ChatGPT</button><div id="provider-bootstrap" hidden><p>Auf deinem Desktop im KeineMagie-Projekt ausführen:</p><code>cd server &amp;&amp; go run . connect</code><p>Server-Adresse und diesen kurzlebigen Einmalcode nur im lokalen Programm eingeben. Das Programm öffnet die offizielle ChatGPT-Zustimmung.</p><label for="bootstrap-code">Einmalcode</label><input id="bootstrap-code" readonly autocomplete="off" spellcheck="false"><p id="bootstrap-expiry" class="muted"></p></div></section><p id="account-error" role="status" class="error-text"></p><button id="retry-session" class="quiet-button">Verbindung erneut prüfen</button></dialog>
+</body>
+</html>

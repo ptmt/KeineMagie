@@ -19,6 +19,34 @@ public struct APIClient: Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         return request
     }
+    public func browserPairingRequest(code: String) throws -> URLRequest {
+        guard code.range(of: "^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$", options: .regularExpression) != nil else { throw APIError.invalidResponse }
+        var result = try request(path: "v1/auth/browser/inspect", method: "POST")
+        result.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        result.httpBody = try JSONEncoder().encode(["user_code": code])
+        return result
+    }
+    public func browserApprovalRequest(approval: String, approve: Bool) throws -> URLRequest {
+        var result = try request(path: "v1/auth/browser/approve", method: "POST")
+        result.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        result.httpBody = try JSONSerialization.data(withJSONObject: ["approval_token": approval, "approve": approve])
+        return result
+    }
+    public func inspectBrowser(code: String) async throws -> BrowserApproval {
+        try JSONDecoder().decode(BrowserApproval.self, from: await send(browserPairingRequest(code: code)))
+    }
+    public func approveBrowser(approval: String, approve: Bool) async throws {
+        _ = try await send(browserApprovalRequest(approval: approval, approve: approve))
+    }
+    public func providerRequest(action: String? = nil) throws -> URLRequest {
+        guard action == nil || action == "connect" || action == "disconnect" else { throw APIError.invalidResponse }
+        var result = try request(path: "v1/provider" + (action.map { "/" + $0 } ?? ""), method: action == nil ? "GET" : "POST")
+        if action != nil { result.httpBody = Data("{}".utf8); result.setValue("application/json", forHTTPHeaderField: "Content-Type") }
+        return result
+    }
+    public func provider() async throws -> ProviderStatus { try JSONDecoder().decode(ProviderStatus.self, from: await send(providerRequest())) }
+    public func connectProvider() async throws -> ProviderBootstrap { try JSONDecoder().decode(ProviderBootstrap.self, from: await send(providerRequest(action: "connect"))) }
+    public func disconnectProvider() async throws { _ = try await send(providerRequest(action: "disconnect")) }
     public func translationRequest(text: String, source: Language) throws -> URLRequest {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw APIError.emptyText }
         var result = try request(path: "v1/translations", method: "POST")
@@ -51,6 +79,7 @@ public struct APIClient: Sendable {
         let (data, response) = try await session.data(for: request)
         guard let response = response as? HTTPURLResponse else { throw APIError.invalidResponse }
         guard (200..<300).contains(response.statusCode) else { throw APIError.http(response.statusCode) }
+        if response.statusCode == 204 { return data }
         guard !data.isEmpty else { throw APIError.invalidResponse }
         return data
     }
