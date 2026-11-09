@@ -3,9 +3,11 @@ import Foundation
 public struct APIClient: Sendable {
     public let endpoint: ServerEndpoint
     private let token: String
-    public init(endpoint: ServerEndpoint, token: String) {
+    private let transport: AuthClient.Transport
+    public init(endpoint: ServerEndpoint, token: String, transport: @escaping AuthClient.Transport = AuthClient.network) {
         self.endpoint = endpoint
         self.token = token
+        self.transport = transport
     }
     private func request(path: String, method: String) throws -> URLRequest {
         guard !token.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -46,6 +48,23 @@ public struct APIClient: Sendable {
     }
     public func provider() async throws -> ProviderStatus { try JSONDecoder().decode(ProviderStatus.self, from: await send(providerRequest())) }
     public func connectProvider() async throws -> ProviderBootstrap { try JSONDecoder().decode(ProviderBootstrap.self, from: await send(providerRequest(action: "connect"))) }
+    public func bootstrapRequest(token bootstrapToken: String, redirect: URL? = nil, callback: URL? = nil) throws -> URLRequest {
+        guard !bootstrapToken.isEmpty, (redirect != nil) != (callback != nil) else { throw APIError.invalidResponse }
+        var result = try request(path: "v1/provider/bootstrap/" + (redirect == nil ? "complete" : "start"), method: "POST")
+        result.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var body = ["bootstrap_token": bootstrapToken]
+        if let redirect { body["redirect_uri"] = redirect.absoluteString }
+        if let callback { body["callback_url"] = callback.absoluteString }
+        result.httpBody = try JSONEncoder().encode(body)
+        return result
+    }
+    public func bootstrapStart(token: String, redirect: URL) async throws -> String {
+        let data = try await send(bootstrapRequest(token: token, redirect: redirect))
+        return try JSONDecoder().decode(ProviderAuthorize.self, from: data).authorizeURL
+    }
+    public func bootstrapComplete(token: String, callback: URL) async throws {
+        _ = try await send(bootstrapRequest(token: token, callback: callback))
+    }
     public func disconnectProvider() async throws { _ = try await send(providerRequest(action: "disconnect")) }
     public func translationRequest(text: String, source: Language) throws -> URLRequest {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw APIError.emptyText }
@@ -73,16 +92,18 @@ public struct APIClient: Sendable {
         try await send(ttsRequest(text: text))
     }
     private func send(_ request: URLRequest) async throws -> Data {
-        // Never forward the shared bearer token through an HTTP redirect.
-        let session = URLSession(configuration: .ephemeral, delegate: NoRedirects(), delegateQueue: nil)
-        defer { session.invalidateAndCancel() }
-        let (data, response) = try await session.data(for: request)
-        guard let response = response as? HTTPURLResponse else { throw APIError.invalidResponse }
-        guard (200..<300).contains(response.statusCode) else { throw APIError.http(response.statusCode) }
-        if response.statusCode == 204 { return data }
+        // The default transport refuses redirects and cancels its URLSession.
+        let response = try await transport(request)
+        let data = response.data
+        guard (200..<300).contains(response.status) else { throw APIError.http(response.status) }
+        if response.status == 204 { return data }
         guard !data.isEmpty else { throw APIError.invalidResponse }
         return data
     }
+}
+private struct ProviderAuthorize: Decodable {
+    let authorizeURL: String
+    enum CodingKeys: String, CodingKey { case authorizeURL = "authorize_url" }
 }
 private struct TTSBody: Encodable {
     let text: String
@@ -91,11 +112,6 @@ private struct TTSBody: Encodable {
     let model = "gpt-4o-mini-tts"
     let format = "mp3"
     let speed = 1.0
-}
-private final class NoRedirects: NSObject, URLSessionTaskDelegate, Sendable {
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping @Sendable (URLRequest?) -> Void) {
-        completionHandler(nil)
-    }
 }
 public enum APIError: LocalizedError {
     case missingToken, emptyText, invalidResponse, http(Int)

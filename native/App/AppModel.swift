@@ -11,6 +11,10 @@ final class AppModel {
     var source: Language = .german
     private(set) var provider: ProviderStatus?
     private(set) var bootstrap: ProviderBootstrap?
+    var chatGPTBrowser: ChatGPTBrowser?
+    private var loopback: OAuthLoopback?
+    private var connectionID: UUID?
+    private let connectionTasks = ChatGPTConnectionTasks()
     private(set) var busy = false
     private(set) var translatorError: String?
 
@@ -18,27 +22,63 @@ final class AppModel {
         guard session.phase == .signedIn else { throw APIError.http(401) }
         return APIClient(endpoint: try ServerEndpoint(session.serverURL, allowLocalHTTP: Self.allowLocalHTTP), token: try TokenStore.read())
     }
-    func refreshTranslator() async {
+    func refreshTranslator(connection: UUID? = nil) async {
         let version = session.generation
         do {
             let client = try api()
             let items = try await client.history()
+            guard !Task.isCancelled, version == session.generation, session.phase == .signedIn,
+                  connection == nil || connectionID == connection else { return }
             let status = try await client.provider()
-            guard session.phase == .signedIn, version == session.generation else { return }
+            guard !Task.isCancelled, session.phase == .signedIn, version == session.generation,
+                  connection == nil || connectionID == connection else { return }
             history = items; provider = status; translatorError = nil
             if status.connected { bootstrap = nil }
-        } catch { if version == session.generation { translatorError = error.localizedDescription } }
+        } catch {
+            if !Task.isCancelled, session.phase == .signedIn, version == session.generation,
+               connection == nil || connectionID == connection { translatorError = error.localizedDescription }
+        }
     }
     func connectChatGPT() async {
+        cancelChatGPT()
         let version = session.generation
-        busy = true; defer { busy = false }
+        let id = UUID(); connectionID = id
+        let local = OAuthLoopback(); loopback = local
+        busy = true
+        await connectionTasks.run { [self] in
+        defer { if connectionID == id { cancelChatGPT() } }
         do {
-            let code = try await api().connectProvider()
-            guard version == session.generation, session.phase == .signedIn else { return }
-            bootstrap = code; translatorError = nil
-        } catch { if version == session.generation { translatorError = error.localizedDescription } }
+            guard !Task.isCancelled, version == session.generation, connectionID == id, session.phase == .signedIn else { return }
+            let client = try api()
+            let redirect = try await local.start()
+            guard !Task.isCancelled, version == session.generation, connectionID == id, session.phase == .signedIn else { return }
+            let code = try await client.connectProvider()
+            guard !Task.isCancelled, version == session.generation, connectionID == id, session.phase == .signedIn else { return }
+            let raw = try await client.bootstrapStart(token: code.bootstrapToken, redirect: redirect)
+            let auth = try LoopbackPolicy.authorize(raw, redirect: redirect)
+            guard !Task.isCancelled, version == session.generation, connectionID == id, !local.isClosed, session.phase == .signedIn else { return }
+            chatGPTBrowser = ChatGPTBrowser(url: auth.url)
+            let callback = try await local.callback(state: auth.state)
+            guard !Task.isCancelled, version == session.generation, connectionID == id, session.phase == .signedIn else { return }
+            chatGPTBrowser = nil
+            try await client.bootstrapComplete(token: code.bootstrapToken, callback: callback)
+            guard !Task.isCancelled, version == session.generation, connectionID == id, session.phase == .signedIn else { return }
+            translatorError = nil
+            await refreshTranslator(connection: id)
+        } catch {
+            if !Task.isCancelled, session.phase == .signedIn, version == session.generation, connectionID == id {
+                translatorError = AppL10n.text("chatgpt.failed")
+            }
+        }
+        }
+    }
+    func cancelChatGPT() {
+        connectionTasks.cancel()
+        connectionID = nil; loopback?.cancel(); loopback = nil
+        chatGPTBrowser = nil; busy = false
     }
     func disconnectChatGPT() async {
+        cancelChatGPT()
         let version = session.generation
         busy = true; defer { busy = false }
         do { try await api().disconnectProvider(); guard version == session.generation else { return }; bootstrap = nil; provider = nil; await refreshTranslator() }
@@ -67,6 +107,7 @@ final class AppModel {
         #endif
     }
     func resetSessionContent() {
+        cancelChatGPT()
         input = ""
         result = nil
         history = []
@@ -75,6 +116,7 @@ final class AppModel {
     func saveServer(url: String) async throws {
         let endpoint = try ServerEndpoint(url, allowLocalHTTP: Self.allowLocalHTTP)
         guard endpoint.baseURL.absoluteString != session.serverURL else { return }
+        cancelChatGPT()
         // Revoke against the OLD server before changing origin. Offline failure is reported, not hidden.
         await session.logout()
         guard session.phase == .signedOut else { throw SettingsFailure.keychain }

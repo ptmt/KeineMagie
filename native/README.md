@@ -31,8 +31,8 @@ Generation guards isolate late challenge/exchange/restore/logout and stale Apple
 ## Limitations
 
 - Real Apple consent requires user interaction and correct Apple Developer provisioning. Neither consent nor real end-to-end login has been simulated or declared verified.
-- Signed-in UI: **ChatGPT nicht verbunden**. Personal provider connection is planned informational text, not a success-producing button.
-- Translation/history/audio unavailable until personal provider integration. UI and app model never invoke legacy translation/history/TTS; no old shared history is loaded. Legacy core tests remain, not enabled features.
+- Signed-in landing screen: `TranslatorView`, with authenticated DE↔RU translation and personal history. A connection CTA opens `ChatGPTConnectionView`, separate from the translation form. No legacy shared history or paid fallback is used.
+- Direct iPhone ChatGPT login now has an SFSafariViewController + ephemeral loopback candidate. Real simulator UI tests received callbacks while the app remained active; real OpenAI consent and physical-device/TestFlight acceptance are still unverified. See [runtime evidence and release gate](../docs/CHATGPT-IOS-LOGIN.md). Native bootstrap uses existing server start/complete endpoints directly; tokens/PKCE remain server-side. Audio remains unavailable.
 - Canceled exchanges may already have created remote sessions. Stale responses are never persisted; such sessions remain subject to server expiry. No failed-logout background retry queue.
 - Verify deployment, actual Apple consent, persisted real-session restore, account isolation and physical-device provisioning before declaring end-to-end success.
 - App icon is included in the asset catalog.
@@ -43,7 +43,7 @@ The app ships **German (`de`), English (`en`), Russian (`ru`), Spanish (`es`) an
 
 SwiftUI/settings/account text and runtime app errors use `App/Localizable.xcstrings` in the main bundle; core session/auth/endpoint/API errors use SwiftPM `Resources/*.lproj/Localizable.strings` via `Bundle.module`. Debug local-network permission text uses localized `InfoPlist.strings`. `ProductIdentity` keeps the stable **Keine Magie** brand and default HTTPS URL separate from translated copy; wire keys, routes and Keychain identifiers are unchanged.
 
-The signed-out screen shows exactly four capability rows (translator, dictation, podcasts + shadowing, coach) and Apple's native sign-in control at the bottom. These are product capability names, not claims that a provider is connected. Errors, progress, cancellation and offline retry/local logout remain conditional. The account screen still reports that ChatGPT is not connected and language functionality is unavailable. The Apple control supplies both its visible title and native accessibility label in the selected system language; no German accessibility override masks it.
+The signed-out screen retains four capability rows and native Apple sign-in. The signed-in translator uses actual personal history and requires verified provider status. Its connection screen opens in-app Safari, includes a clear unverified real-provider notice, and never displays a bootstrap secret. Five locale catalogs are complete.
 
 Translation source: `ci/localization_data.py`; regenerate resources with `python3 native/ci/generate_localizations.py` and regenerate the Xcode project with `xcodegen generate` inside `native/`. CI checks complete locale/key coverage, format placeholders, bundle configuration and the four-row/native-auth contract:
 

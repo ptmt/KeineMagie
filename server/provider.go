@@ -36,9 +36,11 @@ type providerCredential struct {
 	TokenType    string    `json:"token_type"`
 	ExpiresIn    int       `json:"expires_in"`
 	Expires      time.Time `json:"expires_at"`
+	ConnectionID string    `json:"connection_id,omitempty"`
 }
 type providerAttempt struct {
 	User, Session, State, Nonce, Verifier, Redirect, ClientID, Subject string
+	BaseConnectionID                                                   string
 	Expires                                                            time.Time
 }
 type providerService struct {
@@ -309,19 +311,29 @@ func (p *providerService) handle(w http.ResponseWriter, r *http.Request) {
 			writeError(w, 429, "connection rate limited")
 			return
 		}
+		baseline, loadErr := p.load(user)
+		if loadErr != nil && !os.IsNotExist(loadErr) {
+			writeError(w, 503, "connection storage unavailable")
+			return
+		}
 		p.mu.Lock()
+		ownerAttempts := 0
 		for k, v := range p.attempts {
-			if time.Now().After(v.Expires) || v.User == user {
+			if !time.Now().Before(v.Expires) {
 				delete(p.attempts, k)
+			} else if v.User == user {
+				ownerAttempts++
 			}
 		}
-		if len(p.attempts) >= 1024 {
+		// A canceled client request can still arrive after its replacement.
+		// Never evict live flows on issuance; reject excess attempts instead.
+		if len(p.attempts) >= 1024 || ownerAttempts >= 8 {
 			p.mu.Unlock()
 			writeError(w, 429, "connection unavailable")
 			return
 		}
 		token := randomAuthToken()
-		p.attempts[sessionHash(token)] = providerAttempt{User: user, Session: bearerSession(r), Expires: time.Now().Add(5 * time.Minute)}
+		p.attempts[sessionHash(token)] = providerAttempt{User: user, Session: bearerSession(r), BaseConnectionID: baseline.ConnectionID, Expires: time.Now().Add(5 * time.Minute)}
 		p.mu.Unlock()
 		writeJSON(w, 200, map[string]any{"bootstrap_token": token, "expires_in": 300, "message": "On your desktop run: cd server && go run . connect. Enter this server URL and one-time code. Continue with ChatGPT in the browser; credentials stay on your server."})
 	case "/v1/provider/disconnect":
@@ -473,6 +485,18 @@ func (p *providerService) bootstrap(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 400, "authorization denied or invalid state")
 		return
 	}
+	// Issuance is not an ordering signal: a canceled request may arrive late.
+	// Commit only against the connection present when this attempt was issued.
+	// Owner locking makes this compare-and-save atomic with other completions.
+	current, loadErr := p.load(a.User)
+	if loadErr != nil && !os.IsNotExist(loadErr) {
+		writeError(w, 503, "connection storage unavailable")
+		return
+	}
+	if current.ConnectionID != a.BaseConnectionID {
+		writeError(w, 409, "connection changed; start a new connection")
+		return
+	}
 	id := a.ClientID
 	if id == "" {
 		id = q.Get("client_id")
@@ -496,6 +520,7 @@ func (p *providerService) bootstrap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.Subject = sub
+	c.ConnectionID = randomAuthToken()
 	if _, err = p.cfg.auth.store.lookup(a.Session, time.Now()); err != nil {
 		writeError(w, 401, "authentication failed")
 		return
@@ -608,6 +633,7 @@ func (p *providerService) access(ctx context.Context, user string) (providerCred
 	}
 	n.ClientID = c.ClientID
 	n.Subject = c.Subject
+	n.ConnectionID = c.ConnectionID
 	return n, p.save(user, n)
 }
 func (p *providerService) verify(ctx context.Context, raw, id, nonce string) (string, error) {

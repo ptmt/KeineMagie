@@ -1,6 +1,356 @@
 {
   "sourceLanguage": "de",
   "strings": {
+    "chatgpt.native.notice": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari öffnet sich innerhalb der App. Zugangsdaten bleiben auf deinem Server. Simulator geprüft; echter OpenAI-Consent und physisches iPhone noch ungeprüft."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari opens inside the app. Credentials stay on your server. Simulator tested; real OpenAI consent and physical iPhone untested."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari открывается в приложении. Учётные данные остаются на сервере. Симулятор проверен; реальное согласие OpenAI и iPhone ещё не проверены."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari se abre dentro de la app. Las credenciales quedan en tu servidor. Simulador probado; consentimiento real de OpenAI e iPhone físico sin probar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari s’ouvre dans l’app. Les identifiants restent sur votre serveur. Simulateur testé ; consentement OpenAI réel et iPhone physique non testés."
+          }
+        }
+      }
+    },
+    "chatgpt.failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindung abgebrochen, abgelaufen oder fehlgeschlagen. Bitte erneut versuchen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection canceled, expired, or failed. Please try again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключение отменено, истекло или не удалось. Повторите попытку."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexión cancelada, caducada o fallida. Inténtalo de nuevo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion annulée, expirée ou échouée. Réessayez."
+          }
+        }
+      }
+    },
+    "chatgpt.connect": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ChatGPT verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect ChatGPT"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключить ChatGPT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar ChatGPT"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter ChatGPT"
+          }
+        }
+      }
+    },
+    "chatgpt.requirement": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinde dein ChatGPT-Konto in der App. Echter OpenAI-Consent muss noch geprüft werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect your ChatGPT account inside the app. Real OpenAI consent still needs testing."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключите ChatGPT в приложении. Реальное согласие OpenAI ещё требует проверки."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conecta ChatGPT dentro de la app. Falta verificar el consentimiento real de OpenAI."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez ChatGPT dans l’app. Le consentement OpenAI réel reste à tester."
+          }
+        }
+      }
+    },
+    "chatgpt.direct.blocked": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direkte iPhone-Anmeldung nicht verfügbar"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direct iPhone sign-in unavailable"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прямой вход на iPhone недоступен"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso directo en iPhone no disponible"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion directe sur iPhone indisponible"
+          }
+        }
+      }
+    },
+    "chatgpt.direct.reason": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der offene ChatGPT-Login verlangt einen lokalen HTTP-Rückruf. iOS bietet dafür keinen dokumentierten Authentifizierungs-Rückruf; beim Wechsel zu Safari kann die App pausiert werden. Ein zuverlässiger direkter Web-Login benötigt die Freigabe durch OpenAI und eine registrierte HTTPS-Rückrufadresse. Es wird keine Verbindung vorgetäuscht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open ChatGPT sign-in requires a local HTTP callback. iOS provides no documented authentication callback for this; switching to Safari may suspend the app. Reliable direct web sign-in requires OpenAI approval and a registered HTTPS callback. No connection is simulated."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открытый вход ChatGPT требует локального HTTP-адреса возврата. В iOS нет документированного механизма такого возврата; при переходе в Safari приложение может приостановиться. Для надёжного прямого веб-входа нужны одобрение OpenAI и зарегистрированный HTTPS-адрес возврата. Подключение не имитируется."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El acceso abierto de ChatGPT requiere un retorno HTTP local. iOS no documenta un retorno de autenticación así; al abrir Safari la app puede suspenderse. Un acceso web directo fiable requiere aprobación de OpenAI y un retorno HTTPS registrado. No se simula ninguna conexión."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion ouverte ChatGPT exige un retour HTTP local. iOS ne documente pas ce type de retour d’authentification ; ouvrir Safari peut suspendre l’app. Une connexion web directe fiable nécessite l’accord d’OpenAI et un retour HTTPS enregistré. Aucune connexion n’est simulée."
+          }
+        }
+      }
+    },
+    "chatgpt.registration": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenAI-Zulassung beantragen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request OpenAI approval"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запросить одобрение OpenAI"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solicitar aprobación de OpenAI"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander l’accord d’OpenAI"
+          }
+        }
+      }
+    },
+    "chatgpt.desktop.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alternative: am Desktop verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alternative: connect on desktop"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Альтернатива: подключение с компьютера"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alternativa: conectar en ordenador"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alternative : connexion sur ordinateur"
+          }
+        }
+      }
+    },
+    "chatgpt.desktop.start": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einmalcode für Desktop erstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create desktop one-time code"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать одноразовый код для компьютера"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear código de un solo uso para ordenador"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer un code à usage unique pour ordinateur"
+          }
+        }
+      }
+    },
+    "chatgpt.desktop.instructions": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am Desktop im KeineMagie-Quellcode: cd server && go run . connect. Server-URL und den unten erzeugten Einmalcode eingeben, dann ChatGPT im Browser bestätigen. Code nur im eigenen Desktop-Helfer verwenden; fünf Minuten gültig. Danach hier Verbindung prüfen. Diese Server-Brücke ist noch nicht mit echtem OpenAI-Consent verifiziert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On desktop in the KeineMagie source: cd server && go run . connect. Enter the server URL and the one-time code created below, then approve ChatGPT in the browser. Use the code only in your own desktop helper; valid for five minutes. Then check the connection here. This server bridge has not yet been verified with real OpenAI consent."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На компьютере в исходном коде KeineMagie: cd server && go run . connect. Введите URL сервера и созданный ниже одноразовый код, затем подтвердите ChatGPT в браузере. Вводите код только в своей локальной программе; он действует пять минут. Затем проверьте подключение здесь. Этот мост к серверу ещё не проверен с реальным согласием OpenAI."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En el ordenador, en el código de KeineMagie: cd server && go run . connect. Introduce la URL del servidor y el código creado abajo; autoriza ChatGPT en el navegador. Usa el código solo en tu asistente local; válido cinco minutos. Después comprueba aquí la conexión. Este puente al servidor aún no se ha verificado con consentimiento real de OpenAI."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur ordinateur, dans les sources KeineMagie : cd server && go run . connect. Saisissez l’URL du serveur et le code créé ci-dessous, puis autorisez ChatGPT dans le navigateur. Utilisez ce code uniquement dans votre propre assistant local ; validité cinq minutes. Vérifiez ensuite la connexion ici. Ce pont serveur n’a pas encore été vérifié avec un consentement OpenAI réel."
+          }
+        }
+      }
+    },
     "ChatGPT verbunden": {
       "extractionState": "manual",
       "localizations": {

@@ -18,7 +18,7 @@ struct RootView: View {
         NavigationStack {
             Group {
                 if model.session.phase == .signedIn {
-                    AccountView()
+                    TranslatorView()
                 } else {
                     LoginGate()
                 }
@@ -109,59 +109,6 @@ private struct FeatureRow: View {
         .padding(.vertical, 22)
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
-    }
-}
-
-struct AccountView: View {
-    @Environment(AppModel.self) private var model
-    var body: some View {
-        @Bindable var model = model
-        List {
-            Section { NavigationLink { BrowserPairingView() } label: { Label("browser.connect", systemImage: "desktopcomputer") } }
-            Section("ChatGPT") {
-                Label(model.provider?.connected == true ? "ChatGPT verbunden" : "ChatGPT nicht verbunden", systemImage: "link")
-                if let status = model.provider { Text(verbatim: status.message).font(.caption) }
-                if let selected = model.provider?.selectedModel { Text(verbatim: selected).font(.caption.monospaced()) }
-                if model.provider?.connected == true {
-                    Button("ChatGPT trennen", role: .destructive) { Task { await model.disconnectChatGPT() } }.disabled(model.busy)
-                    Text("Die lokale Trennung versucht auch den ChatGPT-Widerruf. Bei Netzwerkfehlern zusätzlich in den ChatGPT-Einstellungen trennen.").font(.caption)
-                } else {
-                    Button("Continue with ChatGPT") { Task { await model.connectChatGPT() } }.disabled(model.busy || model.provider?.status == "setup_required")
-                }
-                if let code = model.bootstrap {
-                    Text("Am Desktop im KeineMagie-Quellcode ausführen: cd server && go run . connect. Server-URL und diesen einmaligen Code eingeben. Danach ChatGPT im Browser bestätigen. Gültig für fünf Minuten.").font(.caption)
-                    Text(verbatim: code.bootstrapToken).font(.caption.monospaced()).textSelection(.enabled)
-                    Text(verbatim: model.session.serverURL).font(.caption).textSelection(.enabled)
-                }
-                Button("Verbindung prüfen") { Task { await model.refreshTranslator() } }.disabled(model.busy)
-            }
-            Section("Übersetzen") {
-                Picker("Richtung", selection: $model.source) {
-                    Text("Deutsch → Русский").tag(Language.german)
-                    Text("Русский → Deutsch").tag(Language.russian)
-                }
-                TextEditor(text: $model.draft).frame(minHeight: 120).accessibilityLabel("Text zum Übersetzen")
-                Button("Übersetzen") { Task { await model.translate() } }
-                    .disabled(model.busy || model.provider?.connected != true || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
-                if model.busy { ProgressView() }
-                if let result = model.result { Text(verbatim: result.translation).textSelection(.enabled) }
-                if let error = model.translatorError { ErrorNotice(text: error) }
-            }
-            Section("Dein Verlauf") {
-                if model.history.isEmpty { Text("Noch keine Übersetzungen.").foregroundStyle(.secondary) }
-                ForEach(model.history) { item in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(verbatim: item.text).font(.caption).foregroundStyle(.secondary)
-                        Text(verbatim: item.translation).textSelection(.enabled)
-                    }
-                }
-            }
-            Section {
-                Text("Sprachausgabe, Diktat und Lernanalysen sind nicht Teil dieser ersten Übersetzer-Version. Kein kostenpflichtiger API-Fallback.").font(.caption)
-                Button("Abmelden", role: .destructive) { Task { await model.logout() } }
-            }
-        }
-        .task(id: model.session.generation) { await model.refreshTranslator() }
     }
 }
 

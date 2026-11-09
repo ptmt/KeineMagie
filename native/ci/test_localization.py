@@ -11,7 +11,7 @@ LOCALES = {'de', 'en', 'ru', 'es', 'fr'}
 class LoginSurfaceTests(unittest.TestCase):
     def test_four_capability_rows_and_native_bottom_auth(self):
         source = (NATIVE / 'App/KeineMagieApp.swift').read_text()
-        gate = source.split('struct LoginGate: View')[1].split('struct AccountView: View')[0]
+        gate = source.split('struct LoginGate: View')[1].split('private struct FeatureRow: View')[0]
         self.assertEqual(re.findall(r'FeatureRow\("(feature\.[^"]+)"', gate),
                          ['feature.translator', 'feature.dictation', 'feature.podcasts', 'feature.coach'])
         self.assertIn('.safeAreaInset(edge: .bottom)', gate)
