@@ -322,7 +322,9 @@ func (p *providerService) handle(w http.ResponseWriter, r *http.Request) {
 			}
 			models, err := p.models(r.Context(), c.AccessToken)
 			if err != nil {
-				writeError(w, 502, "model catalog unavailable")
+				// Catalog availability is not credential persistence. Preserve the
+				// connection while withholding model readiness; never echo upstream bodies.
+				writeJSON(w, 200, map[string]any{"connected": true, "status": "catalog_unavailable", "message": "ChatGPT connection saved; model catalog unavailable. Check the connection again.", "models": []providerModel{}, "selected_model": ""})
 				return
 			}
 			writeJSON(w, 200, map[string]any{"connected": true, "status": "connected", "message": "ChatGPT connected", "models": models, "selected_model": chooseModel(models)})

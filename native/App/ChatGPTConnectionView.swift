@@ -18,7 +18,8 @@ struct ChatGPTConnectionView: View {
                     Text("chatgpt.native.notice").font(.callout)
                 }
                 if let status = model.provider, status.status == "setup_required" { Text(verbatim: status.message).font(.caption).foregroundStyle(.secondary) }
-                Button("Verbindung prüfen") { Task { await model.refreshTranslator() } }.disabled(model.busy)
+                Button("Verbindung prüfen") { Task { await model.refreshTranslator() } }.disabled(model.busy || model.refreshing)
+                if model.refreshing { ProgressView() }
             }
             if model.busy { ProgressView(); Button("Abbrechen") { model.cancelChatGPT() } }
             if let error = model.translatorError { ErrorNotice(text: error) }
@@ -29,8 +30,8 @@ struct ChatGPTConnectionView: View {
         }
         .navigationTitle("ChatGPT")
         .task { await model.refreshTranslator() }
-        .sheet(item: Binding(get: { model.chatGPTBrowser }, set: { if $0 == nil { model.cancelChatGPT() } })) { browser in
-            ChatGPTSafariView(url: browser.url) { model.cancelChatGPT() }.ignoresSafeArea()
+        .sheet(item: Binding(get: { model.chatGPTBrowser }, set: { if $0 == nil { model.browserDismissed() } })) { browser in
+            ChatGPTSafariView(url: browser.url) { model.browserDismissed(id: browser.id) }.ignoresSafeArea()
         }
         .onChange(of: scenePhase) { _, phase in if phase == .background { model.cancelChatGPT() } }
         .onChange(of: model.session.generation) { _, _ in model.cancelChatGPT() }

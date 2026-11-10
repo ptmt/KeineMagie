@@ -1,7 +1,8 @@
 export function readiness(session) {
   if (!session?.user?.id) return 'signed-out';
   if (typeof session.csrf_token !== 'string' || !session.csrf_token) return 'session-unavailable';
-  return session.provider?.connected === true ? 'ready' : 'provider-required';
+  if (session.provider?.connected !== true) return 'provider-required';
+  return typeof session.provider.selected_model === 'string' && session.provider.selected_model.trim() ? 'ready' : 'model-unavailable';
 }
 
 export function inputPayload(text, source) {

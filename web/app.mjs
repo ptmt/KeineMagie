@@ -87,6 +87,8 @@ function updateInput() {
 function renderConnection() {
   const signedIn = !!session?.user?.id;
   const phase = readiness(session);
+  const modelUnavailable = phase === 'model-unavailable';
+  const catalogWarning = 'Dein ChatGPT-Konto ist verbunden, aber der Modellkatalog ist gerade nicht verfügbar. Bitte die Verbindung erneut prüfen. Eine neue Verbindung ist dafür nicht erforderlich.';
   $('account-indicator').classList.toggle('connected', signedIn);
   setText('account-label', signedIn ? 'Dein Konto' : 'Anmelden');
   setText('account-title', signedIn ? 'Dein Konto' : 'Anmelden');
@@ -102,15 +104,16 @@ function renderConnection() {
   $('provider-connect').disabled = checking || !signedIn || config?.chatgpt_connect_available !== true || session?.provider?.connected === true;
   $('refresh-history').disabled = checking || !signedIn;
   setText('apple-status', signedIn ? 'Mit Apple angemeldet' : '');
-  setText('provider-status', signedIn ? (session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden') : '');
+  setText('provider-status', signedIn ? (modelUnavailable ? 'Verbunden · Modell nicht verfügbar' : session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden') : '');
   if (!signedIn || session?.provider?.connected === true) clearBootstrap();
-  setText('provider-detail', !signedIn ? '' : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
+  setText('provider-detail', !signedIn ? '' : modelUnavailable ? catalogWarning : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
   $('connection-notice').hidden = !checking && phase === 'ready';
   $('connection-action').hidden = checking;
-  setText('connection-action', signedIn ? 'Konto öffnen' : 'Anmelden');
-  setText('connection-detail', '');
+  setText('connection-action', modelUnavailable ? 'Erneut prüfen' : signedIn ? 'Konto öffnen' : 'Anmelden');
+  setText('connection-detail', modelUnavailable ? catalogWarning : '');
   if (checking) setText('connection-title', 'Sitzung wird geprüft …');
   else if (phase === 'ready') setText('connection-title', 'Bereit zum Übersetzen');
+  else if (modelUnavailable) setText('connection-title', 'ChatGPT verbunden · Modell nicht verfügbar.');
   else if (signedIn) setText('connection-title', 'ChatGPT im Konto verbinden.');
   else if (!config) {
     setText('connection-title', 'Anmeldung nicht erreichbar.');
@@ -247,7 +250,7 @@ $('cancel').addEventListener('click', () => controller?.abort());
 $('copy').addEventListener('click', async () => { if (!record) return; try { await navigator.clipboard.writeText(record.translation); status('Übersetzung kopiert.'); } catch { status('Kopieren nicht erlaubt. Markiere den Text und kopiere ihn manuell.', true); } });
 $('refresh-history').addEventListener('click', loadHistory);
 $('account').addEventListener('click', () => $('account-dialog').showModal());
-$('connection-action').addEventListener('click', () => { if (!config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) restore(); else $('account-dialog').showModal(); });
+$('connection-action').addEventListener('click', () => { if (readiness(session) === 'model-unavailable' || !config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); else $('account-dialog').showModal(); });
 function resetAccountDialog() { accountRun++; clearBootstrap(); clearPairing(); setText('account-error', ''); }
 $('close-account').addEventListener('click', () => { resetAccountDialog(); $('account-dialog').close(); });
 $('account-dialog').addEventListener('cancel', resetAccountDialog);

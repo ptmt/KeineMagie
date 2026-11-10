@@ -23,7 +23,7 @@ window.fetch = async (path, options = {}) => {
   window.__testCalls.push({path,method:options.method,headers:options.headers,credentials:options.credentials,body:options.body});
   const reply = (body,status=200) => new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}});
   if(path === '/v1/web/config') return reply({apple_available:true,pairing_available:true,chatgpt_connect_available:true,csrf_token:'test-only-bootstrap-csrf'});
-  if(path === '/v1/web/session') return window.__testSignedIn ? reply({user:{id:'test-only-user'},csrf_token:'test-only-csrf',provider:{connected:window.__testConnected}}) : reply({error:'expired'},401);
+  if(path === '/v1/web/session') return window.__testSignedIn ? reply({user:{id:'test-only-user'},csrf_token:'test-only-csrf',provider:{connected:window.__testConnected,selected_model:window.__testConnected ? 'test-only-offered-model' : ''}}) : reply({error:'expired'},401);
   if(path === '/v1/provider/connect') return reply({bootstrap_token:'TEST-ONLY-ONE-TIME-CODE',expires_in:300});
   if(path === '/v1/web/logout') { window.__testSignedIn=false; return new Response(null,{status:204}); }
   if(path === '/v1/translations' && options.method === 'GET') return reply({items:[]});

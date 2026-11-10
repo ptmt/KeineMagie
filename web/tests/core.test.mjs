@@ -23,7 +23,7 @@ test('translation readiness fails closed and validates Unicode length and suppor
   assert.equal(readiness(null), 'signed-out');
   assert.equal(readiness({ user: { id: 'u' }, csrf_token: 'csrf', provider: { connected: false } }), 'provider-required');
   assert.equal(readiness({ user: { id: 'u' }, provider: { connected: true } }), 'session-unavailable');
-  assert.equal(readiness({ user: { id: 'u' }, csrf_token: 'csrf', provider: { connected: true } }), 'ready');
+  assert.equal(readiness({ user: { id: 'u' }, csrf_token: 'csrf', provider: { connected: true, selected_model: 'gpt-6-luna' } }), 'ready');
   assert.deepEqual(inputPayload(' Hallo ', 'de'), { text: 'Hallo', source_language: 'de', target_language: 'ru' });
   assert.throws(() => inputPayload(' ', 'de'), /text/);
   assert.throws(() => inputPayload('x'.repeat(8001), 'de'), /8000/);
@@ -31,6 +31,19 @@ test('translation readiness fails closed and validates Unicode length and suppor
   assert.equal(inputPayload('😀'.repeat(8000), 'ru').text.length, 16000);
   assert.deepEqual(swapDraft('de', 'original', 'result'), { source: 'ru', text: 'result' });
   assert.deepEqual(swapDraft('ru', 'original', ''), { source: 'de', text: 'original' });
+});
+
+test('catalog_unavailable preserves connection but withholds translation readiness', async () => {
+  const { readiness } = await import('../core.mjs');
+  const provider = { connected: true, status: 'catalog_unavailable', message: 'ChatGPT connection saved; model catalog unavailable. Check the connection again.', models: [], selected_model: '' };
+  const session = { user: { id: 'u' }, csrf_token: 'csrf', provider };
+  assert.equal(readiness(session), 'model-unavailable');
+  for (const selected_model of [undefined, null, '', '   ', 123, {}]) {
+    assert.equal(readiness({ ...session, provider: { connected: true, selected_model } }), 'model-unavailable');
+  }
+  assert.equal(readiness({ ...session, provider: { connected: true, selectedModel: 'wrong-field' } }), 'model-unavailable');
+  assert.equal(readiness({ ...session, provider: { connected: false, selected_model: 'stale-model' } }), 'provider-required');
+  assert.equal(readiness({ ...session, provider: { connected: true, selected_model: 'offered-model' } }), 'ready');
 });
 
 test('transport preserves status for expired sessions and never exposes raw upstream errors', async () => {

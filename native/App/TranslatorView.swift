@@ -38,7 +38,7 @@ struct TranslatorView: View {
                 Button { Task { await model.translate() } } label: {
                     Text("Übersetzen").frame(maxWidth: .infinity)
                 }.buttonStyle(.borderedProminent).controlSize(.large)
-                    .disabled(model.busy || model.provider?.connected != true || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
+                    .disabled(model.busy || model.provider?.connected != true || model.provider?.selectedModel?.isEmpty != false || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
                 if model.busy { ProgressView() }
                 if let error = model.translatorError { ErrorNotice(text: error) }
                 if let result = model.result {

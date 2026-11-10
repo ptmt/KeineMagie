@@ -60,6 +60,9 @@ func TestProviderOAuthValidationAndRefresh(t *testing.T) {
 			cfg := &serverConfig{authPath: t.TempDir() + "/auth.json", historyPath: t.TempDir() + "/history.json"}
 			cfg.httpClient = &http.Client{Transport: transportFunc(func(r *http.Request) (*http.Response, error) {
 				var b []byte
+				if strings.Contains(r.URL.Path, "models") {
+					return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(`{"models":[{"slug":"synthetic-model","display_name":"Synthetic","visibility":"list"}]}`)), Header: http.Header{}}, nil
+				}
 				if strings.HasSuffix(r.URL.Path, "jwks.json") {
 					resp, _ := (jwksTransport{key}).RoundTrip(httptest.NewRequest("GET", appleJWKSURL, nil))
 					return resp, nil
@@ -131,6 +134,19 @@ func TestProviderOAuthValidationAndRefresh(t *testing.T) {
 			}
 			if w.Code != 204 {
 				t.Fatalf("complete %d %s", w.Code, w.Body.String())
+			}
+			// Synthetic signed OAuth through real persistence, status/catalog and
+			// owner history. No external provider or inference is invoked.
+			status := authCall(h, "GET", "/v1/provider", "", token)
+			var connected struct {
+				Connected bool   `json:"connected"`
+				Selected  string `json:"selected_model"`
+			}
+			if status.Code != 200 || json.Unmarshal(status.Body.Bytes(), &connected) != nil || !connected.Connected || connected.Selected != "synthetic-model" {
+				t.Fatalf("completed connection not restored: HTTP %d", status.Code)
+			}
+			if history := authCall(h, "GET", "/v1/translations", "", token); history.Code != 200 {
+				t.Fatalf("connected owner history unavailable: HTTP %d", history.Code)
 			}
 			if w = authCall(h, "POST", "/v1/provider/bootstrap/complete", string(body), ""); w.Code != 401 {
 				t.Fatal("replay accepted")

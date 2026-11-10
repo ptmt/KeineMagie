@@ -17,12 +17,21 @@ final class AppModel {
     private let connectionTasks = ChatGPTConnectionTasks()
     private(set) var busy = false
     private(set) var translatorError: String?
+    private(set) var refreshing = false
+    private var refreshID: UUID?
+    private var injectedClient: APIClient?
+
+    init(session: SessionController, client: APIClient) {
+        self.session = session
+        self.injectedClient = client
+    }
 
     #if targetEnvironment(simulator)
     private var fixtureTransport: AuthClient.Transport?
     #endif
     func api() throws -> APIClient {
         guard session.phase == .signedIn else { throw APIError.http(401) }
+        if let injectedClient { return injectedClient }
         #if targetEnvironment(simulator)
         if let fixtureTransport {
             return APIClient(endpoint: try ServerEndpoint(session.serverURL), token: "synthetic-session-not-a-credential", transport: fixtureTransport)
@@ -32,19 +41,24 @@ final class AppModel {
     }
     func refreshTranslator(connection: UUID? = nil) async {
         let version = session.generation
+        let refresh = UUID(); refreshID = refresh; refreshing = true
+        translatorError = nil
+        defer { if refreshID == refresh { refreshing = false; refreshID = nil } }
         do {
             let client = try api()
-            let items = try await client.history()
-            guard !Task.isCancelled, version == session.generation, session.phase == .signedIn,
-                  connection == nil || connectionID == connection else { return }
             let status = try await client.provider()
-            guard !Task.isCancelled, session.phase == .signedIn, version == session.generation,
-                  connection == nil || connectionID == connection else { return }
-            history = items; provider = status; translatorError = nil
+            guard !Task.isCancelled, version == session.generation, session.phase == .signedIn,
+                  refreshID == refresh, connection == nil || connectionID == connection else { return }
+            provider = status
             if status.connected { bootstrap = nil }
+            let items = try await client.history()
+            guard !Task.isCancelled, session.phase == .signedIn, version == session.generation,
+                  refreshID == refresh, connection == nil || connectionID == connection else { return }
+            history = items
+            if status.status == "catalog_unavailable" { translatorError = status.message }
         } catch {
             if !Task.isCancelled, session.phase == .signedIn, version == session.generation,
-               connection == nil || connectionID == connection { translatorError = error.localizedDescription }
+               refreshID == refresh, connection == nil || connectionID == connection { translatorError = Self.connectionError(error) }
         }
     }
     func connectChatGPT() async {
@@ -52,9 +66,9 @@ final class AppModel {
         let version = session.generation
         let id = UUID(); connectionID = id
         let local = OAuthLoopback(); loopback = local
-        busy = true
+        busy = true; translatorError = nil
         await connectionTasks.run { [self] in
-        defer { if connectionID == id { cancelChatGPT() } }
+        defer { if connectionID == id { finishChatGPT() } }
         do {
             guard !Task.isCancelled, version == session.generation, connectionID == id, session.phase == .signedIn else { return }
             let client = try api()
@@ -75,15 +89,30 @@ final class AppModel {
             await refreshTranslator(connection: id)
         } catch {
             if !Task.isCancelled, session.phase == .signedIn, version == session.generation, connectionID == id {
-                translatorError = AppL10n.text("chatgpt.failed")
+                translatorError = Self.connectionError(error)
             }
         }
         }
     }
     func cancelChatGPT() {
         connectionTasks.cancel()
+        finishChatGPT()
+    }
+    // A nil sheet write follows both user and programmatic dismissal.
+    // Once callback receipt clears the browser, exchange must continue.
+    func browserDismissed(id: UUID? = nil) {
+        guard let browser = chatGPTBrowser, id == nil || browser.id == id else { return }
+        cancelChatGPT()
+    }
+    private func finishChatGPT() {
         connectionID = nil; loopback?.cancel(); loopback = nil
         chatGPTBrowser = nil; busy = false
+    }
+    private static func connectionError(_ error: Error) -> String {
+        // Never surface callback URLs, provider bodies or identity/token claims.
+        if let api = error as? APIError { return api.localizedDescription }
+        if error is DecodingError { return APIError.invalidResponse.localizedDescription }
+        return AppL10n.text("chatgpt.failed")
     }
     func disconnectChatGPT() async {
         cancelChatGPT()
@@ -130,6 +159,7 @@ final class AppModel {
         result = nil
         history = []
         draft = ""; provider = nil; bootstrap = nil; translatorError = nil; busy = false
+        refreshID = nil; refreshing = false
     }
     func saveServer(url: String) async throws {
         let endpoint = try ServerEndpoint(url, allowLocalHTTP: Self.allowLocalHTTP)
