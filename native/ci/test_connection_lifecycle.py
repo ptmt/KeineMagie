@@ -22,10 +22,12 @@ import KeineMagieCore
     var holdStatus = false
     var statusRelease: CheckedContinuation<Void, Never>?
     var degradedCatalog = false
+    var owner = "synthetic"
+    var translationRequests: [URLRequest] = []
     func send(_ r: URLRequest) async throws -> AuthResponse {
         var body = "{}"
         switch r.url!.path {
-        case "/v1/auth/session": body = #"{"user":{"id":"synthetic"},"expires_at":"2099-01-01T00:00:00Z"}"#
+        case "/v1/auth/session": body = "{\"user\":{\"id\":\"\(owner)\"},\"expires_at\":\"2099-01-01T00:00:00Z\"}"
         case "/v1/provider/connect": body = #"{"bootstrap_token":"synthetic","expires_in":300,"message":"test"}"#
         case "/v1/provider/bootstrap/start":
             let d = try JSONSerialization.jsonObject(with: r.httpBody!) as! [String:String]
@@ -47,6 +49,11 @@ import KeineMagieCore
             if degradedCatalog { return AuthResponse(data:Data(#"{"connected":true,"status":"catalog_unavailable","message":"Catalog unavailable; check again.","models":[],"selected_model":""}"#.utf8),status:200) }
             body = #"{"connected":true,"status":"connected","message":"synthetic","models":[{"slug":"synthetic","display_name":"Synthetic"}],"selected_model":"synthetic"}"#
         case "/v1/translations":
+            if r.httpMethod == "POST" {
+                translationRequests.append(r)
+                body = #"{"id":"translated","created_at":"2026-11-09T12:00:00Z","text":"Hallo","source_language":"de","target_language":"ru","translation":"Привет","idioms":[],"patterns":[],"vocabulary":[]}"#
+                break
+            }
             if failHistory { return AuthResponse(data:Data("{}".utf8),status:503) }
             body = #"{"items":[]}"#
         default: throw APIError.invalidResponse
@@ -132,6 +139,42 @@ import KeineMagieCore
     #expect(model.provider?.connected == true)
     #expect(model.provider?.selectedModel == "")
     #expect(model.translatorError == "Catalog unavailable; check again.")
+}
+@Test @MainActor func customStyleReachesActualAppModelRequestAndNeverCrossesAccounts() async throws {
+    let gate = Gate(); gate.owner = "style-owner-\(UUID())"
+    let ownerA = gate.owner
+    let model = await fixture(gate)
+    let id = UUID()
+    let instructions = String(repeating: "e\u{301}", count: 500)
+    try model.saveShortcut(id: id, title: "Private style", instruction: instructions)
+    model.selectedShortcutID = id.uuidString
+    model.draft = "Hallo"
+    await model.translate()
+    #expect(model.result?.id == "translated")
+    #expect(model.history.count == 1)
+    #expect(model.selectedShortcutID == nil)
+    let request = try #require(gate.translationRequests.first)
+    let body = try #require(JSONSerialization.jsonObject(with: request.httpBody!) as? [String: String])
+    #expect(body["instructions"] == instructions)
+    #expect(body["text"] == "Hallo")
+    #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer synthetic")
+    model.selectedShortcutID = "friendly"
+    gate.owner = "style-other-owner-\(UUID())"
+    await model.session.restore()
+    // Mirror RootView's generation observer; UI tests exercise that observer itself.
+    model.resetSessionContent(); model.loadShortcuts()
+    #expect(model.shortcuts.isEmpty)
+    #expect(model.selectedShortcutID == nil)
+    #expect(model.translationInstruction == nil)
+    #expect(model.history.isEmpty)
+    #expect(model.result == nil)
+    #expect(model.draft.isEmpty)
+    gate.owner = ownerA
+    await model.session.restore()
+    model.resetSessionContent(); model.loadShortcuts()
+    #expect(model.shortcuts.map(\.id) == [id])
+    #expect(model.selectedShortcutID == nil)
+    try model.deleteShortcut(id)
 }
 '''
 

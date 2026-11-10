@@ -5,11 +5,44 @@ export function readiness(session) {
   return typeof session.provider.selected_model === 'string' && session.provider.selected_model.trim() ? 'ready' : 'model-unavailable';
 }
 
-export function inputPayload(text, source) {
+export function inputPayload(text, source, instructions = '') {
   text = text.trim();
   if (!text || [...text].length > 8000) throw new Error('Enter text between 1 and 8000 characters.');
   if (!['de', 'ru'].includes(source)) throw new Error('Unsupported language.');
-  return { text, source_language: source, target_language: source === 'de' ? 'ru' : 'de' };
+  if (typeof instructions !== 'string' || [...instructions].length > 1000) throw new Error('Instructions must be at most 1000 characters.');
+  return { text, source_language: source, target_language: source === 'de' ? 'ru' : 'de', ...(instructions ? { instructions } : {}) };
+}
+
+export const translationPresets = Object.freeze([
+  { id: 'friendly', name: 'Freundlich', instructions: 'Use a friendly, warm and natural tone while preserving the original meaning.' },
+  { id: 'formal', name: 'Formell', instructions: 'Use a formal, professional tone and appropriate polite forms of address while preserving the original meaning.' }
+]);
+
+export function promptStore(storage, ownerID) {
+  if (typeof ownerID !== 'string' || !ownerID) throw new Error('A verified account ID is required.');
+  const key = `keinemagie:translation-prompts:v1:${encodeURIComponent(ownerID)}`;
+  const valid = item => item && typeof item.id === 'string' && /^custom-[a-zA-Z0-9-]+$/.test(item.id) && typeof item.name === 'string' && item.name.trim() && [...item.name].length <= 60 && typeof item.instructions === 'string' && item.instructions.trim() && [...item.instructions].length <= 1000;
+  const clean = ({id, name, instructions}) => ({id, name, instructions});
+  const list = () => {
+    try {
+      const value = JSON.parse(storage.getItem(key));
+      return Array.isArray(value) ? value.filter(valid).map(clean).filter((item, index, all) => all.findIndex(other => other.id === item.id) === index).slice(0, 50) : [];
+    } catch { return []; }
+  };
+  return {
+    list,
+    save(item) {
+      // Project explicitly onto nonsecret text fields; never serialize session state.
+      item = clean(item);
+      item.name = item.name.trim();
+      if (!valid(item)) throw new Error('Invalid shortcut.');
+      const items = list().filter(existing => existing.id !== item.id);
+      if (items.length >= 50) throw new Error('At most 50 shortcuts.');
+      storage.setItem(key, JSON.stringify([...items, item]));
+      return item;
+    },
+    remove(id) { storage.setItem(key, JSON.stringify(list().filter(item => item.id !== id))); }
+  };
 }
 
 export function swapDraft(source, text, translation) {

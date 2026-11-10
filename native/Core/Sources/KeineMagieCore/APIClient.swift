@@ -66,11 +66,11 @@ public struct APIClient: Sendable {
         _ = try await send(bootstrapRequest(token: token, callback: callback))
     }
     public func disconnectProvider() async throws { _ = try await send(providerRequest(action: "disconnect")) }
-    public func translationRequest(text: String, source: Language) throws -> URLRequest {
+    public func translationRequest(text: String, source: Language, instructions: String? = nil) throws -> URLRequest {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw APIError.emptyText }
         var result = try request(path: "v1/translations", method: "POST")
         result.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        result.httpBody = try JSONEncoder().encode(TranslationRequest(text: text, sourceLanguage: source))
+        result.httpBody = try JSONEncoder().encode(TranslationRequest(text: text, sourceLanguage: source, instructions: instructions))
         return result
     }
     public func historyRequest() throws -> URLRequest { try request(path: "v1/translations", method: "GET") }
@@ -82,8 +82,8 @@ public struct APIClient: Sendable {
         result.httpBody = try JSONEncoder().encode(TTSBody(text: text))
         return result
     }
-    public func translate(text: String, source: Language) async throws -> TranslationRecord {
-        try APIJSON.decoder().decode(TranslationRecord.self, from: await send(translationRequest(text: text, source: source)))
+    public func translate(text: String, source: Language, instructions: String? = nil) async throws -> TranslationRecord {
+        try APIJSON.decoder().decode(TranslationRecord.self, from: await send(translationRequest(text: text, source: source, instructions: instructions)))
     }
     public func history() async throws -> [TranslationRecord] {
         try APIJSON.decoder().decode(TranslationHistory.self, from: await send(historyRequest())).items.sorted { $0.createdAt > $1.createdAt }

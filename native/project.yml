@@ -24,6 +24,7 @@ targets:
     platform: iOS
     sources:
       - path: App
+      - path: Shared
     dependencies:
       - package: KeineMagieCore
     entitlements:

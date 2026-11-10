@@ -19,7 +19,7 @@ struct RootView: View {
         NavigationStack {
             Group {
                 if model.session.phase == .signedIn {
-                    TranslatorView()
+                    MainTabsView().id(model.session.generation)
                 } else {
                     LoginGate()
                 }
@@ -38,8 +38,8 @@ struct RootView: View {
             started = true
             await model.session.restore()
         }
-        .onChange(of: model.session.generation) { _, _ in model.resetSessionContent() }
-        .onChange(of: model.session.phase) { _, _ in model.resetSessionContent() }
+        .onChange(of: model.session.generation) { _, _ in model.resetSessionContent(); model.loadShortcuts() }
+        .onChange(of: model.session.phase) { _, _ in model.resetSessionContent(); model.loadShortcuts() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background { enteredBackground = true }
             if phase == .active && enteredBackground {

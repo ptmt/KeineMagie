@@ -50,6 +50,40 @@ class LocalizationTests(unittest.TestCase):
             info = (NATIVE / 'App' / (locale + '.lproj') / 'InfoPlist.strings').read_text()
             self.assertIn('NSLocalNetworkUsageDescription', info)
 
+    def test_podcast_source_and_manual_feed_labels_have_five_translations(self):
+        catalog = json.loads((NATIVE / 'App/Localizable.xcstrings').read_text())['strings']
+        for key in ['podcast.sources.expanded', 'podcast.subscribe', 'podcast.discovery.privacy',
+                    'podcast.subscriptions', 'podcast.subscriptions.empty', 'podcast.feed.refresh',
+                    'podcast.unsubscribe', 'podcast.source.failed']:
+            self.assertIn(key, catalog)
+            translations = catalog[key]['localizations']
+            self.assertEqual(set(translations), LOCALES, key)
+            self.assertEqual(len({v['stringUnit']['value'] for v in translations.values()}), 5, key)
+
+    def test_podcast_dynamic_labels_and_errors_are_localized(self):
+        catalog = json.loads((NATIVE / 'App/Localizable.xcstrings').read_text())['strings']
+        for key in ['podcast.episode', 'podcast.language.de_ru', 'podcast.language.ru_de',
+                    'podcast.failed', 'podcast.state.unknown', 'podcast.time.range'] + [
+                    'podcast.state.' + state for state in
+                    ['queued', 'fetching', 'transcribing', 'translating', 'ready', 'failed', 'cancelled']]:
+            self.assertIn(key, catalog)
+            self.assertEqual(set(catalog[key]['localizations']), LOCALES)
+        source = (NATIVE / 'App/PodcastLibraryView.swift').read_text()
+        for raw in ['Text(job.state)', 'Text(error)', 'error.localizedDescription', '?? "Episode"']:
+            self.assertNotIn(raw, source)
+        self.assertIn('AppL10n.text("podcast.state.', source)
+
+    def test_optional_share_extension_has_five_locale_resources(self):
+        root = NATIVE / 'ShareExtension'
+        source = (root / 'ShareViewController.swift').read_text()
+        used = set(re.findall(r'NSLocalizedString\("([^"]+)"', source))
+        self.assertEqual(used, {'share.placeholder', 'share.save.failed', 'share.save.detail', 'share.close', 'share.invalid'})
+        for locale in LOCALES:
+            table = dict(re.findall(r'"([^"\n]+)"\s*=\s*"((?:\\.|[^"\\])*)";',
+                                   (root / (locale + '.lproj') / 'Localizable.strings').read_text()))
+            self.assertEqual(set(table), used)
+            self.assertTrue(all(table.values()))
+
     def test_core_resources_complete_and_placeholder_safe(self):
         root = NATIVE / 'Core/Sources/KeineMagieCore'
         tables = {}

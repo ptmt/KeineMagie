@@ -9,6 +9,36 @@ final class AppModel {
     private(set) var history: [TranslationRecord] = []
     var draft = ""
     var source: Language = .german
+    private(set) var shortcuts: [TranslationShortcut] = []
+    var selectedShortcutID: String?
+    private let shortcutStore = TranslationShortcutStore()
+    var translationInstruction: String? {
+        switch selectedShortcutID {
+        case "friendly": AppL10n.text("shortcut.friendly.instruction")
+        case "formal": AppL10n.text("shortcut.formal.instruction")
+        default: shortcuts.first { $0.id.uuidString == selectedShortcutID }?.instruction
+        }
+    }
+    func loadShortcuts() {
+        guard let owner = session.user?.id, session.phase == .signedIn else { shortcuts = []; selectedShortcutID = nil; return }
+        do { shortcuts = try shortcutStore.load(server: session.serverURL, owner: owner) }
+        catch { shortcuts = []; translatorError = AppL10n.text("shortcut.storage.error") }
+    }
+    func saveShortcut(id: UUID = UUID(), title: String, instruction: String) throws {
+        guard let owner = session.user?.id, session.phase == .signedIn else { throw APIError.missingToken }
+        let shortcut = try TranslationShortcut(id: id, title: title, instruction: instruction)
+        var updated = shortcuts
+        if let index = updated.firstIndex(where: { $0.id == id }) { updated[index] = shortcut } else { updated.append(shortcut) }
+        try shortcutStore.save(updated, server: session.serverURL, owner: owner)
+        shortcuts = updated
+    }
+    func deleteShortcut(_ id: UUID) throws {
+        guard let owner = session.user?.id, session.phase == .signedIn else { throw APIError.missingToken }
+        let updated = shortcuts.filter { $0.id != id }
+        try shortcutStore.save(updated, server: session.serverURL, owner: owner)
+        shortcuts = updated
+        if selectedShortcutID == id.uuidString { selectedShortcutID = nil }
+    }
     private(set) var provider: ProviderStatus?
     private(set) var bootstrap: ProviderBootstrap?
     var chatGPTBrowser: ChatGPTBrowser?
@@ -125,9 +155,10 @@ final class AppModel {
         let version = session.generation
         busy = true; defer { busy = false }
         do {
-            let item = try await api().translate(text: draft, source: source)
+            let item = try await api().translate(text: draft, source: source, instructions: translationInstruction)
             guard version == session.generation, session.phase == .signedIn else { return }
             result = item; history.insert(item, at: 0); translatorError = nil
+            selectedShortcutID = nil
         } catch { if version == session.generation { translatorError = error.localizedDescription } }
     }
 
@@ -158,6 +189,7 @@ final class AppModel {
         input = ""
         result = nil
         history = []
+        shortcuts = []; selectedShortcutID = nil
         draft = ""; provider = nil; bootstrap = nil; translatorError = nil; busy = false
         refreshID = nil; refreshing = false
     }

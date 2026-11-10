@@ -29,6 +29,7 @@ struct TranslatorView: View {
                     Text("Deutsch → Русский").tag(Language.german)
                     Text("Русский → Deutsch").tag(Language.russian)
                 }.pickerStyle(.segmented)
+                TranslationShortcutsView()
                 TextEditor(text: $model.draft)
                     .frame(minHeight: 160)
                     .padding(8)
@@ -56,10 +57,9 @@ struct TranslatorView: View {
                     }.frame(maxWidth: .infinity, alignment: .leading)
                     Divider()
                 }
-                Text("Sprachausgabe, Diktat und Lernanalysen sind nicht Teil dieser ersten Übersetzer-Version. Kein kostenpflichtiger API-Fallback.")
-                    .font(.caption).foregroundStyle(.secondary)
+
             }.padding(24).frame(maxWidth: 700).frame(maxWidth: .infinity)
         }
-        .task(id: model.session.generation) { await model.refreshTranslator() }
+        .task(id: model.session.generation) { model.loadShortcuts(); await model.refreshTranslator() }
     }
 }

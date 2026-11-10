@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.22-bookworm AS build
+# Go release history lists 1.27.4, but its official Docker tag is not yet published.
+# 1.27.3-bookworm is the latest published official builder verified at integration.
+FROM golang:1.27.3-bookworm AS build
 ARG TARGETOS
 ARG TARGETARCH
 WORKDIR /src

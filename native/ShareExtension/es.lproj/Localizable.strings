@@ -1,0 +1,5 @@
+"share.placeholder" = "Guarda una URL de audio pública. Después abre Keine Magie para confirmar la importación.";
+"share.save.failed" = "No se pudo guardar la URL";
+"share.save.detail" = "El almacenamiento compartido no está disponible o la bandeja está llena. Abre Keine Magie y pega la URL de audio.";
+"share.close" = "Cerrar";
+"share.invalid" = "Comparte una sola URL de audio HTTP(S) pública sin credenciales ni parámetros de consulta.";

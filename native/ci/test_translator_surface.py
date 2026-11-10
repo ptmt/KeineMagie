@@ -8,7 +8,10 @@ ROOT = Path(__file__).resolve().parents[1]
 class TranslatorSurfaceTests(unittest.TestCase):
     def test_signed_in_route_is_translator_not_account_list(self):
         root = (ROOT / 'App/KeineMagieApp.swift').read_text()
-        self.assertIn('TranslatorView()', root)
+        self.assertIn('MainTabsView()', root)
+        tabs = (ROOT / 'App/MainTabsView.swift').read_text()
+        self.assertIn('TranslatorView()', tabs)
+        self.assertLess(tabs.index('TranslatorView()'), tabs.index('feature.dictation'))
         self.assertNotIn('struct AccountView: View', root)
         view = (ROOT / 'App/TranslatorView.swift').read_text()
         self.assertIn('TextEditor(text: $model.draft)', view)

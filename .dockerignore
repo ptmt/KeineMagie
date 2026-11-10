@@ -8,3 +8,7 @@ native
 **/.build
 **/node_modules
 **/*.log
+spikes
+server/podcast-worker/models
+**/__pycache__
+**/*.pyc

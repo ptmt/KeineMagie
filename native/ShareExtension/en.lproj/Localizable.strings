@@ -1,0 +1,5 @@
+"share.placeholder" = "Save a public audio URL. Open Keine Magie afterwards to confirm import.";
+"share.save.failed" = "Could not save URL";
+"share.save.detail" = "Shared storage is unavailable or the inbox is full. Open Keine Magie and paste the audio URL instead.";
+"share.close" = "Close";
+"share.invalid" = "Share exactly one public HTTP(S) audio URL without credentials or query parameters.";

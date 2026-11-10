@@ -1,0 +1,5 @@
+"share.placeholder" = "Öffentliche Audio-URL speichern. Öffne danach Keine Magie, um den Import zu bestätigen.";
+"share.save.failed" = "URL konnte nicht gespeichert werden";
+"share.save.detail" = "Der gemeinsame Speicher ist nicht verfügbar oder der Posteingang ist voll. Öffne Keine Magie und füge die Audio-URL dort ein.";
+"share.close" = "Schließen";
+"share.invalid" = "Teile genau eine öffentliche HTTP(S)-Audio-URL ohne Zugangsdaten oder Abfrageparameter.";

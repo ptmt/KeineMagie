@@ -1,0 +1,39 @@
+# Merge into the existing Compose service only after approval. Not a backend replacement.
+services:
+  podcast-worker:
+    image: keinemagie-podcast-worker:candidate
+    restart: unless-stopped
+    read_only: true
+    user: "0:0" # secret supervisor; all parser/ML children drop to UID 1001
+    cap_drop: [ALL]
+    cap_add: [SETUID, SETGID, CHOWN, KILL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=160m,mode=1777
+    mem_limit: 1100m
+    memswap_limit: 1100m
+    cpus: 2
+    pids_limit: 64
+    ulimits:
+      nofile: {soft: 128, hard: 128}
+      core: {soft: 0, hard: 0}
+    volumes:
+      - type: bind
+        source: ${PODCAST_WORKER_SECRET:?set absolute root-owned 0600 worker token path}
+        target: /run/secrets/podcast_token
+        read_only: true
+    networks: [podcast_private]
+    labels:
+      traefik.enable: "false"
+    # No ports, edge networks, Docker socket, home, auth or provider mounts.
+  # Existing backend only: preserve image release path and ALL current mounts.
+  # keinemagie:
+  #   environment:
+  #     PODCAST_WORKER_URL: http://podcast-worker:8091
+  #     PODCAST_WORKER_TOKEN_FILE: /app/podcast-worker-token
+  #   volumes:
+  #     - ${PODCAST_BACKEND_SECRET}:/app/podcast-worker-token:ro
+  #   networks: [existing_edge_network, podcast_private]
+networks:
+  podcast_private:
+    internal: true

@@ -27,14 +27,18 @@
     <section id="translator" aria-label="Übersetzer" tabindex="-1">
       <form id="translation-form">
         <div class="language-bar">
-          <label class="language-select">Von<select id="source-language" aria-label="Ausgangssprache"><option value="de">Deutsch</option><option value="ru">Russisch</option></select></label>
-          <button id="swap" type="button" class="swap-button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
-          <label class="language-select">Nach<select id="target-language" aria-label="Zielsprache"><option value="ru">Russisch</option><option value="de">Deutsch</option></select></label>
+          <label class="language-select">Von<select id="source-language" disabled aria-label="Ausgangssprache"><option value="de">Deutsch</option><option value="ru">Russisch</option></select></label>
+          <button id="swap" disabled type="button" class="swap-button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
+          <label class="language-select">Nach<select id="target-language" disabled aria-label="Zielsprache"><option value="ru">Russisch</option><option value="de">Deutsch</option></select></label>
+        </div>
+        <div id="style-controls" class="style-controls" hidden>
+          <span class="style-label">Stil</span><div id="style-chips" class="style-chips" role="group" aria-label="Übersetzungsstil"></div>
+          <button id="add-prompt" disabled type="button" class="quiet-button">+ Eigener Stil</button><button id="edit-prompt" type="button" class="quiet-button" hidden>Bearbeiten</button>
         </div>
         <div class="translation-panels">
           <div class="input-panel">
-            <div class="panel-top"><label for="source-text">Dein Text</label><button id="clear" type="button" class="quiet-button">Leeren</button></div>
-            <textarea id="source-text" name="text" placeholder="Text eingeben …" spellcheck="true" aria-describedby="input-count" lang="de"></textarea>
+            <div class="panel-top"><label for="source-text">Dein Text</label><button id="clear" disabled type="button" class="quiet-button">Leeren</button></div>
+            <textarea id="source-text" disabled name="text" placeholder="Text eingeben …" spellcheck="true" aria-describedby="input-count" lang="de"></textarea>
             <div class="panel-bottom"><span id="input-count">0 / 8.000</span><span class="keyboard-hint">⌘ / Ctrl + Enter</span></div>
           </div>
           <div class="output-panel">
@@ -44,7 +48,7 @@
           </div>
         </div>
         <div class="translate-toolbar">
-          <div class="inline-status"><div id="connection-notice"><span id="connection-title">Sitzung wird geprüft …</span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button">Anmelden</button></div><p id="translation-status" role="status" aria-live="polite"></p></div>
+          <div class="inline-status"><div id="connection-notice"><span id="connection-title">Sitzung wird geprüft …</span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="./apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div><p id="translation-status" role="status" aria-live="polite"></p></div>
           <div class="translation-actions"><button id="cancel" type="button" class="quiet-button" hidden>Abbrechen</button><button id="translate" class="primary-button" type="submit" disabled>Übersetzen</button></div>
         </div>
       </form>
@@ -63,6 +67,16 @@
       <p class="muted">Noch nicht verfügbar</p>
     </section>
   </main>
+  <dialog id="prompt-dialog" aria-labelledby="prompt-title">
+    <form id="prompt-form">
+      <div class="dialog-heading"><h2 id="prompt-title">Eigener Stil</h2><button id="close-prompt" type="button" class="close-button" aria-label="Stil schließen">×</button></div>
+      <label for="prompt-name">Name</label><input id="prompt-name" disabled autocomplete="off" required aria-describedby="prompt-error">
+      <label for="prompt-instructions">Anweisungen für die Übersetzung</label><textarea id="prompt-instructions" disabled required placeholder="Zum Beispiel: Kurz und freundlich, für eine E-Mail." aria-describedby="prompt-count prompt-privacy"></textarea>
+      <p id="prompt-count" class="muted">0 / 1.000</p><p id="prompt-privacy" class="muted">Nur in diesem Browser für dein Konto gespeichert, nicht mit der App synchronisiert. Keine Passwörter oder vertraulichen Daten eingeben. Der ausgewählte Stil wird mit der Übersetzung gesendet und im Verlauf gespeichert.</p>
+      <p id="prompt-error" class="error-text" role="status"></p>
+      <div class="prompt-actions"><button id="delete-prompt" type="button" class="quiet-button" hidden>Löschen</button><button id="save-prompt" disabled type="submit" class="small-button">Speichern</button></div>
+    </form>
+  </dialog>
   <dialog id="account-dialog" aria-labelledby="account-title">
     <div class="dialog-heading"><h2 id="account-title">Anmelden</h2><button id="close-account" class="close-button" aria-label="Dialog schließen"><span aria-hidden="true">×</span></button></div>
     <div id="sign-in-options" class="sign-in-options">

@@ -7,12 +7,20 @@ public struct TranslationRecord: Codable, Identifiable, Sendable {
     public let sourceLanguage: Language
     public let targetLanguage: Language
     public let translation: String
+    public let instructions: String?
     public let idioms: [Idiom]
     public let patterns: [SentencePattern]
     public let vocabulary: [Vocabulary]
+    public init(id: String, createdAt: Date, text: String, sourceLanguage: Language, targetLanguage: Language,
+                translation: String, instructions: String? = nil, idioms: [Idiom], patterns: [SentencePattern], vocabulary: [Vocabulary]) {
+        self.id = id; self.createdAt = createdAt; self.text = text
+        self.sourceLanguage = sourceLanguage; self.targetLanguage = targetLanguage
+        self.translation = translation; self.instructions = instructions
+        self.idioms = idioms; self.patterns = patterns; self.vocabulary = vocabulary
+    }
     enum CodingKeys: String, CodingKey {
         case id, createdAt = "created_at", text, sourceLanguage = "source_language"
-        case targetLanguage = "target_language", translation, idioms, patterns, vocabulary
+        case targetLanguage = "target_language", translation, instructions, idioms, patterns, vocabulary
     }
 }
 public struct Idiom: Codable, Sendable {

@@ -13,8 +13,16 @@ test('minimal translator keeps accessible controls and history without enrichmen
   assert.match(html, /<label[^>]*for="source-text"/);
   assert.doesNotMatch(html, /(?:src|href)="https?:/);
   assert.doesNotMatch(html, /id="(?:idioms|patterns|vocabulary)"|page-heading|page-footer|empty-result|connection-banner|<aside/);
-  assert.doesNotMatch(js, /localStorage|sessionStorage|innerHTML|Bearer/);
+  assert.doesNotMatch(js, /sessionStorage|innerHTML|Bearer/);
+  assert.match(js, /promptStore\(window.localStorage, session.user.id\)/);
+  assert.doesNotMatch(js, /localStorage\.(?:setItem|getItem)/);
   assert.doesNotMatch(js, /\$\('(?:idioms|patterns|vocabulary|model-note)'\)/);
+});
+
+test('initial HTML is locked before scripts resolve and offers official in-place Apple sign-in', () => {
+ for (const id of ['source-text','source-language','target-language','swap','clear','add-prompt','translate']) assert.match(html,new RegExp(`<[^>]+id="${id}"[^>]*\\sdisabled(?:\\s|>)`),id);
+ assert.match(html, /id="connection-action"[^>]*>[\s\S]*?src="\.\/apple-sign-in-de.png"/);
+ assert.match(html, /id="connection-action-art"[^>]*hidden/);
 });
 
 test('header contains real section routes with honest unavailable pages', () => {

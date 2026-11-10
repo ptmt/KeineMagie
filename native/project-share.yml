@@ -1,0 +1,42 @@
+# Explicit opt-in: xcodegen generate --spec project-share.yml
+# Keep the app-only release project unchanged until BOTH distribution profiles
+# include group.de.keinemagie.app and CI supports the extension's profile mapping.
+include:
+  - path: project.yml
+targets:
+  KeineMagie:
+    dependencies:
+      - target: KeineMagieShare
+        embed: true
+    entitlements:
+      path: Config/KeineMagie-Share.entitlements
+      properties:
+        # Sign in with Apple is inherited from project.yml.
+        com.apple.security.application-groups:
+          - group.de.keinemagie.app
+  KeineMagieShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ShareExtension
+        excludes: [Info.plist]
+      - path: Shared
+    dependencies:
+      - package: KeineMagieCore
+    entitlements:
+      path: Config/ShareExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.de.keinemagie.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: de.keinemagie.app.share
+        PRODUCT_NAME: KeineMagieShare
+        INFOPLIST_FILE: ShareExtension/Info.plist
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+        CODE_SIGN_STYLE: "$(KM_CI_CODE_SIGN_STYLE)"
+        "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "$(KM_CI_CODE_SIGN_IDENTITY)"
+        PROVISIONING_PROFILE: "$(KM_CI_SHARE_PROVISIONING_PROFILE)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(KM_CI_SHARE_PROVISIONING_PROFILE_SPECIFIER)"
+        OTHER_CODE_SIGN_FLAGS: "$(KM_CI_OTHER_CODE_SIGN_FLAGS)"

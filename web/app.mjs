@@ -1,4 +1,4 @@
-import { createAPI, readiness, inputPayload, swapDraft, startProviderConnection, startBrowserPairing, startAppleLogin } from './core.mjs';
+import { createAPI, readiness, inputPayload, swapDraft, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
@@ -16,6 +16,74 @@ let pairingTimer = null;
 let pairingRun = 0;
 function clearPairing() { pairingRun++; clearTimeout(pairingTimer); pairingTimer = null; $('browser-pairing').hidden = true; setText('pairing-code', ''); }
 const names = { de: 'Deutsch', ru: 'Russisch' };
+let stylesOwner = null;
+let savedPrompts = [];
+let selectedInstructions = '';
+let editingPrompt = null;
+function canEditDraft() { return !!session?.user?.id && !checking && !busy; }
+function styleStore() {
+  // owner ID comes exclusively from the authenticated /v1/web/session response.
+  return promptStore(window.localStorage, session.user.id);
+}
+function closePrompt() {
+  $('prompt-dialog').close(); editingPrompt = null;
+  $('prompt-name').value = ''; $('prompt-instructions').value = '';
+  setText('prompt-error', ''); setText('prompt-count', '0 / 1.000');
+}
+function renderStyles() {
+  const owner = session?.user?.id || null;
+  if (owner !== stylesOwner) {
+    closePrompt(); selectedInstructions = ''; savedPrompts = []; stylesOwner = owner;
+    if (owner) { try { savedPrompts = styleStore().list(); } catch { /* blocked storage */ } }
+  }
+  $('style-controls').hidden = false;
+  $('style-chips').replaceChildren();
+  const choices = [{name:'Standard', instructions:''}, ...translationPresets, ...savedPrompts];
+  if (selectedInstructions && !choices.some(item => item.instructions === selectedInstructions)) choices.push({name:'Aus Verlauf', instructions:selectedInstructions});
+  for (const item of choices) {
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'style-chip';
+    button.textContent = item.name; button.disabled = !canEditDraft();
+    button.setAttribute('aria-pressed', String(selectedInstructions === item.instructions));
+    button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id) return; selectedInstructions = item.instructions; renderStyles(); });
+    $('style-chips').append(button);
+  }
+  $('add-prompt').disabled = !canEditDraft();
+  $('edit-prompt').hidden = !savedPrompts.some(item => item.instructions === selectedInstructions);
+  $('edit-prompt').disabled = !canEditDraft();
+}
+function openPrompt(item = null) {
+  if (!canEditDraft()) return;
+  editingPrompt = item?.id || null;
+  $('prompt-name').value = item?.name || '';
+  $('prompt-instructions').value = item?.instructions || '';
+  $('delete-prompt').hidden = !item;
+  setText('prompt-error', ''); updatePromptCount();
+  $('prompt-dialog').showModal(); $('prompt-name').focus();
+}
+function updatePromptCount() {
+  const count = [...$('prompt-instructions').value].length;
+  setText('prompt-count', `${count.toLocaleString('de-DE')} / 1.000`);
+  $('save-prompt').disabled = !canEditDraft() || !count || count > 1000 || !$('prompt-name').value.trim() || [...$('prompt-name').value].length > 60;
+}
+$('add-prompt').addEventListener('click', () => openPrompt());
+$('edit-prompt').addEventListener('click', () => openPrompt(savedPrompts.find(item => item.instructions === selectedInstructions)));
+$('close-prompt').addEventListener('click', closePrompt);
+$('prompt-dialog').addEventListener('cancel', closePrompt);
+$('prompt-name').addEventListener('input', updatePromptCount);
+$('prompt-instructions').addEventListener('input', updatePromptCount);
+$('prompt-form').addEventListener('submit', event => {
+  event.preventDefault(); if (!canEditDraft() || !$('prompt-dialog').open) return;
+  try {
+    const item = styleStore().save({id:editingPrompt || `custom-${crypto.randomUUID()}`, name:$('prompt-name').value, instructions:$('prompt-instructions').value});
+    savedPrompts = styleStore().list(); selectedInstructions = item.instructions;
+    closePrompt(); renderStyles();
+  } catch { setText('prompt-error', 'Speichern nicht möglich. Name (1–60 Zeichen), Anweisungen (1–1.000 Zeichen) und Browser-Speicher prüfen. Maximal 50 eigene Stile.'); }
+});
+$('delete-prompt').addEventListener('click', () => {
+  if (!canEditDraft() || !$('prompt-dialog').open || !editingPrompt) return;
+  try { styleStore().remove(editingPrompt); savedPrompts = styleStore().list(); selectedInstructions = ''; closePrompt(); renderStyles(); }
+  catch { setText('prompt-error', 'Löschen nicht möglich. Bitte den Browser-Speicher prüfen.'); }
+});
 
 const sectionLinks = [...document.querySelectorAll('.section-nav a')];
 let activeSection = 'translator';
@@ -58,7 +126,7 @@ function clearPrivateData() {
   clearPairing();
   controller?.abort();
   clearBootstrap();
-  session = null; history = [];
+  session = null; history = []; renderStyles();
   resetResult();
   $('source-text').value = '';
   $('history-list').replaceChildren();
@@ -71,15 +139,22 @@ function clearBootstrap() {
   $('provider-bootstrap').hidden = true;
 }
 function updateInput() {
+  renderStyles();
   const count = [...$('source-text').value].length;
   setText('input-count', `${count.toLocaleString('de-DE')} / 8.000`);
   $('input-count').classList.toggle('error-state', count > 8000);
   $('translate').disabled = busy || checking || readiness(session) !== 'ready' || !count || count > 8000;
-  $('clear').disabled = busy || count === 0;
-  $('swap').disabled = busy;
-  $('source-language').disabled = busy;
-  $('target-language').disabled = busy;
-  $('source-text').readOnly = busy;
+  const locked = !canEditDraft();
+  $('clear').disabled = locked || count === 0;
+  $('swap').disabled = locked;
+  $('source-language').disabled = locked;
+  $('target-language').disabled = locked;
+  $('source-text').disabled = locked;
+  $('source-text').readOnly = locked;
+  $('prompt-name').disabled = locked;
+  $('prompt-instructions').disabled = locked;
+  $('delete-prompt').disabled = locked;
+  updatePromptCount();
   $('cancel').hidden = !busy;
   $('translation-form').setAttribute('aria-busy', String(busy));
   setText('translate', busy ? 'Wird übersetzt …' : 'Übersetzen ↗');
@@ -109,7 +184,12 @@ function renderConnection() {
   setText('provider-detail', !signedIn ? '' : modelUnavailable ? catalogWarning : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
   $('connection-notice').hidden = !checking && phase === 'ready';
   $('connection-action').hidden = checking;
-  setText('connection-action', modelUnavailable ? 'Erneut prüfen' : signedIn ? 'Konto öffnen' : 'Anmelden');
+  const appleSignIn = !checking && !signedIn && config?.apple_available === true;
+  $('connection-action').classList.toggle('apple-button', appleSignIn);
+  $('connection-action-art').hidden = !appleSignIn;
+  $('connection-action-label').hidden = appleSignIn;
+  $('translation-form').classList.toggle('sign-in-required', !signedIn);
+  setText('connection-action-label', modelUnavailable ? 'Erneut prüfen' : signedIn ? 'Konto öffnen' : 'Anmelden');
   setText('connection-detail', modelUnavailable ? catalogWarning : '');
   if (checking) setText('connection-title', 'Sitzung wird geprüft …');
   else if (phase === 'ready') setText('connection-title', 'Bereit zum Übersetzen');
@@ -117,11 +197,11 @@ function renderConnection() {
   else if (signedIn) setText('connection-title', 'ChatGPT im Konto verbinden.');
   else if (!config) {
     setText('connection-title', 'Anmeldung nicht erreichbar.');
-    setText('connection-action', 'Erneut prüfen');
+    setText('connection-action-label', 'Erneut prüfen');
   } else if (!config.apple_available && !config.pairing_available) {
     setText('connection-title', 'Anmeldung noch nicht verfügbar.');
-    setText('connection-action', 'Erneut prüfen');
-  } else setText('connection-title', 'Zum Übersetzen anmelden.');
+    setText('connection-action-label', 'Erneut prüfen');
+  } else setText('connection-title', 'Melde dich an, um zu übersetzen.');
   updateInput();
 }
 function errorMessage(error) {
@@ -140,7 +220,7 @@ function handleUnauthorized(error) {
 async function restore() {
   if (checking) return;
   const priorUser = session?.user?.id;
-  checking = true; renderConnection();
+  checking = true; closePrompt(); renderConnection();
   setText('account-error', '');
   const run = generation;
   try {
@@ -167,6 +247,7 @@ function renderRecord(item) {
   $('source-language').value = item.source_language;
   $('target-language').value = item.target_language;
   $('source-text').value = item.text;
+  selectedInstructions = typeof item.instructions === 'string' ? item.instructions : '';
   $('source-text').lang = item.source_language;
   $('result').lang = item.target_language;
   setText('result', item.translation);
@@ -179,6 +260,8 @@ function validRecord(item) {
   return item && typeof item.id === 'string' && typeof item.text === 'string' && typeof item.translation === 'string' && item.translation.trim() && ['de', 'ru'].includes(item.source_language) && item.target_language === (item.source_language === 'de' ? 'ru' : 'de') && Object.entries(fields).every(([key, required]) => Array.isArray(item[key]) && item[key].every(entry => entry && required.every(field => typeof entry[field] === 'string')));
 }
 function renderHistory() {
+  const owner = session?.user?.id;
+  const run = generation;
   $('history-list').replaceChildren();
   setText('history-status', history.length ? 'Gespeicherte Übersetzungen öffnen und weiterlernen.' : 'Noch keine Übersetzungen. Dein erstes Ergebnis wird hier gespeichert.');
   for (const item of history) {
@@ -191,7 +274,7 @@ function renderHistory() {
     detail.textContent = `${names[item.source_language]} → ${names[item.target_language]}${Number.isNaN(date.valueOf()) ? '' : ` · ${date.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}`}`;
     const arrow = document.createElement('span'); arrow.className = 'history-arrow'; arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true');
     content.append(title, detail); button.append(content, arrow); li.append(button); $('history-list').append(li);
-    button.addEventListener('click', () => { if (busy) return; renderRecord(item); status('Gespeicherte Übersetzung geöffnet.'); $('source-text').focus({ preventScroll: false }); });
+    button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id || run !== generation) return; renderRecord(item); status('Gespeicherte Übersetzung geöffnet.'); $('source-text').focus({ preventScroll: false }); });
   }
 }
 async function loadHistory() {
@@ -213,7 +296,7 @@ async function translate(event) {
   event.preventDefault();
   if (busy || checking || readiness(session) !== 'ready') return;
   let payload;
-  try { payload = inputPayload($('source-text').value, $('source-language').value); }
+  try { payload = inputPayload($('source-text').value, $('source-language').value, selectedInstructions); }
   catch { status('Bitte 1 bis 8.000 Zeichen eingeben.', true); return; }
   busy = true; controller = new AbortController();
   const run = generation;
@@ -233,6 +316,7 @@ async function translate(event) {
   } finally { busy = false; controller = null; updateInput(); }
 }
 function changeLanguage(source) {
+  if (!canEditDraft()) return;
   $('source-language').value = source;
   $('target-language').value = source === 'de' ? 'ru' : 'de';
   $('source-text').lang = source;
@@ -244,8 +328,8 @@ $('source-text').addEventListener('input', () => { if (record) resetResult(); up
 $('source-text').addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); $('translation-form').requestSubmit(); } });
 $('source-language').addEventListener('change', () => changeLanguage($('source-language').value));
 $('target-language').addEventListener('change', () => changeLanguage($('target-language').value === 'de' ? 'ru' : 'de'));
-$('swap').addEventListener('click', () => { const swapped = swapDraft($('source-language').value, $('source-text').value, record?.translation); $('source-text').value = swapped.text; changeLanguage(swapped.source); });
-$('clear').addEventListener('click', () => { $('source-text').value = ''; resetResult(); updateInput(); status('Text geleert.'); $('source-text').focus(); });
+$('swap').addEventListener('click', () => { if (!canEditDraft()) return; const swapped = swapDraft($('source-language').value, $('source-text').value, record?.translation); $('source-text').value = swapped.text; changeLanguage(swapped.source); });
+$('clear').addEventListener('click', () => { if (!canEditDraft()) return; $('source-text').value = ''; resetResult(); updateInput(); status('Text geleert.'); $('source-text').focus(); });
 $('cancel').addEventListener('click', () => controller?.abort());
 $('copy').addEventListener('click', async () => { if (!record) return; try { await navigator.clipboard.writeText(record.translation); status('Übersetzung kopiert.'); } catch { status('Kopieren nicht erlaubt. Markiere den Text und kopiere ihn manuell.', true); } });
 $('refresh-history').addEventListener('click', loadHistory);

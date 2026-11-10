@@ -9,18 +9,24 @@ public enum Language: String, Codable, CaseIterable, Sendable {
 public struct TranslationRequest: Encodable, Sendable {
     public let text: String
     public let sourceLanguage: Language
+    public let instructions: String?
     public var targetLanguage: Language { sourceLanguage.opposite }
-    public init(text: String, sourceLanguage: Language) {
+    public init(text: String, sourceLanguage: Language, instructions: String? = nil) {
         self.text = text
         self.sourceLanguage = sourceLanguage
+        self.instructions = instructions
     }
     enum CodingKeys: String, CodingKey {
-        case text, sourceLanguage = "source_language", targetLanguage = "target_language"
+        case text, instructions, sourceLanguage = "source_language", targetLanguage = "target_language"
     }
     public func encode(to encoder: any Encoder) throws {
+        guard instructions.map({ $0.unicodeScalars.count <= 1000 }) ?? true else { throw APIError.invalidResponse }
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(text, forKey: .text)
         try container.encode(sourceLanguage, forKey: .sourceLanguage)
         try container.encode(targetLanguage, forKey: .targetLanguage)
+        if let instructions, !instructions.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            try container.encode(instructions, forKey: .instructions)
+        }
     }
 }

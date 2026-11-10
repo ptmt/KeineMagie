@@ -3,12 +3,12 @@
 Native iOS app for learning German, with a Go backend. Product specification: [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ## Current implementation
-- `native/`: SwiftUI Apple sign-in and account/session UI, with four capability rows (translator, dictation, podcasts + shadowing, coach). Personal ChatGPT connection is not implemented; translation/history/audio remain unavailable in the app.
-- Native UI/settings/account and session/auth/errors ship in **German, English, Russian, Spanish and French**, automatically following the system/app language (German fallback). Apple’s native sign-in control localizes itself, including accessibility.
-- `server/`: authenticated translation/history API and existing cached TTS proxy. Provider credentials remain on the server.
-- `web/`: minimal translator (language controls, input/output, translate/cancel/copy/clear, personal history). No planned-feature navigation, hero copy, empty enrichment cards or slogans. Sign-in shows Apple and optional secondary iPhone pairing only; personal ChatGPT connection is available in the account after authentication. See [web UI notes](docs/WEB-UI.md).
-- Podcasts/shadowing and coach tabs are explicitly planned, not implemented.
-- The legacy Expo client has been removed; its sources remain available in Git history.
+- `native/`: SwiftUI Apple identity, Keychain session, personal provider connection, translator/history, account-local style shortcuts, four tabs, and authenticated podcast library with static HTML/audio discovery and manually refreshed RSS/Atom subscriptions.
+- Native interface follows German, English, Russian, Spanish or French system/app language.
+- `server/`: authenticated translation/history and durable owner-scoped podcast jobs. Recognition runs in an isolated private Linux worker with no provider credentials; translation remains under the owner's backend provider connection.
+- `web/`: minimal translator, named style shortcuts, personal history, direct Apple web sign-in and optional iPhone pairing. Guest controls fail closed. Podcast/dictation/coach navigation honestly indicates unavailable web features.
+- Dictation, coach and the full shadowing learning loop remain planned. Share-extension source is opt-in only and **not shipped**: app + extension App Group profiles and signing integration are still required.
+- Legacy Expo sources remain in Git history.
 
 ## Start here
 - [Native setup and core tests](native/README.md)
@@ -16,7 +16,7 @@ Native iOS app for learning German, with a Go backend. Product specification: [d
 - [Architecture and privacy boundaries](docs/ARCHITECTURE.md)
 - [Xcode and tinyserve deployment](docs/DEPLOYMENT.md)
 
-The native app uses Apple sign-in and a device-Keychain session credential; it does not expose manual server/OpenAI tokens. The legacy backend translation endpoints use a server API key and bearer authentication, but are not invoked by the current native account UI. Eligible ChatGPT Pro/Business plans may supply API credits after activation; that is distinct from direct subscription sharing in participating apps. See the product document for official sources.
+The native app uses Apple sign-in and a device-Keychain session credential; provider credentials remain on the server. Account identity and connected provider authority are separate. No shared paid fallback is enabled.
 
 ## Verification status
-Native verification: **24 Swift core tests and 27 Python CI tests pass**, including localization completeness/placeholders, four login rows, session/auth policy and signing configuration. XcodeGen generation and a real Release simulator build with ad-hoc signing succeeded; the installed app was launched in Russian and English and screenshots inspected. Existing simulator data and Keychain were not erased. Real Apple consent, physical-device provisioning, personal ChatGPT connection, live provider requests and audio playback are not claimed verified. See [native README](native/README.md) for architecture and limitations. Server verification is outside this native-only change.
+The 2026-11-10 release passed Go race/vet, 22 Node 22 web tests, 39 native CI tests (plus 8 executable lifecycle tests), 46 Swift Testing + 3 XCTest tests, a fresh app-only Release simulator build and codesign verification. The isolated Linux fixture recognized real generated German speech; its provider translation was synthetic. Live backend/worker deployment preserved existing account/provider files, returned public health 200 and protected podcast 401, and passed authenticated readiness after worker restart. See [deployment and rollback](docs/DEPLOYMENT.md) for exact artifacts and the manual Compose lifecycle caveat. Real owner-authorized podcast translation and this version's physical-device installation remain unverified; no paid inference was made.
