@@ -177,6 +177,7 @@ func TestProviderStreamsRequireCompleted(t *testing.T) {
 }
 
 func TestProviderCompletedTranslationAndIsolation(t *testing.T) {
+	wire := accountTranslationSSE(`{"text":"Привет"}`, true, "response.completed")
 	t.Setenv("PROVIDER_KEY_FILE", t.TempDir()+"/key")
 	os.WriteFile(os.Getenv("PROVIDER_KEY_FILE"), []byte(strings.Repeat("k", 32)), 0600)
 	cfg := &serverConfig{authPath: t.TempDir() + "/auth.json", historyPath: t.TempDir() + "/history.json", httpClient: &http.Client{Transport: transportFunc(func(r *http.Request) (*http.Response, error) {
@@ -193,7 +194,7 @@ func TestProviderCompletedTranslationAndIsolation(t *testing.T) {
 			if v["store"] != false || v["stream"] != true || v["model"] != "gpt-6-luna" {
 				t.Errorf("bad Responses payload %v", v)
 			}
-			body = "data: {\"type\":\"response.output_text.delta\",\"delta\":\"Привет\"}\n\ndata: {\"type\":\"response.completed\"}\n\n"
+			body = wire
 		}
 		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: http.Header{}}, nil
 	})}}
@@ -215,8 +216,36 @@ func TestProviderCompletedTranslationAndIsolation(t *testing.T) {
 		t.Fatal("plaintext credential")
 	}
 	w := authCall(h, "POST", "/v1/translations", `{"text":"Hallo","source_language":"de","target_language":"ru"}`, a)
-	if w.Code != 201 || !strings.Contains(w.Body.String(), "Привет") {
+	var record translationRecord
+	if w.Code != 201 || json.Unmarshal(w.Body.Bytes(), &record) != nil || record.Translation != "Привет" {
 		t.Fatalf("translation %d %s", w.Code, w.Body.String())
+	}
+	// Both native and web consume this same response and owner history field.
+	w = authCall(h, "GET", "/v1/translations", "", a)
+	var history struct {
+		Items []translationRecord `json:"items"`
+	}
+	if w.Code != 200 || json.Unmarshal(w.Body.Bytes(), &history) != nil || len(history.Items) != 1 || history.Items[0].Translation != "Привет" || history.Items[0].ID != record.ID {
+		t.Fatalf("clean owner history not persisted: %d %s", w.Code, w.Body.String())
+	}
+	for _, invalid := range []struct{ output, terminal string }{
+		{`{"text":""}`, "response.completed"},
+		{`{"text":null}`, "response.completed"},
+		{`{"text":"Hallo"} explanation`, "response.completed"},
+		{"Es hat funktioniert.", "response.completed"},
+		{`{"text":"Hallo"}`, ""},
+		{`{"text":"Hallo"}`, "response.failed"},
+		{`{"text":"Hallo"}`, "response.incomplete"},
+	} {
+		wire = accountTranslationSSE(invalid.output, true, invalid.terminal)
+		failed := authCall(h, "POST", "/v1/translations", `{"text":"Hallo","source_language":"de","target_language":"ru"}`, a)
+		if failed.Code != 502 || strings.Contains(failed.Body.String(), invalid.output) {
+			t.Fatalf("invalid upstream did not fail safely: HTTP %d", failed.Code)
+		}
+	}
+	w = authCall(h, "GET", "/v1/translations", "", a)
+	if w.Code != 200 || json.Unmarshal(w.Body.Bytes(), &history) != nil || len(history.Items) != 1 || history.Items[0].Translation != "Привет" {
+		t.Fatal("failed translations changed owner history")
 	}
 	if w = authCall(h, "GET", "/v1/translations", "", b); w.Code != 200 || strings.Contains(w.Body.String(), "Привет") {
 		t.Fatalf("owner isolation %d %s", w.Code, w.Body.String())
