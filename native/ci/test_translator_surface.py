@@ -21,6 +21,24 @@ class TranslatorSurfaceTests(unittest.TestCase):
         self.assertIn('ChatGPTConnectionView()', view)
         self.assertNotIn('bootstrapToken', view)
 
+    def test_compact_form_keeps_styles_below_input_without_duplicate_heading(self):
+        view = (ROOT / 'App/TranslatorView.swift').read_text()
+        styles = (ROOT / 'App/TranslationShortcutsView.swift').read_text()
+        self.assertLess(view.index('TextEditor(text: $model.draft)'), view.index('TranslationShortcutsView()'))
+        self.assertLess(view.index('TranslationShortcutsView()'), view.index('await model.translate()'))
+        self.assertNotIn('Label("feature.translator"', view)
+        self.assertNotIn('frame(minHeight: 160)', view)
+        self.assertIn('.scrollDismissesKeyboard(.interactively)', view)
+        self.assertIn('@FocusState', view)
+        self.assertIn('translator-input', view)
+        self.assertIn('translator-submit', view)
+        inline_styles = styles.split('private struct ShortcutManager')[0]
+        self.assertNotIn('Text("shortcut.heading")', inline_styles)
+        self.assertNotIn('Text(verbatim: instruction)', inline_styles)
+        self.assertIn('shortcut-manage', inline_styles)
+        self.assertIn('.contextMenu', inline_styles)
+        self.assertIn('.accessibilityLabel("shortcut.add")', inline_styles)
+
     def test_direct_login_is_not_a_mislabelled_cli_button(self):
         view = (ROOT / 'App/ChatGPTConnectionView.swift').read_text()
         self.assertNotIn('chatgpt.direct.blocked', view)

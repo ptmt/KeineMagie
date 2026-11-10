@@ -6,33 +6,33 @@ struct TranslationShortcutsView: View {
     @State private var adding = false
     @State private var managing = false
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("shortcut.heading").font(.subheadline.weight(.medium))
-                Spacer()
-                if !model.shortcuts.isEmpty {
-                    Button("shortcut.edit") { managing = true }
-                        .accessibilityIdentifier("shortcut-manage")
+        HStack(spacing: 6) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    chip(AppL10n.text("shortcut.friendly"), id: "friendly")
+                    chip(AppL10n.text("shortcut.formal"), id: "formal")
+                    ForEach(model.shortcuts) { item in chip(item.title, id: item.id.uuidString) }
                 }
             }
-            HStack(spacing: 8) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        chip(AppL10n.text("shortcut.friendly"), id: "friendly")
-                        chip(AppL10n.text("shortcut.formal"), id: "formal")
-                        ForEach(model.shortcuts) { item in chip(item.title, id: item.id.uuidString) }
+            Button { adding = true } label: {
+                Image(systemName: "plus").frame(minWidth: 28, minHeight: 32)
+            }.buttonStyle(.bordered)
+                .accessibilityLabel("shortcut.add")
+                .accessibilityIdentifier("shortcut-add")
+                .contextMenu {
+                    if !model.shortcuts.isEmpty {
+                        Button("shortcut.edit") { managing = true }
                     }
                 }
-                Button { adding = true } label: {
-                    Image(systemName: "plus").frame(minWidth: 30, minHeight: 30)
+            if !model.shortcuts.isEmpty {
+                Button { managing = true } label: {
+                    Image(systemName: "ellipsis").frame(minWidth: 28, minHeight: 32)
                 }.buttonStyle(.bordered)
-                    .accessibilityLabel("shortcut.add")
-                    .accessibilityIdentifier("shortcut-add")
-            }
-            if let instruction = model.translationInstruction {
-                Text(verbatim: instruction).font(.caption).foregroundStyle(.secondary)
+                    .accessibilityLabel("shortcut.edit")
+                    .accessibilityIdentifier("shortcut-manage")
             }
         }
+        .font(.subheadline)
         .sheet(isPresented: $adding) { ShortcutEditor() }
         .sheet(isPresented: $managing) { ShortcutManager() }
     }

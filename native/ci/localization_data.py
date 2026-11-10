@@ -36,7 +36,7 @@ APP = [
 ('browser.done','Entscheidung gesendet. Prüfe deinen Browser.','Decision sent. Check your browser.','Решение отправлено. Проверьте браузер.','Decisión enviada. Revisa tu navegador.','Décision envoyée. Vérifiez votre navigateur.'),
 ('feature.translator', 'Übersetzer', 'Translator', 'Переводчик', 'Traductor', 'Traducteur'),
 ('feature.dictation', 'Diktat', 'Dictation', 'Диктант', 'Dictado', 'Dictée'),
-('feature.podcasts', 'Podcasts & Shadowing', 'Podcasts & shadowing', 'Подкасты и шэдоуинг', 'Pódcasts y shadowing', 'Podcasts et shadowing'),
+('feature.podcasts', 'Podcasts', 'Podcasts', 'Подкасты', 'Podcasts', 'Podcasts'),
 ('feature.coach', 'Coach', 'Coach', 'Тренер', 'Entrenador', 'Coach'),
 ('Einstellungen', 'Settings', 'Настройки', 'Ajustes', 'Réglages'),
 ('Sitzung nicht bestätigt', 'Session not verified', 'Сессия не подтверждена', 'Sesión sin verificar', 'Session non vérifiée'),

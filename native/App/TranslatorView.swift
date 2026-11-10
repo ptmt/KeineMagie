@@ -4,42 +4,40 @@ import KeineMagieCore
 /// The signed-in landing screen is the real personal translator, not account setup.
 struct TranslatorView: View {
     @Environment(AppModel.self) private var model
+    @FocusState private var inputFocused: Bool
+    @ScaledMetric(relativeTo: .body) private var editorHeight = 112
+
     var body: some View {
         @Bindable var model = model
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                HStack {
-                    Label("feature.translator", systemImage: "character.bubble").font(.title2.bold())
-                    Spacer()
-                    NavigationLink { ChatGPTConnectionView() } label: {
-                        Image(systemName: model.provider?.connected == true ? "link.circle.fill" : "person.crop.circle.badge.exclamationmark")
-                            .font(.title2)
-                    }.accessibilityLabel("ChatGPT")
-                }
-                if model.provider?.connected != true {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Label("ChatGPT nicht verbunden", systemImage: "link.badge.plus").font(.headline)
-                        Text("chatgpt.requirement").font(.callout).foregroundStyle(.secondary)
-                        NavigationLink { ChatGPTConnectionView() } label: {
-                            Text("chatgpt.connect").frame(maxWidth: .infinity)
-                        }.buttonStyle(.borderedProminent)
-                    }.padding().background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18))
-                }
+            VStack(alignment: .leading, spacing: 12) {
                 Picker("Richtung", selection: $model.source) {
                     Text("Deutsch → Русский").tag(Language.german)
                     Text("Русский → Deutsch").tag(Language.russian)
                 }.pickerStyle(.segmented)
-                TranslationShortcutsView()
                 TextEditor(text: $model.draft)
-                    .frame(minHeight: 160)
+                    .focused($inputFocused)
+                    .frame(height: editorHeight)
                     .padding(8)
                     .background(.background, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(.quaternary))
                     .accessibilityLabel("Text zum Übersetzen")
-                Button { Task { await model.translate() } } label: {
+                    .accessibilityIdentifier("translator-input")
+                TranslationShortcutsView()
+                Button {
+                    inputFocused = false
+                    Task { await model.translate() }
+                } label: {
                     Text("Übersetzen").frame(maxWidth: .infinity)
                 }.buttonStyle(.borderedProminent).controlSize(.large)
+                    .accessibilityIdentifier("translator-submit")
                     .disabled(model.busy || model.provider?.connected != true || model.provider?.selectedModel?.isEmpty != false || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
+                if model.provider?.connected != true {
+                    NavigationLink { ChatGPTConnectionView() } label: {
+                        Label("chatgpt.connect", systemImage: "link.badge.plus")
+                            .font(.callout)
+                    }
+                }
                 if model.busy { ProgressView() }
                 if let error = model.translatorError { ErrorNotice(text: error) }
                 if let result = model.result {
@@ -57,8 +55,15 @@ struct TranslatorView: View {
                     }.frame(maxWidth: .infinity, alignment: .leading)
                     Divider()
                 }
-
-            }.padding(24).frame(maxWidth: 700).frame(maxWidth: .infinity)
+            }.padding(16).frame(maxWidth: 700).frame(maxWidth: .infinity)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink { ChatGPTConnectionView() } label: {
+                    Image(systemName: model.provider?.connected == true ? "link.circle.fill" : "person.crop.circle.badge.exclamationmark")
+                }.accessibilityLabel("chatgpt.connect")
+            }
         }
         .task(id: model.session.generation) { model.loadShortcuts(); await model.refreshTranslator() }
     }

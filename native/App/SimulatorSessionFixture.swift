@@ -29,8 +29,25 @@ actor SimulatorSessionFixture {
         case "/v1/provider":
             let connected = mode == "account-change" && validations == 1
             return AuthResponse(data: Data("{\"connected\":\(connected),\"status\":\"\(connected ? "connected" : "disconnected")\",\"message\":\"Synthetic simulator fixture — no Apple or ChatGPT login\"}".utf8), status: 200)
+        case "/v1/podcasts":
+            if request.httpMethod == "POST" {
+                if mode == "podcast-failure" { return AuthResponse(data: Data(), status: 503) }
+                try? await Task.sleep(for: .seconds(mode == "account-change" ? 7 : 1))
+                return AuthResponse(data: try JSONSerialization.data(withJSONObject: Self.job(1)), status: 200)
+            }
+            let populated = mode == "podcast-populated" || (mode == "account-change" && validations == 1)
+            let items = populated ? (1...18).map { Self.job($0) } : []
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": items, "worker_available": true]), status: 200)
+        case "/v1/podcasts/subscriptions":
+            let feed: [String: Any] = ["id": "synthetic-feed-000000001", "url": "https://audio.example/feed.xml", "title": "Synthetic language podcast", "episodes": [["id": "episode-one", "title": "Synthetic episode one", "url": "https://audio.example/episode.mp3", "published": "2026-11-10"]]]
+            if request.httpMethod == "POST" { return AuthResponse(data: try JSONSerialization.data(withJSONObject: feed), status: 200) }
+            let items = mode == "podcast-populated" ? [feed] : []
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": items]), status: 200)
         default: throw URLError(.unsupportedURL)
         }
+    }
+    private static func job(_ index: Int) -> [String: Any] {
+        ["id": "synthetic-job-0000000\(index)", "url": "https://audio.example/episode-\(index).mp3", "source_language": "de", "target_language": "ru", "state": index == 2 ? "transcribing" : "completed", "progress": index == 2 ? 45 : 100, "segments": [["start": 0, "end": 12, "text": "Synthetic transcript", "translation": "Синтетический перевод"]]]
     }
 }
 #endif

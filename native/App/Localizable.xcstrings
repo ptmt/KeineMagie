@@ -1,6 +1,286 @@
 {
   "sourceLanguage": "de",
   "strings": {
+    "podcast.add": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add podcast"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить подкаст"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir podcast"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter un podcast"
+          }
+        }
+      }
+    },
+    "podcast.none": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Podcasts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No podcasts yet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока нет подкастов"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay podcasts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun podcast pour le moment"
+          }
+        }
+      }
+    },
+    "podcast.none.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf +, um einen Podcast hinzuzufügen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap + to add a podcast."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите +, чтобы добавить подкаст."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulsa + para añadir un podcast."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez + pour ajouter un podcast."
+          }
+        }
+      }
+    },
+    "podcast.mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinzufügen als"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add as"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить как"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir como"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter comme"
+          }
+        }
+      }
+    },
+    "podcast.mode.episode": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episode"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эпизод"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episodio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisode"
+          }
+        }
+      }
+    },
+    "podcast.mode.feed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лента"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux"
+          }
+        }
+      }
+    },
+    "podcast.info": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutz & Grenzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy & limits"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Конфиденциальность и ограничения"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidad y límites"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confidentialité et limites"
+          }
+        }
+      }
+    },
+    "podcast.url": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast-URL"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast URL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL подкаста"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL del podcast"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL du podcast"
+          }
+        }
+      }
+    },
     "podcast.sources.expanded": {
       "extractionState": "manual",
       "localizations": {
@@ -42,31 +322,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feed abonnieren"
+            "value": "Abonnieren"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Subscribe to feed"
+            "value": "Subscribe"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подписаться на ленту"
+            "value": "Подписаться"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suscribirse a la fuente"
+            "value": "Suscribirse"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "S’abonner au flux"
+            "value": "S’abonner"
           }
         }
       }
@@ -812,31 +1092,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Audiosprache"
+            "value": "Übersetzen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Audio language"
+            "value": "Translate"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Язык аудио"
+            "value": "Перевести"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idioma del audio"
+            "value": "Traducir"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Langue audio"
+            "value": "Traduire"
           }
         }
       }
@@ -847,31 +1127,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Auf dem Server importieren und vorbereiten"
+            "value": "Importieren"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import and prepare on server"
+            "value": "Import episode"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Импортировать и подготовить на сервере"
+            "value": "Импортировать"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importar y preparar en el servidor"
+            "value": "Importar episodio"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importer et préparer sur le serveur"
+            "value": "Importer l’épisode"
           }
         }
       }
@@ -882,31 +1162,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lokaler Whisper-Worker nicht verfügbar. Die Administration muss ihn auf dem Server aktivieren."
+            "value": "Audioverarbeitung nicht verfügbar."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Local Whisper worker is unavailable. The administrator must enable it on the server."
+            "value": "Audio processing is unavailable."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Локальный обработчик Whisper недоступен. Администратор должен включить его на сервере."
+            "value": "Обработка аудио недоступна."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El procesador local Whisper no está disponible. El administrador debe activarlo en el servidor."
+            "value": "Procesamiento de audio no disponible."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le traitement Whisper local est indisponible. L’administrateur doit l’activer sur le serveur."
+            "value": "Le traitement audio est indisponible."
           }
         }
       }
@@ -1250,7 +1530,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pódcasts"
+            "value": "Podcasts"
           }
         },
         "fr": {
@@ -2492,31 +2772,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podcasts & Shadowing"
+            "value": "Podcasts"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podcasts & shadowing"
+            "value": "Podcasts"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подкасты и шэдоуинг"
+            "value": "Подкасты"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pódcasts y shadowing"
+            "value": "Podcasts"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podcasts et shadowing"
+            "value": "Podcasts"
           }
         }
       }

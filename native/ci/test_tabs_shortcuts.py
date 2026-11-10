@@ -21,7 +21,7 @@ class TabsAndShortcutsTests(unittest.TestCase):
         source = (ROOT / 'App/MainTabsView.swift').read_text()
         for label in ['translator', 'dictation', 'podcasts', 'coach']:
             self.assertIn(f'.tabItem {{ Label("feature.{label}"', source)
-        self.assertIn('PodcastLibraryView()', source)
+        self.assertIn('PodcastLibraryView(showAdd: $showPodcastAdd)', source)
         self.assertIn('Text("feature.unavailable")', source)
 
     def test_identity_epoch_resets_tabs_and_account_local_content(self):

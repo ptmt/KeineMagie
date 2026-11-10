@@ -2,6 +2,41 @@ import XCTest
 
 final class TranslationShortcutUITests: XCTestCase {
     @MainActor
+    func testCompactTranslatorKeepsStylesAndSubmitAboveKeyboard() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"
+        app.launchArguments = ["-AppleLanguages", "(de)", "-AppleLocale", "de_DE"]
+        app.launch()
+        let editor = app.textViews["translator-input"]
+        let friendly = app.buttons["Freundlich"]
+        let addShortcut = app.buttons["shortcut-add"]
+        let submit = app.buttons["translator-submit"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 10))
+        XCTAssertTrue(friendly.isHittable)
+        XCTAssertTrue(addShortcut.isHittable)
+        XCTAssertLessThan(editor.frame.maxY, friendly.frame.minY)
+        XCTAssertLessThan(friendly.frame.maxY, submit.frame.minY)
+        XCTAssertFalse(app.staticTexts["Kurzbefehle"].exists)
+        XCTAssertTrue(app.navigationBars.staticTexts["Übersetzer"].exists)
+        let normal = XCTAttachment(screenshot: app.screenshot())
+        normal.name = "synthetic-session-compact-translator-no-keyboard"
+        normal.lifetime = .keepAlways; add(normal)
+        editor.tap()
+        editor.typeText("Guten Morgen")
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        friendly.tap()
+        XCTAssertTrue(friendly.isSelected)
+        XCTAssertTrue(addShortcut.isHittable)
+        XCTAssertTrue(submit.exists)
+        XCTAssertLessThan(editor.frame.maxY, friendly.frame.minY)
+        XCTAssertLessThan(friendly.frame.maxY, submit.frame.minY)
+        XCTAssertLessThan(submit.frame.maxY, app.keyboards.firstMatch.frame.minY)
+        let keyboard = XCTAttachment(screenshot: app.screenshot())
+        keyboard.name = "synthetic-session-compact-translator-keyboard"
+        keyboard.lifetime = .keepAlways; add(keyboard)
+    }
+
+    @MainActor
     func testTabsAndCustomShortcutEditingPersistence() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"
@@ -48,24 +83,26 @@ final class TranslationShortcutUITests: XCTestCase {
     }
 
     @MainActor
-    func testPodcastAndStylesUseAllFiveInterfaceLanguages() {
-        for (locale, translator, podcasts, library, heading) in [
-            ("de", "Übersetzer", "Podcasts & Shadowing", "Mediathek", "Kurzbefehle"),
-            ("en", "Translator", "Podcasts & shadowing", "Library", "Shortcuts"),
-            ("ru", "Переводчик", "Подкасты и шэдоуинг", "Библиотека", "Шаблоны"),
-            ("es", "Traductor", "Pódcasts y shadowing", "Biblioteca", "Atajos"),
-            ("fr", "Traducteur", "Podcasts et shadowing", "Bibliothèque", "Raccourcis")
+    func testTranslatorStylesUseAllFiveInterfaceLanguages() {
+        for (locale, translator, friendly, formal, heading) in [
+            ("de", "Übersetzer", "Freundlich", "Formell", "Kurzbefehle"),
+            ("en", "Translator", "Friendly", "Formal", "Shortcuts"),
+            ("ru", "Переводчик", "Дружелюбно", "Официально", "Шаблоны"),
+            ("es", "Traductor", "Amable", "Formal", "Atajos"),
+            ("fr", "Traducteur", "Amical", "Formel", "Raccourcis")
         ] {
             let app = XCUIApplication()
             app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"
             app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]
             app.launch()
             XCTAssertTrue(app.tabBars.buttons[translator].waitForExistence(timeout: 10))
-            XCTAssertTrue(app.staticTexts[heading].exists)
-            app.tabBars.buttons[podcasts].tap()
-            XCTAssertTrue(app.staticTexts[library].waitForExistence(timeout: 5))
+            XCTAssertTrue(app.navigationBars.staticTexts[translator].exists)
+            XCTAssertTrue(app.buttons[friendly].isHittable)
+            XCTAssertTrue(app.buttons[formal].isHittable)
+            XCTAssertTrue(app.buttons["shortcut-add"].isHittable)
+            XCTAssertFalse(app.staticTexts[heading].exists)
             let shot = XCTAttachment(screenshot: app.screenshot())
-            shot.name = "synthetic-session-podcast-\(locale)"
+            shot.name = "synthetic-session-compact-translator-\(locale)"
             shot.lifetime = .keepAlways; add(shot)
             app.terminate()
         }

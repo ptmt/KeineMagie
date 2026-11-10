@@ -42,7 +42,7 @@ final class ForegroundUITests: XCTestCase {
         XCTAssertTrue(emptyHistory.waitForExistence(timeout: 10))
         app.swipeDown()
         XCTAssertEqual(draft.value as? String, "")
-        XCTAssertTrue(app.staticTexts["ChatGPT nicht verbunden"].exists)
+        XCTAssertTrue(app.buttons["ChatGPT verbinden"].exists)
         // Wait beyond the deliberately late account A translation response.
         XCTAssertFalse(app.staticTexts["Synthetic stale account A result"].waitForExistence(timeout: 8))
         XCTAssertFalse(app.staticTexts["Synthetic account A history"].exists)

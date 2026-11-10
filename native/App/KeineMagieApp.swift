@@ -24,7 +24,8 @@ struct RootView: View {
                     LoginGate()
                 }
             }
-            .navigationTitle(ProductIdentity.displayName)
+            .navigationTitle(model.session.phase == .signedIn ? "" : ProductIdentity.displayName)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Einstellungen", systemImage: "gearshape") { showSettings = true }
