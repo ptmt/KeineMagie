@@ -198,13 +198,129 @@ cached. Shell
 tracing is disabled. A hard runner kill can prevent all cleanup; this workflow
 uses disposable GitHub-hosted runners, not self-hosted machines.
 
-No `ITSAppUsesNonExemptEncryption` declaration is set automatically. The app
-currently uses system HTTPS/authentication APIs, usually eligible for the
-standard encryption exemption, but the owner must answer Apple's export
-compliance questions accurately for the app and its distribution territories.
-If confirmed exempt, explicitly add `ITSAppUsesNonExemptEncryption=false` to
-release Info.plist in a reviewed change; otherwise supply Apple's required
-compliance information. Do not claim exemption just to bypass processing.
+## Recurring Missing Compliance: native encryption assessment
+
+The user reports builds `2703.29.40`, `2702.55.92`, and `2700.67.79` as
+**Missing Compliance**, with the older `2695` build associated with the **ME**
+group. These are reported portal observations, not a live portal verification.
+Both native source Info plists previously omitted
+`ITSAppUsesNonExemptEncryption`; Apple's key documentation says omission causes
+the export questionnaire on each upload. Both now explicitly declare the plist
+**Boolean false**, meaning **no non-exempt encryption**, not “no encryption.”
+This changes future binaries only; it cannot repair already uploaded builds.
+
+### Evidence for the declaration
+
+The reviewed distributed native app uses only Apple's system security APIs:
+
+- `native/project.yml`: app sources are `App`; the only package is local
+  `KeineMagieCore` at `Core`. `native/Core/Package.swift` has no external package
+  dependencies or binary targets. No embedded third-party crypto implementation
+  was found in these app/package sources or dependency declarations.
+- `native/Core/Sources/KeineMagieCore/AuthClient.swift`, `network`: ephemeral
+  `URLSession` for HTTPS. `ServerEndpoint.swift` requires HTTPS, except Debug
+  simulator loopback. No custom TLS implementation is shipped.
+- `native/App/AppleLoginCoordinator.swift`: system `AuthenticationServices`
+  Sign in with Apple; the challenge nonce is supplied by the server and passed
+  unchanged, without local hashing. Identity tokens are forwarded for server
+  verification, not signed or decrypted by a custom native implementation.
+- `native/App/TokenStore.swift`: system Security/Keychain `SecItem*` storage of
+  the bearer credential, `kSecAttrAccessibleWhenUnlockedThisDeviceOnly`.
+- `native/App/ChatGPTSafariView.swift`: system `SFSafariViewController` for
+  provider consent. `OAuthLoopback.swift` uses system Network plain TCP bound
+  only to `127.0.0.1` for the ephemeral HTTP callback, not a custom encrypted
+  protocol. OAuth state comparisons and UUID attempt IDs are not encryption.
+- Searches found **no CryptoKit import, SHA256 implementation/call,
+  CommonCrypto, bundled OpenSSL, custom cipher, key agreement, signing, or
+  encryption/decryption implementation in native App/Core sources**. Do not
+  assume native nonce hashing merely because other Apple-login examples use it.
+- The separate Go backend **does** use cryptography: e.g. `server/provider.go`
+  AES-GCM credential storage and SHA-256 PKCE, `auth_store.go` session hashes,
+  and `apple_verify.go` RSA verification. This code runs on the server and is
+  not linked, copied, or bundled into the iOS app by the native project. CI
+  OpenSSL commands handle signing assets on the runner, not app runtime crypto.
+
+Apple's [encryption documentation table](https://developer.apple.com/help/app-store-connect/reference/app-information/export-compliance-documentation-for-encryption)
+explicitly says encryption limited to the Apple operating system requires **no
+documentation in App Store Connect**. Its [developer guidance](https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations)
+explicitly names HTTPS via `URLSession` as typically exempt and directs a
+Boolean `NO` for only exempt encryption, including linked libraries. The
+[key reference](https://developer.apple.com/documentation/bundleresources/information-property-list/itsappusesnonexemptencryption)
+also defines `NO` for no encryption **or only exempt encryption**. On this
+reviewed native code/dependency scope, `false` is supported; it is not a claim
+that all code in the repository has no crypto or a blanket legal determination.
+Reassess if native dependencies, bundled code, or cryptographic features change.
+The account owner remains responsible for classification, distribution-country
+answers, and any government reporting requirements; exemption from Apple's
+upload-document requirement does not itself settle all export obligations.
+
+### Existing uploaded builds: account-owner action only
+
+No portal changes, tester assignment, signing secrets, or uploads are performed
+by this fix. An Account Holder, Admin, or App Manager must follow Apple's
+[beta-build compliance instructions](https://developer.apple.com/help/app-store-connect/test-a-beta-version/provide-export-compliance-information-for-beta-builds):
+
+1. Open **App Store Connect → Apps → Keine Magie → TestFlight → iOS**.
+   For the desired already-uploaded build (newest reported: `2703.29.40`), click
+   **Manage** beside **Missing Compliance**, or open its build details and
+   **Provide Export Compliance Information**. Repeat for older missing builds
+   only if they also need to be made available; clearing one does not change
+   another build's uploaded plist.
+2. Answer the actual question wording truthfully, using the reviewed evidence:
+   - If asked whether the app **uses encryption at all**, **Yes**: it uses
+     system HTTPS, authentication, and Keychain. Do not answer “No encryption”
+     merely because the plist non-exempt flag is false.
+   - If asked whether it uses **non-exempt encryption**, the current native
+     assessment supports **No**.
+   - If asked which algorithms it implements, choose the option meaning
+     **none of the listed algorithms / only encryption within Apple's OS**,
+     if offered. It does not implement proprietary algorithms or standard
+     algorithms **instead of, or in addition to, Apple's OS implementation**.
+     Do not select a custom/independently implemented algorithm just because
+     system HTTPS internally uses standard algorithms.
+   - If asked whether encryption is limited to the Apple operating system,
+     the reviewed native implementation supports **Yes**. Answer any exemption
+     and territory questions from the actual app/distribution facts; do not
+     invent a France/distribution answer or a CCATS/documentation code.
+   If the wording/options do not match these facts, stop and review Apple's
+   [determination guidance](https://developer.apple.com/help/app-store-connect/manage-app-information/determine-and-upload-app-encryption-documentation)
+   rather than guessing. Save the truthful declaration; if Apple instead
+   requires documentation, supply it and wait for approval.
+3. Read back the exact build's status after saving. Once compliance is resolved
+   and it is eligible for internal testing, open **Internal Testing → ME →
+   Builds → Add Builds**, select that exact build and save (or its build-detail
+   **Groups** equivalent). Verify the build lists **ME** and the ME group's
+   builds list contains it. The older `2695` membership does not prove newer
+   builds are assigned; upload success alone does not prove tester availability.
+4. A future binary containing this metadata should avoid this recurring
+   questionnaire for the reviewed exempt usage. Verify processing, compliance
+   status, and ME assignment separately after publication; none is claimed
+   verified locally.
+
+### Regression verification
+
+`native/ci/test_app_metadata.py` asserts a real Boolean false in both tracked
+source plists before XcodeGen. Its effective-plist test checks the actual built
+app's bundle ID and encryption value when `KM_BUILT_APP_PLIST` is set; it skips
+only that integration check before a build. The validation workflow explicitly
+sets this path and runs the test after its Release simulator build, so generated
+or processed metadata cannot silently drop the declaration.
+
+RED was observed for both missing source keys and the actual pre-fix Release
+built plist (`None is not False`). GREEN was observed after adding the keys:
+Release and Debug unsigned simulator builds succeeded under local Xcode 27.2,
+and all three metadata tests passed against each effective built app plist.
+The full Python CI suite passes all 32 tests when given the built Release plist
+(the pre-build run intentionally skips the one effective-plist test). XcodeGen
+and source/built-plist `plutil` validation pass. Local unsigned simulator output
+is not proof of signed archive/upload, portal compliance, or tester availability.
+
+To rerun the effective check after the build below:
+
+```sh
+KM_BUILT_APP_PLIST="$TMPDIR/KeineMagie-simulator/Build/Products/Release-iphonesimulator/KeineMagie.app/Info.plist" \
+  python3 -m unittest discover -s native/ci -p test_app_metadata.py -v
+```
 
 ## Local checks (no credentials or upload)
 

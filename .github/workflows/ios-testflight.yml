@@ -53,6 +53,10 @@ jobs:
           xcodebuild -project native/KeineMagie.xcodeproj -scheme KeineMagie \
             -configuration Release -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath "$RUNNER_TEMP/KeineMagie-simulator" CODE_SIGNING_ALLOWED=NO build
+      - name: Verify effective app export-compliance metadata
+        env:
+          KM_BUILT_APP_PLIST: ${{ runner.temp }}/KeineMagie-simulator/Build/Products/Release-iphonesimulator/KeineMagie.app/Info.plist
+        run: python3 -m unittest discover -s native/ci -p test_app_metadata.py -v
 
   testflight:
     # PRs (including forks) never enter the environment or receive signing secrets.
