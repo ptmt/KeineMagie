@@ -6,14 +6,22 @@ public enum Language: String, Codable, CaseIterable, Sendable {
     public var title: String { self == .german ? CoreL10n.text("language.german") : CoreL10n.text("language.russian") }
 }
 
+public enum TranslationDirection: String, CaseIterable, Sendable {
+    case germanToRussian, russianToGerman, germanPolishing
+    public var source: Language { self == .russianToGerman ? .russian : .german }
+    public var target: Language { self == .germanToRussian ? .russian : .german }
+    public var compactTitle: String { "\(source.rawValue) → \(target.rawValue)" }
+}
+
 public struct TranslationRequest: Encodable, Sendable {
     public let text: String
     public let sourceLanguage: Language
     public let instructions: String?
-    public var targetLanguage: Language { sourceLanguage.opposite }
-    public init(text: String, sourceLanguage: Language, instructions: String? = nil) {
+    public let targetLanguage: Language
+    public init(text: String, sourceLanguage: Language, targetLanguage: Language? = nil, instructions: String? = nil) {
         self.text = text
         self.sourceLanguage = sourceLanguage
+        self.targetLanguage = targetLanguage ?? sourceLanguage.opposite
         self.instructions = instructions
     }
     enum CodingKeys: String, CodingKey {

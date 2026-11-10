@@ -29,8 +29,8 @@ test('translation readiness fails closed and validates Unicode length and suppor
   assert.throws(() => inputPayload('x'.repeat(8001), 'de'), /8000/);
   assert.throws(() => inputPayload('Hallo', 'en'), /language/);
   assert.equal(inputPayload('😀'.repeat(8000), 'ru').text.length, 16000);
-  assert.deepEqual(swapDraft('de', 'original', 'result'), { source: 'ru', text: 'result' });
-  assert.deepEqual(swapDraft('ru', 'original', ''), { source: 'de', text: 'original' });
+  assert.deepEqual(swapDraft('de', 'original', 'result'), { source: 'ru', target: 'de', text: 'result' });
+  assert.deepEqual(swapDraft('ru', 'original', ''), { source: 'de', target: 'ru', text: 'original' });
 });
 
 test('catalog_unavailable preserves connection but withholds translation readiness', async () => {

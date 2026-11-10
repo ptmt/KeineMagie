@@ -78,34 +78,78 @@ func (s *historyStore) append(record translationRecord) error {
 			return err
 		}
 		items = append(items, record)
-		data, err := json.Marshal(items)
-		if err != nil {
-			return err
-		}
-		dir := filepath.Dir(s.path)
-		f, err := os.CreateTemp(dir, ".history-*")
-		if err != nil {
-			return err
-		}
-		defer os.Remove(f.Name())
-		defer f.Close()
-		if _, err = f.Write(data); err != nil {
-			return err
-		}
-		if err = f.Sync(); err != nil {
-			return err
-		}
-		if err = f.Close(); err != nil {
-			return err
-		}
-		if err = os.Rename(f.Name(), s.path); err != nil {
-			return err
-		}
-		d, err := os.Open(dir)
-		if err != nil {
-			return err
-		}
-		defer d.Close()
-		return d.Sync()
+		return s.write(items)
 	})
+}
+
+// write is called only while holding the stable sidecar lock.
+func (s *historyStore) write(items []translationRecord) error {
+	data, err := json.Marshal(items)
+	if err != nil {
+		return err
+	}
+	dir := filepath.Dir(s.path)
+	f, err := os.CreateTemp(dir, ".history-*")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(f.Name())
+	defer f.Close()
+	if _, err = f.Write(data); err != nil {
+		return err
+	}
+	if err = f.Sync(); err != nil {
+		return err
+	}
+	if err = f.Close(); err != nil {
+		return err
+	}
+	if err = os.Rename(f.Name(), s.path); err != nil {
+		return err
+	}
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	return d.Sync()
+}
+
+var errHistoryNotFound = errors.New("history record not found")
+
+func (s *historyStore) delete(id string) error {
+	return s.locked(func() error {
+		items, err := s.read()
+		if err != nil {
+			return err
+		}
+		for i := range items {
+			if items[i].ID == id {
+				return s.write(append(items[:i], items[i+1:]...))
+			}
+		}
+		return errHistoryNotFound
+	})
+}
+
+func (s *historyStore) favorite(id string, favorite bool) (translationRecord, error) {
+	var record translationRecord
+	err := s.locked(func() error {
+		items, err := s.read()
+		if err != nil {
+			return err
+		}
+		for i := range items {
+			if items[i].ID == id {
+				items[i].Favorite = favorite
+				if err := s.write(items); err != nil {
+					return err
+				}
+				record = items[i]
+				return nil
+			}
+		}
+		return errHistoryNotFound
+	})
+	return record, err
 }

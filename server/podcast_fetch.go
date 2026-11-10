@@ -15,14 +15,46 @@ import (
 
 const podcastMaxBytes int64 = 40 << 20
 
-// Credential-free public source URLs only. Queries remain excluded to avoid
-// retaining signed/private capabilities; HTML/feed paths need no file extension.
+// Credential-free public source URLs only. Permit only bounded public publisher
+// version/tracking parameters, never arbitrary signed/private capabilities.
+func podcastPublicQuery(raw string) bool {
+	if raw == "" {
+		return true
+	}
+	if len(raw) > 512 {
+		return false
+	}
+	values, err := url.ParseQuery(raw)
+	if err != nil || len(values) == 0 || len(values) > 3 {
+		return false
+	}
+	for key, items := range values {
+		if len(items) != 1 || items[0] == "" || len(items[0]) > 64 {
+			return false
+		}
+		for _, c := range items[0] {
+			switch key {
+			case "v", "awEpisodeId":
+				if c < '0' || c > '9' {
+					return false
+				}
+			case "awCollectionId":
+				if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-') {
+					return false
+				}
+			default:
+				return false
+			}
+		}
+	}
+	return true
+}
 func podcastURL(raw string) (*url.URL, error) {
 	if len(raw) > 2048 {
 		return nil, errors.New("URL too long")
 	}
 	u, e := url.Parse(raw)
-	if e != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Opaque != "" {
+	if e != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Hostname() == "" || u.User != nil || !podcastPublicQuery(u.RawQuery) || u.Fragment != "" || u.Opaque != "" {
 		return nil, errors.New("public direct audio URL required (no credentials, query or fragment)")
 	}
 	if u.Port() != "" && !((u.Scheme == "https" && u.Port() == "443") || (u.Scheme == "http" && u.Port() == "80")) {

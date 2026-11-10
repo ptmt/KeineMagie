@@ -16,8 +16,9 @@ final class PodcastUITests: XCTestCase {
     }
     @MainActor func testPopulatedListFeedDetailAndBottomSafeArea() {
         let app = launch()
-        let feed = app.buttons["Synthetic language podcast"]
+        let feed = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Synthetic language podcast")).firstMatch
         XCTAssertTrue(feed.waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Synthetic latest episode"].exists)
         XCTAssertTrue(app.navigationBars["Podcasts"].exists)
         XCTAssertFalse(app.navigationBars["Keine Magie"].exists)
         screenshot(app, "synthetic-podcasts-populated")
@@ -30,6 +31,22 @@ final class PodcastUITests: XCTestCase {
         XCTAssertTrue(last.waitForExistence(timeout: 3))
         XCTAssertLessThan(last.frame.maxY, app.tabBars.firstMatch.frame.minY)
         screenshot(app, "synthetic-podcasts-bottom")
+    }
+    @MainActor func testDetailRefreshUpdatesInPlaceAndShowsFailure() {
+        let app = launch()
+        let feed = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Synthetic language podcast")).firstMatch
+        XCTAssertTrue(feed.waitForExistence(timeout: 8)); feed.tap()
+        app.buttons["Refresh feed"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic refreshed episode"].waitForExistence(timeout: 8))
+        screenshot(app, "synthetic-podcasts-refreshed-detail")
+        app.terminate()
+        let failure = launch("podcast-refresh-failure")
+        let failedFeed = failure.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Synthetic language podcast")).firstMatch
+        XCTAssertTrue(failedFeed.waitForExistence(timeout: 8)); failedFeed.tap()
+        failure.buttons["Refresh feed"].tap()
+        XCTAssertTrue(failure.staticTexts["podcast.error"].waitForExistence(timeout: 8))
+        XCTAssertTrue(failure.staticTexts["Synthetic episode one"].exists)
+        screenshot(failure, "synthetic-podcasts-refresh-error")
     }
     @MainActor func testEmptyPlusGuardAndFailedImportStaysVisible() {
         let app = launch("podcast-failure")

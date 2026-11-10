@@ -9,12 +9,14 @@ struct TranslatorView: View {
 
     var body: some View {
         @Bindable var model = model
-        ScrollView {
+        List {
             VStack(alignment: .leading, spacing: 12) {
-                Picker("Richtung", selection: $model.source) {
-                    Text("Deutsch → Русский").tag(Language.german)
-                    Text("Русский → Deutsch").tag(Language.russian)
-                }.pickerStyle(.segmented)
+                Picker("Richtung", selection: $model.direction) {
+                    ForEach(TranslationDirection.allCases, id: \.self) { direction in
+                        Text(verbatim: direction.compactTitle).tag(direction)
+                            .accessibilityLabel(Text(LocalizedStringKey("direction." + direction.rawValue)))
+                    }
+                }.pickerStyle(.segmented).accessibilityIdentifier("translator-direction")
                 TextEditor(text: $model.draft)
                     .focused($inputFocused)
                     .frame(height: editorHeight)
@@ -45,18 +47,52 @@ struct TranslatorView: View {
                         .frame(maxWidth: .infinity, alignment: .leading).padding()
                         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
                 }
-                Divider()
-                Text("Dein Verlauf").font(.headline)
+            }.frame(maxWidth: 700).frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                .listRowSeparator(.hidden)
+            Section {
                 if model.history.isEmpty { Text("Noch keine Übersetzungen.").foregroundStyle(.secondary) }
                 ForEach(model.history) { item in
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(verbatim: item.text).font(.caption).foregroundStyle(.secondary)
+                        HStack(alignment: .top) {
+                            Text(verbatim: item.text).font(.caption).foregroundStyle(.secondary)
+                            Spacer(minLength: 8)
+                            if item.favorite {
+                                Image(systemName: "star.fill").foregroundStyle(.yellow)
+                                    .accessibilityLabel("history.favorite")
+                                    .accessibilityIdentifier("history-star-\(item.id)")
+                            }
+                            if model.historyBusy(item.id) {
+                                ProgressView().accessibilityLabel("history.updating")
+                            }
+                        }
                         Text(verbatim: item.translation).textSelection(.enabled)
-                    }.frame(maxWidth: .infinity, alignment: .leading)
-                    Divider()
+                        if let error = model.historyErrors[item.id] { ErrorNotice(text: error) }
+                    }.frame(maxWidth: 700, alignment: .leading).frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("history-row-\(item.id)")
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            // Red styling without SwiftUI's destructive-role optimistic row removal:
+                            // the row must remain present until the server acknowledges deletion.
+                            Button { model.deleteHistory(item) } label: {
+                                Label("history.delete", systemImage: "trash")
+                            }.tint(.red).accessibilityIdentifier("history-delete-\(item.id)")
+                                .disabled(model.historyBusy(item.id))
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                            Button { model.toggleHistoryFavorite(item) } label: {
+                                Label(LocalizedStringKey(item.favorite ? "history.unfavorite" : "history.addFavorite"), systemImage: item.favorite ? "star.slash" : "star")
+                            }.tint(.orange)
+                                .accessibilityIdentifier("history-favorite-\(item.id)")
+                                .disabled(model.historyBusy(item.id))
+                        }
                 }
-            }.padding(16).frame(maxWidth: 700).frame(maxWidth: .infinity)
+            } header: { Text("Dein Verlauf").font(.headline).textCase(nil) }
         }
+        .listStyle(.plain)
+        .environment(\.layoutDirection, .leftToRight)
         .scrollDismissesKeyboard(.interactively)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

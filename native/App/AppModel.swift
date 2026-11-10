@@ -6,9 +6,45 @@ final class AppModel {
     let session: SessionController
     private(set) var input = ""
     private(set) var result: TranslationRecord?
-    private(set) var history: [TranslationRecord] = []
+    private(set) var historyState = HistoryState()
+    var history: [TranslationRecord] { historyState.records }
+    private(set) var historyErrors: [String: String] = [:]
+    private var historyTasks: [String: Task<Void, Never>] = [:]
+    func historyBusy(_ id: String) -> Bool { historyState.isMutating(id) }
+    func deleteHistory(_ item: TranslationRecord) { mutateHistory(item, favorite: nil) }
+    func toggleHistoryFavorite(_ item: TranslationRecord) { mutateHistory(item, favorite: !item.favorite) }
+    private func mutateHistory(_ item: TranslationRecord, favorite: Bool?) {
+        guard session.phase == .signedIn, let mutation = historyState.beginMutation(id: item.id) else { return }
+        let version = session.generation
+        historyErrors[item.id] = nil
+        historyTasks[item.id] = Task { [self] in
+            defer {
+                if version == session.generation {
+                    historyState.failMutation(mutation)
+                    historyTasks[item.id] = nil
+                }
+            }
+            do {
+                let client = try api()
+                if let favorite {
+                    let updated = try await client.setHistoryFavorite(id: item.id, favorite: favorite)
+                    guard !Task.isCancelled, version == session.generation, session.phase == .signedIn else { return }
+                    historyState.completeUpdate(updated, mutation: mutation)
+                    if result?.id == item.id { result = updated }
+                } else {
+                    try await client.deleteHistory(id: item.id)
+                    guard !Task.isCancelled, version == session.generation, session.phase == .signedIn else { return }
+                    historyState.completeDeletion(mutation)
+                    // Current translation and draft intentionally remain readable after history deletion.
+                }
+            } catch {
+                guard !Task.isCancelled, version == session.generation, session.phase == .signedIn else { return }
+                historyErrors[item.id] = Self.connectionError(error)
+            }
+        }
+    }
     var draft = ""
-    var source: Language = .german
+    var direction: TranslationDirection = .germanToRussian
     private(set) var shortcuts: [TranslationShortcut] = []
     var selectedShortcutID: String?
     private let shortcutStore = TranslationShortcutStore()
@@ -81,10 +117,11 @@ final class AppModel {
                   refreshID == refresh, connection == nil || connectionID == connection else { return }
             provider = status
             if status.connected { bootstrap = nil }
+            let snapshot = historyState.snapshot()
             let items = try await client.history()
             guard !Task.isCancelled, session.phase == .signedIn, version == session.generation,
                   refreshID == refresh, connection == nil || connectionID == connection else { return }
-            history = items
+            historyState.apply(items, since: snapshot)
             if status.status == "catalog_unavailable" { translatorError = status.message }
         } catch {
             if !Task.isCancelled, session.phase == .signedIn, version == session.generation,
@@ -155,9 +192,9 @@ final class AppModel {
         let version = session.generation
         busy = true; defer { busy = false }
         do {
-            let item = try await api().translate(text: draft, source: source, instructions: translationInstruction)
+            let item = try await api().translate(text: draft, direction: direction, instructions: translationInstruction)
             guard version == session.generation, session.phase == .signedIn else { return }
-            result = item; history.insert(item, at: 0); translatorError = nil
+            result = item; historyState.insert(item); translatorError = nil
             selectedShortcutID = nil
         } catch { if version == session.generation { translatorError = error.localizedDescription } }
     }
@@ -188,7 +225,8 @@ final class AppModel {
         cancelChatGPT()
         input = ""
         result = nil
-        history = []
+        for task in historyTasks.values { task.cancel() }
+        historyTasks = [:]; historyErrors = [:]; historyState.reset()
         shortcuts = []; selectedShortcutID = nil
         draft = ""; provider = nil; bootstrap = nil; translatorError = nil; busy = false
         refreshID = nil; refreshing = false

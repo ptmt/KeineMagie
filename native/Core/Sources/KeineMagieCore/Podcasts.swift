@@ -6,8 +6,21 @@ public struct PodcastShareURL: Sendable {
         guard value.utf8.count <= 2048, !value.contains(where: { $0.isWhitespace || $0.isNewline }),
               let parts = URLComponents(string: value), ["http", "https"].contains(parts.scheme),
               let host = parts.host, !host.isEmpty, parts.user == nil, parts.password == nil,
-              parts.query == nil, parts.fragment == nil, let url = parts.url else { throw APIError.invalidResponse }
+              Self.publicQuery(parts), parts.fragment == nil, let url = parts.url else { throw APIError.invalidResponse }
         self.url = url
+    }
+    private static func publicQuery(_ parts: URLComponents) -> Bool {
+        guard let raw = parts.percentEncodedQuery else { return true }
+        guard raw.utf8.count <= 512, let items = parts.queryItems, !items.isEmpty, items.count <= 3,
+              Set(items.map(\.name)).count == items.count else { return false }
+        return items.allSatisfy { item in
+            guard let value = item.value, !value.isEmpty, value.utf8.count <= 64 else { return false }
+            switch item.name {
+            case "v", "awEpisodeId": return value.range(of: "^[0-9]+$", options: .regularExpression) != nil
+            case "awCollectionId": return value.range(of: "^[A-Za-z0-9_-]+$", options: .regularExpression) != nil
+            default: return false
+            }
+        }
     }
 }
 public struct PodcastSegment: Decodable, Sendable, Identifiable {
@@ -43,6 +56,12 @@ public struct PodcastSubscription: Decodable, Sendable, Identifiable {
     public let url: String
     public let title: String
     public let episodes: [PodcastEpisode]
+    public let artworkURL: String?
+    public let latestEpisodeTitle: String?
+    enum CodingKeys: String, CodingKey {
+        case id, url, title, episodes
+        case artworkURL = "artwork_url", latestEpisodeTitle = "latest_episode_title"
+    }
 }
 public struct PodcastSubscriptions: Decodable, Sendable {
     public let items: [PodcastSubscription]
@@ -92,6 +111,17 @@ public struct PodcastAPI: Sendable {
         guard id.range(of: "^[A-Za-z0-9_-]{20,128}$", options: .regularExpression) != nil,
               ["refresh", "delete"].contains(action) else { throw APIError.invalidResponse }
         return try request("/subscriptions/" + id + (action == "delete" ? "" : "/refresh"), method: action == "delete" ? "DELETE" : "POST")
+    }
+    public func artworkRequest(id: String) throws -> URLRequest {
+        guard id.range(of: "^[A-Za-z0-9_-]{20,128}$", options: .regularExpression) != nil else { throw APIError.invalidResponse }
+        var value = try request("/subscriptions/" + id + "/artwork")
+        value.setValue("image/jpeg, image/png", forHTTPHeaderField: "Accept")
+        return value
+    }
+    public func artwork(id: String) async throws -> Data {
+        let data = try await send(artworkRequest(id: id))
+        guard data.count <= 2 << 20 else { throw APIError.invalidResponse }
+        return data
     }
     public func subscriptions() async throws -> [PodcastSubscription] {
         try JSONDecoder().decode(PodcastSubscriptions.self, from: await send(request("/subscriptions"))).items

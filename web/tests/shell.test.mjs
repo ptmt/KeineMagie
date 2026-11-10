@@ -6,7 +6,7 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const js = await readFile(new URL('../app.mjs', import.meta.url), 'utf8');
 
 test('minimal translator keeps accessible controls and history without enrichment panels or remote code', () => {
-  for (const id of ['translator', 'source-text', 'source-language', 'target-language', 'swap', 'result', 'history-list', 'account-dialog', 'translate', 'cancel', 'copy', 'clear']) {
+  for (const id of ['translator', 'source-text', 'language-direction', 'swap', 'result', 'history-list', 'account-dialog', 'translate', 'cancel', 'copy', 'clear']) {
     assert.match(html, new RegExp(`id="${id}"`), id);
   }
   assert.match(html, /aria-live="polite"/);
@@ -20,7 +20,7 @@ test('minimal translator keeps accessible controls and history without enrichmen
 });
 
 test('initial HTML is locked before scripts resolve and offers official in-place Apple sign-in', () => {
- for (const id of ['source-text','source-language','target-language','swap','clear','add-prompt','translate']) assert.match(html,new RegExp(`<[^>]+id="${id}"[^>]*\\sdisabled(?:\\s|>)`),id);
+ for (const id of ['source-text','language-direction','swap','clear','add-prompt','translate']) assert.match(html,new RegExp(`<[^>]+id="${id}"[^>]*\\sdisabled(?:\\s|>)`),id);
  assert.match(html, /id="connection-action"[^>]*>[\s\S]*?src="\.\/apple-sign-in-de.png"/);
  assert.match(html, /id="connection-action-art"[^>]*hidden/);
 });

@@ -8,19 +8,34 @@ public struct TranslationRecord: Codable, Identifiable, Sendable {
     public let targetLanguage: Language
     public let translation: String
     public let instructions: String?
+    public let favorite: Bool
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        createdAt = try c.decode(Date.self, forKey: .createdAt)
+        text = try c.decode(String.self, forKey: .text)
+        sourceLanguage = try c.decode(Language.self, forKey: .sourceLanguage)
+        targetLanguage = try c.decode(Language.self, forKey: .targetLanguage)
+        translation = try c.decode(String.self, forKey: .translation)
+        instructions = try c.decodeIfPresent(String.self, forKey: .instructions)
+        favorite = try c.decodeIfPresent(Bool.self, forKey: .favorite) ?? false
+        idioms = try c.decode([Idiom].self, forKey: .idioms)
+        patterns = try c.decode([SentencePattern].self, forKey: .patterns)
+        vocabulary = try c.decode([Vocabulary].self, forKey: .vocabulary)
+    }
     public let idioms: [Idiom]
     public let patterns: [SentencePattern]
     public let vocabulary: [Vocabulary]
     public init(id: String, createdAt: Date, text: String, sourceLanguage: Language, targetLanguage: Language,
-                translation: String, instructions: String? = nil, idioms: [Idiom], patterns: [SentencePattern], vocabulary: [Vocabulary]) {
+                translation: String, instructions: String? = nil, favorite: Bool = false, idioms: [Idiom], patterns: [SentencePattern], vocabulary: [Vocabulary]) {
         self.id = id; self.createdAt = createdAt; self.text = text
         self.sourceLanguage = sourceLanguage; self.targetLanguage = targetLanguage
-        self.translation = translation; self.instructions = instructions
+        self.translation = translation; self.instructions = instructions; self.favorite = favorite
         self.idioms = idioms; self.patterns = patterns; self.vocabulary = vocabulary
     }
     enum CodingKeys: String, CodingKey {
         case id, createdAt = "created_at", text, sourceLanguage = "source_language"
-        case targetLanguage = "target_language", translation, instructions, idioms, patterns, vocabulary
+        case targetLanguage = "target_language", translation, instructions, favorite, idioms, patterns, vocabulary
     }
 }
 public struct Idiom: Codable, Sendable {

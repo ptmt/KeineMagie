@@ -81,7 +81,7 @@ func TestTranslationsRejectInvalidInput(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, body := range []string{`{`, `{}`, `{"text":"  ","source_language":"de","target_language":"ru"}`, `{"text":"a","source_language":"en","target_language":"ru"}`, `{"text":"a","source_language":"de","target_language":"de"}`, `{"text":"a","source_language":"ru","target_language":"xx"}`, `{"text":"a","source_language":"de","target_language":"ru","extra":true}`, `{"text":"a","source_language":"de","target_language":"ru"} {}`, `{"text":"` + strings.Repeat("я", 8001) + `","source_language":"ru","target_language":"de"}`, strings.Repeat(" ", 65537)} {
+	for _, body := range []string{`{`, `{}`, `{"text":"  ","source_language":"de","target_language":"ru"}`, `{"text":"a","source_language":"en","target_language":"ru"}`, `{"text":"a","source_language":"ru","target_language":"ru"}`, `{"text":"a","source_language":"ru","target_language":"xx"}`, `{"text":"a","source_language":"de","target_language":"ru","extra":true}`, `{"text":"a","source_language":"de","target_language":"ru"} {}`, `{"text":"` + strings.Repeat("я", 8001) + `","source_language":"ru","target_language":"de"}`, strings.Repeat(" ", 65537)} {
 		w := translationRequest(h, http.MethodPost, body, "test-token")
 		if w.Code != 400 {
 			t.Errorf("got %d want 400, body length %d", w.Code, len(body))

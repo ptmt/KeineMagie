@@ -53,7 +53,7 @@ def check(name, expression):
     assert value is True, (name, value)
     checks.append(name)
 
-locked = "['source-text','source-language','target-language','swap','translate','clear','add-prompt'].every(id=>document.getElementById(id).disabled)"
+locked = "['source-text','language-direction','swap','translate','clear','add-prompt'].every(id=>document.getElementById(id).disabled)"
 check('loading controls truly disabled', locked)
 check('loading has no premature sign-in action', "document.querySelector('#connection-action').hidden && document.querySelector('#connection-title').textContent==='Sitzung wird geprüft …'")
 js('window.__hold=false;window.__release()')

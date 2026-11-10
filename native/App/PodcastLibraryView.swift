@@ -1,5 +1,6 @@
 import SwiftUI
 import KeineMagieCore
+import ImageIO
 
 struct PodcastLibraryView: View {
     @Environment(AppModel.self) private var model
@@ -46,12 +47,19 @@ struct PodcastLibraryView: View {
             }
             if !subscriptions.isEmpty {
                 Section("podcast.subscriptions") {
-                    ForEach(subscriptions) { subscription in
+                    ForEach($subscriptions) { $subscription in
                         NavigationLink {
-                            feedDetail(subscription)
+                            feedDetail($subscription)
                         } label: {
-                            Text(subscription.title.isEmpty ? subscription.url : subscription.title)
-                                .padding(.vertical, 6)
+                            HStack(spacing: 12) {
+                                PodcastArtwork(subscription: subscription, client: { try api() })
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(subscription.title.isEmpty ? subscription.url : subscription.title).fontWeight(.semibold)
+                                    if let latest = subscription.latestEpisodeTitle, !latest.isEmpty {
+                                        Text(latest).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                                    }
+                                }
+                            }.padding(.vertical, 6)
                         }
                         .swipeActions {
                             Button("podcast.unsubscribe", role: .destructive) { Task { await subscriptionAction(subscription, "delete") } }.disabled(busy)
@@ -137,8 +145,8 @@ struct PodcastLibraryView: View {
             .task { await refresh() }
         }
     }
-    private func feedDetail(_ original: PodcastSubscription) -> some View {
-        let feed = subscriptions.first { $0.id == original.id } ?? original
+    private func feedDetail(_ subscription: Binding<PodcastSubscription>) -> some View {
+        let feed = subscription.wrappedValue
         return List {
             if let message { Text(message).foregroundStyle(.secondary).accessibilityIdentifier("podcast.error") }
             if feed.episodes.isEmpty { Text("podcast.empty").foregroundStyle(.secondary) }
@@ -151,6 +159,7 @@ struct PodcastLibraryView: View {
             }
             Section {
                 Button("podcast.feed.refresh") { Task { await subscriptionAction(feed, "refresh") } }.disabled(busy)
+                if busy { ProgressView().accessibilityIdentifier("podcast.feed.busy") }
             }
         }.navigationTitle(feed.title.isEmpty ? AppL10n.text("podcast.title") : feed.title).navigationBarTitleDisplayMode(.inline)
     }
@@ -249,5 +258,34 @@ struct PodcastLibraryView: View {
             guard isCurrent(generation) else { return }
             await refresh()
         } catch { if isCurrent(generation) { message = AppL10n.text("podcast.failed") } }
+    }
+}
+
+private struct PodcastArtwork: View {
+    let subscription: PodcastSubscription
+    let client: () throws -> PodcastAPI
+    @State private var image: UIImage?
+
+    var body: some View {
+        Group {
+            if let image { Image(uiImage: image).resizable().scaledToFill() }
+            else { Image(systemName: "headphones").font(.title2).foregroundStyle(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity).background(.quaternary) }
+        }
+        .frame(width: 52, height: 52).clipShape(RoundedRectangle(cornerRadius: 8)).accessibilityHidden(true)
+        .task(id: subscription.artworkURL) {
+            image = nil
+            guard subscription.artworkURL != nil else { return }
+            do {
+                let data = try await client().artwork(id: subscription.id)
+                guard !Task.isCancelled,
+                      let source = CGImageSourceCreateWithData(data as CFData, nil),
+                      let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                        kCGImageSourceCreateThumbnailFromImageAlways: true,
+                        kCGImageSourceThumbnailMaxPixelSize: 156,
+                        kCGImageSourceCreateThumbnailWithTransform: true
+                      ] as CFDictionary) else { return }
+                image = UIImage(cgImage: thumbnail)
+            } catch { image = nil }
+        }
     }
 }

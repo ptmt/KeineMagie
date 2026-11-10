@@ -303,7 +303,14 @@ func (b *browserAuth) wrap(next http.Handler) http.Handler {
 				return
 			}
 		}
-		if r.URL.Path == "/v1/translations" || r.URL.Path == "/v1/provider" || r.URL.Path == "/v1/provider/connect" || r.URL.Path == "/v1/provider/disconnect" {
+		if r.URL.Path == "/v1/history" || strings.HasPrefix(r.URL.Path, "/v1/history/") || r.URL.Path == "/v1/translations" || r.URL.Path == "/v1/provider" || r.URL.Path == "/v1/provider/connect" || r.URL.Path == "/v1/provider/disconnect" {
+			// A browser-kind bearer must never bypass cookie Origin/CSRF checks.
+			if r.Header.Get("Origin") == "" && cookieValue(r, browserCookie) == "" {
+				if s, e := b.cfg.auth.store.lookup(bearerSession(r), b.cfg.auth.now()); e == nil && s.Kind == "browser" {
+					writeError(w, 401, "browser cookie required")
+					return
+				}
+			}
 			if r.Header.Get("Origin") != "" || cookieValue(r, browserCookie) != "" {
 				token := cookieValue(r, browserCookie)
 				s, e := b.cfg.auth.store.lookup(token, b.cfg.auth.now())

@@ -50,7 +50,7 @@ export async function harness({deferSession, config: configOverride} = {}) {
 
 test('guest and unresolved sessions disable translator controls and reject synthetic events', async () => {
  let release;const h=await harness({deferSession:()=>new Promise(resolve=>{release=resolve;})});const el=id=>h.nodes.get(id);
- for(const id of ['source-text','source-language','target-language','swap','translate','add-prompt','clear']) assert.equal(el(id).disabled,true,id);
+ for(const id of ['source-text','language-direction','swap','translate','add-prompt','clear']) assert.equal(el(id).disabled,true,id);
  assert.equal(el('connection-title').textContent,'Sitzung wird geprüft …');
  await el('add-prompt').click();assert.equal(el('prompt-dialog').open,false);
  release();await h.settle();
@@ -58,8 +58,8 @@ test('guest and unresolved sessions disable translator controls and reject synth
  assert.equal(el('style-controls').hidden,false);
  assert.ok(el('style-chips').children.length>=3);
  for(const chip of el('style-chips').children) assert.equal(chip.disabled,true);
- el('source-text').value='Synthetic guest draft';el('source-language').value='de';
- await el('swap').click();assert.equal(el('source-language').value,'de');
+ el('source-text').value='Synthetic guest draft';el('language-direction').value='de-ru';
+ await el('swap').click();assert.equal(el('language-direction').value,'de-ru');
  await el('clear').click();assert.equal(el('source-text').value,'Synthetic guest draft');
  await el('style-chips').children[1].click();await el('add-prompt').click();
  assert.equal(el('prompt-dialog').open,false);

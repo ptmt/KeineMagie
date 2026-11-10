@@ -5,12 +5,16 @@ export function readiness(session) {
   return typeof session.provider.selected_model === 'string' && session.provider.selected_model.trim() ? 'ready' : 'model-unavailable';
 }
 
-export function inputPayload(text, source, instructions = '') {
+export function validDirection(source, target) {
+  return (source === 'de' && ['ru', 'de'].includes(target)) || (source === 'ru' && target === 'de');
+}
+
+export function inputPayload(text, source, instructions = '', target = source === 'de' ? 'ru' : 'de') {
   text = text.trim();
   if (!text || [...text].length > 8000) throw new Error('Enter text between 1 and 8000 characters.');
-  if (!['de', 'ru'].includes(source)) throw new Error('Unsupported language.');
+  if (!validDirection(source, target)) throw new Error('Unsupported language direction.');
   if (typeof instructions !== 'string' || [...instructions].length > 1000) throw new Error('Instructions must be at most 1000 characters.');
-  return { text, source_language: source, target_language: source === 'de' ? 'ru' : 'de', ...(instructions ? { instructions } : {}) };
+  return { text, source_language: source, target_language: target, ...(instructions ? { instructions } : {}) };
 }
 
 export const translationPresets = Object.freeze([
@@ -45,8 +49,8 @@ export function promptStore(storage, ownerID) {
   };
 }
 
-export function swapDraft(source, text, translation) {
-  return { source: source === 'de' ? 'ru' : 'de', text: translation || text };
+export function swapDraft(source, text, translation, target = source === 'de' ? 'ru' : 'de') {
+  return { source: target, target: source, text: translation || text };
 }
 
 export async function startProviderConnection(api, csrf) {

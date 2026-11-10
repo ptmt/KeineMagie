@@ -51,6 +51,20 @@ func TestPodcastFeedAPIWithoutWorkerAndBrowserCSRF(t *testing.T) {
 	if w := call("GET", "/v1/podcasts/subscriptions", "", "", false); w.Code != 401 {
 		t.Fatal("auth", w.Code)
 	}
+	subs, err := store.subscriptions(s.UserID)
+	if err != nil || len(subs) != 1 {
+		t.Fatal("subscription fixture missing")
+	}
+	if w := call("GET", "/v1/podcasts/subscriptions/"+subs[0].ID+"/artwork", "", "", false); w.Code != 401 {
+		t.Fatal("artwork guest auth", w.Code)
+	}
+	foreign, _, _ := cfg.auth.store.create("other", time.Now())
+	if w := call("GET", "/v1/podcasts/subscriptions/"+subs[0].ID+"/artwork", foreign, "", false); w.Code != 404 {
+		t.Fatal("artwork foreign owner", w.Code)
+	}
+	if w := call("GET", "/v1/podcasts/subscriptions/"+subs[0].ID+"/artwork", native, "", false); w.Code != 404 {
+		t.Fatal("artwork missing fallback", w.Code)
+	}
 	jobs, _ := store.list(s.UserID)
 	if len(jobs) != 0 {
 		t.Fatal("AI work during discovery")

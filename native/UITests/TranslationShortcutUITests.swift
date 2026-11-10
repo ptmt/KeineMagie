@@ -58,20 +58,22 @@ final class TranslationShortcutUITests: XCTestCase {
         app.buttons["shortcut-save"].tap()
         let chip = app.buttons[customTitle]
         XCTAssertTrue(chip.waitForExistence(timeout: 5))
+        let chips = app.scrollViews.containing(.button, identifier: "Freundlich").firstMatch
+        for _ in 0..<10 where !chip.isHittable { chips.swipeLeft() }
         chip.tap()
         XCTAssertTrue(chip.isSelected)
         app.terminate(); app.launch()
         XCTAssertTrue(chip.waitForExistence(timeout: 10))
         XCTAssertFalse(chip.isSelected, "Selection must not be persisted")
         app.buttons["shortcut-manage"].tap()
-        app.collectionViews.buttons[customTitle].tap()
+        app.collectionViews.buttons.matching(identifier: customTitle).allElementsBoundByIndex.first(where: { $0.isHittable })!.tap()
         let edit = app.textViews["shortcut-instruction"]
         XCTAssertTrue(edit.waitForExistence(timeout: 5))
         XCTAssertEqual(edit.value as? String, "Use concise professional language.")
         edit.tap()
         edit.typeText(" Keep it short.")
         app.buttons["shortcut-save"].tap()
-        app.collectionViews.buttons[customTitle].tap()
+        app.collectionViews.buttons.matching(identifier: customTitle).allElementsBoundByIndex.first(where: { $0.isHittable })!.tap()
         XCTAssertTrue(edit.waitForExistence(timeout: 5))
         XCTAssertTrue((edit.value as? String)?.contains("Keep it short.") == true)
         app.buttons["shortcut-delete"].tap()

@@ -66,14 +66,47 @@ public struct APIClient: Sendable {
         _ = try await send(bootstrapRequest(token: token, callback: callback))
     }
     public func disconnectProvider() async throws { _ = try await send(providerRequest(action: "disconnect")) }
-    public func translationRequest(text: String, source: Language, instructions: String? = nil) throws -> URLRequest {
+    public func translationRequest(text: String, direction: TranslationDirection, instructions: String? = nil) throws -> URLRequest {
+        try translationRequest(text: text, source: direction.source, target: direction.target, instructions: instructions)
+    }
+    public func translate(text: String, direction: TranslationDirection, instructions: String? = nil) async throws -> TranslationRecord {
+        try APIJSON.decoder().decode(TranslationRecord.self, from: await send(translationRequest(text: text, direction: direction, instructions: instructions)))
+    }
+    public func translationRequest(text: String, source: Language, target: Language? = nil, instructions: String? = nil) throws -> URLRequest {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw APIError.emptyText }
         var result = try request(path: "v1/translations", method: "POST")
         result.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        result.httpBody = try JSONEncoder().encode(TranslationRequest(text: text, sourceLanguage: source, instructions: instructions))
+        result.httpBody = try JSONEncoder().encode(TranslationRequest(text: text, sourceLanguage: source, targetLanguage: target, instructions: instructions))
         return result
     }
     public func historyRequest() throws -> URLRequest { try request(path: "v1/translations", method: "GET") }
+    private func historyMutationRequest(id: String, method: String) throws -> URLRequest {
+        guard !id.isEmpty, id != ".", id != "..",
+              let encoded = id.addingPercentEncoding(withAllowedCharacters: CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_~"))) else { throw APIError.invalidResponse }
+        var result = try request(path: "v1/history", method: method)
+        guard var components = URLComponents(url: result.url!, resolvingAgainstBaseURL: false) else { throw APIError.invalidResponse }
+        components.percentEncodedPath += "/" + encoded
+        guard let url = components.url else { throw APIError.invalidResponse }
+        result.url = url
+        return result
+    }
+    public func deleteHistoryRequest(id: String) throws -> URLRequest {
+        try historyMutationRequest(id: id, method: "DELETE")
+    }
+    public func favoriteHistoryRequest(id: String, favorite: Bool) throws -> URLRequest {
+        var result = try historyMutationRequest(id: id, method: "PATCH")
+        result.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        result.httpBody = try JSONEncoder().encode(["favorite": favorite])
+        return result
+    }
+    public func deleteHistory(id: String) async throws {
+        _ = try await send(deleteHistoryRequest(id: id))
+    }
+    public func setHistoryFavorite(id: String, favorite: Bool) async throws -> TranslationRecord {
+        let record = try APIJSON.decoder().decode(TranslationRecord.self, from: await send(favoriteHistoryRequest(id: id, favorite: favorite)))
+        guard record.id == id, record.favorite == favorite else { throw APIError.invalidResponse }
+        return record
+    }
     public func ttsRequest(text: String) throws -> URLRequest {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw APIError.emptyText }
         var result = try request(path: "tts", method: "POST")

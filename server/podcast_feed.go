@@ -11,11 +11,13 @@ import (
 )
 
 type podcastSubscription struct {
-	ID          string           `json:"id"`
-	URL         string           `json:"url"`
-	Title       string           `json:"title"`
-	Episodes    []podcastEpisode `json:"episodes"`
-	RefreshedAt time.Time        `json:"refreshed_at"`
+	ID                 string           `json:"id"`
+	URL                string           `json:"url"`
+	Title              string           `json:"title"`
+	Episodes           []podcastEpisode `json:"episodes"`
+	ArtworkURL         string           `json:"artwork_url,omitempty"`
+	LatestEpisodeTitle string           `json:"latest_episode_title,omitempty"`
+	RefreshedAt        time.Time        `json:"refreshed_at"`
 }
 type podcastStoredSubscription struct {
 	podcastSubscription
@@ -80,6 +82,8 @@ func (s *podcastStore) saveSubscription(owner, id string, discovery podcastDisco
 				}
 				sub.URL = discovery.URL
 				sub.Title = discovery.Title
+				sub.ArtworkURL = discovery.ArtworkURL
+				sub.LatestEpisodeTitle = discovery.LatestEpisodeTitle
 				sub.Episodes = merged
 				sub.RefreshedAt = now.UTC()
 				out = sub.podcastSubscription
@@ -92,7 +96,7 @@ func (s *podcastStore) saveSubscription(owner, id string, discovery podcastDisco
 		if count >= 10 || len(d.Subscriptions) >= 100 {
 			return errPodcastLimit
 		}
-		out = podcastSubscription{ID: randomAuthToken(), URL: discovery.URL, Title: discovery.Title, Episodes: discovery.Episodes, RefreshedAt: now.UTC()}
+		out = podcastSubscription{ID: randomAuthToken(), URL: discovery.URL, Title: discovery.Title, Episodes: discovery.Episodes, ArtworkURL: discovery.ArtworkURL, LatestEpisodeTitle: discovery.LatestEpisodeTitle, RefreshedAt: now.UTC()}
 		d.Subscriptions = append(d.Subscriptions, podcastStoredSubscription{podcastSubscription: out, Owner: owner})
 		return s.write(d)
 	})
@@ -222,6 +226,10 @@ func (p *podcastService) handleSources(w http.ResponseWriter, r *http.Request, o
 	sub, e := p.store.subscription(owner, parts[1])
 	if e != nil {
 		podcastHTTPError(w, e)
+		return true
+	}
+	if len(parts) == 3 && parts[2] == "artwork" {
+		p.handleArtwork(w, r, sub)
 		return true
 	}
 	if len(parts) == 2 && r.Method == "DELETE" {

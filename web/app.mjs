@@ -1,4 +1,4 @@
-import { createAPI, readiness, inputPayload, swapDraft, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
+import { createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
@@ -15,7 +15,7 @@ let accountRun = 0;
 let pairingTimer = null;
 let pairingRun = 0;
 function clearPairing() { pairingRun++; clearTimeout(pairingTimer); pairingTimer = null; $('browser-pairing').hidden = true; setText('pairing-code', ''); }
-const names = { de: 'Deutsch', ru: 'Russisch' };
+
 let stylesOwner = null;
 let savedPrompts = [];
 let selectedInstructions = '';
@@ -147,8 +147,7 @@ function updateInput() {
   const locked = !canEditDraft();
   $('clear').disabled = locked || count === 0;
   $('swap').disabled = locked;
-  $('source-language').disabled = locked;
-  $('target-language').disabled = locked;
+  $('language-direction').disabled = locked;
   $('source-text').disabled = locked;
   $('source-text').readOnly = locked;
   $('prompt-name').disabled = locked;
@@ -244,20 +243,19 @@ async function restore() {
 }
 function renderRecord(item) {
   record = item;
-  $('source-language').value = item.source_language;
-  $('target-language').value = item.target_language;
+  $('language-direction').value = `${item.source_language}-${item.target_language}`;
   $('source-text').value = item.text;
   selectedInstructions = typeof item.instructions === 'string' ? item.instructions : '';
   $('source-text').lang = item.source_language;
   $('result').lang = item.target_language;
   setText('result', item.translation);
-  setText('result-caption', `${names[item.source_language]} → ${names[item.target_language]} · Gespeichert`);
+  setText('result-caption', `${item.source_language} → ${item.target_language} · Gespeichert`);
   $('copy').disabled = false;
   updateInput();
 }
 function validRecord(item) {
   const fields = { idioms: ['expression', 'meaning', 'example'], patterns: ['pattern', 'explanation'], vocabulary: ['word', 'meaning'] };
-  return item && typeof item.id === 'string' && typeof item.text === 'string' && typeof item.translation === 'string' && item.translation.trim() && ['de', 'ru'].includes(item.source_language) && item.target_language === (item.source_language === 'de' ? 'ru' : 'de') && Object.entries(fields).every(([key, required]) => Array.isArray(item[key]) && item[key].every(entry => entry && required.every(field => typeof entry[field] === 'string')));
+  return item && typeof item.id === 'string' && typeof item.text === 'string' && typeof item.translation === 'string' && item.translation.trim() && validDirection(item.source_language, item.target_language) && Object.entries(fields).every(([key, required]) => Array.isArray(item[key]) && item[key].every(entry => entry && required.every(field => typeof entry[field] === 'string')));
 }
 function renderHistory() {
   const owner = session?.user?.id;
@@ -271,7 +269,7 @@ function renderHistory() {
     const title = document.createElement('strong'); title.textContent = item.text;
     const detail = document.createElement('small');
     const date = new Date(item.created_at);
-    detail.textContent = `${names[item.source_language]} → ${names[item.target_language]}${Number.isNaN(date.valueOf()) ? '' : ` · ${date.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}`}`;
+    detail.textContent = `${item.source_language} → ${item.target_language}${Number.isNaN(date.valueOf()) ? '' : ` · ${date.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}`}`;
     const arrow = document.createElement('span'); arrow.className = 'history-arrow'; arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true');
     content.append(title, detail); button.append(content, arrow); li.append(button); $('history-list').append(li);
     button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id || run !== generation) return; renderRecord(item); status('Gespeicherte Übersetzung geöffnet.'); $('source-text').focus({ preventScroll: false }); });
@@ -296,7 +294,8 @@ async function translate(event) {
   event.preventDefault();
   if (busy || checking || readiness(session) !== 'ready') return;
   let payload;
-  try { payload = inputPayload($('source-text').value, $('source-language').value, selectedInstructions); }
+  const [source, target] = $('language-direction').value.split('-');
+  try { payload = inputPayload($('source-text').value, source, selectedInstructions, target); }
   catch { status('Bitte 1 bis 8.000 Zeichen eingeben.', true); return; }
   busy = true; controller = new AbortController();
   const run = generation;
@@ -315,20 +314,18 @@ async function translate(event) {
     status(error.name === 'AbortError' ? 'Anfrage abgebrochen. Falls sie bereits abgeschlossen war, prüfe den Verlauf.' : errorMessage(error), error.name !== 'AbortError');
   } finally { busy = false; controller = null; updateInput(); }
 }
-function changeLanguage(source) {
+function changeLanguage(source, target) {
   if (!canEditDraft()) return;
-  $('source-language').value = source;
-  $('target-language').value = source === 'de' ? 'ru' : 'de';
+  $('language-direction').value = `${source}-${target}`;
   $('source-text').lang = source;
-  $('result').lang = source === 'de' ? 'ru' : 'de';
+  $('result').lang = target;
   resetResult(); updateInput(); status('Dein Text wird erst beim Übersetzen gesendet.');
 }
 $('translation-form').addEventListener('submit', translate);
 $('source-text').addEventListener('input', () => { if (record) resetResult(); updateInput(); });
 $('source-text').addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); $('translation-form').requestSubmit(); } });
-$('source-language').addEventListener('change', () => changeLanguage($('source-language').value));
-$('target-language').addEventListener('change', () => changeLanguage($('target-language').value === 'de' ? 'ru' : 'de'));
-$('swap').addEventListener('click', () => { if (!canEditDraft()) return; const swapped = swapDraft($('source-language').value, $('source-text').value, record?.translation); $('source-text').value = swapped.text; changeLanguage(swapped.source); });
+$('language-direction').addEventListener('change', () => changeLanguage(...$('language-direction').value.split('-')));
+$('swap').addEventListener('click', () => { if (!canEditDraft()) return; const [source, target] = $('language-direction').value.split('-'); const swapped = swapDraft(source, $('source-text').value, record?.translation, target); $('source-text').value = swapped.text; changeLanguage(swapped.source, swapped.target); });
 $('clear').addEventListener('click', () => { if (!canEditDraft()) return; $('source-text').value = ''; resetResult(); updateInput(); status('Text geleert.'); $('source-text').focus(); });
 $('cancel').addEventListener('click', () => controller?.abort());
 $('copy').addEventListener('click', async () => { if (!record) return; try { await navigator.clipboard.writeText(record.translation); status('Übersetzung kopiert.'); } catch { status('Kopieren nicht erlaubt. Markiere den Text und kopiere ihn manuell.', true); } });

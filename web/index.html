@@ -27,9 +27,8 @@
     <section id="translator" aria-label="Übersetzer" tabindex="-1">
       <form id="translation-form">
         <div class="language-bar">
-          <label class="language-select">Von<select id="source-language" disabled aria-label="Ausgangssprache"><option value="de">Deutsch</option><option value="ru">Russisch</option></select></label>
+          <select id="language-direction" disabled aria-label="Sprachrichtung"><option value="de-ru" aria-label="Deutsch nach Russisch">de → ru</option><option value="ru-de" aria-label="Russisch nach Deutsch">ru → de</option><option value="de-de" aria-label="Deutsch verbessern" title="Deutsch verbessern">de → de</option></select>
           <button id="swap" disabled type="button" class="swap-button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
-          <label class="language-select">Nach<select id="target-language" disabled aria-label="Zielsprache"><option value="ru">Russisch</option><option value="de">Deutsch</option></select></label>
         </div>
         <div id="style-controls" class="style-controls" hidden>
           <span class="style-label">Stil</span><div id="style-chips" class="style-chips" role="group" aria-label="Übersetzungsstil"></div>

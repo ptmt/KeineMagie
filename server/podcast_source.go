@@ -25,9 +25,11 @@ type podcastEpisode struct {
 	Published string `json:"published,omitempty"`
 }
 type podcastDiscovery struct {
-	URL      string           `json:"url"`
-	Title    string           `json:"title"`
-	Episodes []podcastEpisode `json:"episodes"`
+	URL                string           `json:"url"`
+	Title              string           `json:"title"`
+	Episodes           []podcastEpisode `json:"episodes"`
+	ArtworkURL         string           `json:"artwork_url,omitempty"`
+	LatestEpisodeTitle string           `json:"latest_episode_title,omitempty"`
 }
 
 func podcastReference(base *url.URL, raw string) (*url.URL, error) {
@@ -186,11 +188,16 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 	var entry podcastEpisode
 	seenID, seenURL := map[string]bool{}, map[string]bool{}
 	root := ""
+	var latest time.Time
+	imageDepth := 0
 	for tokens := 0; tokens < 200000; tokens++ {
 		tok, e := d.Token()
 		if e == io.EOF {
 			if root != "rss" && root != "feed" {
 				return out, errors.New("RSS or Atom feed required")
+			}
+			if len(out.Episodes) == 0 {
+				return out, errPodcastNoAudio
 			}
 			return out, nil
 		}
@@ -206,6 +213,16 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 				return out, errors.New("feed XML too deeply nested")
 			}
 			name := v.Name.Local
+			if itemDepth == 0 && name == "image" && depth <= 3 {
+				imageDepth = depth
+				for _, attr := range v.Attr {
+					if attr.Name.Local == "href" {
+						if u, err := podcastReference(base, attr.Value); err == nil {
+							out.ArtworkURL = u.String()
+						}
+					}
+				}
+			}
 			if root == "" {
 				root = name
 			}
@@ -217,7 +234,10 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 			if itemDepth > 0 && depth == itemDepth+1 {
 				switch name {
 				case "guid", "id", "title", "pubDate", "published", "updated":
-					field = name
+					// RSS often repeats title as itunes:title; it is not another chunk.
+					if v.Name.Space == "" || v.Name.Space == "http://www.w3.org/2005/Atom" {
+						field = name
+					}
 				}
 				if name == "enclosure" || name == "link" {
 					a := map[string]string{}
@@ -238,6 +258,8 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 						}
 					}
 				}
+			} else if itemDepth == 0 && ((name == "url" && imageDepth > 0 && depth == imageDepth+1) || ((name == "logo" || name == "icon") && depth == 2)) {
+				field = "artwork"
 			} else if itemDepth == 0 && name == "title" && depth <= 3 {
 				field = "feedTitle"
 			}
@@ -252,6 +274,10 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 				}
 			}
 			switch field {
+			case "artwork":
+				if u, err := podcastReference(base, strings.TrimSpace(text)); err == nil {
+					out.ArtworkURL = u.String()
+				}
 			case "title":
 				appendBound(&entry.Title)
 			case "guid", "id":
@@ -266,6 +292,13 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 				entry.ID = strings.TrimSpace(entry.ID)
 				entry.Title = strings.TrimSpace(entry.Title)
 				entry.Published = strings.TrimSpace(entry.Published)
+				if entry.URL != "" {
+					published := podcastPublished(entry.Published)
+					if out.LatestEpisodeTitle == "" || (!published.IsZero() && (latest.IsZero() || published.After(latest))) {
+						out.LatestEpisodeTitle = entry.Title
+						latest = published
+					}
+				}
 				if entry.ID == "" {
 					entry.ID = entry.URL
 				}
@@ -279,8 +312,20 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 				itemDepth = 0
 			}
 			depth--
+			if depth < imageDepth {
+				imageDepth = 0
+			}
 			field = ""
 		}
 	}
 	return out, errors.New("feed XML token limit exceeded")
+}
+
+func podcastPublished(raw string) time.Time {
+	for _, layout := range []string{time.RFC3339, time.RFC1123Z, time.RFC1123, time.RFC822Z, time.RFC822} {
+		if value, err := time.Parse(layout, raw); err == nil {
+			return value
+		}
+	}
+	return time.Time{}
 }

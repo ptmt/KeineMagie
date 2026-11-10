@@ -18,6 +18,31 @@ final class PodcastTests: XCTestCase {
         XCTAssertEqual(body, ["url": "https://audio.example/show"])
         XCTAssertThrowsError(try api.subscriptionActionRequest(id: "../owner", action: "refresh"))
     }
+    func testPublisherQueryAudioCanBeEnqueuedWithoutPrivateCapabilities() throws {
+        let api = PodcastAPI(endpoint: try ServerEndpoint("https://example.com"), token: "synthetic")
+        let url = "https://ais.audiorella.com/audio.mp3?v=2&awCollectionId=julephosting_68ff5ade7890b&awEpisodeId=256848"
+        let request = try api.importRequest(url: url, source: "de")
+        let body = try JSONSerialization.jsonObject(with: XCTUnwrap(request.httpBody)) as? [String:String]
+        XCTAssertEqual(body?["url"], url)
+        for query in ["token=secret", "v=secret", "v=1&v=2", "awCollectionId=https%3A%2F%2F127.0.0.1"] {
+            XCTAssertThrowsError(try PodcastShareURL("https://example.com/a?" + query))
+        }
+    }
+    func testSubscriptionMetadataBackwardCompatibleAndAuthenticatedArtwork() throws {
+        let old = Data(#"{"id":"abcdefghijklmnopqrst","url":"https://example.com/feed","title":"Radio RTW","episodes":[]}"#.utf8)
+        let legacy = try JSONDecoder().decode(PodcastSubscription.self, from: old)
+        XCTAssertNil(legacy.artworkURL)
+        XCTAssertNil(legacy.latestEpisodeTitle)
+        let current = Data(#"{"id":"abcdefghijklmnopqrst","url":"https://example.com/feed","title":"Radio RTW","episodes":[],"artwork_url":"https://cdn.example.com/cover.jpg?v=5","latest_episode_title":"Latest episode"}"#.utf8)
+        let sub = try JSONDecoder().decode(PodcastSubscription.self, from: current)
+        XCTAssertEqual(sub.latestEpisodeTitle, "Latest episode")
+        let api = PodcastAPI(endpoint: try ServerEndpoint("https://example.com"), token: "synthetic")
+        let request = try api.artworkRequest(id: sub.id)
+        XCTAssertEqual(request.url?.path, "/v1/podcasts/subscriptions/abcdefghijklmnopqrst/artwork")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer synthetic")
+        XCTAssertNil(request.url?.query)
+        XCTAssertThrowsError(try api.artworkRequest(id: "../other"))
+    }
     func testPodcastRequestUsesExplicitSessionAndSource() throws {
         let api = PodcastAPI(endpoint: try ServerEndpoint("https://example.com"), token: "synthetic")
         let request = try api.importRequest(url: "https://audio.example/a.mp3", source: "de")
