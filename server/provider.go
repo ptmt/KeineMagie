@@ -128,9 +128,40 @@ func newProvider(cfg *serverConfig) (*providerService, error) {
 	lock := &historyStore{path: filepath.Join(p.dir, "host")}
 	err = lock.locked(func() error {
 		b, e := os.ReadFile(lock.path)
-		if os.IsNotExist(e) {
-			b = []byte("urn:uuid:" + randomAuthToken())
-			e = os.WriteFile(lock.path, b, 0600)
+		// Earlier versions mislabeled a 32-byte base64url token as a UUID.
+		// Migrate only that exact legacy shape, preserving established hosts.
+		legacy := false
+		if strings.HasPrefix(string(b), "urn:uuid:") {
+			raw := strings.TrimPrefix(string(b), "urn:uuid:")
+			decoded, err := base64.RawURLEncoding.DecodeString(raw)
+			legacy = err == nil && len(decoded) == 32 && base64.RawURLEncoding.EncodeToString(decoded) == raw
+		}
+		if os.IsNotExist(e) || (e == nil && legacy) {
+			var id [16]byte
+			if _, e = rand.Read(id[:]); e != nil {
+				return e
+			}
+			id[6] = (id[6] & 0x0f) | 0x40
+			id[8] = (id[8] & 0x3f) | 0x80
+			b = []byte(fmt.Sprintf("urn:uuid:%x-%x-%x-%x-%x", id[0:4], id[4:6], id[6:8], id[8:10], id[10:16]))
+			f, err := os.CreateTemp(p.dir, ".host-*")
+			if err != nil {
+				return err
+			}
+			defer os.Remove(f.Name())
+			if _, err = f.Write(b); err == nil {
+				err = f.Sync()
+			}
+			closeErr := f.Close()
+			if err != nil {
+				return err
+			}
+			if closeErr != nil {
+				return closeErr
+			}
+			if e = os.Rename(f.Name(), lock.path); e != nil {
+				return e
+			}
 		}
 		p.host = string(b)
 		return e
