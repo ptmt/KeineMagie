@@ -7,13 +7,16 @@ struct TranslationShortcutsView: View {
     @State private var managing = false
     var body: some View {
         HStack(spacing: 6) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack(spacing: 6) {
                     chip(AppL10n.text("shortcut.friendly"), id: "friendly")
                     chip(AppL10n.text("shortcut.formal"), id: "formal")
                     ForEach(model.shortcuts) { item in chip(item.title, id: item.id.uuidString) }
                 }
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.vertical, 2)
             }
+            .accessibilityIdentifier("shortcut-strip")
             Button { adding = true } label: {
                 Image(systemName: "plus").frame(minWidth: 28, minHeight: 32)
             }.buttonStyle(.bordered)
@@ -41,7 +44,7 @@ struct TranslationShortcutsView: View {
         return Button { model.selectedShortcutID = selected ? nil : id } label: {
             HStack(spacing: 5) {
                 if selected { Image(systemName: "checkmark") }
-                Text(verbatim: title)
+                Text(verbatim: title).lineLimit(1).fixedSize(horizontal: true, vertical: false)
             }.frame(minHeight: 30)
         }
         .buttonStyle(.bordered).tint(selected ? .indigo : .secondary)

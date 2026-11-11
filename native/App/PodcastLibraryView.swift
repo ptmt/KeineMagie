@@ -183,7 +183,23 @@ struct PodcastLibraryView: View {
     private func jobDetail(_ original: PodcastJob) -> some View {
         let job = jobs.first { $0.id == original.id } ?? original
         return List {
-            Text(verbatim: stateLabel(job.state))
+            Section {
+                Text(job.episodeTitle ?? URL(string: job.url)?.lastPathComponent ?? AppL10n.text("podcast.episode"))
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("podcast-detail-title")
+                Text(verbatim: stateLabel(job.state)).foregroundStyle(.secondary)
+                if job.active {
+                    if let progress = job.displayProgress {
+                        ProgressView(value: progress)
+                            .accessibilityLabel(Text(verbatim: stateLabel(job.state)))
+                            .accessibilityIdentifier("podcast-detail-progress")
+                    } else {
+                        ProgressView().accessibilityLabel(Text(verbatim: stateLabel(job.state)))
+                            .accessibilityIdentifier("podcast-detail-progress")
+                    }
+                }
+            }
             if let message { Text(message).foregroundStyle(.secondary).accessibilityIdentifier("podcast.error") }
             if let error = job.error {
                 Text(verbatim: AppL10n.text(error.contains("no extractable public audio") ? "podcast.source.failed" : "podcast.failed")).foregroundStyle(.secondary)

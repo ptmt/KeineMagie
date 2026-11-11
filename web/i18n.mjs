@@ -65,7 +65,7 @@ Aus Verlauf|From history|Из истории|Del historial|De l’historique
 Speichern nicht möglich. Name (1–60 Zeichen), Anweisungen (1–1.000 Zeichen) und Browser-Speicher prüfen. Maximal 50 eigene Stile.|Could not save. Check name (1–60 characters), instructions (1–1,000 characters) and browser storage. Maximum 50 custom styles.|Не удалось сохранить. Проверьте название (1–60 символов), инструкции (1–1 000 символов) и хранилище браузера. Максимум 50 своих стилей.|No se pudo guardar. Comprueba nombre (1–60 caracteres), instrucciones (1–1.000) y almacenamiento. Máximo 50 estilos.|Enregistrement impossible. Vérifiez le nom (1–60 caractères), les consignes (1–1 000) et le stockage. Maximum 50 styles.
 Löschen nicht möglich. Bitte den Browser-Speicher prüfen.|Could not delete. Check browser storage.|Не удалось удалить. Проверьте хранилище браузера.|No se pudo eliminar. Comprueba el almacenamiento del navegador.|Suppression impossible. Vérifiez le stockage du navigateur.
 Wird übersetzt …|Translating …|Переводим …|Traduciendo …|Traduction en cours …
-Übersetzen ↗|Translate ↗|Перевести ↗|Traducir ↗|Traduire ↗
+Übersetzen|Translate|Перевести|Traducir|Traduire
 Dein ChatGPT-Konto ist verbunden, aber der Modellkatalog ist gerade nicht verfügbar. Bitte die Verbindung erneut prüfen. Eine neue Verbindung ist dafür nicht erforderlich.|Your ChatGPT account is connected, but the model catalog is unavailable. Check the connection again; reconnecting is not required.|Ваш аккаунт ChatGPT подключён, но каталог моделей сейчас недоступен. Проверьте подключение ещё раз; подключать заново не требуется.|Tu cuenta ChatGPT está conectada, pero el catálogo de modelos no está disponible. Comprueba de nuevo; no hace falta reconectar.|Votre compte ChatGPT est connecté, mais le catalogue des modèles est indisponible. Revérifiez la connexion ; inutile de la recréer.
 Mit Apple angemeldet|Signed in with Apple|Вход выполнен с Apple|Sesión iniciada con Apple|Connecté avec Apple
 Verbindung konnte nicht geprüft werden|Could not check connection|Не удалось проверить подключение|No se pudo comprobar la conexión|Impossible de vérifier la connexion
@@ -184,6 +184,7 @@ export function applyInterfaceLanguage(root=document){
 // Called once before any asynchronous/user/server content is mounted.
 export function registerStaticInterface(root=document){
  for(const el of root.querySelectorAll('body *')){
+  if(el.dataset.bootstrapKey)bindInterfaceText(el,el.dataset.bootstrapKey);
   if(el.children.length===0&&!['SCRIPT','STYLE','TEXTAREA','INPUT','CODE'].includes(el.tagName)&&!el.closest('[data-interface-language]')&&Object.hasOwn(interfaceCatalog.de,el.textContent))bindInterfaceText(el,el.textContent);
   for(const attr of ['aria-label','title','placeholder','alt']){const value=el.getAttribute(attr);if(Object.hasOwn(interfaceCatalog.de,value))el.setAttribute(`data-i18n-${attr}`,value);}
  }

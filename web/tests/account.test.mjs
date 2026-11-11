@@ -13,7 +13,7 @@ export async function harness({deferSession, deferHistory, deferProvider, config
   for (const tag of html.matchAll(/<[^>]+id="([^"]+)"[^>]*>/g)) {
     const listeners = {};
     nodes.set(tag[1], { dataset:{}, hidden: /\shidden(?:\s|>)/.test(tag[0]), value: '', textContent: '', disabled: false, open: false, children: [],
-      classList: { toggle() {} }, setAttribute() {}, removeAttribute() {}, replaceChildren() { this.children = []; }, append(...children) { this.children.push(...children); }, focus() {},
+      classList: { toggle() {} }, getAttribute(){return null;}, setAttribute() {}, removeAttribute() {}, replaceChildren() { this.children = []; }, append(...children) { this.children.push(...children); }, focus() {},
       addEventListener(type, fn) { listeners[type] = fn; },
       async dispatch(type) { await listeners[type]?.({ preventDefault() {} }); },
       async click() { await listeners.click?.({ preventDefault() {} }); },
@@ -47,12 +47,12 @@ export async function harness({deferSession, deferHistory, deferProvider, config
   const links = [...html.matchAll(/<a href="#(translator|dictation|podcasts|coach)"[^>]*>([^<]+)<\/a>/g)].map(([,id,textContent]) => ({hash:`#${id}`,textContent,setAttribute(){},removeAttribute(){}}));
   const createElement = () => {
     const listeners = {};
-    return { dataset:{}, children: [], append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
+    return { dataset:{}, attributes:[], childNodes:[], children: [], replaceChildren(){this.children=[];},getAttribute(){return null;},removeAttribute(){},append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
   };
   const events = {}, location = {hash:'#podcasts'};
   const document = {hidden:false, addEventListener(type,fn){events[type]=fn;}, getElementById:id=>nodes.get(id), querySelectorAll:selector=>selector==='.section-nav a'?links:[], createElement};
   i18n.setInterfaceLanguage('de');
-  vm.runInNewContext(app, {...core, ...episode, ...i18n, registerStaticInterface(){}, createEpisodeView:options=>createEpisodeView({...options,document}), createAPI:()=>core.createAPI(fetch), document, window:{addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
+  vm.runInNewContext(app, {...core, ...episode, ...i18n, reconcileDOM(target,next){target.children=next.children;}, registerStaticInterface(){}, createEpisodeView:options=>createEpisodeView({...options,document}), createAPI:()=>core.createAPI(fetch), document, window:{addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
   const settle = () => new Promise(resolve=>setImmediate(resolve));
   await settle();
   return {nodes, calls, settle, storage, events, document, location, signIn(value, id=userID){signedIn=value;userID=id;}, provider(value, status=200){provider=value;providerHTTPStatus=status;}, history(value){items=value;}, defer(fn){deferConnect=fn;}};
@@ -153,8 +153,8 @@ test('rechecking preserves only same-account drafts, blocks stale handlers and l
  const oldChip=el('style-chips').children[1];await oldChip.click();
  await el('add-prompt').click();el('prompt-name').value='Unsaved';
  wait=true;const pending=el('retry-session').click();await h.settle();
- assert.equal(el('source-text').disabled,true);assert.equal(el('translate').disabled,true);assert.equal(el('prompt-dialog').open,false);
- await el('add-prompt').click();assert.equal(el('prompt-dialog').open,false);
+ assert.equal(el('source-text').disabled,false);assert.equal(el('translate').disabled,true);assert.equal(el('prompt-dialog').open,true);
+ assert.equal(el('prompt-name').value,'Unsaved');
  wait=false;release();await pending;
  assert.equal(el('source-text').value,'Private draft');assert.equal(el('source-text').disabled,false);assert.equal(el('translate').disabled,false);
  h.signIn(true,'owner-B');await el('retry-session').click();assert.equal(el('source-text').value,'');

@@ -23,7 +23,7 @@ out.mkdir(exist_ok=True)
 html = (root / 'index.html').read_text()
 html = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]+>', '', html)
 html = re.sub(r'<script[^>]*>.*?</script>|<link[^>]+>', '', html)
-html = html.replace('./apple-sign-in-de.png', 'data:image/png;base64,' + base64.b64encode((root / 'apple-sign-in-de.png').read_bytes()).decode())
+html = html.replace('/apple-sign-in-de.png', 'data:image/png;base64,' + base64.b64encode((root / 'apple-sign-in-de.png').read_bytes()).decode())
 html = html.replace('</head>', '<style>' + (root / 'styles.css').read_text() + '</style></head>')
 fixture = r"""
 window.__calls=[];window.__signed=false;window.__connected=true;window.__hold=true;
@@ -38,6 +38,7 @@ window.fetch=async(path,opts={})=>{
  }
  if(path==='/v1/web/logout'){window.__signed=false;return new Response(null,{status:204});}
  if(path==='/v1/translations'&&opts.method==='POST'){window.__signed=false;return reply({},401);}
+ if(path==='/v1/provider')return reply({connected:window.__connected,status:window.__connected?'connected':'not_connected',selected_model:window.__catalog===false?'':window.__connected?'fixture-model':''});
  if(path==='/v1/translations')return reply({items:[]});
  return reply({},404);
 };
@@ -83,9 +84,10 @@ check('signed in and connected permits editing', "!document.querySelector('#sour
 fill_input('#source-text', 'Synthetic private draft')
 check('signed in connected ready only with draft', "!document.querySelector('#translate').disabled")
 js("window.__hold=true;document.querySelector('#retry-session').click()")
-check('rechecking locks controls without clearing same-owner draft', locked + " && document.querySelector('#source-text').value==='Synthetic private draft'")
+check('rechecking preserves editable same-owner draft', "!document.querySelector('#source-text').disabled && document.querySelector('#translate').disabled" + " && document.querySelector('#source-text').value==='Synthetic private draft'")
 js("document.querySelector('#add-prompt').dispatchEvent(new MouseEvent('click'))")
-check('rechecking rejects synthetic modal click', "!document.querySelector('#prompt-dialog').open")
+check('rechecking retains modal editing', "document.querySelector('#prompt-dialog').open")
+js("document.querySelector('#close-prompt').click()")
 js('window.__hold=false;window.__release()')
 time.sleep(.2)
 check('same-owner draft survives confirmed session', "document.querySelector('#source-text').value==='Synthetic private draft' && !document.querySelector('#translate').disabled")

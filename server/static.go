@@ -23,6 +23,8 @@ func publicWeb(w http.ResponseWriter, r *http.Request) {
 		name = "index.html"
 	case "/episode.mjs", "/episode-view.mjs", "/episode-i18n.mjs", "/episode.css":
 		name = r.URL.Path[1:]
+	case "/bootstrap.js":
+		name = "bootstrap.js"
 	case "/app.mjs":
 		name = "app.mjs"
 	case "/i18n.mjs":
@@ -49,7 +51,7 @@ func publicWeb(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch filepath.Ext(name) {
-	case ".mjs":
+	case ".mjs", ".js":
 		w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
 	case ".css":
 		w.Header().Set("Content-Type", "text/css; charset=utf-8")
@@ -59,6 +61,9 @@ func publicWeb(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/png")
 	case ".svg":
 		w.Header().Set("Content-Type", "image/svg+xml")
+	}
+	if name == "bootstrap.js" {
+		w.Header().Set("Cache-Control", "public, max-age=0, must-revalidate")
 	}
 	if r.Method == "GET" {
 		_, _ = w.Write(data)

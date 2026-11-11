@@ -60,7 +60,9 @@ try:
  with sync_playwright() as p:
   browser=p.chromium.launch();context=browser.new_context(locale='de-DE',permissions=['clipboard-read','clipboard-write']);page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(origin+'/#podcasts/job/'+JOB['id']);page.wait_for_url('**'+PATH);page.locator('#episode-cefr:enabled').wait_for()
-  assert page.locator('#podcasts').is_visible() and page.locator('.podcast-segments>li').count()==1000
+  assert page.locator('#podcasts').is_visible() and page.locator('.podcast-segments>li').count()==100
+  while page.locator('[data-transcript-more]').count():page.locator('[data-transcript-more]').click()
+  assert page.locator('.podcast-segments>li').count()==1000
   assert page.locator('.episode-pending').count()==46
   assert page.locator('#episode-overview').inner_text().find('954')>=0
   assert page.locator('.episode-reader progress').count()==0
@@ -74,7 +76,7 @@ try:
   page.get_by_role('button',name='Favorit entfernen',exact=True).click();page.get_by_role('button',name='Als Favorit speichern',exact=True).first.wait_for();assert ITEMS[0]['favorite'] is False
   page.get_by_role('button',name='Link kopieren',exact=True).click();page.get_by_text('Link kopiert',exact=True).wait_for();assert page.evaluate('navigator.clipboard.readText()')==origin+PATH
   for tab in ['translator','dictation','coach','podcasts']:
-   page.locator('.section-nav a[href="#'+tab+'"]').click();page.wait_for_function('(id)=>!document.getElementById(id).hidden',arg=tab)
+   page.locator('.section-nav a[href="#'+tab+'"]').click(force=True);page.wait_for_function('(id)=>!document.getElementById(id).hidden',arg=tab)
   page.go_back();page.locator('#coach').wait_for(state='visible')
   page.go_forward();page.locator('#podcasts').wait_for(state='visible')
   page.goto(origin+PATH);page.locator('#episode-cefr:enabled').wait_for();assert page.locator('.episode-header').inner_text().find('The Nut Sisters')>=0

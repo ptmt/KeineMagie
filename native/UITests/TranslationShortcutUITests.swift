@@ -37,6 +37,57 @@ final class TranslationShortcutUITests: XCTestCase {
     }
 
     @MainActor
+    func testEmptyEditorPromptAndAccessibilityShortcutTargets() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        app.launch()
+        let editor = app.textViews["translator-input"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 10))
+        XCTAssertEqual(editor.label, "Text to translate")
+        XCTAssertEqual(editor.value as? String, "", "Visual placeholder must not become editable or spoken input")
+        let friendly = app.buttons["Friendly"]
+        XCTAssertGreaterThanOrEqual(friendly.frame.height, 44)
+        XCTAssertGreaterThanOrEqual(app.buttons["shortcut-add"].frame.height, 44)
+        friendly.tap()
+        XCTAssertTrue(friendly.isSelected)
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "native-accessibility-translator"; shot.lifetime = .keepAlways; add(shot)
+        editor.tap(); editor.typeText("Synthetic text")
+        XCTAssertEqual(editor.value as? String, "Synthetic text")
+    }
+
+    @MainActor
+    func testLongCustomShortcutKeepsFullSingleLineAtLargeDynamicType() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"
+        app.launchArguments = ["-AppleLanguages", "(de)", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        app.launch()
+        XCTAssertTrue(app.buttons["shortcut-add"].waitForExistence(timeout: 10))
+        app.buttons["shortcut-add"].tap()
+        let customTitle = "Freundliche Ausdrucksweise \(UUID().uuidString.prefix(6))"
+        let title = app.textFields["shortcut-title"]
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        title.tap(); title.typeText(customTitle)
+        let instruction = app.textViews["shortcut-instruction"]
+        instruction.tap(); instruction.typeText("Use friendly language.")
+        app.buttons["shortcut-save"].tap()
+        let strip = app.scrollViews["shortcut-strip"]
+        XCTAssertTrue(strip.waitForExistence(timeout: 5))
+        let chip = strip.buttons[customTitle]
+        XCTAssertTrue(chip.exists)
+        XCTAssertGreaterThan(chip.frame.width, strip.frame.width, "Long labels must retain intrinsic width rather than truncate or wrap")
+        XCTAssertGreaterThanOrEqual(chip.frame.height, 44)
+        XCTAssertGreaterThanOrEqual(app.buttons["shortcut-add"].frame.height, 44)
+        for _ in 0..<12 where !chip.isHittable { strip.swipeLeft() }
+        XCTAssertTrue(chip.isHittable)
+        chip.tap()
+        XCTAssertTrue(chip.isSelected)
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "native-long-shortcut-accessibility-xxxl"; shot.lifetime = .keepAlways; add(shot)
+    }
+
+    @MainActor
     func testTabsAndCustomShortcutEditingPersistence() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"

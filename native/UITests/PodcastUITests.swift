@@ -32,6 +32,23 @@ final class PodcastUITests: XCTestCase {
         XCTAssertLessThan(last.frame.maxY, app.tabBars.firstMatch.frame.minY)
         screenshot(app, "synthetic-podcasts-bottom")
     }
+    @MainActor func testEpisodeDetailIdentifiesEpisodeAndActiveProgress() {
+        let app = launch()
+        let ready = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "episode-1.mp3")).firstMatch
+        XCTAssertTrue(ready.waitForExistence(timeout: 8)); ready.tap()
+        let before = XCTAttachment(screenshot: app.screenshot())
+        before.name = "native-episode-ready"; before.lifetime = .keepAlways; add(before)
+        XCTAssertTrue(app.staticTexts["podcast-detail-title"].exists)
+        XCTAssertFalse(app.progressIndicators["podcast-detail-progress"].exists)
+        XCTAssertTrue(app.staticTexts["Synthetic transcript"].exists)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let active = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "episode-2.mp3")).firstMatch
+        XCTAssertTrue(active.exists); active.tap()
+        XCTAssertTrue(app.progressIndicators["podcast-detail-progress"].exists)
+        let processing = XCTAttachment(screenshot: app.screenshot())
+        processing.name = "native-episode-processing"; processing.lifetime = .keepAlways; add(processing)
+    }
+
     @MainActor func testDetailRefreshUpdatesInPlaceAndShowsFailure() {
         let app = launch()
         let feed = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Synthetic language podcast")).firstMatch

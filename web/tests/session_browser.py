@@ -16,6 +16,7 @@ for module,names in exports.items():
  if module=='episode-view.mjs':source='const t=episodeText;\n'+source
  core+='\nconst {'+','.join(names)+'}=(()=>{'+source+'\nreturn {'+','.join(names)+'};})();\n'
 app=re.sub(r'^import .*?;\n','',(root/'app.mjs').read_text(),flags=re.M)
+app=re.sub(r'^function episodeLocation.*\n|^async function episodePath.*\n','',app,flags=re.M)
 fixture=r'''
 window.__calls=[];window.__signed=true;window.__holdSession=true;window.__holdProvider=true;window.__holdHistory=true;
 Object.defineProperty(document,'hidden',{configurable:true,get:()=>false});

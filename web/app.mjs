@@ -1,7 +1,8 @@
-import { episodeLocation, episodePath } from './episode.mjs';
-import { createEpisodeView } from './episode-view.mjs';
+// Keep session bootstrap independent of the episode reader/module graph.
+function episodeLocation(pathname,hash) { return hash ? null : /^\/podcasts\/episodes\/([a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{12})$/.exec(pathname)?.[1] || null; }
+async function episodePath(job) { return (await import('./episode.mjs')).episodePath(job); }
 import { t, interfaceCatalog, getInterfaceLanguage, setInterfaceLanguage, bindInterfaceText, unbindInterfaceText, applyInterfaceLanguage, registerStaticInterface } from './i18n.mjs';
-import { createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
+import { reconcileDOM, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
@@ -31,7 +32,8 @@ let stylesOwner = null;
 let savedPrompts = [];
 let selectedInstructions = '';
 let editingPrompt = null;
-function canEditDraft() { return !!session?.user?.id && !checking && !busy; }
+let styleSignature = null;
+function canEditDraft() { return !!session?.user?.id && !busy; }
 function styleStore() {
   // owner ID comes exclusively from the authenticated /v1/web/session response.
   return promptStore(window.localStorage, session.user.id);
@@ -48,9 +50,12 @@ function renderStyles() {
     if (owner) { try { savedPrompts = styleStore().list(); } catch { /* blocked storage */ } }
   }
   $('style-controls').hidden = false;
-  $('style-chips').replaceChildren();
   const choices = [{name:'Standard', instructions:''}, ...translationPresets, ...savedPrompts];
   if (selectedInstructions && !choices.some(item => item.instructions === selectedInstructions)) choices.push({name:'Aus Verlauf', instructions:selectedInstructions});
+  const signature=JSON.stringify([owner,savedPrompts,selectedInstructions,canEditDraft(),getInterfaceLanguage()]);
+  if(signature===styleSignature)return;
+  styleSignature=signature;
+  $('style-chips').replaceChildren();
   for (const item of choices) {
     const button = document.createElement('button'); button.type = 'button'; button.className = 'style-chip';
     button.textContent = item.id === 'friendly' || item.id === 'formal' || !item.instructions || item.name === 'Aus Verlauf' && !item.id ? t(item.name) : item.name; button.disabled = !canEditDraft();
@@ -174,7 +179,7 @@ function updateInput() {
   updatePromptCount();
   $('cancel').hidden = !busy;
   $('translation-form').setAttribute('aria-busy', String(busy));
-  setText('translate', busy ? 'Wird übersetzt …' : 'Übersetzen ↗');
+  setText('translate', busy ? 'Wird übersetzt …' : 'Übersetzen');
 }
 function renderConnection() {
   podcasts.identity(session, {checking,config,error:sessionError});
@@ -266,7 +271,7 @@ function restore({force = true, refreshProvider = false} = {}) {
   if (sessionFlight) return sessionFlight;
   if (!force && validatedAt && Date.now() - validatedAt < sessionFreshness) { renderRoute(); return Promise.resolve(); }
   const priorUser = session?.user?.id;
-  checking = true; sessionError = ''; closePrompt(); renderConnection();
+  checking = true; sessionError = ''; renderConnection();
   setText('account-error', '');
   const run = generation;
   const task = (async () => {
@@ -489,21 +494,32 @@ function mountPodcasts({api, account, unauthorized}) {
   const $ = id => document.getElementById(id);
   let session=null, checking=true, config=null, identityError='', ownerRun=0, dialogRun=0;
   const library=createPodcasts({api,changed:render,unauthorized,visible:()=>!document.hidden});
-  const episodeView=createEpisodeView({api,unauthorized});
+  let episodeView=null, episodeFlight=null;
+  async function ensureEpisode() {
+    if (!episodeFlight) episodeFlight=import('./episode-view.mjs').then(({createEpisodeView})=>{episodeView=createEpisodeView({api,unauthorized});episodeView.identity(session);return episodeView;});
+    return episodeFlight;
+  }
+  let renderSignature='', reader=null;
   let resolvedPermalink=null, resolving=null, routeFlight=null, routeKey=null;
   async function openRoute(hash) {
     const permalink=episodeLocation(location.pathname,hash);
     const key=`${session?.user?.id||''}:${location.pathname}:${hash}`;
     if(routeFlight&&routeKey===key)return routeFlight;
+    if(routeKey===key&&resolvedPermalink&&library.state.route.kind==='job')return;
     routeKey=key;const epoch=ownerRun;
     const task=(async()=>{
       try {
         if(permalink&&session?.user?.id&&!checking){
           resolving=permalink;resolvedPermalink=null;render();
-          const job=await episodeView.client.resolve(permalink);
+          const view=await ensureEpisode();
+          if(epoch!==ownerRun||routeKey!==key)return;
+          const job=await view.client.resolve(permalink);
           if(epoch!==ownerRun||routeKey!==key)return;
           resolvedPermalink={permalink,id:job.id};resolving=null;
-          await library.activate(podcastRoute('job',job.id));
+          library.state.route={kind:'job',id:job.id};
+          library.state.jobs=[job,...library.state.jobs.filter(j=>j.id!==job.id)];
+          render();
+          void library.activate(podcastRoute('job',job.id));
           if(epoch!==ownerRun||routeKey!==key)return;
           library.state.jobs=[job,...library.state.jobs.filter(j=>j.id!==job.id)];render();
         } else {
@@ -525,7 +541,7 @@ function mountPodcasts({api, account, unauthorized}) {
   function action(label,fn,disabled=false) {
     const button=node('button',t(label),'small-button'); button.type='button'; button.disabled=disabled||checking||!session?.user?.id;
     const run=ownerRun;
-    button.addEventListener('click',async()=>{if(run!==ownerRun||checking||!session?.user?.id)return; button.disabled=true; try{await fn();}catch(error){if(run===ownerRun&&error.name!=='AbortError'){library.state.error=podcastError(error);render();}}finally{if(run===ownerRun)button.disabled=false;}}); return button;
+    button.onclick=async event=>{if(run!==ownerRun||checking||!session?.user?.id)return;const target=event.currentTarget;target.disabled=true;try{await fn();}catch(error){if(run===ownerRun&&error.name!=='AbortError'){library.state.error=podcastError(error);render();}}finally{if(run===ownerRun)target.disabled=false;}}; return button;
   }
   function link(text,hash) { const a=node('a',text==='← Podcasts'?t(text):text); a.href=hash; return a; }
   function cover(feed) {
@@ -544,8 +560,21 @@ function mountPodcasts({api, account, unauthorized}) {
     if(['failed','canceled'].includes(job.state))container.append(action('Erneut versuchen',async()=>{await library.jobAction(job.id,'retry');await library.detail(job.id);},!library.state.worker));
     if(!isActive(job))container.append(action('Löschen',async()=>{if(!confirm(t('Diese vorbereitete Folge und ihre Transkripte wirklich löschen?')))return;await library.jobAction(job.id,'delete');await library.load();if(library.state.route.kind==='job')location.hash='#podcasts';}));
   }
-  function render() {
-    const s=library.state, content=$('podcast-content'); content.replaceChildren();
+  function render(){
+    const content=$('podcast-content');
+    if(library.state.route.kind==='job'){renderBody(content);return;}
+    const draft=node('div');renderBody(draft);
+    if(draft.dataset.skipped)return;
+    draft.id=content.id;draft.setAttribute('aria-busy',content.getAttribute('aria-busy')||'false');reconcileDOM(content,draft);
+  }
+  function renderBody(content) {
+    const s=library.state;
+    const signature=JSON.stringify([session?.user?.id,checking,identityError,config?.apple_available,s.phase,s.error,s.worker,s.route,s.feeds,s.jobs,[...s.pending],resolvedPermalink,resolving,getInterfaceLanguage(),!!episodeView]);
+    if(signature===renderSignature){content.dataset.skipped="true";return;}
+    renderSignature=signature;
+    const selectedJob=s.route.kind==='job'&&s.jobs.find(j=>j.id===s.route.id);
+    const keepReader=!!(selectedJob&&reader?.isConnected&&reader.dataset.job===selectedJob.id);
+    if(!keepReader){content.replaceChildren();reader=null;}
     unbindInterfaceText($('podcast-notice'));
     $('podcast-add').disabled=checking||!session?.user?.id;
     $('podcast-reload').disabled=checking||(!session?.user?.id&&!identityError)||s.phase==='loading';
@@ -554,10 +583,10 @@ function mountPodcasts({api, account, unauthorized}) {
     $('podcast-notice').textContent=t(checking?'Sitzung wird geprüft …':identityError||!session?.user?.id?(identityError||'Melde dich an, um deine Podcasts zu öffnen.'):s.error||(['idle','loading'].includes(s.phase)?'Podcasts werden geladen …':!s.worker?'Vorbereitung derzeit nicht verfügbar. Abos und Folgen bleiben zugänglich.':''));
     content.setAttribute('aria-busy',String(s.phase==='loading'));
     if(checking||!session?.user?.id)return;
-    if(['idle','loading'].includes(s.phase)){for(let i=0;i<3;i++)content.append(node('div',undefined,'podcast-skeleton'));return;}
+    if(['idle','loading'].includes(s.phase)&&!selectedJob){for(let i=0;i<3;i++)content.append(node('div',undefined,'podcast-skeleton'));return;}
     if(s.phase==='error')return;
     const route=s.route;
-    if(episodeLocation(location.pathname,location.hash)&&!resolvedPermalink){content.append(node('p',resolving?t('Podcasts werden geladen …'):s.error||t('Vorbereitung nicht gefunden.')));return;}
+    if(episodeLocation(location.pathname,location.hash)&&!resolvedPermalink&&!selectedJob){content.replaceChildren();content.append(node('p',resolving?t('Podcasts werden geladen …'):s.error||t('Vorbereitung nicht gefunden.')));return;}
     if(route.kind==='invalid'){content.append(node('p',t('Ungültiger Podcast-Link.')));content.append(link('← Podcasts','#podcasts'));return;}
     if(route.kind==='feed') {
       content.append(link('← Podcasts','#podcasts'));
@@ -570,7 +599,7 @@ function mountPodcasts({api, account, unauthorized}) {
       if(!feed.episodes?.length)content.append(node('p',t('Dieser Feed enthält noch keine verfügbaren Folgen.'),'muted'));
       const list=node('ul',undefined,'podcast-list');
       for(const episode of feed.episodes||[]) {
-        const row=node('li',undefined,'podcast-episode');const title=node('div');title.append(node('strong',episode.title||t('Folge')));
+        const row=node('li',undefined,'podcast-episode');row.dataset.key=episode.id;const title=node('div');title.append(node('strong',episode.title||t('Folge')));
         if(episode.published){const date=new Date(episode.published);if(!Number.isNaN(date.valueOf()))title.append(node('small',date.toLocaleDateString(getInterfaceLanguage()),'muted'));}
         const job=library.preparation(feed,episode);if(job)title.append(status(job));row.append(title);
         const actions=node('div',undefined,'podcast-actions');
@@ -582,12 +611,13 @@ function mountPodcasts({api, account, unauthorized}) {
     if(route.kind==='job'){
       const job=s.jobs.find(j=>j.id===route.id);
       if(!job){content.append(node('p',t('Vorbereitung nicht gefunden.')));return;}
-      const reader=node('article');content.append(reader);
+      if(!episodeView){void ensureEpisode().then(()=>render());return;}
+      if(!reader){reader=node('article');reader.dataset.job=job.id;content.replaceChildren(reader);}
       episodeView.render(reader,job,{feed:s.feeds.find(f=>f.id===job.feed_id),controls});return;
     }
     const list=node('ul',undefined,'podcast-list');
-    for (const feed of s.feeds){const li=node('li');const a=link('',podcastRoute('feed',feed.id));a.className='podcast-feed';const text=node('span');text.append(node('strong',feed.title||'Podcast'),node('small',feed.latest_episode_title||feed.episodes?.[0]?.title||t('Noch keine Folgen'),'muted'));a.append(cover(feed),text,node('span','›'));li.append(a);list.append(li);}content.append(list);
-    const imports=library.directJobs();if(imports.length){content.append(node('h2',t('Einzelne Folgen')));const list=node('ul',undefined,'podcast-list');for(const job of imports){const li=node('li',undefined,'podcast-episode');const title=node('div');title.append(link(job.title||sourceName(job),podcastRoute('job',job.id)),status(job));li.append(title);list.append(li);}content.append(list);}
+    for (const feed of s.feeds){const li=node('li');li.dataset.key=feed.id;const a=link('',podcastRoute('feed',feed.id));a.className='podcast-feed';const text=node('span');text.append(node('strong',feed.title||'Podcast'),node('small',feed.latest_episode_title||feed.episodes?.[0]?.title||t('Noch keine Folgen'),'muted'));a.append(cover(feed),text,node('span','›'));li.append(a);list.append(li);}content.append(list);
+    const imports=library.directJobs();if(imports.length){content.append(node('h2',t('Einzelne Folgen')));const list=node('ul',undefined,'podcast-list');for(const job of imports){const li=node('li',undefined,'podcast-episode');li.dataset.key=job.id;const title=node('div');title.append(link(job.title||sourceName(job),podcastRoute('job',job.id)),status(job));li.append(title);list.append(li);}content.append(list);}
     if(!s.feeds.length&&!imports.length)content.append(node('p',t('Noch keine Podcasts. Füge über + einen Podcast oder eine einzelne Folge hinzu.'),'muted'));
   }
   let source='de';
@@ -596,12 +626,12 @@ function mountPodcasts({api, account, unauthorized}) {
   $('podcast-close').onclick=close;$('podcast-dialog').addEventListener('cancel',close);
   $('podcast-mode').onchange=()=>{const episode=$('podcast-mode').value==='episode';$('podcast-import-language').hidden=!episode;bindInterfaceText($('podcast-submit'),episode?'Vorbereiten':'Abonnieren');bindInterfaceText($('podcast-add-help'),episode?'Öffentliche Folge mit direktem Audio. Startet Transkription und Übersetzung über dein Konto.':'Ein RSS-/Atom-Feed oder eine öffentliche Podcast-Seite. Ein Abo startet keine KI-Verarbeitung.');};
   $('podcast-form').onsubmit=async event=>{event.preventDefault();if(checking||!session?.user?.id||$('podcast-submit').disabled)return;const run=ownerRun,dialog=dialogRun; $('podcast-submit').disabled=true;try{const episode=$('podcast-mode').value==='episode';const value=await (episode?library.importURL($('podcast-url').value,$('podcast-source').value):library.subscribe($('podcast-url').value));if(run!==ownerRun)return;if(episode)await library.detail(value.id);await library.load();if(run!==ownerRun||dialog!==dialogRun)return;close();location.hash=podcastRoute(episode?'job':'feed',value.id);}catch(error){if(run===ownerRun&&dialog===dialogRun)bindInterfaceText($('podcast-add-error'),podcastError(error));}finally{if(run===ownerRun&&dialog===dialogRun)$('podcast-submit').disabled=false;}};
-  $('podcast-reload').onclick=async()=>{if(identityError)return restore();await openRoute(location.hash);};
+  $('podcast-reload').onclick=async()=>{if(identityError)return restore();if(library.state.route.kind==='job'&&resolvedPermalink){await library.detail(library.state.route.id);return;}await openRoute(location.hash);};
   $('podcast-signin').onclick=account;
   return {library,
-    identity(value,options={}) {if(session?.user?.id!==value?.user?.id){ownerRun++;close();source='de';resolvedPermalink=null;resolving=null;routeFlight=null;routeKey=null;}session=value;episodeView.identity(value);checking=!!options.checking&&!value?.user?.id;identityError=options.error||(options.checking?'Sitzung wird im Hintergrund geprüft …':'');config=options.config;library.identity(value);if(checking)library.pause();render();},
+    identity(value,options={}) {if(session?.user?.id!==value?.user?.id){ownerRun++;close();source='de';resolvedPermalink=null;resolving=null;routeFlight=null;routeKey=null;}session=value;episodeView?.identity(value);checking=!!options.checking&&!value?.user?.id;identityError=options.error||(options.checking?'Sitzung wird im Hintergrund geprüft …':'');config=options.config;library.identity(value);if(checking)library.pause();render();},
     route:openRoute,
-    localize:()=>{if(library.state.route.kind==='job')episodeView.localize();else render();$('podcast-mode').onchange();const error=$('podcast-add-error');if(error.dataset.message)error.textContent=t(error.dataset.message);},
+    localize:()=>{if(library.state.route.kind==='job')episodeView?.localize();else render();$('podcast-mode').onchange();const error=$('podcast-add-error');if(error.dataset.message)error.textContent=t(error.dataset.message);},
     pause:()=>library.pause()
   };
 }

@@ -21,9 +21,20 @@ struct TranslatorView: View {
                     .focused($inputFocused)
                     .frame(height: editorHeight)
                     .padding(8)
+                    .overlay(alignment: .topLeading) {
+                        if model.draft.isEmpty {
+                            Text("Text zum Übersetzen")
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 13).padding(.vertical, 16)
+                                .allowsHitTesting(false)
+                                .accessibilityIdentifier("translator-placeholder")
+                                .accessibilityHidden(true)
+                        }
+                    }
                     .background(.background, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(.quaternary))
                     .accessibilityLabel("Text zum Übersetzen")
+
                     .accessibilityIdentifier("translator-input")
                 TranslationShortcutsView()
                 Button {
@@ -34,7 +45,15 @@ struct TranslatorView: View {
                 }.buttonStyle(.borderedProminent).controlSize(.large)
                     .accessibilityIdentifier("translator-submit")
                     .disabled(model.busy || model.provider?.connected != true || model.provider?.selectedModel?.isEmpty != false || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
-                if model.provider?.connected != true {
+                if model.provider == nil {
+                    if model.refreshing || model.historyPhase == .idle {
+                        ProgressView("Verbindung prüfen")
+                            .font(.callout).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("provider.loading")
+                    } else {
+                        Button("Verbindung prüfen") { Task { await model.refreshTranslator() } }
+                    }
+                } else if model.provider?.connected != true {
                     NavigationLink { ChatGPTConnectionView() } label: {
                         Label("chatgpt.connect", systemImage: "link.badge.plus")
                             .font(.callout)
@@ -96,19 +115,15 @@ struct TranslatorView: View {
                 }
             } header: { Text("Dein Verlauf").font(.headline).textCase(nil) }
         }
-        .overlay {
-            if model.history.isEmpty && (model.historyPhase == .idle || model.historyPhase == .loading) {
-                ProgressView().accessibilityIdentifier("history.loading")
-            }
-        }
+
         .listStyle(.plain)
         .environment(\.layoutDirection, .leftToRight)
         .scrollDismissesKeyboard(.interactively)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink { ChatGPTConnectionView() } label: {
-                    Image(systemName: model.provider?.connected == true ? "link.circle.fill" : "person.crop.circle.badge.exclamationmark")
-                }.accessibilityLabel("chatgpt.connect")
+                    Image(systemName: "person.crop.circle")
+                }.accessibilityLabel("Konto")
             }
         }
         .task { model.loadShortcuts() }

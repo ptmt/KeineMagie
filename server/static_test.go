@@ -8,7 +8,7 @@ import (
 
 func TestPublicWebAssetsOnly(t *testing.T) {
 	h := authHandler(t)
-	for _, path := range []string{"/", "/app.mjs", "/core.mjs", "/styles.css", "/favicon.svg", "/apple-sign-in-de.png"} {
+	for _, path := range []string{"/", "/bootstrap.js", "/app.mjs", "/core.mjs", "/styles.css", "/favicon.svg", "/apple-sign-in-de.png"} {
 		r := httptest.NewRequest("GET", path, nil)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)

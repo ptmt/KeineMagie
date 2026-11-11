@@ -34,7 +34,7 @@ window.fetch=async(path,opts={})=>{
  if(path==='/v1/podcasts')return reply({items:window.__jobs,worker_available:true});
  if(path.endsWith('/cancel')){window.__job.state='canceled';return reply(window.__job);}
  if(path.endsWith('/retry')){window.__job.state='queued';return reply(window.__job);}
- if(path==='/v1/podcasts/Job_A')return reply(window.__job);
+ if(path==='/v1/podcasts/Job_A'||path.startsWith('/v1/podcasts/episodes/'))return reply(window.__job);
  return reply({},404);
 };
 window.confirm=()=>true;
@@ -99,9 +99,9 @@ js("window.__fail=true;document.querySelector('#podcast-reload').click()");settl
 check('refresh error retains existing library',"document.querySelector('.podcast-feed')!==null&&document.querySelector('#podcast-notice').textContent.includes('nicht verfügbar')")
 js("window.__fail=false;document.querySelector('#podcast-add').click();document.querySelector('#podcast-mode').value='feed';document.querySelector('#podcast-mode').dispatchEvent(new Event('change'));document.querySelector('#podcast-url').value='https://public.example/rss';document.querySelector('#podcast-form').requestSubmit()");settle()
 check('subscription form calls API and reads library',"window.__calls.some(c=>c.path==='/v1/podcasts/subscriptions'&&c.method==='POST'&&c.body.url==='https://public.example/rss')&&!document.querySelector('#podcast-dialog').open")
-route('#podcasts/job/Job_A');js('window.__confirmCount=0;window.confirm=()=>{window.__confirmCount++;return false;}');clicktext('Löschen')
+route('#podcasts/job/Job_A');js('window.__confirmCount=0;window.confirm=()=>{window.__confirmCount++;return false;};void 0');clicktext('Löschen')
 check('delete confirmation can decline with no mutation',"window.__confirmCount===1&&!window.__calls.some(c=>c.path==='/v1/podcasts/Job_A'&&c.method==='DELETE')")
-js('window.confirm=()=>{window.__confirmCount++;return true;}');clicktext('Löschen')
+js('window.confirm=()=>{window.__confirmCount++;return true;};void 0');clicktext('Löschen')
 check('delete explicitly mutates and reads library',"window.__calls.some(c=>c.path==='/v1/podcasts/Job_A'&&c.method==='DELETE')&&location.hash==='#podcasts'")
 route('#podcasts/feed/Feed_A');clicktext('Abo entfernen')
 check('unsubscribe explicitly confirms deletes and reads library',"window.__confirmCount===3&&window.__calls.some(c=>c.path==='/v1/podcasts/subscriptions/Feed_A'&&c.method==='DELETE')")

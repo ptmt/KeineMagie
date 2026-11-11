@@ -6,6 +6,9 @@
   <meta name="color-scheme" content="light dark">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <script src="/bootstrap.js"></script>
+  <link rel="modulepreload" href="/core.mjs">
+  <link rel="modulepreload" href="/i18n.mjs">
   <title>Keine Magie · Übersetzer</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
@@ -18,15 +21,16 @@
     <a href="#translator" class="wordmark" aria-label="Keine Magie Startseite">keine<span>magie</span><span class="brand-dot" aria-hidden="true">.</span></a>
     <nav class="section-nav" aria-label="Bereiche">
       <a href="#translator" aria-current="page">Übersetzer</a>
-      <a href="#dictation">Diktat</a>
+      <a href="#dictation" aria-disabled="true"><span>Diktat</span><small>Noch nicht verfügbar</small></a>
       <a href="#podcasts">Podcasts</a>
-      <a href="#coach">Coach</a>
+      <a href="#coach" aria-disabled="true"><span>Coach</span><small>Noch nicht verfügbar</small></a>
     </nav>
     <div class="header-account"><label class="header-language"><span aria-hidden="true">🌐</span><span class="sr-only">Sprache</span><select id="interface-language-header" data-interface-language aria-label="Sprache"><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label><button id="account" class="account-button" aria-haspopup="dialog"><span id="account-indicator" class="status-dot" aria-hidden="true"></span><span id="account-label">Anmelden</span></button></div>
   </header>
   <main id="main">
     <section id="translator" aria-label="Übersetzer" tabindex="-1">
       <form id="translation-form">
+        <div id="connection-notice"><span id="connection-title">Sitzung wird geprüft …</span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div>
         <div class="language-bar">
           <select id="language-direction" disabled aria-label="Sprachrichtung"><option value="de-ru" aria-label="Deutsch nach Russisch">de → ru</option><option value="ru-de" aria-label="Russisch nach Deutsch" selected>ru → de</option><option value="de-de" aria-label="Deutsch verbessern" title="Deutsch verbessern">de → de</option></select>
           <button id="swap" disabled type="button" class="swap-button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
@@ -49,7 +53,7 @@
           </div>
         </div>
         <div class="translate-toolbar">
-          <div class="inline-status"><div id="connection-notice"><span id="connection-title">Sitzung wird geprüft …</span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div><p id="translation-status" role="status" aria-live="polite"></p></div>
+          <div class="inline-status"><p id="translation-status" role="status" aria-live="polite"></p></div>
           <div class="translation-actions"><button id="cancel" type="button" class="quiet-button" hidden>Abbrechen</button><button id="translate" class="primary-button" type="submit" disabled>Übersetzen</button></div>
         </div>
       </form>

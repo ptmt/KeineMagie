@@ -7,7 +7,11 @@ struct ChatGPTConnectionView: View {
     var body: some View {
         Form {
             Section("ChatGPT") {
-                if model.provider?.connected == true {
+                if model.provider == nil {
+                    if model.refreshing {
+                        ProgressView("Verbindung prüfen").accessibilityIdentifier("provider.loading")
+                    }
+                } else if model.provider?.connected == true {
                     Label("ChatGPT verbunden", systemImage: "checkmark.circle")
                     if let selected = model.provider?.selectedModel { Text(verbatim: selected).font(.caption.monospaced()) }
                     Button("ChatGPT trennen", role: .destructive) { Task { await model.disconnectChatGPT() } }.disabled(model.busy)

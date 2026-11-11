@@ -108,7 +108,7 @@ export function createPodcasts({api, changed = () => {}, unauthorized = () => {}
   function emit() { changed(state); }
   function identity(value) {
     if (session?.user?.id !== value?.user?.id) {
-      epoch++; inflight.clear(); stop(); controllers.forEach(c => c.abort()); controllers.clear(); loading = null;
+      epoch++; inflight.clear(); detailCache.clear(); stop(); controllers.forEach(c => c.abort()); controllers.clear(); loading = null;
       state.feeds = []; state.jobs = []; state.pending = new Set(); state.error = ''; state.worker = false;
       state.limits = null;
       state.phase = value?.user?.id ? 'idle' : 'guest'; rounds = 0;
@@ -137,7 +137,8 @@ export function createPodcasts({api, changed = () => {}, unauthorized = () => {}
         const [feeds,jobs] = await Promise.all([request('/v1/podcasts/subscriptions'), request('/v1/podcasts')]);
         if (run !== epoch) return;
         if (!Array.isArray(feeds.items) || !Array.isArray(jobs.items)) throw new Error('Invalid library');
-        state.feeds = feeds.items; state.jobs = jobs.items; state.worker = jobs.worker_available === true; state.phase = 'loaded';
+        state.feeds = feeds.items; state.jobs = jobs.items.map(job=>{const prior=state.jobs.find(j=>j.id===job.id);return prior?.segments&&!job.segments?{...prior,...job}:job;});
+        if(state.route.kind==='job'&&!state.jobs.some(j=>j.id===state.route.id)){const detailJob=detailCache.get(state.route.id);if(detailJob)state.jobs.push(detailJob);} state.worker = jobs.worker_available === true; state.phase = 'loaded';
         state.limits = jobs.limits || null;
       } catch (error) { if (run === epoch) { state.error = podcastError(error); if (state.phase !== 'loaded') state.phase = 'error'; } }
       finally { if (run === epoch) { loading = null; emit(); poll(); } }
@@ -148,7 +149,16 @@ export function createPodcasts({api, changed = () => {}, unauthorized = () => {}
   async function activate(hash) {
     active = hash === '#podcasts' || hash.startsWith('#podcasts/'); stop();
     state.route = parsePodcastRoute(hash); emit();
-    if (active && visible()) { rounds = 0; await load(); }
+    if (active && visible()) {
+      rounds = 0;
+      if(state.route.kind==='job'&&session?.user?.id){
+        const id=state.route.id;
+        // Detail is usable independently of slow feed/library context.
+        const context=load();
+        await detail(id);
+        void context;
+      } else await load();
+    }
   }
   function pause() { active = false; stop(); }
   function preparation(feed, episode) { return state.jobs.find(j => j.feed_id === feed.id && j.episode_id === episode.id) || episode.preparation || null; }
@@ -171,8 +181,9 @@ export function createPodcasts({api, changed = () => {}, unauthorized = () => {}
   function prepare(feed_id, episode_id, source_language = 'de') {
     return mutation(`${session?.user?.id}:prepare:${feed_id}:${episode_id}`, '/v1/podcasts', {method:'POST',body:{feed_id,episode_id,source_language}}, saveJob);
   }
+  const detailCache=new Map();
   async function detail(id) {
-    const value = await request(`/v1/podcasts/${apiID(id)}`); saveJob(value); emit(); return value;
+    const value = await request(`/v1/podcasts/${apiID(id)}`); detailCache.set(id,value); saveJob(value); emit(); return value;
   }
   return {state, identity, activate, pause, load, preparation, directJobs, prepare, detail,
     importURL(url,source_language='de') { return mutation(`${session?.user?.id}:import:${url}`, '/v1/podcasts', {method:'POST',body:{url,source_language}}, saveJob); },
@@ -215,3 +226,17 @@ export function podcastError(error) {
   if (error.status === 503) return 'Vorbereitung derzeit nicht verfügbar. Bitte Worker und persönliche ChatGPT-Verbindung im Konto prüfen.';
   return 'Podcasts konnten nicht geladen werden. Bitte erneut versuchen.';
 }
+export function reconcileDOM(target,next){
+  for(const attr of [...target.attributes])if(!next.hasAttribute(attr.name)&&!(target.tagName==='DETAILS'&&attr.name==='open'))target.removeAttribute(attr.name);
+  for(const attr of [...next.attributes])if(target.getAttribute(attr.name)!==attr.value)target.setAttribute(attr.name,attr.value);
+  for(const key of ['onclick','onchange','onsubmit','ontoggle'])target[key]=next[key];
+  if(target.tagName==='SELECT'){if(document.activeElement!==target)target.value=next.value;[...target.options].forEach((option,index)=>{if(next.options[index])option.textContent=next.options[index].textContent;});return;}
+  if(['INPUT','TEXTAREA'].includes(target.tagName))return;
+  if(target.tagName==='DETAILS'&&target.querySelector('form')){target.querySelector('summary').textContent=next.querySelector('summary').textContent;return;}
+  const children=[...next.childNodes];
+  children.forEach((child,index)=>{
+   const key=child.nodeType===1&&(child.dataset.key||child.id);
+   if(key){const match=[...target.children].find(el=>(el.dataset.key||el.id)===key);if(match&&match!==target.childNodes[index])target.insertBefore(match,target.childNodes[index]||null);}
+   const old=target.childNodes[index];if(!old){target.append(child);return;}if(old.nodeType!==child.nodeType||old.nodeName!==child.nodeName||old.id!==child.id||(old.nodeType===1&&old.dataset.key!==child.dataset.key)){old.replaceWith(child);return;}if(child.nodeType===3){if(old.textContent!==child.textContent)old.textContent=child.textContent;}else reconcileDOM(old,child);});
+  while(target.childNodes.length>children.length)target.lastChild.remove();
+ }

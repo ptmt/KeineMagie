@@ -24,6 +24,7 @@ window.fetch = async (path, options = {}) => {
   const reply = (body,status=200) => new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}});
   if(path === '/v1/web/config') return reply({apple_available:true,pairing_available:true,chatgpt_connect_available:true,csrf_token:'test-only-bootstrap-csrf'});
   if(path === '/v1/web/session') return window.__testSignedIn ? reply({user:{id:'test-only-user'},csrf_token:'test-only-csrf',provider:{connected:window.__testConnected,selected_model:window.__testConnected ? 'test-only-offered-model' : ''}}) : reply({error:'expired'},401);
+  if(path === '/v1/provider') return reply({connected:window.__testConnected,status:window.__testConnected?'connected':'not_connected',selected_model:window.__testConnected?'test-only-offered-model':''});
   if(path === '/v1/provider/connect') return reply({bootstrap_token:'TEST-ONLY-ONE-TIME-CODE',expires_in:300});
   if(path === '/v1/web/logout') { window.__testSignedIn=false; return new Response(null,{status:204}); }
   if(path === '/v1/translations' && options.method === 'GET') return reply({items:[]});
@@ -62,7 +63,7 @@ try:
     time.sleep(.2)
     check('renders completed result and history', "document.querySelector('#result').textContent === 'TEST FIXTURE — not a live translation' && document.querySelectorAll('#history-list li').length === 1")
     check('enrichment panels and marketing chrome are removed from markup', "!document.querySelector('#idioms,#patterns,#vocabulary,.page-heading,.page-footer')")
-    for route, label in [('dictation', 'Diktat'), ('podcasts', 'Podcasts'), ('coach', 'Coach')]:
+    for route, label in [('dictation', 'Diktat'), ('coach', 'Coach')]:
         js(f"document.querySelector('.section-nav a[href=\"#{route}\"]').click()")
         time.sleep(.1)
         check(f'{label} route is active and honest', f"location.hash === '#{route}' && document.querySelector('#translator').hidden && document.querySelector('#{route}').checkVisibility() && document.querySelector('#{route}').innerText.includes('Noch nicht verfügbar') && document.querySelector('.section-nav [aria-current=page]').hash === '#{route}'")
@@ -79,9 +80,9 @@ try:
     js("document.querySelector('#history-list button').click()")
     check('post has cookie credentials and CSRF without bearer', "window.__testCalls.some(c => c.path === '/v1/translations' && c.method === 'POST' && c.credentials === 'same-origin' && c.headers['X-CSRF-Token'] === 'test-only-csrf' && !c.headers.Authorization)")
     js("document.querySelector('#swap').click()")
-    check('swap reuses result as next input and clears stale result', "document.querySelector('#language-direction').value === 'ru-de' && document.querySelector('#source-text').value === 'TEST FIXTURE — not a live translation' && document.querySelector('#copy').disabled")
+    check('swap reuses result as next input and clears stale result', "document.querySelector('#language-direction').value === 'de-ru' && document.querySelector('#source-text').value === 'TEST FIXTURE — not a live translation' && document.querySelector('#copy').disabled")
     js("document.querySelector('#history-list button').click()")
-    check('history reopens record', "document.querySelector('#language-direction').value === 'de-ru' && document.querySelector('#result').textContent === 'TEST FIXTURE — not a live translation'")
+    check('history reopens record', "document.querySelector('#language-direction').value === 'ru-de' && document.querySelector('#result').textContent === 'TEST FIXTURE — not a live translation'")
     js("window.__copied='';Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.__copied=text}}});document.querySelector('#copy').click()")
     time.sleep(.1)
     check('copy uses actual result text', "window.__copied === 'TEST FIXTURE — not a live translation'")

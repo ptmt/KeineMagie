@@ -29,7 +29,7 @@ test('header contains real section routes with honest unavailable pages', () => 
   const header = html.match(/<header[\s\S]*?<\/header>/)[0];
   assert.match(header, /<nav[^>]*aria-label="Bereiche"/);
   for (const [route, label] of [['translator', 'Übersetzer'], ['dictation', 'Diktat'], ['podcasts', 'Podcasts'], ['coach', 'Coach']]) {
-    assert.match(header, new RegExp(`<a href="#${route}"[^>]*>${label}</a>`));
+    assert.match(header, new RegExp(`<a href="#${route}"[^>]*>(?:<span>)?${label}(?:</span><small>Noch nicht verfügbar</small>)?</a>`));
     assert.match(html, new RegExp(`<section id="${route}"`));
     if (['dictation','coach'].includes(route)) assert.match(html, new RegExp(`<section id="${route}"[^>]*hidden[^>]*>[\\s\\S]*?<h1[^>]*>${label}</h1>\\s*<p[^>]*>Noch nicht verfügbar</p>\\s*</section>`));
   }

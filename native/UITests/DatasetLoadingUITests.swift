@@ -1,6 +1,20 @@
 import XCTest
 
 final class DatasetLoadingUITests: XCTestCase {
+    @MainActor func testInitialLoadingIsLocalAndDoesNotClaimDisconnectedProvider() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "delayed-populated"
+        app.launchArguments = ["-AppleLanguages", "(en)"]
+        app.launch()
+        XCTAssertTrue(app.textViews["translator-input"].waitForExistence(timeout: 8))
+        let before = XCTAttachment(screenshot: app.screenshot())
+        before.name = "native-provider-loading"; before.lifetime = .keepAlways; add(before)
+        XCTAssertEqual(app.activityIndicators.matching(identifier: "history.loading").count, 1)
+        XCTAssertTrue(app.activityIndicators["provider.loading"].exists)
+        XCTAssertFalse(app.buttons["Connect ChatGPT"].exists, "Unknown provider status is not disconnected")
+        XCTAssertTrue(app.buttons["translator-submit"].exists)
+    }
+
     @MainActor func testPendingPreparationSurvivesBackNavigationAndForeground() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "podcast-prepare"
