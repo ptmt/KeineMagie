@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import KeineMagieCore
 
 /// The signed-in landing screen is the real personal translator, not account setup.
@@ -62,9 +63,7 @@ struct TranslatorView: View {
                 if model.busy { ProgressView() }
                 if let error = model.translatorError { ErrorNotice(text: error) }
                 if let result = model.result {
-                    Text(verbatim: result.translation).font(.title3).textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading).padding()
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
+                    TranslationResultView(text: result.translation)
                 }
             }.frame(maxWidth: 700).frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
@@ -127,5 +126,48 @@ struct TranslatorView: View {
             }
         }
         .task { model.loadShortcuts() }
+    }
+}
+
+private struct TranslationResultView: View {
+    let text: String
+    @State private var copied = false
+    @State private var confirmationID = UUID()
+    @State private var pasteboardCheck = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Spacer(minLength: 0)
+                Button {
+                    UIPasteboard.general.string = text
+                    copied = true; confirmationID = UUID()
+                    #if targetEnvironment(simulator)
+                    if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] == "translation-copy" {
+                        pasteboardCheck = UIPasteboard.general.string == SimulatorSessionFixture.copyTranslation ? "pasteboard-exact" : "pasteboard-mismatch"
+                    }
+                    #endif
+                } label: {
+                    Label(copied ? "translation.copied" : "translation.copy", systemImage: copied ? "checkmark" : "doc.on.doc")
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityIdentifier("translation-copy")
+                .accessibilityValue(Text(verbatim: pasteboardCheck))
+            }
+            Text(verbatim: text).font(.title3).textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding()
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .task(id: confirmationID) {
+            guard copied else { return }
+            try? await Task.sleep(for: .milliseconds(1800))
+            guard !Task.isCancelled else { return }
+            copied = false
+        }
+        .onChange(of: text) { copied = false; confirmationID = UUID(); pasteboardCheck = "" }
     }
 }

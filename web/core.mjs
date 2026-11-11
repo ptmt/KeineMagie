@@ -1,3 +1,31 @@
+// Only called by an explicit copy action. Preserve the exact result, never HTML.
+export async function copyText(text) {
+  if (typeof text !== 'string' || !text.length) throw new Error('Empty clipboard text');
+  if (globalThis.isSecureContext && globalThis.navigator?.clipboard?.writeText) {
+    try { await navigator.clipboard.writeText(text); return; } catch { /* use legacy copy */ }
+  }
+  const active = document.activeElement;
+  const inputSelection = active && typeof active.selectionStart === 'number' ? [active.selectionStart, active.selectionEnd, active.selectionDirection] : null;
+  const selection = document.getSelection();
+  const ranges = selection ? Array.from({length:selection.rangeCount}, (_, i) => selection.getRangeAt(i).cloneRange()) : [];
+  const scroll = [window.scrollX, window.scrollY];
+  const textarea = document.createElement('textarea');
+  textarea.value = text; textarea.readOnly = true;
+  textarea.setAttribute('aria-hidden', 'true');
+  textarea.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;font-size:16px';
+  document.body.append(textarea);
+  try {
+    textarea.focus({preventScroll:true}); textarea.select(); textarea.setSelectionRange(0, text.length);
+    if (!document.execCommand('copy')) throw new Error('Clipboard denied');
+  } finally {
+    textarea.remove();
+    active?.focus({preventScroll:true});
+    if (selection) { selection.removeAllRanges(); for (const range of ranges) selection.addRange(range); }
+    if (inputSelection) active.setSelectionRange(...inputSelection);
+    window.scrollTo(...scroll);
+  }
+}
+
 export function readiness(session) {
   if (!session?.user?.id) return 'signed-out';
   if (typeof session.csrf_token !== 'string' || !session.csrf_token) return 'session-unavailable';

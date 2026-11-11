@@ -17,6 +17,7 @@ actor SimulatorSessionFixture {
         ["id": "synthetic-history-\(index)", "created_at": "2026-11-10T12:00:00Z", "text": "Synthetic history \(index)", "source_language": "de", "target_language": "ru", "translation": "Синтетический перевод \(index)", "favorite": false, "idioms": [], "patterns": [], "vocabulary": []]
     }
     init(mode: String) { self.mode = mode }
+    static let copyTranslation = "  Übersetzung 👩🏽‍💻 Привет e\u{0301}\n\n" + String(repeating: "Zeile 日本語\t  {\"nested\":{\"literal\":\"\\n\",\"items\":[1,2]}}\n", count: 1200) + "  Ende\n "
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
     func send(_ request: URLRequest) async throws -> AuthResponse {
         if mode == "cache-delayed-error", ["/v1/translations", "/v1/podcasts", "/v1/podcasts/subscriptions"].contains(request.url?.path ?? "") {
@@ -46,6 +47,10 @@ actor SimulatorSessionFixture {
             let user = mode == "account-change" && validations > 1 ? "synthetic-account-B" : "synthetic-ui-fixture"
             return AuthResponse(data: Data("{\"user\":{\"id\":\"\(user)\"},\"expires_at\":\"2099-12-01T12:00:00Z\"}".utf8), status: 200)
         case "/v1/translations":
+            if mode == "translation-copy", request.httpMethod == "POST" {
+                let item: [String: Any] = ["id": "synthetic-copy", "created_at": "2026-11-11T12:00:00Z", "text": "SOURCE NOT OUTPUT", "source_language": "ru", "target_language": "de", "translation": Self.copyTranslation, "idioms": [], "patterns": [], "vocabulary": []]
+                return AuthResponse(data: try JSONSerialization.data(withJSONObject: item), status: 200)
+            }
             if mode.hasPrefix("history-") || mode.hasPrefix("cache-") {
                 return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": historyItems]), status: 200)
             }
@@ -57,6 +62,9 @@ actor SimulatorSessionFixture {
             let items = mode == "account-change" && validations == 1 ? Self.record : ""
             return AuthResponse(data: Data("{\"items\":[\(items)]}".utf8), status: 200)
         case "/v1/provider":
+            if mode == "translation-copy" {
+                return AuthResponse(data: Data(#"{"connected":true,"status":"connected","message":"Synthetic only","selected_model":"synthetic-only"}"#.utf8), status: 200)
+            }
             let connected = mode == "account-change" && validations == 1
             return AuthResponse(data: Data("{\"connected\":\(connected),\"status\":\"\(connected ? "connected" : "disconnected")\",\"message\":\"Synthetic simulator fixture — no Apple or ChatGPT login\"}".utf8), status: 200)
         case "/v1/podcasts":

@@ -1,6 +1,77 @@
 {
   "sourceLanguage": "de",
   "strings": {
+  "translation.copy": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Kopieren"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Copy"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Копировать"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Copiar"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Copier"
+      }
+    }
+  }
+},
+  "translation.copied": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Kopiert"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Copied"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Скопировано"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Copiado"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Copié"
+      }
+    }
+  }
+},
+
   "history.delete": {
     "extractionState": "manual",
     "localizations": {

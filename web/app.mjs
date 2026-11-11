@@ -2,7 +2,7 @@
 function episodeLocation(pathname,hash) { return hash ? null : /^\/podcasts\/episodes\/([a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{12})$/.exec(pathname)?.[1] || null; }
 async function episodePath(job) { return (await import('./episode.mjs')).episodePath(job); }
 import { t, interfaceCatalog, getInterfaceLanguage, setInterfaceLanguage, bindInterfaceText, unbindInterfaceText, applyInterfaceLanguage, registerStaticInterface } from './i18n.mjs';
-import { reconcileDOM, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
+import { copyText, reconcileDOM, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
@@ -136,7 +136,10 @@ function status(message, error = false) {
   setText('translation-status', message);
   $('translation-status').classList.toggle('error-state', error);
 }
+let copyTimer = null;
+function resetCopy() { clearTimeout(copyTimer); copyTimer = null; setText('copy', 'Kopieren'); }
 function resetResult() {
+  resetCopy();
   record = null;
   $('result').replaceChildren();
   setText('result-caption', '');
@@ -305,6 +308,7 @@ function restore({force = true, refreshProvider = false} = {}) {
   return task;
 }
 function renderRecord(item) {
+  resetCopy();
   record = item;
   $('language-direction').value = `${item.source_language}-${item.target_language}`;
   $('source-text').value = item.text;
@@ -392,7 +396,17 @@ $('language-direction').addEventListener('change', () => changeLanguage(...$('la
 $('swap').addEventListener('click', () => { if (!canEditDraft()) return; const [source, target] = $('language-direction').value.split('-'); const swapped = swapDraft(source, $('source-text').value, record?.translation, target); $('source-text').value = swapped.text; changeLanguage(swapped.source, swapped.target); });
 $('clear').addEventListener('click', () => { if (!canEditDraft()) return; $('source-text').value = ''; resetResult(); updateInput(); status('Text geleert.'); $('source-text').focus(); });
 $('cancel').addEventListener('click', () => controller?.abort());
-$('copy').addEventListener('click', async () => { if (!record) return; try { await navigator.clipboard.writeText(record.translation); status('Übersetzung kopiert.'); } catch { status('Kopieren nicht erlaubt. Markiere den Text und kopiere ihn manuell.', true); } });
+$('copy').addEventListener('click', async () => {
+  if (!record?.translation || $('copy').disabled) return;
+  const item = record, run = generation;
+  resetCopy();
+  try {
+    await copyText(item.translation);
+    if (run !== generation || record !== item) return;
+    setText('copy', 'Kopiert'); status('Übersetzung kopiert.');
+    copyTimer = setTimeout(resetCopy, 1800);
+  } catch { if (run === generation && record === item) status('Kopieren fehlgeschlagen. Bitte erneut versuchen.', true); }
+});
 $('refresh-history').addEventListener('click', loadHistory);
 $('account').addEventListener('click', () => { $('account-dialog').showModal(); if (session?.user?.id && !session.provider) void loadProvider(); });
 $('connection-action').addEventListener('click', () => { if (sessionError || providerError || readiness(session) === 'model-unavailable') return recheckConnection(); if (!config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); $('account-dialog').showModal(); if (session?.user?.id && !session.provider) void loadProvider(); });

@@ -26,6 +26,8 @@ Eigener Stil|Custom style|Свой стиль|Estilo propio|Style personnel
 Bearbeiten|Edit|Изменить|Editar|Modifier
 Übersetzung|Translation|Перевод|Traducción|Traduction
 Kopieren|Copy|Копировать|Copiar|Copier
+Kopiert|Copied|Скопировано|Copiado|Copié
+Kopieren fehlgeschlagen. Bitte erneut versuchen.|Copy failed. Please try again.|Не удалось скопировать. Попробуйте ещё раз.|No se pudo copiar. Inténtalo de nuevo.|Échec de la copie. Réessayez.
 Mit Apple anmelden|Sign in with Apple|Войти с Apple|Iniciar sesión con Apple|Se connecter avec Apple
 Sitzung wird geprüft …|Checking session …|Проверка сеанса …|Comprobando sesión …|Vérification de la session …
 Abbrechen|Cancel|Отмена|Cancelar|Annuler
