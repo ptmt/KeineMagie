@@ -21,19 +21,27 @@ func publicWeb(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/", "/index.html":
 		name = "index.html"
+	case "/episode.mjs", "/episode-view.mjs", "/episode-i18n.mjs", "/episode.css":
+		name = r.URL.Path[1:]
 	case "/app.mjs":
 		name = "app.mjs"
+	case "/i18n.mjs":
+		name = "i18n.mjs"
 	case "/core.mjs":
 		name = "core.mjs"
 	case "/styles.css":
 		name = "styles.css"
 	case "/favicon.svg":
 		name = "favicon.svg"
-	case "/apple-sign-in-de.png":
-		name = "apple-sign-in-de.png"
+	case "/apple-sign-in-de.png", "/apple-sign-in-en.png", "/apple-sign-in-ru.png", "/apple-sign-in-es.png", "/apple-sign-in-fr.png":
+		name = r.URL.Path[1:]
 	default:
-		http.NotFound(w, r)
-		return
+		if isPodcastEpisodePath(r.URL.Path) {
+			name = "index.html"
+		} else {
+			http.NotFound(w, r)
+			return
+		}
 	}
 	data, e := os.ReadFile(filepath.Join(getenv("WEB_ASSET_DIR", "../web"), name))
 	if e != nil {

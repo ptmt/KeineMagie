@@ -1,7 +1,8 @@
 export function readiness(session) {
   if (!session?.user?.id) return 'signed-out';
   if (typeof session.csrf_token !== 'string' || !session.csrf_token) return 'session-unavailable';
-  if (session.provider?.connected !== true) return 'provider-required';
+  if (!session.provider) return 'provider-loading';
+  if (session.provider.connected !== true) return 'provider-required';
   return typeof session.provider.selected_model === 'string' && session.provider.selected_model.trim() ? 'ready' : 'model-unavailable';
 }
 
@@ -75,7 +76,8 @@ export async function startAppleLogin(api, csrf) {
 export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
   return {
     async request(path, { method = 'GET', body, csrf, signal } = {}) {
-      if (!/^\/v1\/[A-Za-z0-9/_-]+$/.test(path) || path.split('/').some(part => part === '.' || part === '..')) throw new Error('Only same-origin API paths are allowed');
+      const vocabularyQuery = /^\/v1\/learning\/vocabulary\?language=(?:de|ru)&job_id=[A-Za-z0-9_-]{1,200}$/.test(path);
+      if ((!/^\/v1\/[A-Za-z0-9/_-]+$/.test(path) && !vocabularyQuery) || path.split('/').some(part => part === '.' || part === '..')) throw new Error('Only same-origin API paths are allowed');
       const headers = { Accept: 'application/json' };
       if (body !== undefined) headers['Content-Type'] = 'application/json';
       if (csrf) headers['X-CSRF-Token'] = csrf;

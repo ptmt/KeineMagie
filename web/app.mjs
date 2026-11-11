@@ -1,7 +1,11 @@
+import { episodeLocation, episodePath } from './episode.mjs';
+import { createEpisodeView } from './episode-view.mjs';
+import { t, interfaceCatalog, getInterfaceLanguage, setInterfaceLanguage, bindInterfaceText, unbindInterfaceText, applyInterfaceLanguage, registerStaticInterface } from './i18n.mjs';
 import { createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
+registerStaticInterface();
 let session = null;
 let config = null;
 let record = null;
@@ -14,6 +18,7 @@ let sessionFlight = null;
 let validatedAt = 0;
 let sessionError = '';
 let providerFlight = null;
+let providerError = '';
 const sessionFreshness = 60_000;
 const sessionTimeout = 8_000;
 let bootstrapTimer = null;
@@ -48,7 +53,7 @@ function renderStyles() {
   if (selectedInstructions && !choices.some(item => item.instructions === selectedInstructions)) choices.push({name:'Aus Verlauf', instructions:selectedInstructions});
   for (const item of choices) {
     const button = document.createElement('button'); button.type = 'button'; button.className = 'style-chip';
-    button.textContent = item.name; button.disabled = !canEditDraft();
+    button.textContent = item.id === 'friendly' || item.id === 'formal' || !item.instructions || item.name === 'Aus Verlauf' && !item.id ? t(item.name) : item.name; button.disabled = !canEditDraft();
     button.setAttribute('aria-pressed', String(selectedInstructions === item.instructions));
     button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id) return; selectedInstructions = item.instructions; renderStyles(); });
     $('style-chips').append(button);
@@ -68,7 +73,7 @@ function openPrompt(item = null) {
 }
 function updatePromptCount() {
   const count = [...$('prompt-instructions').value].length;
-  setText('prompt-count', `${count.toLocaleString('de-DE')} / 1.000`);
+  setText('prompt-count', `${count.toLocaleString(getInterfaceLanguage())} / ${(1000).toLocaleString(getInterfaceLanguage())}`);
   $('save-prompt').disabled = !canEditDraft() || !count || count > 1000 || !$('prompt-name').value.trim() || [...$('prompt-name').value].length > 60;
 }
 $('add-prompt').addEventListener('click', () => openPrompt());
@@ -98,7 +103,8 @@ function renderRoute(focus = false) {
   // Keep the existing DOM and all requests alive when changing sections.
   // #main belongs to the skip link, not the section router.
   if (location.hash === '#main') return;
-  const selected = sectionLinks.find(link => link.hash === location.hash || (link.hash === '#podcasts' && location.hash.startsWith('#podcasts/'))) || sectionLinks[0];
+  const effectiveHash = episodeLocation(location.pathname, location.hash) ? '#podcasts' : location.hash;
+  const selected = sectionLinks.find(link => link.hash === effectiveHash || (link.hash === '#podcasts' && effectiveHash.startsWith('#podcasts/'))) || sectionLinks[0];
   const next = selected.hash.slice(1);
   for (const link of sectionLinks) {
     $(link.hash.slice(1)).hidden = link !== selected;
@@ -116,10 +122,11 @@ function renderRoute(focus = false) {
   else podcasts.pause();
 }
 window.addEventListener('hashchange', () => renderRoute(true));
+window.addEventListener('popstate', () => renderRoute(true));
 renderRoute();
 
 
-function setText(id, text) { $(id).textContent = text; }
+function setText(id, text) { if (!['result','pairing-code'].includes(id) && Object.hasOwn(interfaceCatalog.de,text)) bindInterfaceText($(id),text); else {unbindInterfaceText($(id));$(id).textContent = text;} }
 function status(message, error = false) {
   setText('translation-status', message);
   $('translation-status').classList.toggle('error-state', error);
@@ -132,7 +139,7 @@ function resetResult() {
 }
 function clearPrivateData() {
   generation++;
-  validatedAt = 0; providerFlight = null;
+  validatedAt = 0; providerFlight = null; providerError = '';
   accountRun++;
   clearPairing();
   controller?.abort();
@@ -152,9 +159,9 @@ function clearBootstrap() {
 function updateInput() {
   renderStyles();
   const count = [...$('source-text').value].length;
-  setText('input-count', `${count.toLocaleString('de-DE')} / 8.000`);
+  setText('input-count', `${count.toLocaleString(getInterfaceLanguage())} / ${(8000).toLocaleString(getInterfaceLanguage())}`);
   $('input-count').classList.toggle('error-state', count > 8000);
-  $('translate').disabled = busy || checking || readiness(session) !== 'ready' || !count || count > 8000;
+  $('translate').disabled = busy || checking || !!providerFlight || !!providerError || readiness(session) !== 'ready' || !count || count > 8000;
   const locked = !canEditDraft();
   $('clear').disabled = locked || count === 0;
   $('swap').disabled = locked;
@@ -187,23 +194,25 @@ function renderConnection() {
   $('pair-browser').hidden = signedIn || config?.pairing_available !== true;
   $('pair-browser').disabled = checking || config?.pairing_available !== true;
   $('logout').hidden = !signedIn;
-  $('provider-connect').disabled = checking || !signedIn || !session?.provider || config?.chatgpt_connect_available !== true || session?.provider?.connected === true;
+  $('provider-connect').disabled = checking || !!providerFlight || !!providerError || !signedIn || !session?.provider || config?.chatgpt_connect_available !== true || session?.provider?.connected === true;
   $('refresh-history').disabled = checking || !signedIn;
   setText('apple-status', signedIn ? 'Mit Apple angemeldet' : '');
-  setText('provider-status', signedIn ? (!session.provider ? 'Verbindung wird geprüft …' : modelUnavailable ? 'Verbunden · Modell nicht verfügbar' : session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden') : '');
+  setText('provider-status', signedIn ? (providerError ? 'Verbindung konnte nicht geprüft werden' : providerFlight || !session.provider ? 'Verbindung wird geprüft …' : modelUnavailable ? 'Verbunden · Modell nicht verfügbar' : session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden') : '');
   if (!signedIn || session?.provider?.connected === true) clearBootstrap();
-  setText('provider-detail', !signedIn ? '' : modelUnavailable ? catalogWarning : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
-  $('connection-notice').hidden = !checking && !sessionError && phase === 'ready';
+  setText('provider-detail', !signedIn ? '' : providerError ? providerError : !session.provider ? 'Der Status deines persönlichen ChatGPT-Kontos wird geladen.' : modelUnavailable ? catalogWarning : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
+  $('connection-notice').hidden = !checking && !providerFlight && !providerError && !sessionError && phase === 'ready';
   $('connection-action').hidden = checking;
   const appleSignIn = !checking && !sessionError && !signedIn && config?.apple_available === true;
   $('connection-action').classList.toggle('apple-button', appleSignIn);
   $('connection-action-art').hidden = !appleSignIn;
   $('connection-action-label').hidden = appleSignIn;
   $('translation-form').classList.toggle('sign-in-required', !signedIn);
-  setText('connection-action-label', modelUnavailable ? 'Erneut prüfen' : signedIn ? 'Konto öffnen' : 'Anmelden');
+  setText('connection-action-label', modelUnavailable || providerError ? 'Erneut prüfen' : signedIn ? 'Konto öffnen' : 'Anmelden');
   setText('connection-detail', modelUnavailable ? catalogWarning : '');
   if (sessionError) { setText('connection-title', sessionError); setText('connection-action-label', 'Erneut prüfen'); }
   else if (checking) setText('connection-title', 'Sitzung wird geprüft …');
+  else if (providerError) setText('connection-title', providerError);
+  else if (providerFlight || phase === 'provider-loading') setText('connection-title', 'ChatGPT-Verbindung wird geprüft …');
   else if (phase === 'ready') setText('connection-title', 'Bereit zum Übersetzen');
   else if (modelUnavailable) setText('connection-title', 'ChatGPT verbunden · Modell nicht verfügbar.');
   else if (signedIn) setText('connection-title', 'ChatGPT im Konto verbinden.');
@@ -233,24 +242,27 @@ async function loadProvider() {
   if (!session?.user?.id) return;
   if (providerFlight) return providerFlight;
   const run = generation, owner = session.user.id;
+  providerError = ''; setText('account-error', '');
   const task = (async () => {
     try {
       const provider = await api.request('/v1/provider', {signal:AbortSignal.timeout(sessionTimeout)});
       if (run !== generation || owner !== session?.user?.id) return;
+      if (typeof provider?.connected !== 'boolean' || typeof provider?.status !== 'string') throw new Error('Invalid provider status');
       session.provider = provider;
     } catch (error) {
       if (run !== generation || owner !== session?.user?.id) return;
       handleUnauthorized(error);
-      if (session) setText('account-error', 'ChatGPT-Verbindung konnte nicht geprüft werden. Bitte erneut prüfen.');
+      if (session) { providerError = 'ChatGPT-Verbindung konnte nicht geprüft werden. Bitte erneut prüfen.'; setText('account-error', providerError); }
     } finally {
       if (providerFlight === task) providerFlight = null;
       if (run === generation) renderConnection();
     }
   })();
   providerFlight = task;
+  renderConnection();
   return task;
 }
-function restore({force = true} = {}) {
+function restore({force = true, refreshProvider = false} = {}) {
   if (sessionFlight) return sessionFlight;
   if (!force && validatedAt && Date.now() - validatedAt < sessionFreshness) { renderRoute(); return Promise.resolve(); }
   const priorUser = session?.user?.id;
@@ -268,11 +280,13 @@ function restore({force = true} = {}) {
       if (run !== generation) return;
       if (newSession && (!newSession.user?.id || !newSession.csrf_token)) throw new Error('Invalid session');
       if (priorUser && priorUser !== newSession?.user?.id) clearPrivateData();
+      // Lean identity responses must not erase verified same-owner provider state.
+      if (newSession && newSession.user.id === priorUser && !newSession.provider && session?.provider) newSession.provider = session.provider;
       session = newSession;
       validatedAt = Date.now();
       checking = false; renderConnection();
       // Neither history nor external model discovery is identity validation.
-      if (session?.user?.id) { void loadHistory(); if (!session.provider && (activeSection === 'translator' || $('account-dialog').open)) void loadProvider(); }
+      if (session?.user?.id) { void loadHistory(); if (refreshProvider || (!session.provider && (activeSection === 'translator' || $('account-dialog').open))) void loadProvider(); }
     } catch (error) {
       if (run !== generation) return;
       sessionError = 'Sitzung konnte nicht geprüft werden. Bitte erneut versuchen.';
@@ -293,7 +307,7 @@ function renderRecord(item) {
   $('source-text').lang = item.source_language;
   $('result').lang = item.target_language;
   setText('result', item.translation);
-  setText('result-caption', `${item.source_language} → ${item.target_language} · Gespeichert`);
+  bindInterfaceText($('result-caption'), '{source} → {target} · Gespeichert', {source:item.source_language,target:item.target_language});
   $('copy').disabled = false;
   updateInput();
 }
@@ -313,7 +327,8 @@ function renderHistory() {
     const title = document.createElement('strong'); title.textContent = item.text;
     const detail = document.createElement('small');
     const date = new Date(item.created_at);
-    detail.textContent = `${item.source_language} → ${item.target_language}${Number.isNaN(date.valueOf()) ? '' : ` · ${date.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}`}`;
+    detail.dataset.historyDate = item.created_at; detail.dataset.direction = `${item.source_language} → ${item.target_language}`;
+    detail.textContent = `${detail.dataset.direction}${Number.isNaN(date.valueOf()) ? '' : ` · ${date.toLocaleString(getInterfaceLanguage(), { dateStyle: 'medium', timeStyle: 'short' })}`}`;
     const arrow = document.createElement('span'); arrow.className = 'history-arrow'; arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true');
     content.append(title, detail); button.append(content, arrow); li.append(button); $('history-list').append(li);
     button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id || run !== generation) return; renderRecord(item); status('Gespeicherte Übersetzung geöffnet.'); $('source-text').focus({ preventScroll: false }); });
@@ -336,7 +351,7 @@ async function loadHistory() {
 }
 async function translate(event) {
   event.preventDefault();
-  if (busy || checking || readiness(session) !== 'ready') return;
+  if (busy || checking || providerFlight || providerError || readiness(session) !== 'ready') return;
   let payload;
   const [source, target] = $('language-direction').value.split('-');
   try { payload = inputPayload($('source-text').value, source, selectedInstructions, target); }
@@ -375,12 +390,13 @@ $('cancel').addEventListener('click', () => controller?.abort());
 $('copy').addEventListener('click', async () => { if (!record) return; try { await navigator.clipboard.writeText(record.translation); status('Übersetzung kopiert.'); } catch { status('Kopieren nicht erlaubt. Markiere den Text und kopiere ihn manuell.', true); } });
 $('refresh-history').addEventListener('click', loadHistory);
 $('account').addEventListener('click', () => { $('account-dialog').showModal(); if (session?.user?.id && !session.provider) void loadProvider(); });
-$('connection-action').addEventListener('click', () => { if (sessionError || readiness(session) === 'model-unavailable' || !config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); else $('account-dialog').showModal(); });
+$('connection-action').addEventListener('click', () => { if (sessionError || providerError || readiness(session) === 'model-unavailable') return recheckConnection(); if (!config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); $('account-dialog').showModal(); if (session?.user?.id && !session.provider) void loadProvider(); });
 function resetAccountDialog() { accountRun++; clearBootstrap(); clearPairing(); setText('account-error', ''); }
 $('close-account').addEventListener('click', () => { resetAccountDialog(); $('account-dialog').close(); });
 $('account-dialog').addEventListener('cancel', resetAccountDialog);
 $('account-dialog').addEventListener('close', resetAccountDialog);
-$('retry-session').addEventListener('click', restore);
+async function recheckConnection() { await restore({refreshProvider:true}); await providerFlight; }
+$('retry-session').addEventListener('click', recheckConnection);
 $('pair-browser').addEventListener('click', async () => {
  clearPairing(); const run = pairingRun;
  $('pair-browser').disabled = true;
@@ -423,7 +439,7 @@ $('apple-login').addEventListener('click', async () => {
   finally { renderConnection(); }
 });
 $('provider-connect').addEventListener('click', async () => {
-  if (!session?.user?.id || config?.chatgpt_connect_available !== true) return;
+  if (!session?.user?.id || checking || providerFlight || providerError || !session.provider || session.provider.connected === true || config?.chatgpt_connect_available !== true) return;
   const run = generation;
   const dialogRun = accountRun;
   $('provider-connect').disabled = true;
@@ -434,7 +450,7 @@ $('provider-connect').addEventListener('click', async () => {
     clearBootstrap();
     $('bootstrap-code').value = value.bootstrap_token;
     $('provider-bootstrap').hidden = false;
-    setText('bootstrap-expiry', `Gültig bis ${new Date(Date.now() + value.expires_in * 1000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}. Danach „Verbindung erneut prüfen“. `);
+    $('bootstrap-expiry').dataset.expires = String(Date.now() + value.expires_in * 1000); renderBootstrapExpiry();
     bootstrapTimer = setTimeout(clearBootstrap, value.expires_in * 1000);
   } catch (error) { if (run !== generation || dialogRun !== accountRun) return; handleUnauthorized(error); setText('account-error', errorMessage(error)); }
   finally { renderConnection(); }
@@ -456,19 +472,62 @@ window.addEventListener('online', () => restore({force:false}));
 document.addEventListener('visibilitychange', () => { if (document.hidden) podcasts.pause(); else restore({force:false}); });
 updateInput(); restore();
 
+function renderBootstrapExpiry() { const expires=Number($('bootstrap-expiry').dataset.expires); if(expires)bindInterfaceText($('bootstrap-expiry'),'Gültig bis {time}. Danach „Verbindung erneut prüfen“.',{time:new Date(expires).toLocaleTimeString(getInterfaceLanguage(),{hour:'2-digit',minute:'2-digit'})}); }
+document.querySelectorAll('[data-interface-language]').forEach(select=>select.addEventListener('change',()=>{
+  if(!setInterfaceLanguage(select.value))return;
+  applyInterfaceLanguage(); renderStyles(); updateInput(); renderBootstrapExpiry();
+  const appleArt=!checking&&!sessionError&&!session?.user?.id&&config?.apple_available===true;
+  $('connection-action').classList.toggle('apple-button',appleArt);$('connection-action-art').hidden=!appleArt;$('connection-action-label').hidden=appleArt;
+  document.querySelectorAll('[data-history-date]').forEach(el=>{const date=new Date(el.dataset.historyDate);el.textContent=el.dataset.direction+(Number.isNaN(date.valueOf())?'':` · ${date.toLocaleString(getInterfaceLanguage(),{dateStyle:'medium',timeStyle:'short'})}`);});
+  podcasts.localize();
+  document.title=`Keine Magie · ${document.querySelector('.section-nav [aria-current="page"]').textContent}`;
+}));
+
 
 // Explore surface: a compact cover/title list, then episode rows and a reader.
 function mountPodcasts({api, account, unauthorized}) {
   const $ = id => document.getElementById(id);
   let session=null, checking=true, config=null, identityError='', ownerRun=0, dialogRun=0;
   const library=createPodcasts({api,changed:render,unauthorized,visible:()=>!document.hidden});
+  const episodeView=createEpisodeView({api,unauthorized});
+  let resolvedPermalink=null, resolving=null, routeFlight=null, routeKey=null;
+  async function openRoute(hash) {
+    const permalink=episodeLocation(location.pathname,hash);
+    const key=`${session?.user?.id||''}:${location.pathname}:${hash}`;
+    if(routeFlight&&routeKey===key)return routeFlight;
+    routeKey=key;const epoch=ownerRun;
+    const task=(async()=>{
+      try {
+        if(permalink&&session?.user?.id&&!checking){
+          resolving=permalink;resolvedPermalink=null;render();
+          const job=await episodeView.client.resolve(permalink);
+          if(epoch!==ownerRun||routeKey!==key)return;
+          resolvedPermalink={permalink,id:job.id};resolving=null;
+          await library.activate(podcastRoute('job',job.id));
+          if(epoch!==ownerRun||routeKey!==key)return;
+          library.state.jobs=[job,...library.state.jobs.filter(j=>j.id!==job.id)];render();
+        } else {
+          resolvedPermalink=null;await library.activate(permalink?'#podcasts':hash);
+          if(epoch!==ownerRun||routeKey!==key)return;
+          if(library.state.route.kind==='job'&&session?.user?.id&&!checking){
+            const job=await library.detail(library.state.route.id);
+            const path=await episodePath(job);
+            if(epoch!==ownerRun||routeKey!==key)return;
+            resolvedPermalink={permalink:path.split('/').pop(),id:job.id};
+            window.history.replaceState(null,'',path);render();
+          }
+        }
+      } catch(error){if(epoch===ownerRun&&error.name!=='AbortError'){resolving=null;library.state.error=podcastError(error);render();}}
+    })().finally(()=>{if(routeFlight===task)routeFlight=null;});
+    routeFlight=task;return task;
+  }
   const node=(tag,text,cls)=>{const el=document.createElement(tag); if(text!==undefined)el.textContent=text; if(cls)el.className=cls; return el;};
   function action(label,fn,disabled=false) {
-    const button=node('button',label,'small-button'); button.type='button'; button.disabled=disabled||checking||!session?.user?.id;
+    const button=node('button',t(label),'small-button'); button.type='button'; button.disabled=disabled||checking||!session?.user?.id;
     const run=ownerRun;
     button.addEventListener('click',async()=>{if(run!==ownerRun||checking||!session?.user?.id)return; button.disabled=true; try{await fn();}catch(error){if(run===ownerRun&&error.name!=='AbortError'){library.state.error=podcastError(error);render();}}finally{if(run===ownerRun)button.disabled=false;}}); return button;
   }
-  function link(text,hash) { const a=node('a',text); a.href=hash; return a; }
+  function link(text,hash) { const a=node('a',text==='← Podcasts'?t(text):text); a.href=hash; return a; }
   function cover(feed) {
     const box=node('span',undefined,'podcast-cover'); box.setAttribute('aria-hidden','true');
     box.textContent=(feed.title||'P').slice(0,1);
@@ -476,75 +535,75 @@ function mountPodcasts({api, account, unauthorized}) {
   }
   function status(job) {
     const labels={queued:'In Warteschlange',fetching:'Audio wird geladen',transcribing:'Transkription läuft',translating:'Übersetzung läuft',completed:'Bereit',failed:'Fehlgeschlagen',canceled:'Abgebrochen'};
-    const p=node('p',labels[job.state]||'Unbekannter Status','muted podcast-progress');
-    if(isActive(job)){ const progress=node('progress');progress.max=100;if(Number.isFinite(job.progress))progress.value=Math.max(0,Math.min(100,job.progress));progress.setAttribute('aria-label','Verarbeitungsschritt, kein Audio-Fortschritt');p.append(progress); }
+    const p=node('p',t(labels[job.state]||'Unbekannter Status'),'muted podcast-progress');
+    if(isActive(job)){ const progress=node('progress');progress.max=100;if(Number.isFinite(job.progress))progress.value=Math.max(0,Math.min(100,job.progress));progress.setAttribute('aria-label',t('Verarbeitungsschritt, kein Audio-Fortschritt'));p.append(progress); }
     if(job.error)p.append(node('span',job.error,'error-text'));return p;
   }
   function controls(job,container) {
     if(isActive(job))container.append(action('Abbrechen',async()=>{await library.jobAction(job.id,'cancel');await library.detail(job.id);}));
     if(['failed','canceled'].includes(job.state))container.append(action('Erneut versuchen',async()=>{await library.jobAction(job.id,'retry');await library.detail(job.id);},!library.state.worker));
-    if(!isActive(job))container.append(action('Löschen',async()=>{if(!confirm('Diese vorbereitete Folge und ihre Transkripte wirklich löschen?'))return;await library.jobAction(job.id,'delete');await library.load();if(library.state.route.kind==='job')location.hash='#podcasts';}));
+    if(!isActive(job))container.append(action('Löschen',async()=>{if(!confirm(t('Diese vorbereitete Folge und ihre Transkripte wirklich löschen?')))return;await library.jobAction(job.id,'delete');await library.load();if(library.state.route.kind==='job')location.hash='#podcasts';}));
   }
   function render() {
     const s=library.state, content=$('podcast-content'); content.replaceChildren();
+    unbindInterfaceText($('podcast-notice'));
     $('podcast-add').disabled=checking||!session?.user?.id;
     $('podcast-reload').disabled=checking||(!session?.user?.id&&!identityError)||s.phase==='loading';
     $('podcast-signin').hidden=checking||!!session?.user?.id||config?.apple_available!==true;
     $('podcast-notice').classList.toggle('error-text',!!s.error);
-    $('podcast-notice').textContent=checking?'Sitzung wird geprüft …':identityError||!session?.user?.id?(identityError||'Melde dich an, um deine Podcasts zu öffnen.'):s.error||(['idle','loading'].includes(s.phase)?'Podcasts werden geladen …':!s.worker?'Vorbereitung derzeit nicht verfügbar. Abos und Folgen bleiben zugänglich.':'');
+    $('podcast-notice').textContent=t(checking?'Sitzung wird geprüft …':identityError||!session?.user?.id?(identityError||'Melde dich an, um deine Podcasts zu öffnen.'):s.error||(['idle','loading'].includes(s.phase)?'Podcasts werden geladen …':!s.worker?'Vorbereitung derzeit nicht verfügbar. Abos und Folgen bleiben zugänglich.':''));
     content.setAttribute('aria-busy',String(s.phase==='loading'));
     if(checking||!session?.user?.id)return;
     if(['idle','loading'].includes(s.phase)){for(let i=0;i<3;i++)content.append(node('div',undefined,'podcast-skeleton'));return;}
     if(s.phase==='error')return;
     const route=s.route;
-    if(route.kind==='invalid'){content.append(node('p','Ungültiger Podcast-Link.'));content.append(link('← Podcasts','#podcasts'));return;}
+    if(episodeLocation(location.pathname,location.hash)&&!resolvedPermalink){content.append(node('p',resolving?t('Podcasts werden geladen …'):s.error||t('Vorbereitung nicht gefunden.')));return;}
+    if(route.kind==='invalid'){content.append(node('p',t('Ungültiger Podcast-Link.')));content.append(link('← Podcasts','#podcasts'));return;}
     if(route.kind==='feed') {
       content.append(link('← Podcasts','#podcasts'));
-      const feed=s.feeds.find(f=>f.id===route.id);if(!feed){content.append(node('p','Podcast nicht gefunden.'));return;}
+      const feed=s.feeds.find(f=>f.id===route.id);if(!feed){content.append(node('p',t('Podcast nicht gefunden.')));return;}
       const header=node('div',undefined,'podcast-feed-heading');header.append(cover(feed),node('h2',feed.title));content.append(header);
       const bar=node('div',undefined,'podcast-actions');
-      const direction=node('select');direction.setAttribute('aria-label','Podcast-Sprachrichtung');for(const [value,label] of [['de','de → ru'],['ru','ru → de']]){const option=node('option',label);option.value=value;direction.append(option);}direction.value=source;direction.disabled=checking;direction.onchange=()=>source=direction.value;bar.append(direction);
+      const direction=node('select');direction.setAttribute('aria-label',t('Podcast-Sprachrichtung'));for(const [value,label] of [['de','de → ru'],['ru','ru → de']]){const option=node('option',label);option.value=value;direction.append(option);}direction.value=source;direction.disabled=checking;direction.onchange=()=>source=direction.value;bar.append(direction);
       bar.append(action('Feed aktualisieren',async()=>{await library.refresh(feed.id);await library.load();}));
-      bar.append(action('Abo entfernen',async()=>{if(!confirm(`„${feed.title}“ wirklich nicht mehr abonnieren? Vorbereitete Folgen werden nicht gelöscht.`))return;await library.unsubscribe(feed.id);await library.load();location.hash='#podcasts';}));content.append(bar);
-      if(!feed.episodes?.length)content.append(node('p','Dieser Feed enthält noch keine verfügbaren Folgen.','muted'));
+      bar.append(action('Abo entfernen',async()=>{if(!confirm(t('„{title}“ wirklich nicht mehr abonnieren? Vorbereitete Folgen werden nicht gelöscht.',{title:feed.title})))return;await library.unsubscribe(feed.id);await library.load();location.hash='#podcasts';}));content.append(bar);
+      if(!feed.episodes?.length)content.append(node('p',t('Dieser Feed enthält noch keine verfügbaren Folgen.'),'muted'));
       const list=node('ul',undefined,'podcast-list');
       for(const episode of feed.episodes||[]) {
-        const row=node('li',undefined,'podcast-episode');const title=node('div');title.append(node('strong',episode.title||'Folge'));
-        if(episode.published){const date=new Date(episode.published);if(!Number.isNaN(date.valueOf()))title.append(node('small',date.toLocaleDateString('de-DE'),'muted'));}
+        const row=node('li',undefined,'podcast-episode');const title=node('div');title.append(node('strong',episode.title||t('Folge')));
+        if(episode.published){const date=new Date(episode.published);if(!Number.isNaN(date.valueOf()))title.append(node('small',date.toLocaleDateString(getInterfaceLanguage()),'muted'));}
         const job=library.preparation(feed,episode);if(job)title.append(status(job));row.append(title);
         const actions=node('div',undefined,'podcast-actions');
-        if(job){actions.append(link(job.state==='completed'?'Öffnen':'Details',podcastRoute('job',job.id)));controls(job,actions);}
+        if(job){actions.append(link(t(job.state==='completed'?'Öffnen':'Details'),podcastRoute('job',job.id)));controls(job,actions);}
         else actions.append(action('Vorbereiten',async()=>{const job=await library.prepare(feed.id,episode.id,source);await library.detail(job.id);},!s.worker||s.pending.has(`${session.user.id}:prepare:${feed.id}:${episode.id}`)));
         row.append(actions);list.append(row);
       }content.append(list);return;
     }
     if(route.kind==='job'){
-      const job=s.jobs.find(j=>j.id===route.id);content.append(link('← Podcasts',job?.feed_id?podcastRoute('feed',job.feed_id):'#podcasts'));
-      if(!job){content.append(node('p','Vorbereitung nicht gefunden.'));return;}
-      content.append(node('h2',job.title||'Importierte Folge'),status(job));const bar=node('div',undefined,'podcast-actions');controls(job,bar);content.append(bar);
-      content.append(node('p',`${job.source_language} → ${job.target_language} · Zeitmarken aus der Transkription`,'muted'));
-      const segments=node('ol',undefined,'podcast-segments');
-      for(const segment of job.segments||[]){const li=node('li');li.append(node('time',`${timestamp(segment.start)}–${timestamp(segment.end)}`));const text=node('div',segment.text);text.lang=job.source_language;li.append(text);if(segment.translation){const translation=node('div',segment.translation,'segment-translation');translation.lang=job.target_language;li.append(translation);}segments.append(li);}content.append(segments);
-      if(!job.segments?.length)content.append(node('p',job.state==='completed'?'Keine Transkriptsegmente verfügbar.':'Transkriptsegmente erscheinen nach der Erkennung.','muted'));return;
+      const job=s.jobs.find(j=>j.id===route.id);
+      if(!job){content.append(node('p',t('Vorbereitung nicht gefunden.')));return;}
+      const reader=node('article');content.append(reader);
+      episodeView.render(reader,job,{feed:s.feeds.find(f=>f.id===job.feed_id),controls});return;
     }
     const list=node('ul',undefined,'podcast-list');
-    for(const feed of s.feeds){const li=node('li');const a=link('',podcastRoute('feed',feed.id));a.className='podcast-feed';const text=node('span');text.append(node('strong',feed.title||'Podcast'),node('small',feed.latest_episode_title||feed.episodes?.[0]?.title||'Noch keine Folgen','muted'));a.append(cover(feed),text,node('span','›'));li.append(a);list.append(li);}content.append(list);
-    const imports=library.directJobs();if(imports.length){content.append(node('h2','Einzelne Folgen'));const list=node('ul',undefined,'podcast-list');for(const job of imports){const li=node('li',undefined,'podcast-episode');const title=node('div');title.append(link(job.title||sourceName(job),podcastRoute('job',job.id)),status(job));li.append(title);list.append(li);}content.append(list);}
-    if(!s.feeds.length&&!imports.length)content.append(node('p','Noch keine Podcasts. Füge über + einen Podcast oder eine einzelne Folge hinzu.','muted'));
+    for (const feed of s.feeds){const li=node('li');const a=link('',podcastRoute('feed',feed.id));a.className='podcast-feed';const text=node('span');text.append(node('strong',feed.title||'Podcast'),node('small',feed.latest_episode_title||feed.episodes?.[0]?.title||t('Noch keine Folgen'),'muted'));a.append(cover(feed),text,node('span','›'));li.append(a);list.append(li);}content.append(list);
+    const imports=library.directJobs();if(imports.length){content.append(node('h2',t('Einzelne Folgen')));const list=node('ul',undefined,'podcast-list');for(const job of imports){const li=node('li',undefined,'podcast-episode');const title=node('div');title.append(link(job.title||sourceName(job),podcastRoute('job',job.id)),status(job));li.append(title);list.append(li);}content.append(list);}
+    if(!s.feeds.length&&!imports.length)content.append(node('p',t('Noch keine Podcasts. Füge über + einen Podcast oder eine einzelne Folge hinzu.'),'muted'));
   }
   let source='de';
-  function close() {dialogRun++;$('podcast-dialog').close();$('podcast-url').value='';$('podcast-add-error').textContent='';$('podcast-submit').disabled=false;}
+  function close() {dialogRun++;$('podcast-dialog').close();$('podcast-url').value='';unbindInterfaceText($('podcast-add-error'));$('podcast-add-error').textContent='';$('podcast-submit').disabled=false;}
   $('podcast-add').onclick=()=>{if(checking||!session?.user?.id)return;$('podcast-dialog').showModal();$('podcast-url').focus();};
   $('podcast-close').onclick=close;$('podcast-dialog').addEventListener('cancel',close);
-  $('podcast-mode').onchange=()=>{const episode=$('podcast-mode').value==='episode';$('podcast-import-language').hidden=!episode;$('podcast-submit').textContent=episode?'Vorbereiten':'Abonnieren';$('podcast-add-help').textContent=episode?'Öffentliche Folge mit direktem Audio. Startet Transkription und Übersetzung über dein Konto.':'Ein RSS-/Atom-Feed oder eine öffentliche Podcast-Seite. Ein Abo startet keine KI-Verarbeitung.';};
-  $('podcast-form').onsubmit=async event=>{event.preventDefault();if(checking||!session?.user?.id||$('podcast-submit').disabled)return;const run=ownerRun,dialog=dialogRun; $('podcast-submit').disabled=true;try{const episode=$('podcast-mode').value==='episode';const value=await (episode?library.importURL($('podcast-url').value,$('podcast-source').value):library.subscribe($('podcast-url').value));if(run!==ownerRun)return;if(episode)await library.detail(value.id);await library.load();if(run!==ownerRun||dialog!==dialogRun)return;close();location.hash=podcastRoute(episode?'job':'feed',value.id);}catch(error){if(run===ownerRun&&dialog===dialogRun)$('podcast-add-error').textContent=podcastError(error);}finally{if(run===ownerRun&&dialog===dialogRun)$('podcast-submit').disabled=false;}};
-  $('podcast-reload').onclick=async()=>{if(identityError)return restore();await library.activate(location.hash);if(library.state.route.kind==='job')await library.detail(library.state.route.id).catch(()=>{});};
+  $('podcast-mode').onchange=()=>{const episode=$('podcast-mode').value==='episode';$('podcast-import-language').hidden=!episode;bindInterfaceText($('podcast-submit'),episode?'Vorbereiten':'Abonnieren');bindInterfaceText($('podcast-add-help'),episode?'Öffentliche Folge mit direktem Audio. Startet Transkription und Übersetzung über dein Konto.':'Ein RSS-/Atom-Feed oder eine öffentliche Podcast-Seite. Ein Abo startet keine KI-Verarbeitung.');};
+  $('podcast-form').onsubmit=async event=>{event.preventDefault();if(checking||!session?.user?.id||$('podcast-submit').disabled)return;const run=ownerRun,dialog=dialogRun; $('podcast-submit').disabled=true;try{const episode=$('podcast-mode').value==='episode';const value=await (episode?library.importURL($('podcast-url').value,$('podcast-source').value):library.subscribe($('podcast-url').value));if(run!==ownerRun)return;if(episode)await library.detail(value.id);await library.load();if(run!==ownerRun||dialog!==dialogRun)return;close();location.hash=podcastRoute(episode?'job':'feed',value.id);}catch(error){if(run===ownerRun&&dialog===dialogRun)bindInterfaceText($('podcast-add-error'),podcastError(error));}finally{if(run===ownerRun&&dialog===dialogRun)$('podcast-submit').disabled=false;}};
+  $('podcast-reload').onclick=async()=>{if(identityError)return restore();await openRoute(location.hash);};
   $('podcast-signin').onclick=account;
   return {library,
-    identity(value,options={}) {if(session?.user?.id!==value?.user?.id){ownerRun++;close();source='de';}session=value;checking=!!options.checking&&!value?.user?.id;identityError=options.error||(options.checking?'Sitzung wird im Hintergrund geprüft …':'');config=options.config;library.identity(value);if(checking)library.pause();render();},
-    async route(hash) {await library.activate(hash);if(library.state.route.kind==='job'&&session?.user?.id&&!checking){try{await library.detail(library.state.route.id);}catch(error){if(error.name!=='AbortError'){library.state.error=podcastError(error);render();}}}},
+    identity(value,options={}) {if(session?.user?.id!==value?.user?.id){ownerRun++;close();source='de';resolvedPermalink=null;resolving=null;routeFlight=null;routeKey=null;}session=value;episodeView.identity(value);checking=!!options.checking&&!value?.user?.id;identityError=options.error||(options.checking?'Sitzung wird im Hintergrund geprüft …':'');config=options.config;library.identity(value);if(checking)library.pause();render();},
+    route:openRoute,
+    localize:()=>{if(library.state.route.kind==='job')episodeView.localize();else render();$('podcast-mode').onchange();const error=$('podcast-add-error');if(error.dataset.message)error.textContent=t(error.dataset.message);},
     pause:()=>library.pause()
   };
 }
 function timestamp(seconds){if(!Number.isFinite(seconds)||seconds<0)return '—';const value=Math.floor(seconds);return `${Math.floor(value/60)}:${String(value%60).padStart(2,'0')}`;}
-function sourceName(job){try{return new URL(job.source_url||job.url).hostname+' · '+(job.source_language||'de')+' → '+(job.target_language||'ru');}catch{return 'Importierte Folge';}}
+function sourceName(job){try{return new URL(job.source_url||job.url).hostname+' · '+(job.source_language||'de')+' → '+(job.target_language||'ru');}catch{return t('Importierte Folge');}}

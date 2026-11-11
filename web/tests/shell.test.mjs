@@ -21,7 +21,7 @@ test('minimal translator keeps accessible controls and history without enrichmen
 
 test('initial HTML is locked before scripts resolve and offers official in-place Apple sign-in', () => {
  for (const id of ['source-text','language-direction','swap','clear','add-prompt','translate']) assert.match(html,new RegExp(`<[^>]+id="${id}"[^>]*\\sdisabled(?:\\s|>)`),id);
- assert.match(html, /id="connection-action"[^>]*>[\s\S]*?src="\.\/apple-sign-in-de.png"/);
+ assert.match(html, /id="connection-action"[^>]*>[\s\S]*?src="\/apple-sign-in-de.png"/);
  assert.match(html, /id="connection-action-art"[^>]*hidden/);
 });
 

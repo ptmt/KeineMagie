@@ -3,13 +3,16 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import * as core from '../core.mjs';
+import * as episode from '../episode.mjs';
+import * as i18n from '../i18n.mjs';
+import { createEpisodeView } from '../episode-view.mjs';
 
 export async function harness({deferSession, deferHistory, deferProvider, config: configOverride, leanSession = false} = {}) {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const nodes = new Map();
   for (const tag of html.matchAll(/<[^>]+id="([^"]+)"[^>]*>/g)) {
     const listeners = {};
-    nodes.set(tag[1], { hidden: /\shidden(?:\s|>)/.test(tag[0]), value: '', textContent: '', disabled: false, open: false, children: [],
+    nodes.set(tag[1], { dataset:{}, hidden: /\shidden(?:\s|>)/.test(tag[0]), value: '', textContent: '', disabled: false, open: false, children: [],
       classList: { toggle() {} }, setAttribute() {}, removeAttribute() {}, replaceChildren() { this.children = []; }, append(...children) { this.children.push(...children); }, focus() {},
       addEventListener(type, fn) { listeners[type] = fn; },
       async dispatch(type) { await listeners[type]?.({ preventDefault() {} }); },
@@ -21,9 +24,10 @@ export async function harness({deferSession, deferHistory, deferProvider, config
   let userID = 'synthetic-user';
   const data = new Map();
   const storage = {getItem:key=>data.get(key) ?? null, setItem:(key,value)=>data.set(key,value)};
-  let provider = {connected:false};
+  let provider = {connected:false,status:'not_connected'};
   let items = [];
   let deferConnect;
+  let providerHTTPStatus = 200;
   const calls = [];
   const fetch = async (path, options) => {
     calls.push({path, options});
@@ -33,7 +37,7 @@ export async function harness({deferSession, deferHistory, deferProvider, config
     if (path === '/v1/web/session') { await deferSession?.(); if (signedIn) body = {user:{id:userID},csrf_token:'session-csrf',...(leanSession ? {} : {provider})}; else status = 401; }
     if (path === '/v1/web/logout') { signedIn = false; status = 204; }
     if (path === '/v1/translations') { await deferHistory?.(); body = {items}; }
-    if (path === '/v1/provider') { await deferProvider?.(); body = provider; }
+    if (path === '/v1/provider') { await deferProvider?.(); body = provider; status = providerHTTPStatus; }
     if (path === '/v1/podcasts/subscriptions') body = {items:[{id:'Feed_A',title:'Private podcast',episodes:[]}]};
     if (path === '/v1/podcasts') body = {items:[],worker_available:true};
     if (path === '/v1/provider/connect') body = await (deferConnect?.() ?? {bootstrap_token:'SYNTHETIC-ONLY',expires_in:300});
@@ -43,14 +47,15 @@ export async function harness({deferSession, deferHistory, deferProvider, config
   const links = [...html.matchAll(/<a href="#(translator|dictation|podcasts|coach)"[^>]*>([^<]+)<\/a>/g)].map(([,id,textContent]) => ({hash:`#${id}`,textContent,setAttribute(){},removeAttribute(){}}));
   const createElement = () => {
     const listeners = {};
-    return { children: [], append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
+    return { dataset:{}, children: [], append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
   };
   const events = {}, location = {hash:'#podcasts'};
-  const document = {hidden:false, addEventListener(type,fn){events[type]=fn;}, getElementById:id=>nodes.get(id), querySelectorAll:()=>links, createElement};
-  vm.runInNewContext(app, {...core, createAPI:()=>core.createAPI(fetch), document, window:{addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
+  const document = {hidden:false, addEventListener(type,fn){events[type]=fn;}, getElementById:id=>nodes.get(id), querySelectorAll:selector=>selector==='.section-nav a'?links:[], createElement};
+  i18n.setInterfaceLanguage('de');
+  vm.runInNewContext(app, {...core, ...episode, ...i18n, registerStaticInterface(){}, createEpisodeView:options=>createEpisodeView({...options,document}), createAPI:()=>core.createAPI(fetch), document, window:{addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
   const settle = () => new Promise(resolve=>setImmediate(resolve));
   await settle();
-  return {nodes, calls, settle, storage, events, document, location, signIn(value, id=userID){signedIn=value;userID=id;}, provider(value){provider=value;}, history(value){items=value;}, defer(fn){deferConnect=fn;}};
+  return {nodes, calls, settle, storage, events, document, location, signIn(value, id=userID){signedIn=value;userID=id;}, provider(value, status=200){provider=value;providerHTTPStatus=status;}, history(value){items=value;}, defer(fn){deferConnect=fn;}};
 }
 
 test('validated identity opens podcasts while history and provider discovery remain pending', async () => {
@@ -61,11 +66,44 @@ test('validated identity opens podcasts while history and provider discovery rem
  assert.ok(h.calls.some(c=>c.path==='/v1/podcasts/subscriptions'));
  assert.notEqual(h.nodes.get('podcast-notice').textContent,'Sitzung wird geprüft …');
  assert.ok(h.nodes.get('podcast-content').children.length);
- assert.equal(h.calls.some(c=>c.path==='/v1/provider'),false);
+ assert.equal(h.calls.some(c=>c.path==='/v1/provider'),true); // explicit recheck, unlike passive library opening
  await h.nodes.get('account').click();await h.settle();
  assert.ok(h.calls.some(c=>c.path==='/v1/provider'));
  assert.notEqual(h.nodes.get('podcast-notice').textContent,'Sitzung wird geprüft …');
  hold=false;releaseHistory?.();releaseProvider?.();await pending;
+});
+
+test('lean identity keeps unknown provider loading and explicit recheck fetches provider on podcasts', async () => {
+ const h=await harness({leanSession:true});const el=id=>h.nodes.get(id);
+ h.signIn(true);h.provider({connected:true,status:'connected',selected_model:'fixture-model'});
+ await el('retry-session').click();await h.settle();
+ assert.ok(h.calls.some(c=>c.path==='/v1/provider'));
+ assert.equal(el('provider-status').textContent,'Verbunden');
+ h.provider({connected:false,status:'reauthorization_required'});
+ await el('retry-session').click();await h.settle();
+ assert.equal(el('provider-status').textContent,'Nicht verbunden');
+});
+
+test('delayed real provider contract never presents unverified identity as disconnected', async () => {
+ let release;const h=await harness({leanSession:true,deferProvider:()=>new Promise(r=>release=r)});const el=id=>h.nodes.get(id);
+ h.signIn(true);h.provider({connected:true,status:'connected',selected_model:'fixture-model'});
+ const pending=el('retry-session').click();await h.settle();await el('account').click();await h.settle();
+ assert.equal(el('provider-status').textContent,'Verbindung wird geprüft …');
+ assert.doesNotMatch(el('connection-title').textContent,/verbinden/);
+ assert.equal(el('provider-connect').disabled,true);
+ release();await pending;await h.settle();assert.equal(el('provider-status').textContent,'Verbunden');
+});
+
+test('provider transport failure is unknown, retry recovers, and true HTTP 401 clears identity', async () => {
+ const h=await harness({leanSession:true});const el=id=>h.nodes.get(id);
+ h.signIn(true);h.provider({},503);await el('retry-session').click();
+ assert.equal(el('provider-status').textContent,'Verbindung konnte nicht geprüft werden');
+ assert.equal(el('provider-section').hidden,false);assert.equal(el('provider-connect').disabled,true);
+ assert.match(el('connection-title').textContent,/konnte nicht geprüft/);
+ h.provider({connected:true,status:'connected',selected_model:'offered-model'});await el('connection-action').click();
+ assert.equal(el('provider-status').textContent,'Verbunden');
+ h.provider({},401);await el('retry-session').click();assert.equal(el('provider-section').hidden,true);
+ assert.equal(el('podcast-content').children.length,0);
 });
 
 test('fresh focus and hash navigation reuse validated identity; concurrent refresh keeps podcasts visible', async () => {
@@ -110,7 +148,7 @@ test('guest and unresolved sessions disable translator controls and reject synth
 
 test('rechecking preserves only same-account drafts, blocks stale handlers and logout clears private text', async () => {
  let wait=false,release;const h=await harness({deferSession:()=>wait ? new Promise(resolve=>{release=resolve;}) : undefined});const el=id=>h.nodes.get(id);
- h.signIn(true,'owner-A');h.provider({connected:true,selected_model:'fixture-model'});await el('retry-session').click();
+ h.signIn(true,'owner-A');h.provider({connected:true,status:'connected',selected_model:'fixture-model'});await el('retry-session').click();
  el('source-text').value='Private draft';await el('source-text').dispatch('input');
  const oldChip=el('style-chips').children[1];await oldChip.click();
  await el('add-prompt').click();el('prompt-name').value='Unsaved';
@@ -238,7 +276,7 @@ test('catalog unavailable stays linked, blocks submits, preserves history and re
 test('sign-in artwork is locally served Apple-generated German artwork without an SDK or CSP exception', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(html, /id="apple-login"[^>]*aria-label="Mit Apple anmelden"/);
-  assert.match(html, /<img[^>]*src="\.\/apple-sign-in-de.png"[^>]*alt="Mit Apple anmelden"/);
+  assert.match(html, /<img[^>]*src="(?:\.\/|\/)apple-sign-in-de.png"[^>]*alt="Mit Apple anmelden"/);
   assert.match(html, /id="provider-section"[^>]*hidden/);
   assert.match(html, /id="close-account"[^>]*aria-label="[^"]+"[^>]*>.*?aria-hidden="true"/s);
   assert.doesNotMatch(html, //);

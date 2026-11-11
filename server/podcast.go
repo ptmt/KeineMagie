@@ -33,6 +33,9 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	suffix := strings.TrimPrefix(r.URL.Path, "/v1/podcasts")
+	if p.handlePermalink(w, r, owner, suffix) {
+		return
+	}
 	if p.handleSources(w, r, owner, suffix) {
 		return
 	}

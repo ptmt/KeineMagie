@@ -16,7 +16,7 @@ import (
 func TestTranslationInstructionsContract(t *testing.T) {
 	for _, account := range []bool{false, true} {
 		t.Run(map[bool]string{false: "legacy", true: "account"}[account], func(t *testing.T) {
-			cfg := &serverConfig{authToken: "legacy", apiKey: "fixture", historyPath: filepath.Join(t.TempDir(), "history.json")}
+			cfg := &serverConfig{authToken: "legacy", apiKey: "fixture", authPath: filepath.Join(t.TempDir(), "auth.json"), historyPath: filepath.Join(t.TempDir(), "history.json")}
 			cfg.httpClient = &http.Client{Transport: transportFunc(func(r *http.Request) (*http.Response, error) {
 				body := `{"choices":[{"message":{"content":` + strconvQuote(translationFixture) + `}}]}`
 				if strings.Contains(r.URL.Path, "models") {

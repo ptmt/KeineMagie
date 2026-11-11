@@ -7,9 +7,10 @@
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
   <title>Keine Magie · Übersetzer</title>
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./app.mjs" type="module"></script>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/episode.css">
+  <script src="/app.mjs" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Zum Inhalt</a>
@@ -21,7 +22,7 @@
       <a href="#podcasts">Podcasts</a>
       <a href="#coach">Coach</a>
     </nav>
-    <button id="account" class="account-button" aria-haspopup="dialog"><span id="account-indicator" class="status-dot" aria-hidden="true"></span><span id="account-label">Anmelden</span></button>
+    <div class="header-account"><label class="header-language"><span aria-hidden="true">🌐</span><span class="sr-only">Sprache</span><select id="interface-language-header" data-interface-language aria-label="Sprache"><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label><button id="account" class="account-button" aria-haspopup="dialog"><span id="account-indicator" class="status-dot" aria-hidden="true"></span><span id="account-label">Anmelden</span></button></div>
   </header>
   <main id="main">
     <section id="translator" aria-label="Übersetzer" tabindex="-1">
@@ -48,7 +49,7 @@
           </div>
         </div>
         <div class="translate-toolbar">
-          <div class="inline-status"><div id="connection-notice"><span id="connection-title">Sitzung wird geprüft …</span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="./apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div><p id="translation-status" role="status" aria-live="polite"></p></div>
+          <div class="inline-status"><div id="connection-notice"><span id="connection-title">Sitzung wird geprüft …</span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div><p id="translation-status" role="status" aria-live="polite"></p></div>
           <div class="translation-actions"><button id="cancel" type="button" class="quiet-button" hidden>Abbrechen</button><button id="translate" class="primary-button" type="submit" disabled>Übersetzen</button></div>
         </div>
       </form>
@@ -61,7 +62,7 @@
     <section id="podcasts" class="podcasts-page" aria-labelledby="podcasts-title" tabindex="-1" hidden>
       <div class="section-heading"><h1 id="podcasts-title">Podcasts</h1><div><button id="podcast-reload" class="quiet-button" disabled>Aktualisieren</button><button id="podcast-add" class="small-button" aria-label="Podcast hinzufügen" disabled>+</button></div></div>
       <div id="podcast-notice" role="status" aria-live="polite">Sitzung wird geprüft …</div>
-      <button id="podcast-signin" class="apple-button" hidden><img src="./apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
+      <button id="podcast-signin" class="apple-button" hidden><img src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
       <div id="podcast-content"></div>
     </section>
     <section id="coach" class="unavailable-page" aria-labelledby="coach-title" tabindex="-1" hidden>
@@ -91,8 +92,9 @@
   </dialog>
   <dialog id="account-dialog" aria-labelledby="account-title">
     <div class="dialog-heading"><h2 id="account-title">Anmelden</h2><button id="close-account" class="close-button" aria-label="Dialog schließen"><span aria-hidden="true">×</span></button></div>
+    <label class="account-language" for="interface-language-account"><span>Sprache</span><select id="interface-language-account" data-interface-language><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label>
     <div id="sign-in-options" class="sign-in-options">
-      <button id="apple-login" class="apple-button" aria-label="Mit Apple anmelden" disabled><img src="./apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
+      <button id="apple-login" class="apple-button" aria-label="Mit Apple anmelden" disabled><img src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
       <button id="pair-browser" class="pair-button" disabled>Mit iPhone anmelden</button>
       <div id="browser-pairing" hidden><p>Keine Magie auf deinem angemeldeten iPhone öffnen → Browser verbinden. Nur diesen eigenen Browser bestätigen. Der Code gilt fünf Minuten.</p><output id="pairing-code" aria-live="polite"></output><p id="pairing-status" role="status"></p></div>
     </div>

@@ -85,6 +85,7 @@ func newHandler(cfg *serverConfig) (http.Handler, error) {
 		return nil, err
 	}
 	mux := http.NewServeMux()
+	mux.HandleFunc("/v1/learning/", cfg.handleLearning)
 	mux.HandleFunc("/v1/podcasts", podcasts.handle)
 	mux.HandleFunc("/v1/podcasts/", podcasts.handle)
 	mux.HandleFunc("/", publicWeb)
