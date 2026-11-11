@@ -19,10 +19,11 @@ const podcastFeedEpisodes = 50
 var errPodcastNoAudio = errors.New("no extractable public audio: use an episode with HTML audio/og:audio or a public RSS/Atom feed; JavaScript, Spotify/Apple DRM and sign-in media are not supported")
 
 type podcastEpisode struct {
-	ID        string `json:"id"`
-	Title     string `json:"title"`
-	URL       string `json:"url"`
-	Published string `json:"published,omitempty"`
+	ID          string      `json:"id"`
+	Title       string      `json:"title"`
+	URL         string      `json:"url"`
+	Published   string      `json:"published,omitempty"`
+	Preparation *podcastJob `json:"preparation,omitempty"`
 }
 type podcastDiscovery struct {
 	URL                string           `json:"url"`
@@ -302,7 +303,7 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 				if entry.ID == "" {
 					entry.ID = entry.URL
 				}
-				if entry.URL != "" && !seenID[entry.ID] && !seenURL[entry.URL] && len(out.Episodes) < podcastFeedEpisodes {
+				if entry.URL != "" && !seenID[entry.ID] && len(out.Episodes) < podcastFeedEpisodes {
 					seenID[entry.ID] = true
 					seenURL[entry.URL] = true
 					// Opaque bounded ID, never expose arbitrary GUIDs as URL path identifiers.

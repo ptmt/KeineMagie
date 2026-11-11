@@ -16,6 +16,8 @@ class PodcastSurfaceTests(unittest.TestCase):
         self.assertIn('podcast-add', (ROOT / 'App/MainTabsView.swift').read_text())
         self.assertNotIn('TextField', library)
         self.assertNotIn('podcast.privacy', library)
+        self.assertNotIn('Section("podcast.subscriptions")', library)
+        self.assertNotIn('Text("podcast.subscriptions")', library)
 
     def test_clean_labels_and_new_copy_in_all_locales(self):
         strings = json.loads((ROOT / 'App/Localizable.xcstrings').read_text())['strings']

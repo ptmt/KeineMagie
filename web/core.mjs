@@ -9,7 +9,7 @@ export function validDirection(source, target) {
   return (source === 'de' && ['ru', 'de'].includes(target)) || (source === 'ru' && target === 'de');
 }
 
-export function inputPayload(text, source, instructions = '', target = source === 'de' ? 'ru' : 'de') {
+export function inputPayload(text, source = 'ru', instructions = '', target = source === 'de' ? 'ru' : 'de') {
   text = text.trim();
   if (!text || [...text].length > 8000) throw new Error('Enter text between 1 and 8000 characters.');
   if (!validDirection(source, target)) throw new Error('Unsupported language direction.');

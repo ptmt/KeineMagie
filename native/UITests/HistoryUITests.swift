@@ -34,6 +34,18 @@ final class HistoryUITests: XCTestCase {
         XCTAssertFalse(row.exists)
         XCTAssertTrue(app.cells.containing(.other, identifier: "history-row-synthetic-history-2").firstMatch.exists)
     }
+    @MainActor func testFreshLaunchDefaultsRussianToGermanAndForegroundKeepsChoice() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"
+        app.launchArguments = ["-AppleLanguages", "(en)"]
+        app.launch()
+        let picker = app.segmentedControls["translator-direction"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 10))
+        XCTAssertTrue(picker.buttons["Russian to German"].isSelected)
+        picker.buttons["German to Russian"].tap()
+        XCUIDevice.shared.press(.home); app.activate()
+        XCTAssertTrue(picker.buttons["German to Russian"].isSelected)
+    }
     @MainActor func testDirectionSwitchKeepsDraftAndUsesFullAccessibleNames() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"

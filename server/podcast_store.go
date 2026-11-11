@@ -20,6 +20,10 @@ type podcastJob struct {
 	ID             string           `json:"id"`
 	Owner          string           `json:"-"`
 	URL            string           `json:"url"`
+	FeedID         string           `json:"feed_id,omitempty"`
+	EpisodeID      string           `json:"episode_id,omitempty"`
+	Title          string           `json:"title,omitempty"`
+	SourceURL      string           `json:"source_url,omitempty"`
 	SourceLanguage string           `json:"source_language"`
 	TargetLanguage string           `json:"target_language"`
 	State          string           `json:"state"`
@@ -157,11 +161,98 @@ func podcastReserve(d *podcastData, owner string, now time.Time) error {
 	return nil
 }
 func (s *podcastStore) create(owner, raw, source string, now time.Time) (podcastJob, error) {
+	return s.createEpisode(owner, raw, source, "", "", "", now)
+}
+func (s *podcastStore) createEpisode(owner, raw, source, feedID, episodeID, sourceURL string, now time.Time) (podcastJob, error) {
+	return s.episode(owner, raw, source, feedID, episodeID, sourceURL, now, false, nil)
+}
+
+// Lookup and admission share one identity path. Admission runs only for a genuinely
+// new job, under the durable store lock, before reserving any budget.
+func (s *podcastStore) episode(owner, raw, source, feedID, episodeID, sourceURL string, now time.Time, lookupOnly bool, admit func() error) (podcastJob, error) {
 	var job podcastJob
 	e := s.lock.locked(func() error {
 		d, e := s.read()
 		if e != nil {
 			return e
+		}
+		title := ""
+		if feedID != "" || episodeID != "" {
+			found := false
+			for _, sub := range d.Subscriptions {
+				if sub.Owner != owner || sub.ID != feedID {
+					continue
+				}
+				for _, ep := range sub.Episodes {
+					if ep.ID == episodeID {
+						raw, title, found = ep.URL, ep.Title, true
+						break
+					}
+				}
+			}
+			if !found {
+				return errPodcastNotFound
+			}
+		} else {
+			// Associate legacy enclosure imports only when unambiguous. Different
+			// GUIDs may legitimately share audio and must remain distinct.
+			matches := 0
+			for _, sub := range d.Subscriptions {
+				if sub.Owner == owner {
+					for _, ep := range sub.Episodes {
+						if ep.URL == raw {
+							matches++
+							feedID, episodeID, title = sub.ID, ep.ID, ep.Title
+						}
+					}
+				}
+			}
+			if matches != 1 {
+				feedID, episodeID, title = "", "", ""
+			}
+		}
+		candidate := podcastJob{Owner: owner, URL: raw, SourceLanguage: source, FeedID: feedID, EpisodeID: episodeID}
+		best := -1
+		for i, existing := range d.Jobs {
+			sameSource := sourceURL != "" && sourceURL != raw && existing.Owner == owner && existing.SourceLanguage == source && existing.FeedID == "" && existing.SourceURL == "" && existing.URL == sourceURL
+			if (podcastSameEpisode(storedPodcast(existing), candidate) || sameSource) && (best < 0 || podcastIdentityRank(existing.State) > podcastIdentityRank(d.Jobs[best].State)) {
+				best = i
+			}
+		}
+		if best >= 0 {
+			j := &d.Jobs[best]
+			changed := false
+			if j.FeedID == "" && j.SourceURL == "" && sourceURL != "" && sourceURL != raw && j.URL == sourceURL {
+				// Only the exact same supplied page proves this historical alias.
+				// Do not rewrite a live worker's input or infer aliases by title.
+				if j.Claim == "" {
+					j.URL, j.SourceURL = raw, sourceURL
+					changed = true
+				}
+			}
+			if j.SourceURL == "" && sourceURL != "" && sourceURL != raw && feedID == "" && j.URL == raw {
+				j.SourceURL = sourceURL
+				changed = true
+			}
+			if j.FeedID == "" && feedID != "" {
+				j.FeedID, j.EpisodeID, j.Title = feedID, episodeID, title
+				changed = true
+			}
+			if changed {
+				if e := s.write(d); e != nil {
+					return e
+				}
+			}
+			job = storedPodcast(*j)
+			return nil
+		}
+		if lookupOnly {
+			return nil
+		}
+		if admit != nil {
+			if e := admit(); e != nil {
+				return e
+			}
 		}
 		if e = podcastReserve(&d, owner, now); e != nil {
 			return e
@@ -170,7 +261,7 @@ func (s *podcastStore) create(owner, raw, source string, now time.Time) (podcast
 		if source == "ru" {
 			target = "de"
 		}
-		job = podcastJob{ID: randomAuthToken(), Owner: owner, URL: raw, SourceLanguage: source, TargetLanguage: target, State: "queued", CreatedAt: now.UTC(), UpdatedAt: now.UTC(), Segments: []podcastSegment{}}
+		job = podcastJob{ID: randomAuthToken(), Owner: owner, URL: raw, FeedID: feedID, EpisodeID: episodeID, Title: title, SourceURL: sourceURL, SourceLanguage: source, TargetLanguage: target, State: "queued", CreatedAt: now.UTC(), UpdatedAt: now.UTC(), Segments: []podcastSegment{}}
 		d.Jobs = append(d.Jobs, podcastStoredJob{podcastJob: job, Owner: owner})
 		return s.write(d)
 	})
@@ -214,7 +305,13 @@ func (s *podcastStore) mutate(owner, id, action string, now time.Time) (podcastJ
 			}
 			switch action {
 			case "retry":
-				if j.State != "failed" || j.Attempts >= 3 {
+				for k, other := range d.Jobs {
+					if k != i && podcastSameEpisode(storedPodcast(other), storedPodcast(*j)) && (podcastActive(other.State) || other.State == "completed") {
+						job = storedPodcast(other)
+						return nil
+					}
+				}
+				if (j.State != "failed" && j.State != "canceled") || j.Attempts >= 3 {
 					return errors.New("only failed jobs with fewer than three attempts can retry")
 				}
 				// Exclude this retained item from the capacity count while reserving a retry.
@@ -266,6 +363,36 @@ func (s *podcastStore) claim(now time.Time) (podcastJob, error) {
 			j := &d.Jobs[i]
 			if j.State != "queued" && !(podcastActive(j.State) && now.After(j.Lease)) {
 				continue
+			}
+			canonical := true
+			for k, other := range d.Jobs {
+				if k == i || !podcastSameEpisode(storedPodcast(other), storedPodcast(*j)) {
+					continue
+				}
+				if other.State == "completed" || podcastIdentityRank(other.State) > podcastIdentityRank(j.State) || (podcastIdentityRank(other.State) == podcastIdentityRank(j.State) && k < i) {
+					canonical = false
+					break
+				}
+			}
+			if !canonical {
+				j.State = "failed"
+				j.Error = "duplicate episode retained; use its existing preparation (no worker attempt spent)"
+				j.Claim, j.Lease = "", time.Time{}
+				j.UpdatedAt = now.UTC()
+				changed = true
+				continue
+			}
+			// Settle historical queued twins in the same write as the claim, so a
+			// fast canonical failure cannot cause the next poll to run a twin.
+			for k := range d.Jobs {
+				other := &d.Jobs[k]
+				if k != i && other.State == "queued" && podcastSameEpisode(storedPodcast(*other), storedPodcast(*j)) {
+					other.State = "failed"
+					other.Error = "duplicate episode retained; use its existing preparation (no worker attempt spent)"
+					other.Claim, other.Lease = "", time.Time{}
+					other.UpdatedAt = now.UTC()
+					changed = true
+				}
 			}
 			if j.Attempts >= 3 {
 				j.State = "failed"

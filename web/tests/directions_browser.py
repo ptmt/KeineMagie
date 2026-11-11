@@ -36,6 +36,7 @@ def check(name, expression):
     assert value is True, (name, value)
     checks.append(name)
 
+check('fresh ru-de default and matching input/output languages', "document.querySelector('#language-direction').value==='ru-de' && document.querySelector('#source-text').lang==='ru' && document.querySelector('#result').lang==='de'")
 check('compact accessible three-direction menu', "JSON.stringify([...document.querySelector('#language-direction').options].map(o=>o.textContent))===JSON.stringify(['de → ru','ru → de','de → de']) && document.querySelector('option[value=de-de]').getAttribute('aria-label')==='Deutsch verbessern'")
 for direction, source, target, swapped in [('de-ru', 'de', 'ru', 'ru-de'), ('ru-de', 'ru', 'de', 'de-ru'), ('de-de', 'de', 'de', 'de-de')]:
     js(f"document.querySelector('#language-direction').value='{direction}';document.querySelector('#language-direction').dispatchEvent(new Event('change'));document.querySelector('#style-chips button:nth-child(3)').click()")

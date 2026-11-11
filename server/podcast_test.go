@@ -81,8 +81,11 @@ func TestPodcastAuthenticatedIsolationAndDisabledWorker(t *testing.T) {
 	if w := authCall(h, "GET", "/v1/podcasts", "", owner); w.Code != 200 || !strings.Contains(w.Body.String(), job.ID) || !strings.Contains(w.Body.String(), `"worker_available":false`) {
 		t.Fatalf("list %d %s", w.Code, w.Body.String())
 	}
-	if w := authCall(h, "POST", "/v1/podcasts", `{"url":"https://example.com/episode.mp3","source_language":"de"}`, owner); w.Code != 503 {
-		t.Fatalf("disabled worker %d", w.Code)
+	if w := authCall(h, "POST", "/v1/podcasts", `{"url":"https://example.com/episode.mp3","source_language":"de"}`, owner); w.Code != 202 {
+		t.Fatalf("existing job with disabled worker %d", w.Code)
+	}
+	if w := authCall(h, "POST", "/v1/podcasts", `{"url":"https://example.com/new.mp3","source_language":"de"}`, owner); w.Code != 503 {
+		t.Fatalf("new job with disabled worker %d", w.Code)
 	}
 }
 func TestPodcastCancelFencesStaleClaim(t *testing.T) {
@@ -263,7 +266,7 @@ func TestPodcastBudgetsPersistAcrossReopen(t *testing.T) {
 	s, _ := openPodcastStore(path)
 	now := time.Now()
 	for i := 0; i < 4; i++ {
-		j, e := s.create("owner", "https://example.com/a.mp3", "de", now)
+		j, e := s.create("owner", "https://example.com/"+string(rune('a'+i))+".mp3", "de", now)
 		if e != nil {
 			t.Fatal(e)
 		}
@@ -272,7 +275,7 @@ func TestPodcastBudgetsPersistAcrossReopen(t *testing.T) {
 		}
 	}
 	s, _ = openPodcastStore(path)
-	if _, e := s.create("owner", "https://example.com/a.mp3", "de", now); e != errPodcastLimit {
+	if _, e := s.create("owner", "https://example.com/new.mp3", "de", now); e != errPodcastLimit {
 		t.Fatalf("budget %v", e)
 	}
 	if _, e := s.create("other", "https://example.com/a.mp3", "de", now); e != nil {

@@ -52,13 +52,11 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 			writeJSON(w, 200, map[string]any{"items": jobs, "worker_available": p.ready() == nil, "supported_sources": []string{"direct_audio", "html_audio", "rss", "atom"}, "max_duration_seconds": limits.duration, "max_bytes": limits.bytes})
 			return
 		case "POST":
-			if p.ready() != nil {
-				writeError(w, 503, "local podcast worker unavailable; administrator must enable installed Whisper/ffmpeg worker")
-				return
-			}
 			var input struct {
-				URL    string `json:"url"`
-				Source string `json:"source_language"`
+				URL       string `json:"url"`
+				Source    string `json:"source_language"`
+				FeedID    string `json:"feed_id,omitempty"`
+				EpisodeID string `json:"episode_id,omitempty"`
 			}
 			d := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096))
 			defer r.Body.Close()
@@ -71,25 +69,72 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 				writeError(w, 400, "source_language must be de or ru")
 				return
 			}
-			if _, e := podcastURL(input.URL); e != nil {
-				writeError(w, 400, e.Error())
-				return
+			if input.FeedID == "" && input.EpisodeID == "" {
+				if _, e := podcastURL(input.URL); e != nil {
+					writeError(w, 400, e.Error())
+					return
+				}
+			} else {
+				if _, e := p.store.subscription(owner, input.FeedID); e != nil {
+					podcastHTTPError(w, e)
+					return
+				}
+				// Feed identity uses only server-owned metadata, never caller aliases.
+				input.URL = ""
 			}
-			// Fail before ingestion if this owner has not explicitly connected a provider.
-			unlock, e := p.cfg.provider.lockOwner(r.Context(), owner)
-			if e != nil {
-				writeError(w, 408, "request canceled")
-				return
+			admit := func() error {
+				if p.ready() != nil {
+					writeError(w, 503, "local podcast worker unavailable")
+					return errors.New("admission rejected")
+				}
+				// Credentials are atomically replaced on disk. Do not take the owner
+				// lock under the podcast lock: translation takes them in reverse order.
+				c, e := p.cfg.provider.load(owner)
+				if e != nil || c.AccessToken == "" {
+					writeError(w, 503, "connect your personal ChatGPT account first")
+					return errors.New("admission rejected")
+				}
+				return nil
 			}
-			c, e := p.cfg.provider.load(owner)
-			unlock()
-			if e != nil || c.AccessToken == "" {
-				writeError(w, 503, "connect your personal ChatGPT account first")
-				return
-			}
-			job, e := p.store.create(owner, input.URL, input.Source, time.Now())
+			raw := input.URL
+			existing, e := p.store.episode(owner, raw, input.Source, input.FeedID, input.EpisodeID, input.URL, time.Now(), true, nil)
 			if e != nil {
 				podcastHTTPError(w, e)
+				return
+			}
+			if existing.ID != "" {
+				writeJSON(w, 202, existing)
+				return
+			}
+			if input.FeedID == "" && input.EpisodeID == "" {
+				// Cached validated aliases let repeated requests survive source outages.
+				jobs, err := p.store.list(owner)
+				if err != nil {
+					podcastHTTPError(w, err)
+					return
+				}
+				for _, j := range jobs {
+					if j.SourceLanguage == input.Source && (j.SourceURL == raw || j.URL == raw) {
+						writeJSON(w, 202, j)
+						return
+					}
+				}
+				raw, e = p.resolveImport(r.Context(), raw)
+				if e != nil {
+					writeError(w, 400, "source audio unavailable")
+					return
+				}
+			}
+			admissionRejected := false
+			job, e := p.store.episode(owner, raw, input.Source, input.FeedID, input.EpisodeID, input.URL, time.Now(), false, func() error {
+				err := admit()
+				admissionRejected = err != nil
+				return err
+			})
+			if e != nil {
+				if !admissionRejected {
+					podcastHTTPError(w, e)
+				}
 				return
 			}
 			writeJSON(w, 202, job)

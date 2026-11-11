@@ -191,6 +191,7 @@ let package = Package(name:"Lifecycle",platforms:[.macOS(.v14)],dependencies:[.p
 ''' % (ROOT/'Core'))
         app = (ROOT/'App/AppModel.swift').read_text().replace('import SwiftUI','import Foundation\nimport Observation')
         (p/'Sources/Lifecycle/AppModel.swift').write_text(app)
+        (p/'Sources/Lifecycle/PodcastStore.swift').write_text((ROOT/'App/PodcastStore.swift').read_text())
         (p/'Sources/Lifecycle/Stubs.swift').write_text('''import Foundation
 struct ChatGPTBrowser: Identifiable { let id = UUID(); let url: URL }
 enum TokenStore { static func read() throws -> String { fatalError("Keychain forbidden") }; static func save(_ s:String) throws { fatalError("Keychain forbidden") } }
@@ -198,6 +199,7 @@ enum ProductIdentity { static let defaultServerURL = "https://synthetic.invalid"
 enum AppL10n { static func text(_ key:String) -> String { key } }
 ''')
         (p/'Tests/LifecycleTests/LifecycleTests.swift').write_text(HARNESS)
+        (p/'Tests/LifecycleTests/DatasetTests.swift').write_text((ROOT/'ci/dataset_harness.swift').read_text())
         subprocess.run(['swift','test','--package-path',temp],check=True)
 
 class ConnectionLifecycleTests(unittest.TestCase):

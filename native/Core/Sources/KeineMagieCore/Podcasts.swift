@@ -23,14 +23,14 @@ public struct PodcastShareURL: Sendable {
         }
     }
 }
-public struct PodcastSegment: Decodable, Sendable, Identifiable {
+public struct PodcastSegment: Codable, Sendable, Identifiable {
     public var id: Double { start }
     public let start: Double
     public let end: Double
     public let text: String
     public let translation: String?
 }
-public struct PodcastJob: Decodable, Sendable, Identifiable {
+public struct PodcastJob: Codable, Sendable, Identifiable {
     public let id: String
     public let url: String
     public let sourceLanguage: String
@@ -39,19 +39,37 @@ public struct PodcastJob: Decodable, Sendable, Identifiable {
     public let progress: Int
     public let error: String?
     public let segments: [PodcastSegment]
-    public var active: Bool { ["queued", "fetching", "transcribing", "translating"].contains(state) }
+    public let feedID: String?
+    public let episodeID: String?
+    public let sourceURL: String?
+    public let episodeTitle: String?
+    public var displayProgress: Double? { active && progress > 0 && progress < 100 ? Double(progress) / 100 : nil }
+    public func belongs(to episode: PodcastEpisode, feedID: String) -> Bool {
+        if let linked = self.feedID, let episodeID { return linked == feedID && episodeID == episode.id }
+        return Self.canonical(sourceURL ?? url) == Self.canonical(episode.url)
+    }
+    private static func canonical(_ value: String) -> String {
+        guard var parts = URLComponents(string: value) else { return value }
+        parts.fragment = nil; parts.host = parts.host?.lowercased(); parts.scheme = parts.scheme?.lowercased()
+        if (parts.scheme == "https" && parts.port == 443) || (parts.scheme == "http" && parts.port == 80) { parts.port = nil }
+        return parts.string ?? value
+    }
+    public var active: Bool { ["queued", "fetching", "downloading", "transcribing", "translating"].contains(state) }
     enum CodingKeys: String, CodingKey {
         case id, url, state, progress, error, segments
+        case feedID = "feed_id", episodeID = "episode_id", sourceURL = "source_url", episodeTitle = "episode_title"
         case sourceLanguage = "source_language", targetLanguage = "target_language"
     }
 }
-public struct PodcastEpisode: Decodable, Sendable, Identifiable {
+public struct PodcastEpisode: Codable, Sendable, Identifiable {
     public let id: String
     public let title: String
     public let url: String
     public let published: String?
+    public let duration: String?
+    public let preparation: PodcastJob?
 }
-public struct PodcastSubscription: Decodable, Sendable, Identifiable {
+public struct PodcastSubscription: Codable, Sendable, Identifiable {
     public let id: String
     public let url: String
     public let title: String
@@ -63,15 +81,15 @@ public struct PodcastSubscription: Decodable, Sendable, Identifiable {
         case artworkURL = "artwork_url", latestEpisodeTitle = "latest_episode_title"
     }
 }
-public struct PodcastSubscriptions: Decodable, Sendable {
+public struct PodcastSubscriptions: Codable, Sendable {
     public let items: [PodcastSubscription]
 }
-public struct PodcastDiscovery: Decodable, Sendable {
+public struct PodcastDiscovery: Codable, Sendable {
     public let url: String
     public let title: String
     public let episodes: [PodcastEpisode]
 }
-public struct PodcastLibrary: Decodable, Sendable {
+public struct PodcastLibrary: Codable, Sendable {
     public let items: [PodcastJob]
     public let workerAvailable: Bool
     enum CodingKeys: String, CodingKey { case items; case workerAvailable = "worker_available" }
@@ -92,12 +110,14 @@ public struct PodcastAPI: Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         return request
     }
-    public func importRequest(url: String, source: String) throws -> URLRequest {
+    public func importRequest(url: String, source: String, feedID: String? = nil, episodeID: String? = nil) throws -> URLRequest {
         let value = try PodcastShareURL(url)
         guard ["de", "ru"].contains(source) else { throw APIError.invalidResponse }
         var request = try request(method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONEncoder().encode(["url": value.url.absoluteString, "source_language": source])
+        var body = ["url": value.url.absoluteString, "source_language": source]
+        body["feed_id"] = feedID; body["episode_id"] = episodeID
+        request.httpBody = try JSONEncoder().encode(body)
         return request
     }
     public func subscriptionRequest(url: String) throws -> URLRequest {
@@ -141,8 +161,8 @@ public struct PodcastAPI: Sendable {
     public func library() async throws -> PodcastLibrary {
         try JSONDecoder().decode(PodcastLibrary.self, from: await send(request()))
     }
-    public func enqueue(url: String, source: String) async throws -> PodcastJob {
-        try JSONDecoder().decode(PodcastJob.self, from: await send(importRequest(url: url, source: source)))
+    public func enqueue(url: String, source: String, feedID: String? = nil, episodeID: String? = nil) async throws -> PodcastJob {
+        try JSONDecoder().decode(PodcastJob.self, from: await send(importRequest(url: url, source: source, feedID: feedID, episodeID: episodeID)))
     }
     public func action(id: String, action: String) async throws {
         guard id.range(of: "^[A-Za-z0-9_-]{20,128}$", options: .regularExpression) != nil,

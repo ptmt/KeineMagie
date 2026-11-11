@@ -27,7 +27,7 @@
     <section id="translator" aria-label="Übersetzer" tabindex="-1">
       <form id="translation-form">
         <div class="language-bar">
-          <select id="language-direction" disabled aria-label="Sprachrichtung"><option value="de-ru" aria-label="Deutsch nach Russisch">de → ru</option><option value="ru-de" aria-label="Russisch nach Deutsch">ru → de</option><option value="de-de" aria-label="Deutsch verbessern" title="Deutsch verbessern">de → de</option></select>
+          <select id="language-direction" disabled aria-label="Sprachrichtung"><option value="de-ru" aria-label="Deutsch nach Russisch">de → ru</option><option value="ru-de" aria-label="Russisch nach Deutsch" selected>ru → de</option><option value="de-de" aria-label="Deutsch verbessern" title="Deutsch verbessern">de → de</option></select>
           <button id="swap" disabled type="button" class="swap-button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
         </div>
         <div id="style-controls" class="style-controls" hidden>
@@ -37,12 +37,12 @@
         <div class="translation-panels">
           <div class="input-panel">
             <div class="panel-top"><label for="source-text">Dein Text</label><button id="clear" disabled type="button" class="quiet-button">Leeren</button></div>
-            <textarea id="source-text" disabled name="text" placeholder="Text eingeben …" spellcheck="true" aria-describedby="input-count" lang="de"></textarea>
+            <textarea id="source-text" disabled name="text" placeholder="Text eingeben …" spellcheck="true" aria-describedby="input-count" lang="ru"></textarea>
             <div class="panel-bottom"><span id="input-count">0 / 8.000</span><span class="keyboard-hint">⌘ / Ctrl + Enter</span></div>
           </div>
           <div class="output-panel">
             <div class="panel-top"><span id="result-label">Übersetzung</span><button id="copy" type="button" class="quiet-button" disabled>Kopieren</button></div>
-            <div id="result" class="translation-output" role="region" aria-labelledby="result-label" aria-live="polite" lang="ru"></div>
+            <div id="result" class="translation-output" role="region" aria-labelledby="result-label" aria-live="polite" lang="de"></div>
             <div class="panel-bottom"><span id="result-caption"></span></div>
           </div>
         </div>

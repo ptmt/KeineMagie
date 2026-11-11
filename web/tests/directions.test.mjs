@@ -3,6 +3,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import * as core from '../core.mjs';
 
+test('fresh translator defaults Russian to German without changing explicit directions', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /<option[^>]+value="ru-de"[^>]*\sselected(?:\s|>)/);
+  assert.match(html, /id="source-text"[^>]+lang="ru"/);
+  assert.match(html, /id="result"[^>]+lang="de"/);
+  assert.deepEqual(core.inputPayload(' Текст '), { text: 'Текст', source_language: 'ru', target_language: 'de' });
+  assert.deepEqual(core.inputPayload('Text', 'de'), { text: 'Text', source_language: 'de', target_language: 'ru' });
+});
+
 test('German proofreading submits equal languages with the selected style', () => {
   assert.deepEqual(core.inputPayload(' Ich habe ein frage. ', 'de', 'Bitte formell.', 'de'), {
     text: 'Ich habe ein frage.', source_language: 'de', target_language: 'de', instructions: 'Bitte formell.'

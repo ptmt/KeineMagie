@@ -7,6 +7,8 @@ import KeineMagieCore
 actor SimulatorSessionFixture {
     private var validations = 0
     private var podcastRefreshed = false
+    private var preparedJob: [String: Any]?
+    private var prepareRequests = 0
     private let mode: String
     private func podcastFeed() -> [String: Any] {
         ["id": "synthetic-feed-000000001", "url": "https://audio.example/feed.xml", "title": "Synthetic language podcast", "artwork_url": "https://audio.example/cover.png?v=5", "latest_episode_title": "Synthetic latest episode", "episodes": [["id": "episode-one", "title": podcastRefreshed ? "Synthetic refreshed episode" : "Synthetic episode one", "url": "https://audio.example/episode.mp3", "published": "2026-11-10"]]]
@@ -17,7 +19,14 @@ actor SimulatorSessionFixture {
     init(mode: String) { self.mode = mode }
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
     func send(_ request: URLRequest) async throws -> AuthResponse {
-        if mode.hasPrefix("history-"), let path = request.url?.path, path.hasPrefix("/v1/history/") {
+        if mode == "cache-delayed-error", ["/v1/translations", "/v1/podcasts", "/v1/podcasts/subscriptions"].contains(request.url?.path ?? "") {
+            try await Task.sleep(for: .seconds(10))
+            return AuthResponse(data: Data(), status: 503)
+        }
+        if mode == "delayed-populated", ["/v1/translations", "/v1/podcasts", "/v1/podcasts/subscriptions"].contains(request.url?.path ?? "") {
+            try await Task.sleep(for: .seconds(15))
+        }
+        if mode.hasPrefix("history-") || mode.hasPrefix("cache-"), let path = request.url?.path, path.hasPrefix("/v1/history/") {
             try await Task.sleep(for: .milliseconds(700))
             if mode == "history-failure" { return AuthResponse(data: Data(), status: 503) }
             let id = String(path.dropFirst("/v1/history/".count))
@@ -37,7 +46,7 @@ actor SimulatorSessionFixture {
             let user = mode == "account-change" && validations > 1 ? "synthetic-account-B" : "synthetic-ui-fixture"
             return AuthResponse(data: Data("{\"user\":{\"id\":\"\(user)\"},\"expires_at\":\"2099-12-01T12:00:00Z\"}".utf8), status: 200)
         case "/v1/translations":
-            if mode.hasPrefix("history-") {
+            if mode.hasPrefix("history-") || mode.hasPrefix("cache-") {
                 return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": historyItems]), status: 200)
             }
             if mode == "account-change" && request.httpMethod == "POST" {
@@ -52,17 +61,28 @@ actor SimulatorSessionFixture {
             return AuthResponse(data: Data("{\"connected\":\(connected),\"status\":\"\(connected ? "connected" : "disconnected")\",\"message\":\"Synthetic simulator fixture — no Apple or ChatGPT login\"}".utf8), status: 200)
         case "/v1/podcasts":
             if request.httpMethod == "POST" {
+                if mode == "podcast-prepare" {
+                    prepareRequests += 1
+                    guard prepareRequests == 1 else { return AuthResponse(data: Data(), status: 409) }
+                    try await Task.sleep(for: .seconds(6))
+                    guard prepareRequests == 1 else { return AuthResponse(data: Data(), status: 409) }
+                    var job = Self.job(2)
+                    job["feed_id"] = "synthetic-feed-000000001"; job["episode_id"] = "episode-one"
+                    job["source_url"] = "https://audio.example/episode.mp3"
+                    preparedJob = job
+                    return AuthResponse(data: try JSONSerialization.data(withJSONObject: job), status: 202)
+                }
                 if mode == "podcast-failure" { return AuthResponse(data: Data(), status: 503) }
                 try? await Task.sleep(for: .seconds(mode == "account-change" ? 7 : 1))
                 return AuthResponse(data: try JSONSerialization.data(withJSONObject: Self.job(1)), status: 200)
             }
-            let populated = mode == "podcast-populated" || (mode == "account-change" && validations == 1)
-            let items = populated ? (1...18).map { Self.job($0) } : []
+            let populated = ["podcast-populated", "delayed-populated", "cache-populated"].contains(mode)
+            let items = populated ? (1...18).map { Self.job($0) } : preparedJob.map { [$0] } ?? []
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": items, "worker_available": true]), status: 200)
         case "/v1/podcasts/subscriptions":
             let feed = podcastFeed()
             if request.httpMethod == "POST" { return AuthResponse(data: try JSONSerialization.data(withJSONObject: feed), status: 200) }
-            let items = ["podcast-populated", "podcast-refresh-failure"].contains(mode) ? [feed] : []
+            let items = ["podcast-populated", "podcast-refresh-failure", "delayed-populated", "podcast-prepare", "cache-populated"].contains(mode) ? [feed] : []
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": items]), status: 200)
         case "/v1/podcasts/subscriptions/synthetic-feed-000000001/refresh":
             try await Task.sleep(for: .milliseconds(700))

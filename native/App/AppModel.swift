@@ -4,17 +4,93 @@ import KeineMagieCore
 @MainActor @Observable
 final class AppModel {
     let session: SessionController
+    var podcasts = PodcastStore()
+    private(set) var historyPhase: DatasetPhase = .idle
+    private(set) var historyLoadError: String?
+    func podcastAPI() throws -> PodcastAPI {
+        guard session.phase == .signedIn else { throw APIError.http(401) }
+        if let injectedPodcastClient { return injectedPodcastClient }
+        #if targetEnvironment(simulator)
+        if let fixtureTransport { return PodcastAPI(endpoint: try ServerEndpoint(session.serverURL), token: "synthetic-session-not-a-credential", transport: fixtureTransport) }
+        #endif
+        return PodcastAPI(endpoint: try ServerEndpoint(session.serverURL, allowLocalHTTP: Self.allowLocalHTTP), token: try TokenStore.read())
+    }
+    func preparePodcast(_ episode: PodcastEpisode, feedID: String, source: String) {
+        let version = session.generation
+        guard let client = try? podcastAPI() else { return }
+        podcasts.prepare(episode, feedID: feedID, source: source, client: client, current: {
+            self.session.phase == .signedIn && self.session.generation == version
+        }, didChange: { await self.persistPodcasts() })
+    }
+    func refreshPodcasts() async {
+        let version = session.generation
+        guard let client = try? podcastAPI() else { return }
+        await podcasts.refresh(client: client) { !Task.isCancelled && self.session.phase == .signedIn && self.session.generation == version }
+        if !Task.isCancelled, version == session.generation { await persistPodcasts() }
+    }
+    private func persistPodcasts() async {
+        guard let data = try? JSONEncoder().encode(PodcastSnapshot(jobs: podcasts.jobs, subscriptions: podcasts.subscriptions)) else { return }
+        await persist(data, dataset: "podcasts")
+    }
+    private func persistHistory() async {
+        guard let data = try? JSONEncoder().encode(history) else { return }
+        await persist(data, dataset: "history")
+    }
+    private func persist(_ data: Data, dataset: String) async {
+        guard let lease = cacheSession() else { return }
+        cacheRevision += 1
+        let revision = cacheRevision
+        try? await contentCache.save(data, dataset: dataset, session: lease, revision: revision)
+    }
+    private var cacheLease: ContentCacheSession?
+    private var cacheGeneration: Int?
+    private var cacheRevision = 0
+    private func cacheSession() -> ContentCacheSession? {
+        guard cacheEnabled, session.phase == .signedIn, let owner = session.user?.id else { return nil }
+        if cacheGeneration != session.generation {
+            cacheLease?.invalidate()
+            cacheLease = contentCache.openSession(server: session.serverURL, owner: owner)
+            cacheGeneration = session.generation; cacheRevision = 0
+        }
+        return cacheLease
+    }
+    private var cacheEnabled: Bool {
+        #if targetEnvironment(simulator)
+        return fixtureTransport == nil || ProcessInfo.processInfo.environment["KM_SIMULATOR_CACHE_NAMESPACE"].flatMap(UUID.init(uuidString:)) != nil
+        #else
+        return true
+        #endif
+    }
+    private var contentCache = ContentCache()
+    private var injectedPodcastClient: PodcastAPI?
+    private struct PodcastSnapshot: Codable { let jobs: [PodcastJob]; let subscriptions: [PodcastSubscription] }
+    func warmData() async {
+        let version = session.generation
+        let snapshot = historyState.snapshot()
+        _ = cacheSession()
+        if cacheEnabled, let owner = session.user?.id {
+            let server = session.serverURL
+            let historyData = try? await contentCache.load(dataset: "history", server: server, owner: owner)
+            let podcastData = try? await contentCache.load(dataset: "podcasts", server: server, owner: owner)
+            guard !Task.isCancelled, session.generation == version, session.phase == .signedIn else { return }
+            if let historyData, let records = try? JSONDecoder().decode([TranslationRecord].self, from: historyData) { historyState.apply(records, since: snapshot); historyPhase = .loaded }
+            if podcasts.phase == .idle, podcasts.jobs.isEmpty, let podcastData, let snapshot = try? JSONDecoder().decode(PodcastSnapshot.self, from: podcastData) { podcasts.jobs = snapshot.jobs; podcasts.subscriptions = snapshot.subscriptions; podcasts.phase = .loaded }
+        }
+        async let translator: () = refreshTranslator()
+        async let podcast: () = refreshPodcasts()
+        _ = await (translator, podcast)
+    }
     private(set) var input = ""
     private(set) var result: TranslationRecord?
     private(set) var historyState = HistoryState()
     var history: [TranslationRecord] { historyState.records }
     private(set) var historyErrors: [String: String] = [:]
     private var historyTasks: [String: Task<Void, Never>] = [:]
-    func historyBusy(_ id: String) -> Bool { historyState.isMutating(id) }
+    func historyBusy(_ id: String) -> Bool { historyState.isMutating(id) || historyTasks[id] != nil }
     func deleteHistory(_ item: TranslationRecord) { mutateHistory(item, favorite: nil) }
     func toggleHistoryFavorite(_ item: TranslationRecord) { mutateHistory(item, favorite: !item.favorite) }
     private func mutateHistory(_ item: TranslationRecord, favorite: Bool?) {
-        guard session.phase == .signedIn, let mutation = historyState.beginMutation(id: item.id) else { return }
+        guard session.phase == .signedIn, !historyBusy(item.id), let mutation = historyState.beginMutation(id: item.id) else { return }
         let version = session.generation
         historyErrors[item.id] = nil
         historyTasks[item.id] = Task { [self] in
@@ -37,6 +113,7 @@ final class AppModel {
                     historyState.completeDeletion(mutation)
                     // Current translation and draft intentionally remain readable after history deletion.
                 }
+                await persistHistory()
             } catch {
                 guard !Task.isCancelled, version == session.generation, session.phase == .signedIn else { return }
                 historyErrors[item.id] = Self.connectionError(error)
@@ -44,7 +121,7 @@ final class AppModel {
         }
     }
     var draft = ""
-    var direction: TranslationDirection = .germanToRussian
+    var direction: TranslationDirection = .russianToGerman
     private(set) var shortcuts: [TranslationShortcut] = []
     var selectedShortcutID: String?
     private let shortcutStore = TranslationShortcutStore()
@@ -87,9 +164,11 @@ final class AppModel {
     private var refreshID: UUID?
     private var injectedClient: APIClient?
 
-    init(session: SessionController, client: APIClient) {
+    init(session: SessionController, client: APIClient, podcastClient: PodcastAPI? = nil, cache: ContentCache? = nil) {
         self.session = session
         self.injectedClient = client
+        self.injectedPodcastClient = podcastClient
+        if let cache { self.contentCache = cache }
     }
 
     #if targetEnvironment(simulator)
@@ -106,27 +185,43 @@ final class AppModel {
         return APIClient(endpoint: try ServerEndpoint(session.serverURL, allowLocalHTTP: Self.allowLocalHTTP), token: try TokenStore.read())
     }
     func refreshTranslator(connection: UUID? = nil) async {
+        guard !refreshing else { return }
         let version = session.generation
         let refresh = UUID(); refreshID = refresh; refreshing = true
+        historyPhase = .loading
         translatorError = nil
         defer { if refreshID == refresh { refreshing = false; refreshID = nil } }
         do {
             let client = try api()
-            let status = try await client.provider()
+            async let providerResponse = captured { try await client.provider() }
+            let snapshot = historyState.snapshot()
+            let historyResponse = await captured { try await client.history() }
+            guard !Task.isCancelled, session.phase == .signedIn, version == session.generation, refreshID == refresh else { return }
+            switch historyResponse {
+            case .success(let items):
+                historyState.apply(items, since: snapshot)
+                historyPhase = .loaded; historyLoadError = nil
+                await persistHistory()
+            case .failure(let error):
+                historyPhase = .error; historyLoadError = Self.connectionError(error)
+                translatorError = Self.connectionError(error)
+            }
+            let status = try await providerResponse.get()
             guard !Task.isCancelled, version == session.generation, session.phase == .signedIn,
                   refreshID == refresh, connection == nil || connectionID == connection else { return }
             provider = status
             if status.connected { bootstrap = nil }
-            let snapshot = historyState.snapshot()
-            let items = try await client.history()
-            guard !Task.isCancelled, session.phase == .signedIn, version == session.generation,
-                  refreshID == refresh, connection == nil || connectionID == connection else { return }
-            historyState.apply(items, since: snapshot)
             if status.status == "catalog_unavailable" { translatorError = status.message }
         } catch {
             if !Task.isCancelled, session.phase == .signedIn, version == session.generation,
-               refreshID == refresh, connection == nil || connectionID == connection { translatorError = Self.connectionError(error) }
+               refreshID == refresh, connection == nil || connectionID == connection {
+                translatorError = Self.connectionError(error)
+                if historyPhase == .loading { historyPhase = .error; historyLoadError = Self.connectionError(error) }
+            }
         }
+    }
+    private func captured<T: Sendable>(_ operation: @Sendable () async throws -> T) async -> Result<T, Error> {
+        do { return .success(try await operation()) } catch { return .failure(error) }
     }
     func connectChatGPT() async {
         cancelChatGPT()
@@ -196,6 +291,7 @@ final class AppModel {
             guard version == session.generation, session.phase == .signedIn else { return }
             result = item; historyState.insert(item); translatorError = nil
             selectedShortcutID = nil
+            await persistHistory()
         } catch { if version == session.generation { translatorError = error.localizedDescription } }
     }
 
@@ -205,6 +301,9 @@ final class AppModel {
         // contacts a server, signs in with Apple, or claims a provider connection.
         if let mode = ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] {
             let fixture = SimulatorSessionFixture(mode: mode)
+            if let namespace = ProcessInfo.processInfo.environment["KM_SIMULATOR_CACHE_NAMESPACE"], UUID(uuidString: namespace) != nil {
+                contentCache = ContentCache(root: URL.applicationSupportDirectory.appendingPathComponent("UITestContentCache").appendingPathComponent(namespace))
+            }
             fixtureTransport = { request in try await fixture.send(request) }
             session = SessionController(serverURL: "https://fixture.invalid", readToken: { "synthetic-session-not-a-credential" }, saveToken: { _ in }, transport: { request in try await fixture.send(request) })
             return
@@ -222,7 +321,13 @@ final class AppModel {
         #endif
     }
     func resetSessionContent() {
+        if let lease = cacheLease {
+            lease.invalidate()
+            Task { try? await contentCache.remove(session: lease) }
+        }
+        cacheLease = nil; cacheGeneration = nil
         cancelChatGPT()
+        podcasts.reset(); historyPhase = .idle; historyLoadError = nil
         input = ""
         result = nil
         for task in historyTasks.values { task.cancel() }

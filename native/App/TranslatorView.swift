@@ -52,7 +52,12 @@ struct TranslatorView: View {
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .listRowSeparator(.hidden)
             Section {
-                if model.history.isEmpty { Text("Noch keine Übersetzungen.").foregroundStyle(.secondary) }
+                if model.history.isEmpty && (model.historyPhase == .idle || model.historyPhase == .loading) {
+                    ProgressView().accessibilityIdentifier("history.loading")
+                } else if let error = model.historyLoadError {
+                    Text(error).foregroundStyle(.secondary)
+                    Button("podcast.retry") { Task { await model.refreshTranslator() } }
+                } else if model.history.isEmpty && model.historyPhase == .loaded { Text("Noch keine Übersetzungen.").foregroundStyle(.secondary) }
                 ForEach(model.history) { item in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .top) {
@@ -91,6 +96,11 @@ struct TranslatorView: View {
                 }
             } header: { Text("Dein Verlauf").font(.headline).textCase(nil) }
         }
+        .overlay {
+            if model.history.isEmpty && (model.historyPhase == .idle || model.historyPhase == .loading) {
+                ProgressView().accessibilityIdentifier("history.loading")
+            }
+        }
         .listStyle(.plain)
         .environment(\.layoutDirection, .leftToRight)
         .scrollDismissesKeyboard(.interactively)
@@ -101,6 +111,6 @@ struct TranslatorView: View {
                 }.accessibilityLabel("chatgpt.connect")
             }
         }
-        .task(id: model.session.generation) { model.loadShortcuts(); await model.refreshTranslator() }
+        .task { model.loadShortcuts() }
     }
 }

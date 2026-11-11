@@ -33,7 +33,22 @@ func (s *podcastStore) subscriptions(owner string) ([]podcastSubscription, error
 		}
 		for _, sub := range d.Subscriptions {
 			if sub.Owner == owner {
-				out = append(out, sub.podcastSubscription)
+				view := sub.podcastSubscription
+				view.Episodes = append([]podcastEpisode(nil), view.Episodes...)
+				for i := range view.Episodes {
+					ep := &view.Episodes[i]
+					for _, stored := range d.Jobs {
+						j := storedPodcast(stored)
+						if j.Owner != owner || !((j.FeedID == sub.ID && j.EpisodeID == ep.ID) || (j.FeedID == "" && j.URL == ep.URL)) {
+							continue
+						}
+						if ep.Preparation == nil || podcastIdentityRank(j.State) > podcastIdentityRank(ep.Preparation.State) {
+							j.Segments = nil
+							ep.Preparation = &j
+						}
+					}
+				}
+				out = append(out, view)
 			}
 		}
 		return nil
@@ -73,7 +88,7 @@ func (s *podcastStore) saveSubscription(owner, id string, discovery podcastDisco
 				ids, urls := map[string]bool{}, map[string]bool{}
 				for _, batch := range [][]podcastEpisode{discovery.Episodes, sub.Episodes} {
 					for _, ep := range batch {
-						if !ids[ep.ID] && !urls[ep.URL] && len(merged) < podcastFeedEpisodes {
+						if !ids[ep.ID] && len(merged) < podcastFeedEpisodes {
 							merged = append(merged, ep)
 							ids[ep.ID] = true
 							urls[ep.URL] = true

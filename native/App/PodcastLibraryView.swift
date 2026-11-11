@@ -9,30 +9,24 @@ struct PodcastLibraryView: View {
     @State private var source = "de"
     @State private var mode = "episode"
     @Binding var showAdd: Bool
-    @State private var jobs: [PodcastJob] = []
-    @State private var subscriptions: [PodcastSubscription] = []
+    private var jobs: [PodcastJob] { model.podcasts.jobs }
+    private var subscriptions: [PodcastSubscription] { model.podcasts.subscriptions }
+
     @State private var shared: [PodcastShareInbox.Item] = []
-    @State private var workerAvailable = false
+    private var workerAvailable: Bool { model.podcasts.workerAvailable }
     @State private var busy = false
     @State private var message: String?
     @State private var addError: String?
     @State private var selectedShare: PodcastShareInbox.Item?
-    #if targetEnvironment(simulator)
-    @State private var fixture = SimulatorSessionFixture(mode: ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] ?? "valid")
-    #endif
 
-    private func api() throws -> PodcastAPI {
-        guard model.session.phase == .signedIn else { throw APIError.http(401) }
-        #if targetEnvironment(simulator)
-        if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] != nil {
-            return PodcastAPI(endpoint: try ServerEndpoint("https://fixture.invalid"), token: "synthetic-session-not-a-credential", transport: { request in try await fixture.send(request) })
-        }
-        #endif
-        return PodcastAPI(endpoint: try ServerEndpoint(model.session.serverURL, allowLocalHTTP: AppModel.allowLocalHTTP), token: try TokenStore.read())
-    }
+
+    private func api() throws -> PodcastAPI { try model.podcastAPI() }
     var body: some View {
         List {
-            if let message { Text(message).foregroundStyle(.secondary).accessibilityIdentifier("podcast.error") }
+            if let error = message ?? model.podcasts.message {
+                Text(verbatim: error).foregroundStyle(.secondary).accessibilityIdentifier("podcast.error")
+                Button("podcast.retry") { Task { await refresh() } }
+            }
             if !shared.isEmpty {
                 Section("podcast.shared") {
                     ForEach(shared) { item in
@@ -46,10 +40,10 @@ struct PodcastLibraryView: View {
                 }
             }
             if !subscriptions.isEmpty {
-                Section("podcast.subscriptions") {
-                    ForEach($subscriptions) { $subscription in
+                Section {
+                    ForEach(subscriptions) { subscription in
                         NavigationLink {
-                            feedDetail($subscription)
+                            feedDetail(subscription.id)
                         } label: {
                             HStack(spacing: 12) {
                                 PodcastArtwork(subscription: subscription, client: { try api() })
@@ -69,12 +63,12 @@ struct PodcastLibraryView: View {
             }
             if !jobs.isEmpty {
                 Section("podcast.library") {
-                    ForEach(jobs) { job in
+                    ForEach(jobs.filter { job in !subscriptions.contains { feed in feed.episodes.contains { job.belongs(to: $0, feedID: feed.id) } } }) { job in
                         NavigationLink { jobDetail(job) } label: {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(URL(string: job.url)?.lastPathComponent ?? AppL10n.text("podcast.episode")).lineLimit(2)
+                                Text(job.episodeTitle ?? URL(string: job.url)?.lastPathComponent ?? AppL10n.text("podcast.episode")).lineLimit(2)
                                 Text(verbatim: stateLabel(job.state)).font(.caption).foregroundStyle(.secondary)
-                                if job.active { ProgressView(value: Double(job.progress), total: 100) }
+                                if job.active { if let progress = job.displayProgress { ProgressView(value: progress) } else { ProgressView() } }
                             }.padding(.vertical, 4)
                         }
                         .swipeActions {
@@ -90,19 +84,15 @@ struct PodcastLibraryView: View {
         }
         .listStyle(.plain)
         .overlay {
-            if jobs.isEmpty && subscriptions.isEmpty && shared.isEmpty && message == nil {
+            if jobs.isEmpty && subscriptions.isEmpty && (model.podcasts.phase == .idle || model.podcasts.phase == .loading) {
+                ProgressView().accessibilityIdentifier("podcast.loading")
+            } else if jobs.isEmpty && subscriptions.isEmpty && shared.isEmpty && message == nil && model.podcasts.phase == .loaded {
                 ContentUnavailableView { Label("podcast.none", systemImage: "headphones") } description: { Text("podcast.none.hint") }
             }
         }
         .sheet(isPresented: $showAdd, onDismiss: { addError = nil; selectedShare = nil; url = "" }) { [workerAvailable] in addSheet(workerAvailable: workerAvailable) }
         .refreshable { await refresh() }
-        .task(id: model.session.generation) {
-            jobs = []; subscriptions = []; message = nil; loadInbox()
-            repeat {
-                await refresh()
-                do { try await Task.sleep(for: .seconds(3)) } catch { return }
-            } while !Task.isCancelled && model.session.phase == .signedIn
-        }
+        .task { loadInbox() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { loadInbox() } }
     }
     private func addSheet(workerAvailable: Bool) -> some View {
@@ -142,26 +132,53 @@ struct PodcastLibraryView: View {
             .navigationTitle("podcast.add").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { showAdd = false }.disabled(busy) } }
             .interactiveDismissDisabled(busy)
-            .task { await refresh() }
+
         }
     }
-    private func feedDetail(_ subscription: Binding<PodcastSubscription>) -> some View {
-        let feed = subscription.wrappedValue
+    private func feedDetail(_ id: String) -> some View {
+        let feed = subscriptions.first { $0.id == id }
         return List {
+            if let feed {
             if let message { Text(message).foregroundStyle(.secondary).accessibilityIdentifier("podcast.error") }
             if feed.episodes.isEmpty { Text("podcast.empty").foregroundStyle(.secondary) }
             ForEach(feed.episodes) { episode in
                 VStack(alignment: .leading, spacing: 6) {
                     Text(episode.title.isEmpty ? episode.url : episode.title)
                     if let published = episode.published { Text(published).font(.caption).foregroundStyle(.secondary) }
-                    Button("podcast.prepare") { Task { await enqueue(episodeURL: episode.url) } }.disabled(busy || !workerAvailable)
+                    if let duration = episode.duration { Text(duration).font(.caption).foregroundStyle(.secondary) }
+                    let key = PodcastStore.EpisodeKey(feedID: feed.id, episodeID: episode.id)
+                    let pending = model.podcasts.isPending(feedID: feed.id, episodeID: episode.id)
+                    let matches = jobs.filter { $0.belongs(to: episode, feedID: feed.id) }
+                    let linked = matches.isEmpty ? episode.preparation.map { [$0] } ?? [] : matches
+                    if pending { HStack { ProgressView(); Text(verbatim: AppL10n.text("podcast.state.queued")) }.accessibilityIdentifier("podcast-pending-" + episode.id) }
+                    ForEach(linked) { job in
+                        NavigationLink { jobDetail(job) } label: {
+                            HStack {
+                                Text(verbatim: stateLabel(job.state))
+                                if job.active { ProgressView() }
+                            }
+                        }
+                        if let progress = job.displayProgress { ProgressView(value: progress) }
+                        if job.state == "failed" {
+                            Text("podcast.failed").font(.caption).foregroundStyle(.secondary)
+                            Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy)
+                        }
+                    }
+                    if let error = model.podcasts.episodeErrors[key] { Text(verbatim: error).font(.caption).foregroundStyle(.secondary) }
+                    if linked.isEmpty {
+                        Button("podcast.prepare") {
+                            model.preparePodcast(episode, feedID: feed.id, source: source)
+                        }.disabled(pending || !workerAvailable)
+                            .accessibilityIdentifier("podcast-prepare-" + episode.id)
+                    }
                 }.padding(.vertical, 4)
             }
             Section {
                 Button("podcast.feed.refresh") { Task { await subscriptionAction(feed, "refresh") } }.disabled(busy)
                 if busy { ProgressView().accessibilityIdentifier("podcast.feed.busy") }
             }
-        }.navigationTitle(feed.title.isEmpty ? AppL10n.text("podcast.title") : feed.title).navigationBarTitleDisplayMode(.inline)
+            }
+        }.navigationTitle(feed?.title ?? AppL10n.text("podcast.title")).navigationBarTitleDisplayMode(.inline)
     }
     private func jobDetail(_ original: PodcastJob) -> some View {
         let job = jobs.first { $0.id == original.id } ?? original
@@ -185,7 +202,7 @@ struct PodcastLibraryView: View {
     private func stateLabel(_ state: String) -> String {
         switch state {
         case "queued": AppL10n.text("podcast.state.queued")
-        case "fetching": AppL10n.text("podcast.state.fetching")
+        case "fetching", "downloading": AppL10n.text("podcast.state.fetching")
         case "transcribing": AppL10n.text("podcast.state.transcribing")
         case "translating": AppL10n.text("podcast.state.translating")
         case "completed": AppL10n.text("podcast.state.ready")
@@ -199,16 +216,10 @@ struct PodcastLibraryView: View {
         !Task.isCancelled && model.session.phase == .signedIn && generation == model.session.generation
     }
     @MainActor private func refresh() async {
-        let generation = model.session.generation
-        do {
-            let client = try api()
-            let library = try await client.library()
-            guard isCurrent(generation) else { return }
-            let feeds = try await client.subscriptions()
-            guard isCurrent(generation) else { return }
-            jobs = library.items; subscriptions = feeds; workerAvailable = library.workerAvailable; message = nil
-        } catch { if isCurrent(generation) { message = AppL10n.text("podcast.failed") } }
+        await model.refreshPodcasts()
+        message = model.podcasts.message
     }
+
     @MainActor private func enqueue(episodeURL: String? = nil) async {
         guard !busy, workerAvailable, (try? PodcastShareURL(episodeURL ?? url)) != nil else { return }
         let generation = model.session.generation

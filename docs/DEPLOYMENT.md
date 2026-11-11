@@ -1,5 +1,13 @@
 # Deployment and release
 
+## Episode state/cache release candidate — 2026-11-11
+
+- Native: shared owner-scoped pending preparations, episode association, protected history/podcast cache, retained content during refresh/errors, no initial empty-state flash, and removal of the subscribed-podcasts section heading. Fresh translator defaults **ru→de** on iOS and web; explicit/history directions remain authoritative.
+- Server: durable import identity before worker/provider admission, concurrent import coalescing, and retained historical-twin suppression without deletion. Local full Go race suite: **293 passes / 4 opt-in skips**, vet passed. Native CI rerun: **42 passed / 1 environment skip**, including the actual AppModel harness. Earlier unchanged native simulator acceptance: **21 UI tests**, full Core **56 Swift Testing + 10 XCTest**. Web: **27 Node tests** and **18 real-browser synthetic direction/history/layout checks** passed.
+- Built Linux arm64 backend `sha256:cdaf691d6c1f16d5d5428f7acef6457b4b1cd5bbb8824f52d65d9c923639c73d` using the now-published `golang:1.27.4-bookworm` builder. Deployment targets **only `keinemagie`** through the established base + override. Worker image `44b2fccc4df1…`, resources, networks, mounts, and unrelated containers must remain unchanged.
+- **Deployment pending tool approval** at this record: production still runs `ff3561338e27…`; public guest controls remain disabled, but the live selector is still de→ru. No new image/HTTP/retained-file verification is claimed yet. Prepared non-destructive backup/rollback helper has not executed.
+- Authoritative store path verified from effective `HISTORY_PATH` and server source: `/app/data/podcasts/jobs.json`. Current snapshot **0 jobs / 1 subscription**, previous private long-release backup **2 jobs**; cause of change unknown. No records were deleted/restored/manually edited. See [read-only audit and limits](PODCAST-IDEMPOTENCY-VERIFICATION.md).
+
 ## Long-episode release — 2026-11-11
 
 Deployed **both** existing services via the same base + durable override below; no other services changed. Production https://keinemagie.tinyserve.org is usable for explicit owner episode actions up to **3 hours / 300 MiB**, subject to transcript, processing-time and unchanged personal quota bounds. This is not a claim of three-hour continuous inference performance.
