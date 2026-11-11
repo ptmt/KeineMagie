@@ -1,5 +1,7 @@
 # Episode UI and private permalinks
 
+Released from source `806a6cd698bd9ffcae2c736b2f7b89faf6fd17fb` on 2026-11-11; [final release evidence](WEB-RELEASE-VERIFICATION.md) supersedes the implementation-time test counts/status below. Live signed-in provider generation remains a separate user-assisted gate.
+
 ## Contract
 
 - Canonical URL: `/podcasts/episodes/{cosmetic-title-slug}-{suffix}`.

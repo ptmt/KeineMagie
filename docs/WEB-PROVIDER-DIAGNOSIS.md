@@ -1,4 +1,6 @@
-# Web provider status diagnosis (local candidate; not deployed)
+# Web provider status diagnosis
+
+Released in source `806a6cd698bd9ffcae2c736b2f7b89faf6fd17fb` and verified publicly on 2026-11-11. See [final release evidence](WEB-RELEASE-VERIFICATION.md). The signed-in live provider gate below remains unverified; deployment is not proof of upstream validity.
 
 ## Verified contract and cause
 
