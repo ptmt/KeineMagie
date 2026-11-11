@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-const podcastMaxBytes int64 = 40 << 20
-
 // Credential-free public source URLs only. Permit only bounded public publisher
 // version/tracking parameters, never arbitrary signed/private capabilities.
 func podcastPublicQuery(raw string) bool {
@@ -125,7 +123,7 @@ func (f podcastFetcher) client() *http.Client {
 		}
 		return dial(ctx, network, net.JoinHostPort(ips[0].IP.String(), port))
 	}
-	return &http.Client{Transport: transport, Timeout: 2 * time.Minute, CheckRedirect: func(req *http.Request, via []*http.Request) error {
+	return &http.Client{Transport: transport, Timeout: 10 * time.Minute, CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		if len(via) >= 4 {
 			return errors.New("redirect limit exceeded")
 		}
@@ -138,7 +136,7 @@ func (f podcastFetcher) fetch(ctx context.Context, raw, dest string) error {
 	if e != nil {
 		return e
 	}
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
 	client := f.client()
 	defer client.CloseIdleConnections()
@@ -152,6 +150,10 @@ func (f podcastFetcher) fetch(ctx context.Context, raw, dest string) error {
 // Explicit client seam permits offline fixture transports without any production
 // localhost/private-IP bypass.
 func podcastFetchHTTP(ctx context.Context, u *url.URL, dest string, client *http.Client) error {
+	limits, e := configuredPodcastLimits()
+	if e != nil {
+		return e
+	}
 	req, e := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
 	if e != nil {
 		return e
@@ -162,8 +164,8 @@ func podcastFetchHTTP(ctx context.Context, u *url.URL, dest string, client *http
 		return errors.New("audio fetch failed (destination, redirect, DNS or network policy)")
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 || resp.ContentLength > podcastMaxBytes {
-		return errors.New("audio unavailable or exceeds 40 MiB")
+	if resp.StatusCode != 200 || resp.ContentLength > limits.bytes {
+		return errors.New("audio unavailable or exceeds configured size limit")
 	}
 	mime := strings.ToLower(strings.Split(resp.Header.Get("Content-Type"), ";")[0])
 	if !strings.HasPrefix(mime, "audio/") && mime != "application/octet-stream" {
@@ -174,12 +176,12 @@ func podcastFetchHTTP(ctx context.Context, u *url.URL, dest string, client *http
 		return e
 	}
 	defer out.Close()
-	n, e := io.Copy(out, io.LimitReader(resp.Body, podcastMaxBytes+1))
+	n, e := io.Copy(out, io.LimitReader(resp.Body, limits.bytes+1))
 	if e != nil {
 		return errors.New("audio download interrupted")
 	}
-	if n == 0 || n > podcastMaxBytes {
-		return errors.New("audio must contain 1 byte to 40 MiB")
+	if n == 0 || n > limits.bytes {
+		return errors.New("audio empty or exceeds configured size limit")
 	}
 	return out.Sync()
 }

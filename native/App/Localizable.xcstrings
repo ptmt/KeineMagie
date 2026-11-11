@@ -567,31 +567,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Öffentliche Audiodatei oder Episodenseite mit Audio. RSS-/Atom-Feeds kannst du abonnieren."
+            "value": "Öffentliche Audiodateien, Episodenseiten mit Audio und RSS-/Atom-Abos. Maximal 3 Stunden / 300 MiB. Übersetzung in Batches: 100 Versuche pro UTC-Tag, mit Textübersetzungen geteilt; nur gesendete Batches zählen, auch bei Fehlern. Gespeicherte Übersetzungen werden fortgesetzt; unterbrochene Erkennung beginnt neu. YouTube und private Feeds werden nicht unterstützt."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Public audio file or episode page with audio. Subscribe to RSS/Atom feeds."
+            "value": "Public audio files, episode pages with audio and RSS/Atom subscriptions. Maximum 3 hours / 300 MiB. Translation uses batches: 100 attempts per UTC day, shared with text translation; only sent batches count, including failures. Saved translations resume; interrupted recognition restarts. YouTube and private feeds are unsupported."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Общедоступный аудиофайл или страница эпизода с аудио. Можно подписаться на ленты RSS/Atom."
+            "value": "Общедоступные аудиофайлы, страницы эпизодов с аудио и подписки RSS/Atom. До 3 часов / 300 МиБ. Перевод пакетами: 100 попыток за сутки UTC, общий лимит с переводом текста; учитываются только отправленные пакеты, включая ошибки. Сохранённый перевод продолжается; прерванное распознавание начинается заново. YouTube и закрытые ленты не поддерживаются."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Archivo de audio público o página de un episodio con audio. Puedes suscribirte a fuentes RSS/Atom."
+            "value": "Archivos de audio públicos, páginas de episodios con audio y suscripciones RSS/Atom. Máximo 3 horas / 300 MiB. Traducción por lotes: 100 intentos por día UTC, compartidos con la traducción de texto; solo cuentan los lotes enviados, incluidos los fallidos. Se retoman las traducciones guardadas; el reconocimiento interrumpido se reinicia. YouTube y fuentes privadas no son compatibles."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fichier audio public ou page d’épisode avec audio. Vous pouvez vous abonner aux flux RSS/Atom."
+            "value": "Fichiers audio publics, pages d’épisodes avec audio et abonnements RSS/Atom. Maximum 3 heures / 300 Mio. Traduction par lots : 100 tentatives par jour UTC, partagées avec la traduction de texte ; seuls les lots envoyés comptent, y compris les échecs. Les traductions enregistrées reprennent ; la reconnaissance interrompue recommence. YouTube et flux privés non pris en charge."
           }
         }
       }
@@ -1337,31 +1337,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nur öffentliche direkte Audiodateien (MP3, M4A, WAV, OGG, FLAC, AAC, Opus). Maximal 10 Minuten / 40 MiB. YouTube, RSS und private Feeds werden noch nicht unterstützt."
+            "value": "Öffentliche Audiodateien, Episodenseiten mit Audio und RSS-/Atom-Abos. Maximal 3 Stunden / 300 MiB. Übersetzung in Batches: 100 Versuche pro UTC-Tag, mit Textübersetzungen geteilt; nur gesendete Batches zählen, auch bei Fehlern. Gespeicherte Übersetzungen werden fortgesetzt; unterbrochene Erkennung beginnt neu. YouTube und private Feeds werden nicht unterstützt."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Public direct audio only (MP3, M4A, WAV, OGG, FLAC, AAC, Opus). Maximum 10 minutes / 40 MiB. YouTube, RSS and private feeds are not supported yet."
+            "value": "Public audio files, episode pages with audio and RSS/Atom subscriptions. Maximum 3 hours / 300 MiB. Translation uses batches: 100 attempts per UTC day, shared with text translation; only sent batches count, including failures. Saved translations resume; interrupted recognition restarts. YouTube and private feeds are unsupported."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Только общедоступные прямые аудиоссылки (MP3, M4A, WAV, OGG, FLAC, AAC, Opus). До 10 минут / 40 МиБ. YouTube, RSS и закрытые ленты пока не поддерживаются."
+            "value": "Общедоступные аудиофайлы, страницы эпизодов с аудио и подписки RSS/Atom. До 3 часов / 300 МиБ. Перевод пакетами: 100 попыток за сутки UTC, общий лимит с переводом текста; учитываются только отправленные пакеты, включая ошибки. Сохранённый перевод продолжается; прерванное распознавание начинается заново. YouTube и закрытые ленты не поддерживаются."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solo audio público directo (MP3, M4A, WAV, OGG, FLAC, AAC, Opus). Máximo 10 minutos / 40 MiB. YouTube, RSS y fuentes privadas aún no son compatibles."
+            "value": "Archivos de audio públicos, páginas de episodios con audio y suscripciones RSS/Atom. Máximo 3 horas / 300 MiB. Traducción por lotes: 100 intentos por día UTC, compartidos con la traducción de texto; solo cuentan los lotes enviados, incluidos los fallidos. Se retoman las traducciones guardadas; el reconocimiento interrumpido se reinicia. YouTube y fuentes privadas no son compatibles."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Audio public direct uniquement (MP3, M4A, WAV, OGG, FLAC, AAC, Opus). Maximum 10 minutes / 40 Mio. YouTube, RSS et flux privés non pris en charge."
+            "value": "Fichiers audio publics, pages d’épisodes avec audio et abonnements RSS/Atom. Maximum 3 heures / 300 Mio. Traduction par lots : 100 tentatives par jour UTC, partagées avec la traduction de texte ; seuls les lots envoyés comptent, y compris les échecs. Les traductions enregistrées reprennent ; la reconnaissance interrompue recommence. YouTube et flux privés non pris en charge."
           }
         }
       }

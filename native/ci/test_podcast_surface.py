@@ -26,5 +26,15 @@ class PodcastSurfaceTests(unittest.TestCase):
         for key in ['podcast.add', 'podcast.none', 'podcast.none.hint', 'podcast.mode', 'podcast.mode.episode', 'podcast.mode.feed', 'podcast.info', 'podcast.url']:
             self.assertEqual(set(strings[key]['localizations']), {'de','en','ru','es','fr'})
 
+    def test_long_episode_limits_and_batch_quota_copy_in_every_locale(self):
+        strings = json.loads((ROOT / 'App/Localizable.xcstrings').read_text())['strings']
+        for key in ['podcast.sources', 'podcast.sources.expanded']:
+            for locale in ['de', 'en', 'es', 'fr', 'ru']:
+                copy = strings[key]['localizations'][locale]['stringUnit']['value']
+                self.assertIn('300', copy, (key, locale))
+                self.assertIn('3', copy, (key, locale))
+                self.assertIn('100', copy, (key, locale))
+                self.assertNotIn('40 ', copy, (key, locale))
+
 if __name__ == '__main__':
     unittest.main()

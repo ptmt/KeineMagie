@@ -44,7 +44,12 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 				writeError(w, 503, "podcast store unavailable")
 				return
 			}
-			writeJSON(w, 200, map[string]any{"items": jobs, "worker_available": p.ready() == nil, "supported_sources": []string{"direct_audio", "html_audio", "rss", "atom"}, "max_duration_seconds": 600, "max_bytes": podcastMaxBytes})
+			limits, e := configuredPodcastLimits()
+			if e != nil {
+				writeError(w, 503, "invalid podcast limits")
+				return
+			}
+			writeJSON(w, 200, map[string]any{"items": jobs, "worker_available": p.ready() == nil, "supported_sources": []string{"direct_audio", "html_audio", "rss", "atom"}, "max_duration_seconds": limits.duration, "max_bytes": limits.bytes})
 			return
 		case "POST":
 			if p.ready() != nil {

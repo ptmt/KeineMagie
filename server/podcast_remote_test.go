@@ -16,7 +16,7 @@ func TestPodcastRemoteRejectsUntrustedResponses(t *testing.T) {
 	for _, body := range []string{
 		`{"version":2,"segments":[{"start":0,"end":1,"text":"hi"}]}`,
 		`{"version":1,"segments":[]}`,
-		`{"version":1,"segments":[{"start":0,"end":601,"text":"hi"}]}`,
+		`{"version":1,"segments":[{"start":0,"end":10801,"text":"hi"}]}`,
 		`{"version":1,"segments":[{"start":0,"end":2,"text":"hi"},{"start":1,"end":3,"text":"hi"}]}`,
 		`{"version":1,"segments":[{"start":0,"end":1,"text":"` + strings.Repeat("x", 8001) + `"}]}`,
 		strings.Repeat("x", (1<<20)+1),
@@ -55,7 +55,7 @@ func TestPodcastRemoteRealContainer(t *testing.T) {
 	cfg := &serverConfig{authPath: filepath.Join(t.TempDir(), "auth.json"), historyPath: filepath.Join(t.TempDir(), "history.json"), httpClient: &http.Client{Transport: transportFunc(func(r *http.Request) (*http.Response, error) {
 		body := `{"models":[{"slug":"offered","display_name":"Synthetic","visibility":"list"}]}`
 		if strings.HasSuffix(r.URL.Path, "responses") {
-			body = accountTranslationSSE(`{"text":"Синтетический тест перевода."}`, true, "response.completed")
+			body = podcastFixtureTranslationSSE(r)
 		}
 		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(body))}, nil
 	})}}

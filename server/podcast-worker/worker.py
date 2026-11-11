@@ -18,10 +18,21 @@ import threading
 import time
 import wave
 
-MAX_BYTES = 40 << 20
+def bounded_limit(value, ceiling):
+    result = int(value)
+    if not 0 < result <= ceiling: raise ValueError('invalid worker limit')
+    return result
+
+
+MAX_BYTES = bounded_limit(os.environ.get('PODCAST_MAX_BYTES', str(300 << 20)), 300 << 20)
+MAX_DURATION = bounded_limit(os.environ.get('PODCAST_MAX_DURATION_SECONDS', '10800'), 10800)
+MAX_SEGMENTS = 3600
+MAX_TEXT = 216000
+CHUNK_SECONDS = 600
 ENV = {'PATH': '/usr/local/bin:/usr/bin:/bin', 'HOME': '/tmp', 'TMPDIR': '/tmp',
        'OMP_NUM_THREADS': '2', 'OPENBLAS_NUM_THREADS': '2', 'NUMBA_NUM_THREADS': '2',
-       'PYTHONDONTWRITEBYTECODE': '1'}
+       'PYTHONDONTWRITEBYTECODE': '1',
+       'PODCAST_MAX_DURATION_SECONDS': str(MAX_DURATION), 'PODCAST_MAX_BYTES': str(MAX_BYTES)}
 READY = False
 BUSY = threading.Lock()
 TOKEN = b''
@@ -45,7 +56,7 @@ def restricted_child():
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
     resource.setrlimit(resource.RLIMIT_FSIZE, (24 << 20, 24 << 20))
-    resource.setrlimit(resource.RLIMIT_CPU, (1800, 1800))
+    resource.setrlimit(resource.RLIMIT_CPU, (5400, 5400))
 
 
 def run_stage(args, timeout, connection=None):
@@ -63,8 +74,8 @@ def run_stage(args, timeout, connection=None):
                 time.sleep(.05)
             if proc.returncode: raise ValueError('audio processing failed')
             output.seek(0)
-            result = output.read((1 << 20)+1)
-            if len(result)>1<<20: raise ValueError('output exceeds limit')
+            result = output.read((4 << 20)+1)
+            if len(result)>4<<20: raise ValueError('output exceeds limit')
             return result
         finally:
             # Includes grandchildren even if the leader exited first.
@@ -81,11 +92,11 @@ def validated_segments(data):
         start, end, text = item['start'], item['end'], item['text'].strip()
         if not text: continue
         total += len(text)
-        if not math.isfinite(start) or not math.isfinite(end) or start<previous or end<=start or end>600 or total>8000:
+        if not math.isfinite(start) or not math.isfinite(end) or start<previous or end<=start or end>MAX_DURATION or len(text)>8000 or total>MAX_TEXT:
             raise ValueError('transcript outside limits')
         previous = end
         result.append({'start':start, 'end':end, 'text':text})
-    if not 0<len(result)<=120: raise ValueError('no speech or too many segments')
+    if not 0<len(result)<=MAX_SEGMENTS: raise ValueError('no speech or too many segments')
     return result
 
 
@@ -96,7 +107,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         super().setup()
         self.connection.settimeout(30)
     def reply(self, code, data):
-        body=json.dumps(data, allow_nan=False).encode()
+        body=json.dumps(data, allow_nan=False, ensure_ascii=False).encode()
         self.send_response(code)
         self.send_header('Content-Type','application/json')
         self.send_header('Cache-Control','no-store')
@@ -136,27 +147,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 os.chmod(directory,0o770)
                 os.chown(directory,1001,0)
                 source=pathlib.Path(directory)/'source.audio'
-                deadline=time.monotonic()+120
+                deadline=time.monotonic()+TIMEOUT
+                upload_deadline=min(deadline,time.monotonic()+600)
                 remaining=length
                 with source.open('wb') as f:
                     while remaining:
-                        if time.monotonic()>deadline: raise ValueError('upload timeout')
+                        if time.monotonic()>upload_deadline: raise ValueError('upload timeout')
+                        self.connection.settimeout(min(30, max(.001, upload_deadline-time.monotonic())))
                         block=self.rfile.read(min(65536,remaining))
                         if not block: raise ValueError('truncated upload')
                         f.write(block); remaining-=len(block)
                 source.chmod(0o440);os.chown(source,0,1001)
                 with source.open('rb') as f: fmt=media_format(f.read(16))
-                options=['-v','error','-protocol_whitelist','file,pipe','-format_whitelist',fmt,'-f',fmt]
-                probe=run_stage(['/usr/bin/ffprobe',*options,'-show_entries','format=duration','-of','json',str(source)],20,self.connection)
+                options=decoder_options(fmt)
+                probe=run_stage(['/usr/bin/ffprobe',*options,'-show_entries','format=duration','-of','json',str(source)],min(20,deadline-time.monotonic()),self.connection)
                 duration=float(json.loads(probe)['format']['duration'])
-                if not math.isfinite(duration) or not 0<duration<=600: raise ValueError('audio must be at most ten minutes')
-                wav=str(pathlib.Path(directory)/'speech.wav')
-                run_stage(['/usr/bin/ffmpeg','-nostdin',*options,'-i',str(source),'-t','600','-vn','-sn','-dn','-ac','1','-ar','16000','-threads','2','-f','wav',wav],45,self.connection)
-                with wave.open(wav) as f:
-                    if f.getnframes()/f.getframerate()>600: raise ValueError('decoded audio exceeds duration')
-                raw=run_stage([sys.executable,__file__,'--recognize',wav,language],1800,self.connection)
+                if not math.isfinite(duration) or not 0<duration<=MAX_DURATION: raise ValueError('audio exceeds duration')
+                raw=run_stage([sys.executable,__file__,'--recognize',str(source),language],deadline-time.monotonic(),self.connection)
                 segments=validated_segments(json.loads(raw)['segments'])
-                self.reply(200,{'version':1,'segments':segments})
+                self.reply(200,{'version':1,'language':language,'segments':segments})
         except (ValueError, OSError, KeyError, TypeError, json.JSONDecodeError):
             self.reply(422,{'error':'audio processing rejected or canceled'})
         finally: BUSY.release()
@@ -176,17 +185,98 @@ class Server(http.server.ThreadingHTTPServer):
     def handle_error(self, *args): pass
 
 
-def recognize(path, language):
+def timeout_seconds(value):
+    seconds = int(value)
+    if not 0 < seconds <= 5400: raise ValueError('invalid worker deadline')
+    return seconds
+
+
+TIMEOUT = timeout_seconds(os.environ.get('PODCAST_WORKER_TIMEOUT_SECONDS', '5400'))
+
+
+def decoder_options(fmt):
+    return ['-v','error','-protocol_whitelist','file,pipe','-format_whitelist',fmt,'-f',fmt]
+
+
+def pcm_chunks(stream, chunk_frames=16000*CHUNK_SECONDS):
+    # One continuous decoder: no inaccurate compressed seeking, overlapping
+    # decode windows, full-length WAV, or trust in container duration metadata.
+    frames = 0
+    while True:
+        block = bytearray()
+        while len(block) < chunk_frames*2:
+            part = stream.read(min(65536, chunk_frames*2-len(block)))
+            if not part: break
+            block.extend(part)
+        if not block: return
+        if len(block) % 2: raise ValueError('partial PCM sample')
+        count = len(block)//2
+        if frames+count > MAX_DURATION*16000: raise ValueError('decoded audio exceeds duration')
+        yield frames/16000, block
+        frames += count
+
+
+def append_chunk(target, items, offset, duration):
+    for item in items:
+        start, end, text = item['start'], item['end'], item['text'].strip()
+        if not math.isfinite(start) or not math.isfinite(end) or start < 0 or end <= start:
+            raise ValueError('invalid chunk timestamp')
+        # Whisper can extend a final token beyond available samples and can
+        # overlap adjacent inferred segments. Keep each token once, clipped to
+        # this disjoint PCM window and to the previous emitted segment's end.
+        start = max(offset+min(start,duration), target[-1]['end'] if target else 0)
+        end = offset+min(end,duration)
+        if text and end > start: target.append({'start':start,'end':end,'text':text})
+    if len(target)>MAX_SEGMENTS or sum(len(x['text']) for x in target)>MAX_TEXT:
+        raise ValueError('transcript exceeds limits')
+
+
+def speech_bounds(samples):
+    # Trim only exact digital silence; no VAD threshold that can erase quiet
+    # speech. Retain the original sample offset when restoring timestamps.
+    first = next((i for i, sample in enumerate(samples) if sample != 0), None)
+    if first is None: return None
+    last = len(samples)
+    while samples[last-1] == 0: last -= 1
+    return first, last
+
+
+def recognize(path, language, smoke=False):
     import numpy as np
     import torch
     import whisper
     torch.set_num_threads(2)
     # Explicit local path: whisper must never download models at runtime.
     model=whisper.load_model('/models/base.pt',device='cpu')
-    with wave.open(path) as f:
-        audio=np.frombuffer(f.readframes(f.getnframes()),dtype=np.int16).astype(np.float32)/32768
-    result=model.transcribe(audio,language=language,task='transcribe',fp16=False,verbose=None)
-    print(json.dumps({'segments':result['segments']},allow_nan=False))
+    with open(path,'rb') as source: fmt=media_format(source.read(16))
+    args=['/usr/bin/ffmpeg','-nostdin',*decoder_options(fmt),'-threads','2','-i',path,
+          '-map','0:a:0','-vn','-sn','-dn','-ac','1','-ar','16000','-threads','2','-f','s16le','pipe:1']
+    # Same supervisor-created process group and restricted UID/environment.
+    # Pipe backpressure keeps decoder memory/output bounded during inference.
+    decoder=subprocess.Popen(args,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,
+                             stderr=subprocess.DEVNULL,close_fds=True,env=ENV)
+    assert decoder.stdout is not None
+    segments=[]
+    try:
+        for offset, pcm in pcm_chunks(decoder.stdout):
+            audio=np.frombuffer(pcm,dtype=np.int16).astype(np.float32)/32768
+            # Exact digital silence carries no speech. Do not submit silence
+            # to Whisper (hallucinations); still decode/count every sample.
+            bounds = speech_bounds(audio)
+            if bounds is not None or smoke:
+                first, last = bounds if bounds is not None else (0, len(audio))
+                # Small real-context padding, still inside this PCM window.
+                first=max(0,first-3200);last=min(len(audio),last+3200)
+                result=model.transcribe(audio[first:last],language=language,task='transcribe',fp16=False,
+                                        verbose=None,condition_on_previous_text=False)
+                append_chunk(segments,result['segments'],offset+first/16000,(last-first)/16000)
+            del audio, pcm
+        if decoder.wait(): raise ValueError('decoder failed')
+    finally:
+        decoder.stdout.close()
+        if decoder.poll() is None: decoder.kill()
+        decoder.wait()
+    print(json.dumps({'segments':segments},allow_nan=False,ensure_ascii=False))
 
 
 def main():
@@ -204,7 +294,7 @@ def main():
         path=str(pathlib.Path(directory)/'silence.wav')
         with wave.open(path,'wb') as f:
             f.setnchannels(1);f.setsampwidth(2);f.setframerate(16000);f.writeframes(b'\0'*32000)
-        run_stage([sys.executable,__file__,'--recognize',path,'de'],180)
+        run_stage([sys.executable,__file__,'--smoke',path,'de'],180)
     READY=True
     Server(('0.0.0.0',8091),Handler).serve_forever()
 
@@ -212,5 +302,6 @@ if __name__=='__main__':
     if len(sys.argv)>2 and sys.argv[1]=='--stage':
         restricted_child()
         os.execve(sys.argv[2],sys.argv[2:],ENV)
-    elif len(sys.argv)==4 and sys.argv[1]=='--recognize': recognize(sys.argv[2],sys.argv[3])
+    elif len(sys.argv)==4 and sys.argv[1] in ('--recognize','--smoke'):
+        recognize(sys.argv[2],sys.argv[3],smoke=sys.argv[1]=='--smoke')
     else: main()

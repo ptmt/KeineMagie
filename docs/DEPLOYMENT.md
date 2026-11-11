@@ -1,6 +1,22 @@
 # Deployment and release
 
-## Live release — 2026-11-10
+## Long-episode release — 2026-11-11
+
+Deployed **both** existing services via the same base + durable override below; no other services changed. Production https://keinemagie.tinyserve.org is usable for explicit owner episode actions up to **3 hours / 300 MiB**, subject to transcript, processing-time and unchanged personal quota bounds. This is not a claim of three-hour continuous inference performance.
+
+- Backend pinned image: `sha256:ff3561338e274971612df3882f7509993a7d1f3308e3a9da04ea6ce13c187957`, built from reviewed Go source with network-disabled build steps.
+- Worker pinned image: `sha256:44b2fccc4df1e32c75cab89e88a0759e72534608cfde3201faf4f1e11c27bdd8`; `/app/worker.py` byte-identical to repository source (SHA256 `ee34ced0017834975d82f1dea94e8a7f4d142fea603d4d4e6e89cb21bb8f2e1b`).
+- Prior actual backend: `sha256:13840f4973fc2ceff72ae481c34f952326b103460a185c4bedc484c2ee4fd1e6`; prior worker: `sha256:13d8467eb3ee0be58934ed3129370449ce8829f7a4b49b1d44bc6551663e0f11`. Both retained for rollback.
+- Private pre-release override, exact prior container/image map, data hashes and 0600 data/cache tar backups: `deployment/release-20261111-long/` under the existing service directory. All non-lock auth/history/provider/podcast files remained byte-identical; 2 existing jobs, no active jobs at deployment, no artificial store changes. Existing secret volumes and all mount destinations preserved.
+- Worker readback: **2 GiB memory and memory+swap (no swap)**, **512 MiB noexec tmpfs**, 2 CPUs, 64 PIDs; prior capability set and read-only/no-new-privileges/ulimits retained. Backend resources unchanged. No worker published ports, edge membership, provider or owner mounts. Internal `tinyserve_podcast_private` membership exactly backend + worker after probes exited; unrelated container IDs unchanged.
+- Live authenticated real-model readiness **200** before and after worker restart; unauthenticated readiness **401**. Generated **660-second, 314572800-byte** speech/silence/bookend WAV streamed over real HTTP to the deployed worker: **200**, 3.97s, final “Bibliothek” marker recognized at **649.8–653.8s**, ordered absolute timestamps. Live cgroup peak **1133875200 bytes**, all OOM/max counters zero. One initial post-response capacity probe raced workspace cleanup; bounded retry confirmed capacity returns. This fixture is not continuous 11-minute speech or three-hour inference.
+- Public certificate-validating IPv4 HTTPS `/health` **200**, `/v1/podcasts` **401**, `/v1/podcasts/subscriptions` **401**. No personal provider inference/refresh was triggered by acceptance; no paid fallback exists. Real user-episode → personal translation remains pending an explicit episode action.
+- Independent review fixed upfront charging of unsent translation batches. Full remaining-plan eligibility stays under account-wide flock; only each actual/ambiguous provider attempt is durably charged. Unsent capacity releases automatically on cancel/error/crash; quota stays **100/day**, shared with text translation. Retry resumes full transcript and completed translation batches, not in-flight recognition chunks.
+- Verified: Go race + vet; worker 10 Python tests; full disposable real Linux container verifier (including Go durable completion with **synthetic translation**); native CI 43 tests (one built-metadata test initially skipped, subsequently all 3 metadata tests passed against fresh built app); lifecycle 8; Swift 56 Testing + 5 XCTest; fresh app-only Release simulator build. Five-locale native limits/quota/retry help updated. GitHub publication/TestFlight are separate push-triggered gates, not evidence of production provider completion.
+
+Rollback if health fails: restore `release-20261111-long/compose.previous.yml` as the durable override, pin its backend image to the prior actual backend ID above rather than a potentially moved tag, and apply **only** `podcast-worker keinemagie` with the same base and `--no-deps --pull never`. Preserve all volumes; do not restore old auth records over live data. Read back health, auth, resources, mounts and network membership. Rollback was prepared, not destructively exercised.
+
+## Historical live release — 2026-11-10
 
 Production: https://keinemagie.tinyserve.org. Existing tinyserve project `tinyserve`, backend service `keinemagie`, private recognition service `podcast-worker`. This rollout was explicitly authorized. Only these two services were started/recreated/restarted; unrelated container IDs, including tunnel/proxy, were verified unchanged.
 

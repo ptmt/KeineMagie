@@ -44,6 +44,9 @@ func newPodcasts(cfg *serverConfig) (*podcastService, error) {
 	return p, nil
 }
 func (p *podcastService) ready() error {
+	if _, e := configuredPodcastLimits(); e != nil {
+		return e
+	}
 	if p.remote == nil || !p.running.Load() {
 		return errors.New("private podcast worker unavailable")
 	}
@@ -71,6 +74,24 @@ func (p *podcastService) localToolsReady() error {
 	}
 	return nil
 }
+
+// Only call while holding the global worker lock. No live attempt can own one
+// of these directories, so crash leftovers cannot accumulate across restarts.
+func cleanupPodcastWorkspaces(root string) error {
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), "audio-") {
+			if err = os.RemoveAll(filepath.Join(root, entry.Name())); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (p *podcastService) run(ctx context.Context) {
 	// One worker globally across processes sharing this durable store. An OS crash
 	// releases the lock. Stale claims recover after the bounded lease deadline.
@@ -83,6 +104,9 @@ func (p *podcastService) run(ctx context.Context) {
 		return
 	}
 	defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
+	if cleanupPodcastWorkspaces(filepath.Dir(p.store.lock.path)) != nil {
+		return
+	}
 	p.running.Store(true)
 	defer p.running.Store(false)
 	ticker := time.NewTicker(time.Second)
@@ -103,7 +127,7 @@ func (p *podcastService) run(ctx context.Context) {
 	}
 }
 func (p *podcastService) process(parent context.Context, job podcastJob) {
-	ctx, cancel := context.WithTimeout(parent, 40*time.Minute)
+	ctx, cancel := context.WithTimeout(parent, podcastProcessingTimeout)
 	defer cancel()
 	// Cancellation is durable and observed during fetch/recognition, not just before publishing.
 	owner, claim := job.Owner, job.Claim // immutable goroutine capture
@@ -140,7 +164,7 @@ func (p *podcastService) process(parent context.Context, job podcastJob) {
 		job.State = "failed"
 		job.Error = e.Error()
 		if ctx.Err() != nil {
-			job.Error = "worker canceled or exceeded 40 minute processing limit"
+			job.Error = "worker canceled or exceeded 120 minute processing limit"
 		}
 	} else {
 		job.State = "completed"
@@ -150,6 +174,9 @@ func (p *podcastService) process(parent context.Context, job podcastJob) {
 	_ = p.store.update(job)
 }
 func (p *podcastService) prepare(ctx context.Context, job *podcastJob) error {
+	if len(job.Segments) != 0 {
+		return p.translatePodcast(ctx, job)
+	}
 	dir, e := os.MkdirTemp(filepath.Dir(p.store.lock.path), "audio-*")
 	if e != nil {
 		return errors.New("audio workspace unavailable")
@@ -178,24 +205,7 @@ func (p *podcastService) prepare(ctx context.Context, job *podcastJob) error {
 	if e = p.store.update(*job); e != nil {
 		return e
 	}
-	for i := range job.Segments {
-		if ctx.Err() != nil {
-			return errors.New("worker canceled")
-		}
-		if e = p.store.update(*job); e != nil {
-			return e
-		}
-		translated, e := p.translateSegment(ctx, job.Owner, translationInput{Text: job.Segments[i].Text, SourceLanguage: job.SourceLanguage, TargetLanguage: job.TargetLanguage})
-		if e != nil {
-			return e
-		}
-		job.Segments[i].Translation = translated
-		job.Progress = 50 + (i+1)*49/len(job.Segments)
-		if e = p.store.update(*job); e != nil {
-			return e
-		}
-	}
-	return nil
+	return p.translatePodcast(ctx, job)
 }
 
 // Commands receive fixed arguments and local paths only, never user URL/text.

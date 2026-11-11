@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -58,12 +59,27 @@ func openPodcastStore(path string) (*podcastStore, error) {
 }
 func (s *podcastStore) read() (podcastData, error) {
 	d := podcastData{Jobs: []podcastStoredJob{}, Budgets: map[string]podcastBudget{}}
-	b, e := os.ReadFile(s.lock.path)
+	f, e := os.Open(s.lock.path)
 	if errors.Is(e, os.ErrNotExist) {
 		return d, nil
 	}
 	if e != nil {
 		return d, e
+	}
+	defer f.Close()
+	info, e := f.Stat()
+	if e != nil {
+		return d, e
+	}
+	if info.Size() > podcastStoreMaxBytes {
+		return d, errors.New("podcast store exceeds storage limit; delete retained episodes administratively")
+	}
+	b, e := io.ReadAll(io.LimitReader(f, podcastStoreMaxBytes+1))
+	if e != nil {
+		return d, e
+	}
+	if len(b) > podcastStoreMaxBytes {
+		return d, errors.New("podcast store exceeds storage limit")
 	}
 	if e = os.Chmod(s.lock.path, 0600); e != nil {
 		return d, e
@@ -78,6 +94,9 @@ func (s *podcastStore) write(d podcastData) error {
 	b, e := json.Marshal(d)
 	if e != nil {
 		return e
+	}
+	if len(b) > podcastStoreMaxBytes {
+		return errors.New("podcast store exceeds storage limit")
 	}
 	dir := filepath.Dir(s.lock.path)
 	f, e := os.CreateTemp(dir, ".podcasts-*")
@@ -209,7 +228,7 @@ func (s *podcastStore) mutate(owner, id, action string, now time.Time) (podcastJ
 				j.Progress = 0
 				j.Claim = ""
 				j.Lease = time.Time{}
-				j.Segments = []podcastSegment{}
+			// Preserve validated transcript and completed translations for retry.
 			case "cancel":
 				if !podcastActive(j.State) {
 					return errors.New("job is not active")
@@ -259,9 +278,12 @@ func (s *podcastStore) claim(now time.Time) (podcastJob, error) {
 			j.State = "fetching"
 			j.Progress = 5
 			j.Error = ""
-			j.Segments = []podcastSegment{}
+			if len(j.Segments) != 0 {
+				j.State = "translating"
+				j.Progress = 50
+			}
 			j.Claim = randomAuthToken()
-			j.Lease = now.Add(45 * time.Minute)
+			j.Lease = now.Add(podcastLeaseDuration)
 			j.UpdatedAt = now.UTC()
 			job = storedPodcast(*j)
 			return s.write(d)

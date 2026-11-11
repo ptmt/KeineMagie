@@ -50,7 +50,7 @@ func TestPodcastDurableOwnershipRecovery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	recovered, err := s2.claim(time.Now().Add(46 * time.Minute))
+	recovered, err := s2.claim(time.Now().Add(podcastLeaseDuration + time.Minute))
 	if err != nil || recovered.ID != job.ID || recovered.Attempts != 2 {
 		t.Fatalf("recovery: %+v %v", recovered, err)
 	}
@@ -164,7 +164,7 @@ func TestPodcastRealLocalWhisper(t *testing.T) {
 	cfg := &serverConfig{authPath: filepath.Join(t.TempDir(), "auth.json"), historyPath: filepath.Join(t.TempDir(), "history.json"), httpClient: &http.Client{Transport: transportFunc(func(r *http.Request) (*http.Response, error) {
 		body := `{"models":[{"slug":"offered","display_name":"Synthetic","visibility":"list"}]}`
 		if strings.HasSuffix(r.URL.Path, "responses") {
-			body = accountTranslationSSE(`{"text":"Синтетический тест перевода."}`, true, "response.completed")
+			body = podcastFixtureTranslationSSE(r)
 		}
 		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(body))}, nil
 	})}}
