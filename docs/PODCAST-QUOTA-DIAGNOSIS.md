@@ -18,7 +18,7 @@ A network-disabled ephemeral worker-image Python process held auth sidecar, tran
 
 Independent Docker readback: **0 jobs, 1 subscription, 0 current-day podcast attempts**. Public certificate-validating `curl -4 /health`: **200**, `status:ok`, at `2026-11-11T10:27:04Z`. Python's default route returned 403; IPv4 curl succeeded.
 
-## Reviewed release candidate (not deployed)
+## Reviewed release (subsequently deployed)
 
 - Typed owner-active, owner-retained, global-active, global-storage and daily-admission errors, retaining string `error` for native compatibility and sentinel compatibility via `errors.Is`.
 - Structured `code`, `limit`, `remaining`, owner-only `limits`; daily `retry_after` and `Retry-After` until UTC midnight.
@@ -31,12 +31,14 @@ Independent Docker readback: **0 jobs, 1 subscription, 0 current-day podcast att
 - Latest UI request included: direction immediately above textarea grid; compact unboxed style text below first input only; no whole-panel route-focus ring, while keyboard Tab keeps a visible 3px interactive-control ring.
 - Independent final read-only review: **No blockers** (`km-quota-review-final.txt`). A first CLI attempt failed on unsupported configured model; retry with cached supported review model completed.
 
-## Live readback and deployment hold
+## Live readback, safe deployment and terminal job evidence
 
 Independent Docker readback from the source-derived `/app/data/podcasts/jobs.json` first confirmed **0 current-day admissions / 0 jobs / 1 subscription**, with exactly one auth owner and both sessions plus all subscriptions belonging to that owner. No second reset was performed.
 
-The user subsequently started actual work. At **2026-11-11T10:56:45Z**, live storage contained **1 job, state transcribing; 1 subscription; 1 current-day admission**. Thus the reset held and a new admission was accepted. Public certificate-validating IPv4 `/health` returned **200**. This is not proof of translation completion.
+The user subsequently started actual work. At **2026-11-11T10:56:45Z**, live storage contained **1 job, state transcribing; 1 subscription; 1 current-day admission**. Deployment remained held while aggregate-only `docker cp`/in-memory tar reads showed translation progressing. At **11:07:53 UTC**, before any backend stop, the job was terminal **failed**, progress **72**, with **2,113 transcript segments / 954 nonempty translations** and **0 active jobs**. No job retry, cancellation or deletion was performed; this is partial persisted pipeline evidence, not completed translation or linguistic-quality acceptance.
 
-Built candidate Linux arm64 image: `sha256:812286007ede7c8ce0d2c0fde2f4f9e00cf2e9ba6e256b6490c27c422f4ad8b8`, using the repository Dockerfile with network-disabled build steps. **Deployment is deferred to avoid interrupting active real recognition.** Production remains backend `7f037ed2956a…`, worker `44b2fccc4df1…`; no override edits, restart, cancellation, seed data, paid inference or auth bypass. Do not claim the new JS/session handler is live until a safe backend-only rollout and exact public bytes/image readback have completed.
+Safely deployed commit `45ad29b1394c8eaa1224cfdb31083f6cc9b614a7`, backend `sha256:812286007ede7c8ce0d2c0fde2f4f9e00cf2e9ba6e256b6490c27c422f4ad8b8`, after nonblocking store/account-lock idle checks and a nonblocking global runner-lock acquisition around protected backup. Backend was the sole merged Compose change; worker `44b2fccc4df1…`, unrelated container IDs, resources, networks and volumes were retained. All **6 non-runtime persisted data files byte-identical**, including failed job/transcript/checkpoints. Private backup: service `deployment/release-session-quota-20261111T110845Z/`, directory **0700**, files **0600**, no runtime locks in tar backups.
+
+Public certificate-validating IPv4 HTTPS health **200**, session/podcasts/subscriptions **401**; all six shipped assets matched exact commit bytes/SHA256 and returned no-store. Actual guest browser verified source-only 11px styles, ru→de above inputs, keyboard focus and private-empty locked podcasts, without auth bypass. Exact server-image CI run **43008067360 success**; no native/TestFlight delivery claim. No paid inference or test seed work was initiated by rollout. See [deployment and rollback](DEPLOYMENT.md).
 
 New imports intentionally consume one daily admission once durably queued even if subsequent fetch/recognition fails; no claim of success-only billing. Daily podcast quota resets by UTC date, independently of the personal translation budget. No automatic refunds or limit increases were added.

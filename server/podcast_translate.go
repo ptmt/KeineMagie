@@ -100,7 +100,7 @@ func (p *podcastService) translatePodcast(ctx context.Context, job *podcastJob) 
 			return provider.translatePodcastBatch(ctx, credential.AccessToken, model, job.SourceLanguage, job.TargetLanguage, batch)
 		}()
 		if err != nil {
-			return errors.New("personal batch translation failed or incomplete; saved progress retained")
+			return podcastProviderFailure(err)
 		}
 		for _, item := range batch {
 			job.Segments[item.ID].Translation = result[item.ID]
@@ -151,13 +151,17 @@ func (p *providerService) translatePodcastBatch(ctx context.Context, token, mode
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, errors.New("upstream rejected translation")
+		return nil, podcastFailureCode("provider_rejected")
 	}
 	text, err := readPodcastTranslationSSE(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	return decodePodcastTranslations(text, items)
+	result, err := decodePodcastTranslations(text, items)
+	if err != nil {
+		return nil, podcastFailureCode("provider_invalid_output")
+	}
+	return result, nil
 }
 
 // Parse the actual Responses SSE envelope: only completed output is usable.
@@ -213,7 +217,7 @@ func readPodcastTranslationSSE(reader io.Reader) (string, error) {
 			text.WriteString(event.Delta)
 		case "response.completed":
 			if event.Response.Status != "completed" {
-				return "", errors.New("translation not completed")
+				return "", podcastFailureCode("provider_incomplete")
 			}
 			var snapshot strings.Builder
 			for _, out := range event.Response.Output {
@@ -222,7 +226,7 @@ func readPodcastTranslationSSE(reader io.Reader) (string, error) {
 				}
 				for _, part := range out.Content {
 					if part.Type == "refusal" {
-						return "", errors.New("translation refused")
+						return "", podcastFailureCode("provider_refused")
 					}
 					if part.Type == "output_text" {
 						if snapshot.Len()+len(part.Text) > 65536 {
@@ -236,14 +240,18 @@ func readPodcastTranslationSSE(reader io.Reader) (string, error) {
 				return "", errors.New("inconsistent completed translation")
 			}
 			return snapshot.String(), nil
-		case "response.failed", "response.incomplete", "error", "response.refusal.delta", "response.refusal.done":
-			return "", errors.New("translation failed")
+		case "response.incomplete":
+			return "", podcastFailureCode("provider_incomplete")
+		case "response.refusal.delta", "response.refusal.done":
+			return "", podcastFailureCode("provider_refused")
+		case "response.failed", "error":
+			return "", podcastFailureCode("provider_failed")
 		}
 	}
 	if err := scanner.Err(); err != nil {
 		return "", err
 	}
-	return "", errors.New("stream ended without response.completed")
+	return "", podcastFailureCode("provider_incomplete")
 }
 
 // Token decoding rejects duplicate keys and case variants that encoding/json's

@@ -29,18 +29,23 @@ type podcastJob struct {
 	State          string           `json:"state"`
 	Progress       int              `json:"progress"`
 	Error          string           `json:"error,omitempty"`
+	ErrorCode      string           `json:"error_code,omitempty"`
 	CreatedAt      time.Time        `json:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at"`
 	Attempts       int              `json:"attempts"`
 	Segments       []podcastSegment `json:"segments"`
 	Lease          time.Time        `json:"-"`
 	Claim          string           `json:"-"`
+	Resume         *podcastResume   `json:"-"`
+	ResumePending  bool             `json:"-"`
 }
 type podcastStoredJob struct {
 	podcastJob
-	Owner string    `json:"owner"`
-	Lease time.Time `json:"lease"`
-	Claim string    `json:"claim"`
+	Owner         string         `json:"owner"`
+	Lease         time.Time      `json:"lease"`
+	Claim         string         `json:"claim"`
+	Resume        *podcastResume `json:"resume,omitempty"`
+	ResumePending bool           `json:"resume_pending,omitempty"`
 }
 type podcastBudget struct {
 	Day      string `json:"day"`
@@ -263,6 +268,8 @@ func storedPodcast(j podcastStoredJob) podcastJob {
 	v.Owner = j.Owner
 	v.Lease = j.Lease
 	v.Claim = j.Claim
+	v.Resume = j.Resume
+	v.ResumePending = j.ResumePending
 	return v
 }
 func (s *podcastStore) list(owner string) ([]podcastJob, error) {
@@ -314,11 +321,15 @@ func (s *podcastStore) mutate(owner, id, action string, now time.Time) (podcastJ
 				// Exclude this retained item from the capacity count while reserving a retry.
 				copyData := podcastData{Jobs: append([]podcastStoredJob{}, d.Jobs[:i]...), Budgets: d.Budgets}
 				copyData.Jobs = append(copyData.Jobs, d.Jobs[i+1:]...)
-				if e = podcastReserve(&copyData, owner, now); e != nil {
+				// Retrying an admitted identity must not spend (or require) another
+				// daily admission; capacity still applies.
+				copyData.Budgets = map[string]podcastBudget{}
+				if e = podcastCheckAdmission(copyData, owner, now); e != nil {
 					return e
 				}
 				j.State = "queued"
 				j.Error = ""
+				j.ErrorCode = ""
 				j.Progress = 0
 				j.Claim = ""
 				j.Lease = time.Time{}
@@ -336,7 +347,15 @@ func (s *podcastStore) mutate(owner, id, action string, now time.Time) (podcastJ
 				}
 				job = storedPodcast(*j)
 				d.Jobs = append(d.Jobs[:i], d.Jobs[i+1:]...)
-				return s.write(d)
+				if e = s.write(d); e != nil {
+					return e
+				}
+				_ = os.Remove(s.mediaPath(job))
+				_ = os.Remove(s.mediaPath(job) + ".partial")
+				if _, e := os.Stat(s.mediaRoot()); e == nil {
+					return podcastSyncDir(s.mediaRoot())
+				}
+				return nil
 			default:
 				return errors.New("invalid action")
 			}
@@ -391,18 +410,22 @@ func (s *podcastStore) claim(now time.Time) (podcastJob, error) {
 					changed = true
 				}
 			}
-			if j.Attempts >= 3 {
+			if j.Attempts >= 3 && !j.ResumePending {
 				j.State = "failed"
 				j.Error = "worker interrupted; retry limit reached"
 				j.Claim = ""
 				changed = true
 				continue
 			}
-			j.Attempts++
+			if !j.ResumePending {
+				j.Attempts++
+			}
+			j.ResumePending = false
 			j.State = "fetching"
 			j.Progress = 5
 			j.Error = ""
-			if len(j.Segments) != 0 {
+			j.ErrorCode = ""
+			if len(j.Segments) != 0 && (j.Resume == nil || j.Resume.Complete) {
 				j.State = "translating"
 				j.Progress = 50
 			}
@@ -431,7 +454,7 @@ func (s *podcastStore) update(job podcastJob) error {
 			j := &d.Jobs[i]
 			if j.ID == job.ID && j.Owner == job.Owner && j.Claim == job.Claim && job.Claim != "" && podcastActive(j.State) {
 				job.UpdatedAt = time.Now().UTC()
-				d.Jobs[i] = podcastStoredJob{podcastJob: job, Owner: job.Owner, Lease: job.Lease, Claim: job.Claim}
+				d.Jobs[i] = podcastStoredJob{podcastJob: job, Owner: job.Owner, Lease: job.Lease, Claim: job.Claim, Resume: job.Resume, ResumePending: job.ResumePending}
 				return s.write(d)
 			}
 		}

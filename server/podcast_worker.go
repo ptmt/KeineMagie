@@ -94,17 +94,31 @@ func cleanupPodcastWorkspaces(root string) error {
 
 func (p *podcastService) run(ctx context.Context) {
 	// One worker globally across processes sharing this durable store. An OS crash
-	// releases the lock. Stale claims recover after the bounded lease deadline.
+	// releases the lock. Recover interrupted claims immediately after ownership.
 	lock, e := os.OpenFile(p.store.lock.path+".worker", os.O_CREATE|os.O_RDWR, 0600)
 	if e != nil {
 		return
 	}
 	defer lock.Close()
-	if syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB) != nil {
-		return
+	for {
+		err := syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
+		if err == nil {
+			break
+		}
+		if err != syscall.EWOULDBLOCK && err != syscall.EAGAIN {
+			return
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(time.Second):
+		}
 	}
 	defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
 	if cleanupPodcastWorkspaces(filepath.Dir(p.store.lock.path)) != nil {
+		return
+	}
+	if p.store.recoverInterrupted(time.Now()) != nil {
 		return
 	}
 	p.running.Store(true)
@@ -116,6 +130,9 @@ func (p *podcastService) run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
+			if p.store.cleanupMedia(time.Now()) != nil {
+				continue
+			}
 			if p.remote == nil || p.remote.ready(ctx) != nil {
 				continue
 			}
@@ -160,52 +177,40 @@ func (p *podcastService) process(parent context.Context, job podcastJob) {
 		}
 	}()
 	e := p.prepare(ctx, &job)
+	if parent.Err() != nil {
+		job.State = "queued"
+		job.ResumePending = true
+		job.Error = ""
+		_ = p.store.update(job)
+		return
+	}
 	if e != nil {
 		job.State = "failed"
 		job.Error = e.Error()
+		var failure *podcastFailure
+		if errors.As(e, &failure) {
+			job.ErrorCode = failure.Code
+		}
 		if ctx.Err() != nil {
 			job.Error = "worker canceled or exceeded 120 minute processing limit"
+			job.ErrorCode = "processing_canceled"
+			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+				job.ErrorCode = "processing_timeout"
+			}
 		}
 	} else {
 		job.State = "completed"
 		job.Progress = 100
 		job.Error = ""
+		job.ErrorCode = ""
 	}
 	_ = p.store.update(job)
+	if job.State == "completed" {
+		_ = p.store.cleanupMedia(time.Now())
+	}
 }
 func (p *podcastService) prepare(ctx context.Context, job *podcastJob) error {
-	if len(job.Segments) != 0 {
-		return p.translatePodcast(ctx, job)
-	}
-	dir, e := os.MkdirTemp(filepath.Dir(p.store.lock.path), "audio-*")
-	if e != nil {
-		return errors.New("audio workspace unavailable")
-	}
-	defer os.RemoveAll(dir)
-	audio := filepath.Join(dir, "source.audio")
-	fetch := p.fetchAudio
-	if fetch == nil {
-		fetch = (podcastFetcher{}).fetch
-	}
-	if e = fetch(ctx, job.URL, audio); e != nil {
-		return e
-	}
-	job.State = "transcribing"
-	job.Progress = 20
-	if e = p.store.update(*job); e != nil {
-		return e
-	}
-	segments, e := p.transcribe(ctx, audio, dir, job.SourceLanguage)
-	if e != nil {
-		return e
-	}
-	job.Segments = segments
-	job.State = "translating"
-	job.Progress = 50
-	if e = p.store.update(*job); e != nil {
-		return e
-	}
-	return p.translatePodcast(ctx, job)
+	return p.prepareResumable(ctx, job)
 }
 
 // Commands receive fixed arguments and local paths only, never user URL/text.

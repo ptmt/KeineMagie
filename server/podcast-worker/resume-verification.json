@@ -1,0 +1,40 @@
+{
+  "image": "sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382",
+  "source_sha256": "bc89f04c9d766a85f30304ff3b7455d3620010c530e4432bb15cd03cefa7ab60",
+  "fixture_sha256": "39b74b1ba4a808cb8589de187f10440f2fa31ec1ed84af57ae240ca0a3d3643f",
+  "checkpoint": {
+    "type": "checkpoint",
+    "chunk_index": 0,
+    "end_seconds": 600.0,
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 4.32,
+        "text": "Guten Morgen, heute lernen wir zusammen Deutsch, das Wetter ist schön."
+      }
+    ]
+  },
+  "resumed": [
+    {
+      "type": "checkpoint",
+      "chunk_index": 1,
+      "end_seconds": 660.0,
+      "segments": [
+        {
+          "start": 649.8,
+          "end": 656.4941875,
+          "text": "Zum Abschluss sprechen wir über die Bibliothek, in der Bibliothek lesen wir deutsche Bücher, auf Wiedersehen."
+        }
+      ]
+    },
+    {
+      "type": "complete",
+      "duration_seconds": 660.0,
+      "language": "de"
+    }
+  ],
+  "resources": {
+    "memory.peak": "710221824\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n"
+  }
+}
