@@ -6,7 +6,7 @@ Native iOS app for learning German, with a Go backend. Product specification: [d
 - `native/`: SwiftUI Apple identity, Keychain session, personal provider connection, translator/history, account-local style shortcuts, four tabs, and authenticated podcast library with static HTML/audio discovery and manually refreshed RSS/Atom subscriptions.
 - Native interface follows German, English, Russian, Spanish or French system/app language.
 - `server/`: authenticated translation/history and durable owner-scoped podcast jobs. Recognition runs in an isolated private Linux worker with no provider credentials; translation remains under the owner's backend provider connection.
-- `web/`: minimal translator, named style shortcuts, personal history, direct Apple web sign-in and optional iPhone pairing. Guest controls fail closed. Podcast/dictation/coach navigation honestly indicates unavailable web features.
+- `web/`: minimal translator, named style shortcuts, personal history, direct Apple web sign-in and optional iPhone pairing. Authenticated podcast library supports subscriptions, explicit episode preparation, job actions and timestamped transcripts through the existing owner-scoped API; see [web podcasts and verification limits](docs/WEB-PODCASTS.md). Guest controls fail closed. Dictation/coach remain unavailable.
 - Dictation, coach and the full shadowing learning loop remain planned. Share-extension source is opt-in only and **not shipped**: app + extension App Group profiles and signing integration are still required.
 - Legacy Expo sources remain in Git history.
 

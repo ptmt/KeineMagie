@@ -43,9 +43,12 @@ window.fetch=async(path,opts={})=>{
 };
 """
 core = re.sub(r'export (?=(function|async function|const))', '', (root / 'core.mjs').read_text())
-app = re.sub(r'^import .*?;\n', '', (root / 'app.mjs').read_text())
+app = re.sub(r'^import .*?;\n', '', (root / 'app.mjs').read_text(), flags=re.M)
 goto_url('about:blank')
-cdp('Page.setDocumentContent', frameId=cdp('Page.getFrameTree')['frameTree']['frame']['id'], html=html)
+cdp('Page.setDocumentContent', frameId=cdp('Page.getFrameTree')['frameTree']['frame']['id'], html='<!doctype html><html><body></body></html>')
+js('document.open()')
+for start in range(0,len(html),16000): js('document.write('+json.dumps(html[start:start+16000])+')')
+js('document.close()')
 js('(() => {' + fixture + '\n' + core + '\n' + app + '\nreturn true;})()')
 checks = []
 def check(name, expression):

@@ -36,7 +36,7 @@ Object.defineProperty(window, 'localStorage', {configurable:true, value:{
 }});
 """
 core = re.sub(r'export (?=(function|async function|const))', '', (root / 'core.mjs').read_text())
-app = re.sub(r'^import .*?;\n', '', (root / 'app.mjs').read_text())
+app = re.sub(r'^import .*?;\n', '', (root / 'app.mjs').read_text(), flags=re.M)
 goto_url('about:blank')
 cdp('Page.setDocumentContent', frameId=cdp('Page.getFrameTree')['frameTree']['frame']['id'], html=html)
 js('(() => {' + fixture + '\n' + core + '\n' + app + '\nreturn true;})()')

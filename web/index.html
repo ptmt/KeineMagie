@@ -57,15 +57,27 @@
       <h1 id="dictation-title">Diktat</h1>
       <p class="muted">Noch nicht verfügbar</p>
     </section>
-    <section id="podcasts" class="unavailable-page" aria-labelledby="podcasts-title" tabindex="-1" hidden>
-      <h1 id="podcasts-title">Podcasts</h1>
-      <p class="muted">Noch nicht verfügbar</p>
+    <section id="podcasts" class="podcasts-page" aria-labelledby="podcasts-title" tabindex="-1" hidden>
+      <div class="section-heading"><h1 id="podcasts-title">Podcasts</h1><div><button id="podcast-reload" class="quiet-button" disabled>Aktualisieren</button><button id="podcast-add" class="small-button" aria-label="Podcast hinzufügen" disabled>+</button></div></div>
+      <div id="podcast-notice" role="status" aria-live="polite">Sitzung wird geprüft …</div>
+      <button id="podcast-signin" class="apple-button" hidden><img src="./apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
+      <div id="podcast-content"></div>
     </section>
     <section id="coach" class="unavailable-page" aria-labelledby="coach-title" tabindex="-1" hidden>
       <h1 id="coach-title">Coach</h1>
       <p class="muted">Noch nicht verfügbar</p>
     </section>
   </main>
+  <dialog id="podcast-dialog" aria-labelledby="podcast-dialog-title">
+    <form id="podcast-form">
+      <div class="dialog-heading"><h2 id="podcast-dialog-title">Podcast hinzufügen</h2><button id="podcast-close" type="button" class="close-button" aria-label="Podcast-Dialog schließen">×</button></div>
+      <label for="podcast-mode">Hinzufügen als</label><select id="podcast-mode"><option value="feed">Podcast abonnieren</option><option value="episode">Einzelne Folge vorbereiten</option></select>
+      <label for="podcast-url">Öffentliche URL</label><input id="podcast-url" type="url" required autocomplete="off" placeholder="https://…">
+      <div id="podcast-import-language" hidden><label for="podcast-source">Sprachrichtung</label><select id="podcast-source"><option value="de">de → ru</option><option value="ru">ru → de</option></select></div>
+      <p id="podcast-add-help" class="muted">Ein RSS-/Atom-Feed oder eine öffentliche Podcast-Seite. Ein Abo startet keine KI-Verarbeitung.</p>
+      <p id="podcast-add-error" class="error-text" role="status"></p><button id="podcast-submit" type="submit" class="small-button">Abonnieren</button>
+    </form>
+  </dialog>
   <dialog id="prompt-dialog" aria-labelledby="prompt-title">
     <form id="prompt-form">
       <div class="dialog-heading"><h2 id="prompt-title">Eigener Stil</h2><button id="close-prompt" type="button" class="close-button" aria-label="Stil schließen">×</button></div>

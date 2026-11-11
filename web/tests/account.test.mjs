@@ -36,13 +36,13 @@ export async function harness({deferSession, config: configOverride} = {}) {
     if (path === '/v1/provider/connect') body = await (deferConnect?.() ?? {bootstrap_token:'SYNTHETIC-ONLY',expires_in:300});
     return {ok:status===200,status,json:async()=>body};
   };
-  const app = (await readFile(new URL('../app.mjs', import.meta.url), 'utf8')).replace(/^import .*?;\n/, '');
+  const app = (await readFile(new URL('../app.mjs', import.meta.url), 'utf8')).replace(/^import .*?;\n/gm, '');
   const links = [...html.matchAll(/<a href="#(translator|dictation|podcasts|coach)"[^>]*>([^<]+)<\/a>/g)].map(([,id,textContent]) => ({hash:`#${id}`,textContent,setAttribute(){},removeAttribute(){}}));
   const createElement = () => {
     const listeners = {};
     return { children: [], append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
   };
-  vm.runInNewContext(app, {...core, createAPI:()=>core.createAPI(fetch), document:{ getElementById:id=>nodes.get(id), querySelectorAll:()=>links, createElement }, window:{addEventListener(){}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location:{hash:''}, setTimeout:()=>1, clearTimeout(){}, AbortController, console});
+  vm.runInNewContext(app, {...core, createAPI:()=>core.createAPI(fetch), document:{ addEventListener(){}, getElementById:id=>nodes.get(id), querySelectorAll:()=>links, createElement }, window:{addEventListener(){}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location:{hash:''}, setTimeout:()=>1, clearTimeout(){}, AbortController, console});
   const settle = () => new Promise(resolve=>setImmediate(resolve));
   await settle();
   return {nodes, calls, settle, storage, signIn(value, id=userID){signedIn=value;userID=id;}, provider(value){provider=value;}, history(value){items=value;}, defer(fn){deferConnect=fn;}};

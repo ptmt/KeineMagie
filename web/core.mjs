@@ -75,7 +75,7 @@ export async function startAppleLogin(api, csrf) {
 export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
   return {
     async request(path, { method = 'GET', body, csrf, signal } = {}) {
-      if (!/^\/v1\/[a-z0-9/_-]+$/.test(path)) throw new Error('Only same-origin API paths are allowed');
+      if (!/^\/v1\/[A-Za-z0-9/_-]+$/.test(path) || path.split('/').some(part => part === '.' || part === '..')) throw new Error('Only same-origin API paths are allowed');
       const headers = { Accept: 'application/json' };
       if (body !== undefined) headers['Content-Type'] = 'application/json';
       if (csrf) headers['X-CSRF-Token'] = csrf;
@@ -92,4 +92,110 @@ export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
       return value;
     }
   };
+}
+
+// Owner-scoped in-memory library. No credentials, URLs or transcripts are persisted.
+export function createPodcasts({api, changed = () => {}, unauthorized = () => {}, visible = () => true, schedule = setTimeout, unschedule = clearTimeout} = {}) {
+  const state = {phase:'guest', feeds:[], jobs:[], worker:false, error:'', pending:new Set(), route:{kind:'library'}};
+  let session = null, epoch = 0, active = false, timer = null, rounds = 0, loading = null;
+  const controllers = new Set();
+  function stop() { unschedule(timer); timer = null; }
+  function emit() { changed(state); }
+  function identity(value) {
+    if (session?.user?.id !== value?.user?.id) {
+      epoch++; inflight.clear(); stop(); controllers.forEach(c => c.abort()); controllers.clear(); loading = null;
+      state.feeds = []; state.jobs = []; state.pending = new Set(); state.error = ''; state.worker = false;
+      state.phase = value?.user?.id ? 'idle' : 'guest'; rounds = 0;
+    }
+    session = value; emit();
+  }
+  async function request(path, options = {}) {
+    if (!session?.user?.id) throw new Error('Sign in required');
+    const run = epoch, controller = new AbortController(); controllers.add(controller);
+    try {
+      const value = await api.request(path, {...options, csrf:session.csrf_token, signal:controller.signal});
+      if (run !== epoch) throw new DOMException('Stale account', 'AbortError');
+      return value;
+    } catch (error) {
+      if (run === epoch && error.status === 401) { identity(null); unauthorized(error); }
+      throw error;
+    } finally { controllers.delete(controller); }
+  }
+  async function load() {
+    if (!session?.user?.id) return;
+    if (loading) return loading;
+    const run = epoch;
+    state.phase = state.phase === 'loaded' ? 'loaded' : 'loading'; state.error = ''; emit();
+    const task = (async () => {
+      try {
+        const [feeds,jobs] = await Promise.all([request('/v1/podcasts/subscriptions'), request('/v1/podcasts')]);
+        if (run !== epoch) return;
+        if (!Array.isArray(feeds.items) || !Array.isArray(jobs.items)) throw new Error('Invalid library');
+        state.feeds = feeds.items; state.jobs = jobs.items; state.worker = jobs.worker_available === true; state.phase = 'loaded';
+      } catch (error) { if (run === epoch) { state.error = podcastError(error); if (state.phase !== 'loaded') state.phase = 'error'; } }
+      finally { if (run === epoch) { loading = null; emit(); poll(); } }
+    })();
+    loading = task; return task;
+  }
+  function poll() { stop(); if (active && visible() && session && !state.error && rounds < 120 && state.jobs.some(j => isActive(j))) timer = schedule(async () => { rounds++; await load(); }, 5000); }
+  async function activate(hash) {
+    active = hash === '#podcasts' || hash.startsWith('#podcasts/'); stop();
+    state.route = parsePodcastRoute(hash); emit();
+    if (active && visible()) { rounds = 0; await load(); }
+  }
+  function pause() { active = false; stop(); }
+  function preparation(feed, episode) { return state.jobs.find(j => j.feed_id === feed.id && j.episode_id === episode.id) || episode.preparation || null; }
+  function directJobs() {
+    const linked = new Set(state.feeds.flatMap(f => (f.episodes || []).map(e => e.preparation?.id).filter(Boolean)));
+    return state.jobs.filter(j => !j.feed_id && !j.episode_id && !linked.has(j.id));
+  }
+  const inflight = new Map();
+  function mutation(key, path, options, project = value => value) {
+    if (inflight.has(key)) return inflight.get(key);
+    const run = epoch; state.pending.add(key); state.error = ''; emit();
+    const task = request(path, options).then(value => {
+      if (run !== epoch) throw new DOMException('Stale account', 'AbortError');
+      return project(value);
+    }).catch(error => { if (run === epoch && error.name !== 'AbortError') state.error = podcastError(error); throw error; })
+      .finally(() => { if (inflight.get(key) === task) inflight.delete(key); if (run === epoch) { state.pending.delete(key); emit(); poll(); } });
+    inflight.set(key,task); return task;
+  }
+  function saveJob(job) { state.jobs = [job, ...state.jobs.filter(j => j.id !== job.id)]; return job; }
+  function prepare(feed_id, episode_id, source_language = 'de') {
+    return mutation(`${session?.user?.id}:prepare:${feed_id}:${episode_id}`, '/v1/podcasts', {method:'POST',body:{feed_id,episode_id,source_language}}, saveJob);
+  }
+  async function detail(id) {
+    const value = await request(`/v1/podcasts/${apiID(id)}`); saveJob(value); emit(); return value;
+  }
+  return {state, identity, activate, pause, load, preparation, directJobs, prepare, detail,
+    importURL(url,source_language='de') { return mutation(`${session?.user?.id}:import:${url}`, '/v1/podcasts', {method:'POST',body:{url,source_language}}, saveJob); },
+    subscribe(url) { return mutation(`${session?.user?.id}:subscribe`, '/v1/podcasts/subscriptions', {method:'POST',body:{url}}, value => value); },
+    refresh(id) { return mutation(`${session?.user?.id}:refresh:${id}`, `/v1/podcasts/subscriptions/${apiID(id)}/refresh`, {method:'POST',body:{}}); },
+    unsubscribe(id) { return mutation(`${session?.user?.id}:unsubscribe:${id}`, `/v1/podcasts/subscriptions/${apiID(id)}`, {method:'DELETE'}); },
+    jobAction(id,action) {
+      if (!['retry','cancel','delete'].includes(action)) throw new Error('Invalid action');
+      return mutation(`${session?.user?.id}:${action}:${id}`, `/v1/podcasts/${apiID(id)}${action === 'delete' ? '' : '/'+action}`, {method:action === 'delete'?'DELETE':'POST', ...(action === 'delete'?{}:{body:{}})}, value => { if (action === 'delete') state.jobs = state.jobs.filter(j => j.id !== id); else saveJob(value); return value; });
+    },
+    dispose() { pause(); identity(null); },
+  };
+}
+
+export function apiID(id) { if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,200}$/.test(id)) throw new Error('Invalid identifier'); return id; }
+export function parsePodcastRoute(hash) {
+  if (hash === '#podcasts') return {kind:'library'};
+  const match = /^#podcasts\/(feed|job)\/([^/]+)$/.exec(hash);
+  if (!match) return {kind:'invalid'};
+  try { const id = decodeURIComponent(match[2]); return /^[A-Za-z0-9_-]{1,200}$/.test(id) ? {kind:match[1],id} : {kind:'invalid'}; } catch { return {kind:'invalid'}; }
+}
+export const podcastRoute = (kind,id) => `#podcasts/${kind}/${encodeURIComponent(id)}`;
+export const isActive = job => ['queued','fetching','transcribing','translating'].includes(job.state);
+export function podcastError(error) {
+  if (error.status === 401) return 'Deine Sitzung ist abgelaufen. Bitte erneut anmelden.';
+  if (error.status === 429) return 'Podcast-Limit erreicht oder zu viele Anfragen. Warte bitte; maximal 2 aktive, 4 Versuche pro Tag und 30 gespeicherte Folgen. Auch das Übersetzungsbudget gilt.';
+  if (error.status === 400) return 'Diese Quelle ist nicht verfügbar. Nutze einen öffentlichen RSS-/Atom-Feed oder eine Folge mit direktem Audio, ohne Anmeldung oder signierte URL.';
+  if (error.status === 403) return 'Anfrage nicht autorisiert. Bitte die Sitzung erneut prüfen.';
+  if (error.status === 404) return 'Dieser Podcast ist nicht mehr verfügbar.';
+  if (error.status === 409) return 'Aktion in diesem Zustand nicht möglich. Bitte aktualisieren.';
+  if (error.status === 503) return 'Vorbereitung derzeit nicht verfügbar. Bitte Worker und persönliche ChatGPT-Verbindung im Konto prüfen.';
+  return 'Podcasts konnten nicht geladen werden. Bitte erneut versuchen.';
 }
