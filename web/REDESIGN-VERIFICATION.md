@@ -24,4 +24,4 @@ Scope: web client plus exact static asset allowlist/Docker copy only. Native Swi
 - Final local fixture guest-ready range 31.4–39.2ms; session start 12.8–17.0ms. These are synthetic local measurements, not live performance or paint claims.
 - `git diff --check`: clean.
 
-Evidence: `/Users/tinyserve/.hermes/cache/scratch/keinemagie-redesign/` (screenshots, measurements.json, final-suites.json). Production authenticated latency, live account integration and deployment remain intentionally unverified.
+Evidence: `/Users/tinyserve/.hermes/cache/scratch/keinemagie-redesign/` (synthetic screenshots/measurements). Exact-commit backend deployment, live public guest checks, independent Astra follow-up and verified iOS upload are recorded in `docs/NEUTRAL-DESIGN-RELEASE.md`. Production authenticated latency/live account integration remain unverified.
