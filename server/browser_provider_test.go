@@ -35,8 +35,11 @@ func TestBrowserProviderBootstrapUsesCookieOwnerAndCSRF(t *testing.T) {
 		return w
 	}
 	w := call("GET", "/v1/web/session", "")
-	if w.Code != 200 || !strings.Contains(w.Body.String(), `"status":"not_connected"`) {
-		t.Fatalf("session provider %d %s", w.Code, w.Body.String())
+	if w.Code != 200 || strings.Contains(w.Body.String(), `"provider"`) || !strings.Contains(w.Body.String(), `"csrf_token"`) {
+		t.Fatalf("local session %d %s", w.Code, w.Body.String())
+	}
+	if w = call("GET", "/v1/provider", ""); w.Code != 200 || !strings.Contains(w.Body.String(), `"status":"not_connected"`) {
+		t.Fatalf("independent provider %d %s", w.Code, w.Body.String())
 	}
 	if w = call("POST", "/v1/provider/connect", ""); w.Code != 403 {
 		t.Fatal("bootstrap no csrf")

@@ -30,7 +30,7 @@ window.fetch=async(path,opts={})=>{
  if(path==='/v1/podcasts/subscriptions'&&opts.method==='POST')return reply(window.__feeds[0]);
  if(path.endsWith('/refresh'))return reply(window.__feeds[0]);
  if(opts.method==='DELETE'){if(path.includes('subscriptions'))window.__feeds=[];else window.__jobs=[];return new Response(null,{status:204});}
- if(path==='/v1/podcasts'&&opts.method==='POST'){if(window.__quota)return reply({},429);if(window.__prepareHold)await new Promise(r=>window.__prepareRelease=r);window.__jobs=[window.__job];return reply(window.__job,202);}
+ if(path==='/v1/podcasts'&&opts.method==='POST'){if(window.__quota)return reply({code:'podcast_daily_limit',error:'Daily admissions exhausted',remaining:0,retry_after:120,limits:{daily_remaining:0}},429);if(window.__prepareHold)await new Promise(r=>window.__prepareRelease=r);window.__jobs=[window.__job];return reply(window.__job,202);}
  if(path==='/v1/podcasts')return reply({items:window.__jobs,worker_available:true});
  if(path.endsWith('/cancel')){window.__job.state='canceled';return reply(window.__job);}
  if(path.endsWith('/retry')){window.__job.state='queued';return reply(window.__job);}
@@ -84,8 +84,12 @@ for width in [320,1440]:
  check(f'reader no overflow {width}','document.documentElement.scrollWidth<=innerWidth');shutil.copy(capture_screenshot(),out/f'reader-{width}.png')
 route('#translator');check('translator draft preserved',"document.querySelector('#source-text').value==='Fixture translator draft'")
 route('#podcasts');check('feed job not duplicated as anonymous import',"!document.querySelector('#podcast-content').textContent.includes('Einzelne Folgen')")
+check('route focus has no whole-panel outline',"getComputedStyle(document.querySelector('#podcasts')).outlineStyle==='none'")
+cdp('Input.dispatchKeyEvent',type='keyDown',key='Tab',code='Tab',windowsVirtualKeyCode=9)
+cdp('Input.dispatchKeyEvent',type='keyUp',key='Tab',code='Tab',windowsVirtualKeyCode=9)
+check('keyboard tab retains visible interactive focus',"document.activeElement.id==='podcast-reload' && document.activeElement.matches(':focus-visible') && getComputedStyle(document.activeElement).outlineWidth==='3px'")
 js("document.querySelector('#podcast-add').click();document.querySelector('#podcast-mode').value='episode';document.querySelector('#podcast-mode').dispatchEvent(new Event('change'));document.querySelector('#podcast-url').value='https://public.example/episode.mp3';window.__quota=true;document.querySelector('#podcast-form').requestSubmit()");settle()
-check('quota errors readable in add dialog',"document.querySelector('#podcast-add-error').textContent.includes('Podcast-Limit')&&document.querySelector('#podcast-dialog').open")
+check('quota errors readable in add dialog',"document.querySelector('#podcast-add-error').textContent.includes('00:00 UTC')&&document.querySelector('#podcast-dialog').open")
 js("window.__quota=false;document.querySelector('#podcast-form').requestSubmit()");settle()
 check('direct import submits selected source language',"window.__calls.some(c=>c.path==='/v1/podcasts'&&c.method==='POST'&&c.body.url==='https://public.example/episode.mp3'&&c.body.source_language==='de')")
 route('#podcasts/feed/Feed_A');clicktext('Feed aktualisieren')

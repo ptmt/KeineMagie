@@ -86,6 +86,9 @@ export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
         const error = new Error('The request could not be completed.');
         error.status = response.status;
         error.code = typeof value?.code === 'string' ? value.code : '';
+        error.remaining = Number.isInteger(value?.remaining) ? value.remaining : undefined;
+        error.retry_after = Number.isInteger(value?.retry_after) ? value.retry_after : undefined;
+        error.limits = value?.limits && typeof value.limits === 'object' ? value.limits : null;
         throw error;
       }
       if (value === null) throw new Error('The server returned an invalid response.');
@@ -96,7 +99,7 @@ export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
 
 // Owner-scoped in-memory library. No credentials, URLs or transcripts are persisted.
 export function createPodcasts({api, changed = () => {}, unauthorized = () => {}, visible = () => true, schedule = setTimeout, unschedule = clearTimeout} = {}) {
-  const state = {phase:'guest', feeds:[], jobs:[], worker:false, error:'', pending:new Set(), route:{kind:'library'}};
+  const state = {phase:'guest', feeds:[], jobs:[], limits:null, worker:false, error:'', pending:new Set(), route:{kind:'library'}};
   let session = null, epoch = 0, active = false, timer = null, rounds = 0, loading = null;
   const controllers = new Set();
   function stop() { unschedule(timer); timer = null; }
@@ -105,6 +108,7 @@ export function createPodcasts({api, changed = () => {}, unauthorized = () => {}
     if (session?.user?.id !== value?.user?.id) {
       epoch++; inflight.clear(); stop(); controllers.forEach(c => c.abort()); controllers.clear(); loading = null;
       state.feeds = []; state.jobs = []; state.pending = new Set(); state.error = ''; state.worker = false;
+      state.limits = null;
       state.phase = value?.user?.id ? 'idle' : 'guest'; rounds = 0;
     }
     session = value; emit();
@@ -132,6 +136,7 @@ export function createPodcasts({api, changed = () => {}, unauthorized = () => {}
         if (run !== epoch) return;
         if (!Array.isArray(feeds.items) || !Array.isArray(jobs.items)) throw new Error('Invalid library');
         state.feeds = feeds.items; state.jobs = jobs.items; state.worker = jobs.worker_available === true; state.phase = 'loaded';
+        state.limits = jobs.limits || null;
       } catch (error) { if (run === epoch) { state.error = podcastError(error); if (state.phase !== 'loaded') state.phase = 'error'; } }
       finally { if (run === epoch) { loading = null; emit(); poll(); } }
     })();
@@ -191,7 +196,16 @@ export const podcastRoute = (kind,id) => `#podcasts/${kind}/${encodeURIComponent
 export const isActive = job => ['queued','fetching','transcribing','translating'].includes(job.state);
 export function podcastError(error) {
   if (error.status === 401) return 'Deine Sitzung ist abgelaufen. Bitte erneut anmelden.';
-  if (error.status === 429) return 'Podcast-Limit erreicht oder zu viele Anfragen. Warte bitte; maximal 2 aktive, 4 Versuche pro Tag und 30 gespeicherte Folgen. Auch das Übersetzungsbudget gilt.';
+  if (error.status === 429) {
+    const reasons = {
+      podcast_daily_limit: 'Alle 4 Podcast-Vorbereitungen für heute wurden verbraucht, auch fehlgeschlagene oder gelöschte. Zurücksetzung um 00:00 UTC. Das persönliche Übersetzungsbudget ist davon getrennt.',
+      podcast_active_limit: 'Bereits 2 aktive Podcast-Vorbereitungen. Warte oder brich eine davon ab.',
+      podcast_storage_limit: 'Bereits 30 Folgen gespeichert. Lösche eine nicht mehr benötigte inaktive Vorbereitung.',
+      podcast_global_active_limit: 'Die Warteschlange ist voll. Bitte nach Abschluss laufender Vorbereitungen erneut versuchen.',
+      podcast_global_storage_limit: 'Der Serverspeicher für Podcasts ist voll. Bitte die Administration kontaktieren.'
+    };
+    return reasons[error.code] || 'Zu viele Anfragen. Bitte später erneut versuchen.';
+  }
   if (error.status === 400) return 'Diese Quelle ist nicht verfügbar. Nutze einen öffentlichen RSS-/Atom-Feed oder eine Folge mit direktem Audio, ohne Anmeldung oder signierte URL.';
   if (error.status === 403) return 'Anfrage nicht autorisiert. Bitte die Sitzung erneut prüfen.';
   if (error.status === 404) return 'Dieser Podcast ist nicht mehr verfügbar.';

@@ -38,6 +38,7 @@ def check(name, expression):
 
 check('fresh ru-de default and matching input/output languages', "document.querySelector('#language-direction').value==='ru-de' && document.querySelector('#source-text').lang==='ru' && document.querySelector('#result').lang==='de'")
 check('compact accessible three-direction menu', "JSON.stringify([...document.querySelector('#language-direction').options].map(o=>o.textContent))===JSON.stringify(['de → ru','ru → de','de → de']) && document.querySelector('option[value=de-de]').getAttribute('aria-label')==='Deutsch verbessern'")
+check('direction directly above grid and tiny text styles below source only',"document.querySelector('.language-bar').nextElementSibling.matches('.translation-panels') && document.querySelector('#style-controls').closest('.input-panel')!==null && document.querySelector('#source-text').getBoundingClientRect().bottom<=document.querySelector('#style-controls').getBoundingClientRect().top && getComputedStyle(document.querySelector('.style-chip')).borderWidth==='0px' && getComputedStyle(document.querySelector('.style-chip')).backgroundColor==='rgba(0, 0, 0, 0)'")
 for direction, source, target, swapped in [('de-ru', 'de', 'ru', 'ru-de'), ('ru-de', 'ru', 'de', 'de-ru'), ('de-de', 'de', 'de', 'de-de')]:
     js(f"document.querySelector('#language-direction').value='{direction}';document.querySelector('#language-direction').dispatchEvent(new Event('change'));document.querySelector('#style-chips button:nth-child(3)').click()")
     fill_input('#source-text', 'Ich habe ein frage. — test fixture')

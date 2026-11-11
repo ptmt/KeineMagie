@@ -10,6 +10,12 @@ let busy = false;
 let controller = null;
 let generation = 0;
 let checking = false;
+let sessionFlight = null;
+let validatedAt = 0;
+let sessionError = '';
+let providerFlight = null;
+const sessionFreshness = 60_000;
+const sessionTimeout = 8_000;
 let bootstrapTimer = null;
 let accountRun = 0;
 let pairingTimer = null;
@@ -105,7 +111,8 @@ function renderRoute(focus = false) {
     if (!$('account-dialog').contains(document.activeElement)) $('close-account').focus({ preventScroll: true });
   } else if (focus && next !== activeSection) $(next).focus({ preventScroll: true });
   activeSection = next;
-  if (!checking) podcasts.route(location.hash);
+  if (session?.user?.id && !session.provider && next === 'translator') void loadProvider();
+  if (!checking || session?.user?.id) podcasts.route(location.hash);
   else podcasts.pause();
 }
 window.addEventListener('hashchange', () => renderRoute(true));
@@ -125,11 +132,12 @@ function resetResult() {
 }
 function clearPrivateData() {
   generation++;
+  validatedAt = 0; providerFlight = null;
   accountRun++;
   clearPairing();
   controller?.abort();
   clearBootstrap();
-  session = null; podcasts.identity(null, {checking,config}); history = []; renderStyles();
+  session = null; podcasts.identity(null, {checking,config,error:sessionError}); history = []; renderStyles();
   resetResult();
   $('source-text').value = '';
   $('history-list').replaceChildren();
@@ -162,7 +170,7 @@ function updateInput() {
   setText('translate', busy ? 'Wird übersetzt …' : 'Übersetzen ↗');
 }
 function renderConnection() {
-  podcasts.identity(session, {checking,config});
+  podcasts.identity(session, {checking,config,error:sessionError});
   const signedIn = !!session?.user?.id;
   const phase = readiness(session);
   const modelUnavailable = phase === 'model-unavailable';
@@ -179,22 +187,23 @@ function renderConnection() {
   $('pair-browser').hidden = signedIn || config?.pairing_available !== true;
   $('pair-browser').disabled = checking || config?.pairing_available !== true;
   $('logout').hidden = !signedIn;
-  $('provider-connect').disabled = checking || !signedIn || config?.chatgpt_connect_available !== true || session?.provider?.connected === true;
+  $('provider-connect').disabled = checking || !signedIn || !session?.provider || config?.chatgpt_connect_available !== true || session?.provider?.connected === true;
   $('refresh-history').disabled = checking || !signedIn;
   setText('apple-status', signedIn ? 'Mit Apple angemeldet' : '');
-  setText('provider-status', signedIn ? (modelUnavailable ? 'Verbunden · Modell nicht verfügbar' : session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden') : '');
+  setText('provider-status', signedIn ? (!session.provider ? 'Verbindung wird geprüft …' : modelUnavailable ? 'Verbunden · Modell nicht verfügbar' : session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden') : '');
   if (!signedIn || session?.provider?.connected === true) clearBootstrap();
   setText('provider-detail', !signedIn ? '' : modelUnavailable ? catalogWarning : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
-  $('connection-notice').hidden = !checking && phase === 'ready';
+  $('connection-notice').hidden = !checking && !sessionError && phase === 'ready';
   $('connection-action').hidden = checking;
-  const appleSignIn = !checking && !signedIn && config?.apple_available === true;
+  const appleSignIn = !checking && !sessionError && !signedIn && config?.apple_available === true;
   $('connection-action').classList.toggle('apple-button', appleSignIn);
   $('connection-action-art').hidden = !appleSignIn;
   $('connection-action-label').hidden = appleSignIn;
   $('translation-form').classList.toggle('sign-in-required', !signedIn);
   setText('connection-action-label', modelUnavailable ? 'Erneut prüfen' : signedIn ? 'Konto öffnen' : 'Anmelden');
   setText('connection-detail', modelUnavailable ? catalogWarning : '');
-  if (checking) setText('connection-title', 'Sitzung wird geprüft …');
+  if (sessionError) { setText('connection-title', sessionError); setText('connection-action-label', 'Erneut prüfen'); }
+  else if (checking) setText('connection-title', 'Sitzung wird geprüft …');
   else if (phase === 'ready') setText('connection-title', 'Bereit zum Übersetzen');
   else if (modelUnavailable) setText('connection-title', 'ChatGPT verbunden · Modell nicht verfügbar.');
   else if (signedIn) setText('connection-title', 'ChatGPT im Konto verbinden.');
@@ -220,30 +229,61 @@ function handleUnauthorized(error) {
   clearPrivateData();
   renderConnection();
 }
-async function restore() {
-  if (checking) return;
+async function loadProvider() {
+  if (!session?.user?.id) return;
+  if (providerFlight) return providerFlight;
+  const run = generation, owner = session.user.id;
+  const task = (async () => {
+    try {
+      const provider = await api.request('/v1/provider', {signal:AbortSignal.timeout(sessionTimeout)});
+      if (run !== generation || owner !== session?.user?.id) return;
+      session.provider = provider;
+    } catch (error) {
+      if (run !== generation || owner !== session?.user?.id) return;
+      handleUnauthorized(error);
+      if (session) setText('account-error', 'ChatGPT-Verbindung konnte nicht geprüft werden. Bitte erneut prüfen.');
+    } finally {
+      if (providerFlight === task) providerFlight = null;
+      if (run === generation) renderConnection();
+    }
+  })();
+  providerFlight = task;
+  return task;
+}
+function restore({force = true} = {}) {
+  if (sessionFlight) return sessionFlight;
+  if (!force && validatedAt && Date.now() - validatedAt < sessionFreshness) { renderRoute(); return Promise.resolve(); }
   const priorUser = session?.user?.id;
-  checking = true; closePrompt(); renderConnection();
+  checking = true; sessionError = ''; closePrompt(); renderConnection();
   setText('account-error', '');
   const run = generation;
-  try {
-    const [newConfig, newSession] = await Promise.all([
-      api.request('/v1/web/config'),
-      api.request('/v1/web/session').catch(error => { if (error.status === 401) return null; throw error; })
-    ]);
-    if (run !== generation) return;
-    config = newConfig;
-    if (priorUser && priorUser !== newSession?.user?.id) clearPrivateData();
-    session = newSession;
-    if (session?.user?.id) await loadHistory();
-  } catch (error) {
-    if (run !== generation) return;
-    if (session) clearPrivateData();
-    config = null;
-    setText('account-error', 'Sichere Web-Anmeldung nicht erreichbar. Bitte später erneut prüfen.');
-  } finally {
-    checking = false; renderConnection(); renderRoute();
-  }
+  const task = (async () => {
+    try {
+      // Configuration and identity are independent; config must never gate private
+      // library reads, nor may a late config response revive an invalid identity.
+      void api.request('/v1/web/config', {signal:AbortSignal.timeout(sessionTimeout)}).then(value => {
+        if (run === generation) { config = value; renderConnection(); }
+      }).catch(() => { if (run === generation) renderConnection(); });
+      const newSession = await api.request('/v1/web/session', {signal:AbortSignal.timeout(sessionTimeout)}).catch(error => { if (error.status === 401) return null; throw error; });
+      if (run !== generation) return;
+      if (newSession && (!newSession.user?.id || !newSession.csrf_token)) throw new Error('Invalid session');
+      if (priorUser && priorUser !== newSession?.user?.id) clearPrivateData();
+      session = newSession;
+      validatedAt = Date.now();
+      checking = false; renderConnection();
+      // Neither history nor external model discovery is identity validation.
+      if (session?.user?.id) { void loadHistory(); if (!session.provider && (activeSection === 'translator' || $('account-dialog').open)) void loadProvider(); }
+    } catch (error) {
+      if (run !== generation) return;
+      sessionError = 'Sitzung konnte nicht geprüft werden. Bitte erneut versuchen.';
+      setText('account-error', sessionError);
+    } finally {
+      if (sessionFlight === task) sessionFlight = null;
+      checking = false; renderConnection(); renderRoute();
+    }
+  })();
+  sessionFlight = task;
+  return task;
 }
 function renderRecord(item) {
   record = item;
@@ -334,8 +374,8 @@ $('clear').addEventListener('click', () => { if (!canEditDraft()) return; $('sou
 $('cancel').addEventListener('click', () => controller?.abort());
 $('copy').addEventListener('click', async () => { if (!record) return; try { await navigator.clipboard.writeText(record.translation); status('Übersetzung kopiert.'); } catch { status('Kopieren nicht erlaubt. Markiere den Text und kopiere ihn manuell.', true); } });
 $('refresh-history').addEventListener('click', loadHistory);
-$('account').addEventListener('click', () => $('account-dialog').showModal());
-$('connection-action').addEventListener('click', () => { if (readiness(session) === 'model-unavailable' || !config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); else $('account-dialog').showModal(); });
+$('account').addEventListener('click', () => { $('account-dialog').showModal(); if (session?.user?.id && !session.provider) void loadProvider(); });
+$('connection-action').addEventListener('click', () => { if (sessionError || readiness(session) === 'model-unavailable' || !config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); else $('account-dialog').showModal(); });
 function resetAccountDialog() { accountRun++; clearBootstrap(); clearPairing(); setText('account-error', ''); }
 $('close-account').addEventListener('click', () => { resetAccountDialog(); $('account-dialog').close(); });
 $('account-dialog').addEventListener('cancel', resetAccountDialog);
@@ -412,15 +452,15 @@ $('logout').addEventListener('click', async () => {
   } catch { setText('account-error', 'Lokale Inhalte entfernt, aber der Server-Widerruf ist nicht bestätigt. Bitte Verbindung erneut prüfen und nochmals abmelden.'); }
 });
 window.addEventListener('pageshow', event => { if (event.persisted) { clearPrivateData(); restore(); } });
-window.addEventListener('online', restore);
-document.addEventListener('visibilitychange', () => { if (document.hidden) podcasts.pause(); else restore(); });
+window.addEventListener('online', () => restore({force:false}));
+document.addEventListener('visibilitychange', () => { if (document.hidden) podcasts.pause(); else restore({force:false}); });
 updateInput(); restore();
 
 
 // Explore surface: a compact cover/title list, then episode rows and a reader.
 function mountPodcasts({api, account, unauthorized}) {
   const $ = id => document.getElementById(id);
-  let session=null, checking=true, config=null, ownerRun=0, dialogRun=0;
+  let session=null, checking=true, config=null, identityError='', ownerRun=0, dialogRun=0;
   const library=createPodcasts({api,changed:render,unauthorized,visible:()=>!document.hidden});
   const node=(tag,text,cls)=>{const el=document.createElement(tag); if(text!==undefined)el.textContent=text; if(cls)el.className=cls; return el;};
   function action(label,fn,disabled=false) {
@@ -448,10 +488,10 @@ function mountPodcasts({api, account, unauthorized}) {
   function render() {
     const s=library.state, content=$('podcast-content'); content.replaceChildren();
     $('podcast-add').disabled=checking||!session?.user?.id;
-    $('podcast-reload').disabled=checking||!session?.user?.id||s.phase==='loading';
+    $('podcast-reload').disabled=checking||(!session?.user?.id&&!identityError)||s.phase==='loading';
     $('podcast-signin').hidden=checking||!!session?.user?.id||config?.apple_available!==true;
     $('podcast-notice').classList.toggle('error-text',!!s.error);
-    $('podcast-notice').textContent=checking?'Sitzung wird geprüft …':!session?.user?.id?'Melde dich an, um deine Podcasts zu öffnen.':s.error||(['idle','loading'].includes(s.phase)?'Podcasts werden geladen …':!s.worker?'Vorbereitung derzeit nicht verfügbar. Abos und Folgen bleiben zugänglich.':'');
+    $('podcast-notice').textContent=checking?'Sitzung wird geprüft …':identityError||!session?.user?.id?(identityError||'Melde dich an, um deine Podcasts zu öffnen.'):s.error||(['idle','loading'].includes(s.phase)?'Podcasts werden geladen …':!s.worker?'Vorbereitung derzeit nicht verfügbar. Abos und Folgen bleiben zugänglich.':'');
     content.setAttribute('aria-busy',String(s.phase==='loading'));
     if(checking||!session?.user?.id)return;
     if(['idle','loading'].includes(s.phase)){for(let i=0;i<3;i++)content.append(node('div',undefined,'podcast-skeleton'));return;}
@@ -498,10 +538,10 @@ function mountPodcasts({api, account, unauthorized}) {
   $('podcast-close').onclick=close;$('podcast-dialog').addEventListener('cancel',close);
   $('podcast-mode').onchange=()=>{const episode=$('podcast-mode').value==='episode';$('podcast-import-language').hidden=!episode;$('podcast-submit').textContent=episode?'Vorbereiten':'Abonnieren';$('podcast-add-help').textContent=episode?'Öffentliche Folge mit direktem Audio. Startet Transkription und Übersetzung über dein Konto.':'Ein RSS-/Atom-Feed oder eine öffentliche Podcast-Seite. Ein Abo startet keine KI-Verarbeitung.';};
   $('podcast-form').onsubmit=async event=>{event.preventDefault();if(checking||!session?.user?.id||$('podcast-submit').disabled)return;const run=ownerRun,dialog=dialogRun; $('podcast-submit').disabled=true;try{const episode=$('podcast-mode').value==='episode';const value=await (episode?library.importURL($('podcast-url').value,$('podcast-source').value):library.subscribe($('podcast-url').value));if(run!==ownerRun)return;if(episode)await library.detail(value.id);await library.load();if(run!==ownerRun||dialog!==dialogRun)return;close();location.hash=podcastRoute(episode?'job':'feed',value.id);}catch(error){if(run===ownerRun&&dialog===dialogRun)$('podcast-add-error').textContent=podcastError(error);}finally{if(run===ownerRun&&dialog===dialogRun)$('podcast-submit').disabled=false;}};
-  $('podcast-reload').onclick=async()=>{await library.activate(location.hash);if(library.state.route.kind==='job')await library.detail(library.state.route.id).catch(()=>{});};
+  $('podcast-reload').onclick=async()=>{if(identityError)return restore();await library.activate(location.hash);if(library.state.route.kind==='job')await library.detail(library.state.route.id).catch(()=>{});};
   $('podcast-signin').onclick=account;
   return {library,
-    identity(value,options={}) {if(session?.user?.id!==value?.user?.id){ownerRun++;close();source='de';}session=value;checking=!!options.checking;config=options.config;library.identity(value);if(checking)library.pause();render();},
+    identity(value,options={}) {if(session?.user?.id!==value?.user?.id){ownerRun++;close();source='de';}session=value;checking=!!options.checking&&!value?.user?.id;identityError=options.error||(options.checking?'Sitzung wird im Hintergrund geprüft …':'');config=options.config;library.identity(value);if(checking)library.pause();render();},
     async route(hash) {await library.activate(hash);if(library.state.route.kind==='job'&&session?.user?.id&&!checking){try{await library.detail(library.state.route.id);}catch(error){if(error.name!=='AbortError'){library.state.error=podcastError(error);render();}}}},
     pause:()=>library.pause()
   };

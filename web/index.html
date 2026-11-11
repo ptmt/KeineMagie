@@ -30,14 +30,15 @@
           <select id="language-direction" disabled aria-label="Sprachrichtung"><option value="de-ru" aria-label="Deutsch nach Russisch">de → ru</option><option value="ru-de" aria-label="Russisch nach Deutsch" selected>ru → de</option><option value="de-de" aria-label="Deutsch verbessern" title="Deutsch verbessern">de → de</option></select>
           <button id="swap" disabled type="button" class="swap-button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
         </div>
-        <div id="style-controls" class="style-controls" hidden>
-          <span class="style-label">Stil</span><div id="style-chips" class="style-chips" role="group" aria-label="Übersetzungsstil"></div>
-          <button id="add-prompt" disabled type="button" class="quiet-button">+ Eigener Stil</button><button id="edit-prompt" type="button" class="quiet-button" hidden>Bearbeiten</button>
-        </div>
+
         <div class="translation-panels">
           <div class="input-panel">
             <div class="panel-top"><label for="source-text">Dein Text</label><button id="clear" disabled type="button" class="quiet-button">Leeren</button></div>
             <textarea id="source-text" disabled name="text" placeholder="Text eingeben …" spellcheck="true" aria-describedby="input-count" lang="ru"></textarea>
+            <div id="style-controls" class="style-controls" hidden>
+              <span class="style-label sr-only">Stil</span><div id="style-chips" class="style-chips" role="group" aria-label="Übersetzungsstil"></div>
+              <button id="add-prompt" disabled type="button" class="quiet-button" aria-label="Eigenen Stil hinzufügen" title="Eigener Stil">+</button><button id="edit-prompt" type="button" class="quiet-button" hidden>Bearbeiten</button>
+            </div>
             <div class="panel-bottom"><span id="input-count">0 / 8.000</span><span class="keyboard-hint">⌘ / Ctrl + Enter</span></div>
           </div>
           <div class="output-panel">

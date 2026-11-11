@@ -39,7 +39,7 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 	if suffix == "" || suffix == "/" {
 		switch r.Method {
 		case "GET":
-			jobs, e := p.store.list(owner)
+			jobs, ownerLimits, e := p.store.listWithLimits(owner, time.Now())
 			if e != nil {
 				writeError(w, 503, "podcast store unavailable")
 				return
@@ -49,7 +49,8 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 				writeError(w, 503, "invalid podcast limits")
 				return
 			}
-			writeJSON(w, 200, map[string]any{"items": jobs, "worker_available": p.ready() == nil, "supported_sources": []string{"direct_audio", "html_audio", "rss", "atom"}, "max_duration_seconds": limits.duration, "max_bytes": limits.bytes})
+
+			writeJSON(w, 200, map[string]any{"items": jobs, "limits": ownerLimits, "worker_available": p.ready() == nil, "supported_sources": []string{"direct_audio", "html_audio", "rss", "atom"}, "max_duration_seconds": limits.duration, "max_bytes": limits.bytes})
 			return
 		case "POST":
 			var input struct {
@@ -192,6 +193,11 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, job)
 }
 func podcastHTTPError(w http.ResponseWriter, e error) {
+	var quota *podcastLimitError
+	if errors.As(e, &quota) {
+		writePodcastLimit(w, quota)
+		return
+	}
 	if errors.Is(e, errPodcastNotFound) {
 		writeError(w, 404, "podcast not found")
 		return

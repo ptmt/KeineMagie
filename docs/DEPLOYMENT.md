@@ -1,5 +1,12 @@
 # Deployment and release
 
+## Web session/quota/UI release — verified candidate, deployment held (2026-11-11)
+
+- Built Linux arm64 candidate `sha256:812286007ede7c8ce0d2c0fde2f4f9e00cf2e9ba6e256b6490c27c422f4ad8b8`; local Go race **306 passes / 4 opt-in skips**, vet, **46 Node tests**, independent final review **No blockers**. Synthetic browser session **11**, guest **23**, directions **19**, styles **13**, podcasts **41**, including HTTP artwork and keyboard focus. No native changes or TestFlight claim.
+- Fixes: local-only session identity; provider/history-independent podcast opening; bounded/coalesced session refresh and 401 private clearing; exact podcast quota reasons and same-snapshot owner GET status; compact source-only style links and removal of whole-panel programmatic focus ring while interactive keyboard focus remains visible.
+- Authorized one-time daily podcast reset was independently read back at zero, without repeating it. At **10:56:45 UTC** the user had **1 active transcribing job / 1 subscription / 1 admission**. Public TLS health **200**. **Do not replace the backend while this real recognition is active.** Candidate is not deployed; production pins and override remain unchanged. No provider inference or test seed work was initiated by this release.
+- Resume only after fresh locked active-job/account-flock checks establish idle; make private store-locked backups; compare full merged base + existing override with exactly the backend image differing; deploy only `keinemagie --no-deps --pull never`; retain worker `44b2…`, 2 GiB/512 MiB noexec tmpfs, private network, volumes and unrelated containers. Verify exact image/public module bytes/new session source, health/auth and persisted data before marking delivered. See [quota evidence](PODCAST-QUOTA-DIAGNOSIS.md).
+
 ## Web podcasts deployed — 2026-11-11
 
 - Live backend: `sha256:7f037ed2956a3199cd701751b6e29a4795e0384ccf503f5cf762dbe0648818fa`, rebuilt with reviewed web assets and unchanged Go source. Replaced only the exact prior backend pin `sha256:cdaf691d6c1f16d5d5428f7acef6457b4b1cd5bbb8824f52d65d9c923639c73d` in the durable override, using the established `.staging-20261108-144857` base and `up -d --no-deps --pull never keinemagie`. Full merged configuration compared privately: backend image was the sole change.

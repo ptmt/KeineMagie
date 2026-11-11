@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import * as core from '../core.mjs';
 
-export async function harness({deferSession, config: configOverride} = {}) {
+export async function harness({deferSession, deferHistory, deferProvider, config: configOverride, leanSession = false} = {}) {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const nodes = new Map();
   for (const tag of html.matchAll(/<[^>]+id="([^"]+)"[^>]*>/g)) {
@@ -30,9 +30,12 @@ export async function harness({deferSession, config: configOverride} = {}) {
     let body = {};
     let status = 200;
     if (path === '/v1/web/config') body = configOverride ?? {apple_available:true, pairing_available:true, chatgpt_connect_available:true, csrf_token:'boot-csrf'};
-    if (path === '/v1/web/session') { await deferSession?.(); if (signedIn) body = {user:{id:userID},csrf_token:'session-csrf',provider}; else status = 401; }
+    if (path === '/v1/web/session') { await deferSession?.(); if (signedIn) body = {user:{id:userID},csrf_token:'session-csrf',...(leanSession ? {} : {provider})}; else status = 401; }
     if (path === '/v1/web/logout') { signedIn = false; status = 204; }
-    if (path === '/v1/translations') body = {items};
+    if (path === '/v1/translations') { await deferHistory?.(); body = {items}; }
+    if (path === '/v1/provider') { await deferProvider?.(); body = provider; }
+    if (path === '/v1/podcasts/subscriptions') body = {items:[{id:'Feed_A',title:'Private podcast',episodes:[]}]};
+    if (path === '/v1/podcasts') body = {items:[],worker_available:true};
     if (path === '/v1/provider/connect') body = await (deferConnect?.() ?? {bootstrap_token:'SYNTHETIC-ONLY',expires_in:300});
     return {ok:status===200,status,json:async()=>body};
   };
@@ -42,11 +45,45 @@ export async function harness({deferSession, config: configOverride} = {}) {
     const listeners = {};
     return { children: [], append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
   };
-  vm.runInNewContext(app, {...core, createAPI:()=>core.createAPI(fetch), document:{ addEventListener(){}, getElementById:id=>nodes.get(id), querySelectorAll:()=>links, createElement }, window:{addEventListener(){}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location:{hash:''}, setTimeout:()=>1, clearTimeout(){}, AbortController, console});
+  const events = {}, location = {hash:'#podcasts'};
+  const document = {hidden:false, addEventListener(type,fn){events[type]=fn;}, getElementById:id=>nodes.get(id), querySelectorAll:()=>links, createElement};
+  vm.runInNewContext(app, {...core, createAPI:()=>core.createAPI(fetch), document, window:{addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
   const settle = () => new Promise(resolve=>setImmediate(resolve));
   await settle();
-  return {nodes, calls, settle, storage, signIn(value, id=userID){signedIn=value;userID=id;}, provider(value){provider=value;}, history(value){items=value;}, defer(fn){deferConnect=fn;}};
+  return {nodes, calls, settle, storage, events, document, location, signIn(value, id=userID){signedIn=value;userID=id;}, provider(value){provider=value;}, history(value){items=value;}, defer(fn){deferConnect=fn;}};
 }
+
+test('validated identity opens podcasts while history and provider discovery remain pending', async () => {
+ let hold=false, releaseHistory, releaseProvider;
+ const h=await harness({leanSession:true,deferHistory:()=>hold?new Promise(r=>releaseHistory=r):undefined,deferProvider:()=>hold?new Promise(r=>releaseProvider=r):undefined});
+ h.signIn(true);hold=true;
+ const pending=h.nodes.get('retry-session').click();await h.settle();
+ assert.ok(h.calls.some(c=>c.path==='/v1/podcasts/subscriptions'));
+ assert.notEqual(h.nodes.get('podcast-notice').textContent,'Sitzung wird geprüft …');
+ assert.ok(h.nodes.get('podcast-content').children.length);
+ assert.equal(h.calls.some(c=>c.path==='/v1/provider'),false);
+ await h.nodes.get('account').click();await h.settle();
+ assert.ok(h.calls.some(c=>c.path==='/v1/provider'));
+ assert.notEqual(h.nodes.get('podcast-notice').textContent,'Sitzung wird geprüft …');
+ hold=false;releaseHistory?.();releaseProvider?.();await pending;
+});
+
+test('fresh focus and hash navigation reuse validated identity; concurrent refresh keeps podcasts visible', async () => {
+ let hold=false,release;
+ const h=await harness({deferSession:()=>hold?new Promise(r=>release=r):undefined});
+ h.signIn(true);await h.nodes.get('retry-session').click();await h.settle();
+ const before=h.calls.filter(c=>c.path==='/v1/web/session').length;
+ h.location.hash='#translator';h.events.hashchange();h.location.hash='#podcasts';h.events.hashchange();
+ h.document.hidden=true;h.events.visibilitychange();h.document.hidden=false;h.events.visibilitychange();h.events.online();await h.settle();
+ assert.equal(h.calls.filter(c=>c.path==='/v1/web/session').length,before);
+ hold=true;const pending=h.nodes.get('retry-session').click();const joined=h.nodes.get('retry-session').click();await h.settle();
+ assert.equal(h.calls.filter(c=>c.path==='/v1/web/session').length,before+1);
+ assert.ok(h.nodes.get('podcast-content').children.length);
+ assert.match(h.nodes.get('podcast-notice').textContent,/Hintergrund/);
+ h.signIn(false);hold=false;release();await Promise.all([pending,joined]);await h.settle();
+ assert.equal(h.nodes.get('podcast-content').children.length,0);
+ assert.equal(h.nodes.get('source-text').value,'');
+});
 
 test('guest and unresolved sessions disable translator controls and reject synthetic events', async () => {
  let release;const h=await harness({deferSession:()=>new Promise(resolve=>{release=resolve;})});const el=id=>h.nodes.get(id);
@@ -92,7 +129,7 @@ test('rechecking preserves only same-account drafts, blocks stale handlers and l
 test('detached history handlers cannot restore another account’s private text', async () => {
  const h=await harness();const el=id=>h.nodes.get(id);
  h.signIn(true,'owner-A');h.history([{id:'a',text:'Private A',translation:'Private result A',source_language:'de',target_language:'ru',idioms:[],patterns:[],vocabulary:[]}]);
- await el('retry-session').click();const stale=el('history-list').children[0].children[0];
+ await el('retry-session').click();await h.settle();const stale=el('history-list').children[0].children[0];
  h.signIn(true,'owner-B');h.history([]);await el('retry-session').click();
  await stale.click();assert.equal(el('source-text').value,'');assert.equal(el('copy').disabled,true);
 });
@@ -100,7 +137,7 @@ test('detached history handlers cannot restore another account’s private text'
 test('history restores the exact style snapshot even after a shortcut was edited or removed', async () => {
  const h=await harness();const el=id=>h.nodes.get(id);
  h.signIn(true);h.history([{id:'old',text:'Hallo',translation:'Привет',source_language:'de',target_language:'ru',instructions:'A historical style.',idioms:[],patterns:[],vocabulary:[]}]);
- await el('retry-session').click();await el('history-list').children[0].children[0].click();
+ await el('retry-session').click();await h.settle();await el('history-list').children[0].children[0].click();
  assert.ok(el('style-chips').children.some(x=>x.textContent==='Aus Verlauf'));
 });
 

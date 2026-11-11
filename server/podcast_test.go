@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net"
 	"net/http"
@@ -275,7 +276,7 @@ func TestPodcastBudgetsPersistAcrossReopen(t *testing.T) {
 		}
 	}
 	s, _ = openPodcastStore(path)
-	if _, e := s.create("owner", "https://example.com/new.mp3", "de", now); e != errPodcastLimit {
+	if _, e := s.create("owner", "https://example.com/new.mp3", "de", now); !errors.Is(e, errPodcastLimit) {
 		t.Fatalf("budget %v", e)
 	}
 	if _, e := s.create("other", "https://example.com/a.mp3", "de", now); e != nil {

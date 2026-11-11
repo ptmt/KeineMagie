@@ -2,10 +2,10 @@ package main
 
 import (
 	"crypto/rand"
-	"encoding/json"
+
 	"io"
 	"net/http"
-	"net/http/httptest"
+
 	"os"
 	"strings"
 	"sync"
@@ -109,16 +109,9 @@ func (b *browserAuth) handle(w http.ResponseWriter, r *http.Request) {
 			writeError(w, 401, "authentication required")
 			return
 		}
-		clone := r.Clone(r.Context())
-		clone.URL.Path = "/v1/provider"
-		clone.Header.Set("Authorization", "Bearer "+token)
-		status := httptest.NewRecorder()
-		b.cfg.provider.handle(status, clone)
-		var provider map[string]any
-		if status.Code != 200 || json.Unmarshal(status.Body.Bytes(), &provider) != nil {
-			provider = map[string]any{"connected": false, "reason": "provider status unavailable"}
-		}
-		writeJSON(w, 200, map[string]any{"user": map[string]string{"id": s.UserID}, "csrf_token": browserCSRF(token), "provider": provider, "expires_at": s.Expires})
+		// Identity is local. Remote model discovery belongs to /v1/provider,
+		// not the gate for reading an authenticated user's library.
+		writeJSON(w, 200, map[string]any{"user": map[string]string{"id": s.UserID}, "csrf_token": browserCSRF(token), "expires_at": s.Expires})
 	case "/v1/web/logout":
 		if r.Method != "POST" {
 			writeError(w, 405, "method not allowed")

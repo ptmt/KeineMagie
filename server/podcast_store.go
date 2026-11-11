@@ -132,20 +132,8 @@ func podcastActive(state string) bool {
 	return state == "queued" || state == "fetching" || state == "transcribing" || state == "translating"
 }
 func podcastReserve(d *podcastData, owner string, now time.Time) error {
-	active, total, global := 0, 0, 0
-	for _, j := range d.Jobs {
-		if j.Owner == owner {
-			total++
-			if podcastActive(j.State) {
-				active++
-			}
-		}
-		if podcastActive(j.State) {
-			global++
-		}
-	}
-	if active >= 2 || total >= 30 || global >= 32 || len(d.Jobs) >= 500 {
-		return errPodcastLimit
+	if e := podcastCheckAdmission(*d, owner, now); e != nil {
+		return e
 	}
 	key := sessionHash(owner)
 	q := d.Budgets[key]
@@ -249,6 +237,9 @@ func (s *podcastStore) episode(owner, raw, source, feedID, episodeID, sourceURL 
 		if lookupOnly {
 			return nil
 		}
+		if e = podcastCheckAdmission(d, owner, now); e != nil {
+			return e
+		}
 		if admit != nil {
 			if e := admit(); e != nil {
 				return e
@@ -275,7 +266,12 @@ func storedPodcast(j podcastStoredJob) podcastJob {
 	return v
 }
 func (s *podcastStore) list(owner string) ([]podcastJob, error) {
+	jobs, _, err := s.listWithLimits(owner, time.Now())
+	return jobs, err
+}
+func (s *podcastStore) listWithLimits(owner string, now time.Time) ([]podcastJob, podcastOwnerLimits, error) {
 	jobs := []podcastJob{}
+	var limits podcastOwnerLimits
 	e := s.lock.locked(func() error {
 		d, e := s.read()
 		if e != nil {
@@ -286,10 +282,11 @@ func (s *podcastStore) list(owner string) ([]podcastJob, error) {
 				jobs = append(jobs, storedPodcast(j))
 			}
 		}
+		limits = podcastLimitsFor(d, owner, now)
 		return nil
 	})
 	sort.Slice(jobs, func(i, j int) bool { return jobs[i].CreatedAt.After(jobs[j].CreatedAt) })
-	return jobs, e
+	return jobs, limits, e
 }
 func (s *podcastStore) mutate(owner, id, action string, now time.Time) (podcastJob, error) {
 	var job podcastJob
