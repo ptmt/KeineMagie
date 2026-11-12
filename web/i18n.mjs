@@ -1,7 +1,11 @@
 // UI-only copy. Never pass user text, prompt instructions or server content here.
 export const interfaceLocales = Object.freeze({de:'Deutsch',en:'English',ru:'Русский',es:'Español',fr:'Français'});
 export const interfaceLanguageKey = 'keinemagie:interface-language:v1';
-const rows = `Sprache|Language|Язык|Idioma|Langue
+const rows = `Liste aktualisieren|Refresh list|Обновить список|Actualizar lista|Actualiser la liste
+Folgenaktionen|Episode actions|Действия с выпуском|Acciones del episodio|Actions de l’épisode
+Podcast-Aktionen|Podcast actions|Действия с подкастом|Acciones del pódcast|Actions du podcast
+Vorbereiten startet Transkription und Übersetzung über dein Konto.|Prepare starts transcription and translation using your account.|Подготовка запускает расшифровку и перевод через ваш аккаунт.|Preparar inicia la transcripción y traducción con tu cuenta.|Préparer lance la transcription et la traduction avec votre compte.
+Sprache|Language|Язык|Idioma|Langue
 Zum Inhalt|Skip to content|К содержимому|Ir al contenido|Aller au contenu
 Keine Magie Startseite|Keine Magie home|Главная Keine Magie|Inicio de Keine Magie|Accueil Keine Magie
 Bereiche|Sections|Разделы|Secciones|Rubriques

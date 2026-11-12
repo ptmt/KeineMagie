@@ -51,7 +51,7 @@ for direction, source, target, swapped in [('de-ru', 'de', 'ru', 'ru-de'), ('ru-
 
 js("window.__fixtureHistory=[{id:'saved-proofreading',text:'Ich habe ein frage.',source_language:'de',target_language:'de',translation:'TEST FIXTURE — corrected German',instructions:'Historical custom proofreading style.',idioms:[],patterns:[],vocabulary:[]}];document.querySelector('#refresh-history').click()")
 time.sleep(.2)
-check('history accepts equal-language records', "document.querySelector('#history-list li strong').textContent==='Ich habe ein frage.' && document.querySelector('#history-list small').textContent.startsWith('de → de')")
+check('history accepts equal-language records', "document.querySelector('#history-list .history-source').textContent==='Ich habe ein frage.' && document.querySelector('#history-list .history-translation').textContent==='TEST FIXTURE — corrected German' && document.querySelector('#history-list small').textContent.startsWith('de → de')")
 js("document.querySelector('#language-direction').value='ru-de';document.querySelector('#language-direction').dispatchEvent(new Event('change'));document.querySelector('#history-list button').click()")
 check('history restores proofreading direction and historical custom style', "document.querySelector('#language-direction').value==='de-de' && document.querySelector('#result').textContent==='TEST FIXTURE — corrected German' && [...document.querySelectorAll('#style-chips button')].some(b=>b.textContent==='Aus Verlauf'&&b.getAttribute('aria-pressed')==='true')")
 js("document.querySelector('#translation-form').requestSubmit()")

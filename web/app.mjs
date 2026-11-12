@@ -333,13 +333,15 @@ function renderHistory() {
     const li = document.createElement('li');
     const button = document.createElement('button'); button.type = 'button';
     const content = document.createElement('span');
-    const title = document.createElement('strong'); title.textContent = item.text;
+    content.className = 'history-text';
+    const title = document.createElement('span'); title.className = 'history-source'; title.textContent = item.text; title.lang = item.source_language;
+    const translation = document.createElement('strong'); translation.className = 'history-translation'; translation.textContent = item.translation; translation.lang = item.target_language;
     const detail = document.createElement('small');
     const date = new Date(item.created_at);
     detail.dataset.historyDate = item.created_at; detail.dataset.direction = `${item.source_language} → ${item.target_language}`;
     detail.textContent = `${detail.dataset.direction}${Number.isNaN(date.valueOf()) ? '' : ` · ${date.toLocaleString(getInterfaceLanguage(), { dateStyle: 'medium', timeStyle: 'short' })}`}`;
     const arrow = document.createElement('span'); arrow.className = 'history-arrow'; arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true');
-    content.append(title, detail); button.append(content, arrow); li.append(button); $('history-list').append(li);
+    content.append(title, translation, detail); button.append(content, arrow); li.append(button); $('history-list').append(li);
     button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id || run !== generation) return; renderRecord(item); status('Gespeicherte Übersetzung geöffnet.'); $('source-text').focus({ preventScroll: false }); });
   }
 }
@@ -569,10 +571,21 @@ function mountPodcasts({api, account, unauthorized}) {
     if(isActive(job)){ const progress=node('progress');progress.max=100;if(Number.isFinite(job.progress))progress.value=Math.max(0,Math.min(100,job.progress));progress.setAttribute('aria-label',t('Verarbeitungsschritt, kein Audio-Fortschritt'));p.append(progress); }
     if(job.error)p.append(node('span',job.error,'error-text'));return p;
   }
+  function overflow(label, buttons, key) {
+    const details=node('details',undefined,'podcast-overflow');details.dataset.key=key;
+    const summary=node('summary','⋯');summary.setAttribute('aria-label',label);summary.title=label;
+    summary.onclick=event=>{document.querySelectorAll('.podcast-overflow[open]').forEach(menu=>{if(menu!==event.currentTarget.parentElement)menu.open=false;});};
+    const panel=node('div',undefined,'podcast-overflow-panel');panel.append(...buttons);details.append(summary,panel);return details;
+  }
+  document.addEventListener('keydown',event=>{if(event.key!=='Escape')return;const menu=document.activeElement?.closest('.podcast-overflow[open]')||document.querySelector('.podcast-overflow[open]');if(menu){menu.open=false;menu.querySelector('summary').focus();event.preventDefault();}});
+  document.addEventListener('click',event=>{document.querySelectorAll('.podcast-overflow[open]').forEach(menu=>{if(!menu.contains(event.target))menu.open=false;});});
   function controls(job,container) {
     if(isActive(job))container.append(action('Abbrechen',async()=>{await library.jobAction(job.id,'cancel');await library.detail(job.id);}));
     if(['failed','canceled'].includes(job.state))container.append(action('Erneut versuchen',async()=>{await library.jobAction(job.id,'retry');await library.detail(job.id);},!library.state.worker));
-    if(!isActive(job))container.append(action('Löschen',async()=>{if(!confirm(t('Diese vorbereitete Folge und ihre Transkripte wirklich löschen?')))return;await library.jobAction(job.id,'delete');await library.load();if(library.state.route.kind==='job')location.hash='#podcasts';}));
+    if(!isActive(job)){
+      const remove=action('Löschen',async()=>{if(!confirm(t('Diese vorbereitete Folge und ihre Transkripte wirklich löschen?')))return;await library.jobAction(job.id,'delete');await library.load();if(library.state.route.kind==='job')location.hash='#podcasts';});remove.classList.add('destructive-action');
+      container.append(overflow(t('Folgenaktionen'),[remove],`actions:${job.id}`));
+    }
   }
   function render(){
     const content=$('podcast-content');
@@ -590,6 +603,10 @@ function mountPodcasts({api, account, unauthorized}) {
     const keepReader=!!(selectedJob&&reader?.isConnected&&reader.dataset.job===selectedJob.id);
     if(!keepReader){content.replaceChildren();reader=null;}
     unbindInterfaceText($('podcast-notice'));
+    const feedTitle=s.route.kind==='feed'&&s.feeds.find(feed=>feed.id===s.route.id)?.title;
+    unbindInterfaceText($('podcasts-title'));$('podcasts-title').textContent=feedTitle||t('Podcasts');
+    bindInterfaceText($('podcast-reload'),'Liste aktualisieren');
+    $('podcast-reload').hidden=s.route.kind==='feed';
     $('podcast-add').disabled=checking||!session?.user?.id;
     $('podcast-reload').disabled=checking||(!session?.user?.id&&!identityError)||s.phase==='loading';
     $('podcast-signin').hidden=checking||!!session?.user?.id||config?.apple_available!==true;
@@ -605,19 +622,25 @@ function mountPodcasts({api, account, unauthorized}) {
     if(route.kind==='feed') {
       content.append(link('← Podcasts','#podcasts'));
       const feed=s.feeds.find(f=>f.id===route.id);if(!feed){content.append(node('p',t('Podcast nicht gefunden.')));return;}
-      const header=node('div',undefined,'podcast-feed-heading');header.append(cover(feed),node('h2',feed.title));content.append(header);
-      const bar=node('div',undefined,'podcast-actions');
-      const direction=node('select');direction.setAttribute('aria-label',t('Podcast-Sprachrichtung'));for(const [value,label] of [['de','de → ru'],['ru','ru → de']]){const option=node('option',label);option.value=value;direction.append(option);}direction.value=source;direction.disabled=checking;direction.onchange=()=>source=direction.value;bar.append(direction);
-      bar.append(action('Feed aktualisieren',async()=>{await library.refresh(feed.id);await library.load();}));
-      bar.append(action('Abo entfernen',async()=>{if(!confirm(t('„{title}“ wirklich nicht mehr abonnieren? Vorbereitete Folgen werden nicht gelöscht.',{title:feed.title})))return;await library.unsubscribe(feed.id);await library.load();location.hash='#podcasts';}));content.append(bar);
+      const header=node('div',undefined,'podcast-feed-heading');
+      const bar=node('div',undefined,'podcast-actions podcast-feed-controls');
+      const direction=node('select');direction.setAttribute('aria-label',t('Podcast-Sprachrichtung'));for(const [value,label] of [['de','de → ru'],['ru','ru → de']]){const option=node('option',label);option.value=value;direction.append(option);}direction.value=source;direction.disabled=checking;direction.onchange=()=>source=direction.value;
+      const directionLabel=node('label',t('Sprachrichtung'),'podcast-direction');directionLabel.append(direction);bar.append(directionLabel);
+      const refresh=action('Feed aktualisieren',async()=>{await library.refresh(feed.id);await library.load();});
+      const remove=action('Abo entfernen',async()=>{if(!confirm(t('„{title}“ wirklich nicht mehr abonnieren? Vorbereitete Folgen werden nicht gelöscht.',{title:feed.title})))return;await library.unsubscribe(feed.id);await library.load();location.hash='#podcasts';});remove.classList.add('destructive-action');
+      const menu=overflow(t('Podcast-Aktionen'),[refresh,remove],`feed-actions:${feed.id}`);menu.dataset.feedActions='';bar.append(menu);header.append(cover(feed),bar);content.append(header);
+      content.append(node('p',t('Vorbereiten startet Transkription und Übersetzung über dein Konto.'),'muted podcast-prepare-help'));
       if(!feed.episodes?.length)content.append(node('p',t('Dieser Feed enthält noch keine verfügbaren Folgen.'),'muted'));
       const list=node('ul',undefined,'podcast-list');
       for(const episode of feed.episodes||[]) {
-        const row=node('li',undefined,'podcast-episode');row.dataset.key=episode.id;const title=node('div');title.append(node('strong',episode.title||t('Folge')));
-        if(episode.published){const date=new Date(episode.published);if(!Number.isNaN(date.valueOf()))title.append(node('small',date.toLocaleDateString(getInterfaceLanguage()),'muted'));}
-        const job=library.preparation(feed,episode);if(job)title.append(status(job));row.append(title);
+        const job=library.preparation(feed,episode);
+        const row=node('li',undefined,'podcast-episode');row.dataset.key=episode.id;row.dataset.state=job?.state||'unprepared';const title=node('div');
+        const heading=node('strong',undefined,'podcast-episode-title');heading.append(job?link(episode.title||t('Folge'),podcastRoute('job',job.id)):document.createTextNode(episode.title||t('Folge')));title.append(heading);
+        const metadata=node('div',undefined,'podcast-episode-meta');
+        if(episode.published){const date=new Date(episode.published);if(!Number.isNaN(date.valueOf()))metadata.append(node('small',date.toLocaleDateString(getInterfaceLanguage()),'muted'));}
+        if(job)metadata.append(status(job));title.append(metadata);row.append(title);
         const actions=node('div',undefined,'podcast-actions');
-        if(job){actions.append(link(t(job.state==='completed'?'Öffnen':'Details'),podcastRoute('job',job.id)));controls(job,actions);}
+        if(job){controls(job,actions);}
         else actions.append(action('Vorbereiten',async()=>{const job=await library.prepare(feed.id,episode.id,source);await library.detail(job.id);},!s.worker||s.pending.has(`${session.user.id}:prepare:${feed.id}:${episode.id}`)));
         row.append(actions);list.append(row);
       }content.append(list);return;

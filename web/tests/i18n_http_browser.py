@@ -28,7 +28,7 @@ try:
   page.goto(origin+'/#translator');page.locator('#history-list button').wait_for();page.locator('#history-list button').click();page.locator('#source-text').evaluate('(el)=>el.setSelectionRange(1,5)');page.locator('#account').click();baseline=len(calls)
   for locale in ['ru','de','en','es','fr']:
    page.select_option('#interface-language-account',locale)
-   check(locale+' history/result text direction and draft unchanged',page.locator('#history-list strong').inner_text()=='Freundlich' and page.locator('#result').inner_text()=='Übersetzung' and page.locator('#source-text').input_value()=='Freundlich' and page.locator('#language-direction').input_value()=='ru-de' and page.locator('#source-text').evaluate('(el)=>el.selectionStart===1&&el.selectionEnd===5') and len(calls)==baseline)
+   check(locale+' history/result text direction and draft unchanged',page.locator('#history-list .history-source').inner_text()=='Freundlich' and page.locator('#history-list .history-translation').inner_text()=='Übersetzung' and page.locator('#result').inner_text()=='Übersetzung' and page.locator('#source-text').input_value()=='Freundlich' and page.locator('#language-direction').input_value()=='ru-de' and page.locator('#source-text').evaluate('(el)=>el.selectionStart===1&&el.selectionEnd===5') and len(calls)==baseline)
   page.locator('#close-account').click();page.locator('#logout').is_hidden()
   for width in [320,390,768,1440]:
    page.set_viewport_size({'width':width,'height':900});check('no horizontal overflow '+str(width),page.evaluate('document.documentElement.scrollWidth<=innerWidth'))
