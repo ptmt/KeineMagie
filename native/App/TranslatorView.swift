@@ -18,25 +18,50 @@ struct TranslatorView: View {
                             .accessibilityLabel(Text(LocalizedStringKey("direction." + direction.rawValue)))
                     }
                 }.pickerStyle(.segmented).accessibilityIdentifier("translator-direction")
-                TextEditor(text: $model.draft)
-                    .focused($inputFocused)
-                    .frame(height: editorHeight)
+                VStack(spacing: 0) {
+                    TextEditor(text: $model.draft)
+                        .focused($inputFocused)
+                        .frame(height: editorHeight)
+                        // Reserve a separate trailing lane, including while empty.
+                        .padding(.trailing, 44)
+                        .accessibilityLabel("Text zum Übersetzen")
+                        .accessibilityIdentifier("translator-input")
+                }
                     .padding(8)
                     .overlay(alignment: .topLeading) {
                         if model.draft.isEmpty {
                             Text("Text zum Übersetzen")
                                 .foregroundStyle(.secondary)
                                 .padding(.horizontal, 13).padding(.vertical, 16)
+                                .padding(.trailing, 44)
                                 .allowsHitTesting(false)
                                 .accessibilityIdentifier("translator-placeholder")
                                 .accessibilityHidden(true)
                         }
                     }
+                    .overlay(alignment: .topTrailing) {
+                        if !model.draft.isEmpty {
+                            Button {
+                                model.draft = ""
+                                inputFocused = true
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("translation.clear")
+                            .accessibilityIdentifier("translator-clear")
+                            .disabled(model.busy)
+                            .padding(8)
+                        }
+                    }
                     .background(.background, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(.quaternary))
-                    .accessibilityLabel("Text zum Übersetzen")
-
-                    .accessibilityIdentifier("translator-input")
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("translator-input-container")
                 TranslationShortcutsView()
                 Button {
                     inputFocused = false
@@ -149,7 +174,8 @@ private struct TranslationResultView: View {
                     #endif
                 } label: {
                     Label(copied ? "translation.copied" : "translation.copy", systemImage: copied ? "checkmark" : "doc.on.doc")
-                        .frame(minWidth: 44, minHeight: 44)
+                        .labelStyle(.iconOnly)
+                        .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.borderless)

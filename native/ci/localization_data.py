@@ -1,6 +1,7 @@
 """Five-language source translations used to generate the checked-in catalogs."""
 # Order: German, English, Russian, Spanish, French.
 APP = [
+('translation.clear', 'Text löschen', 'Clear text', 'Очистить текст', 'Borrar texto', 'Effacer le texte'),
 ('chatgpt.native.notice', 'Safari öffnet sich innerhalb der App. Zugangsdaten bleiben auf deinem Server. Simulator geprüft; echter OpenAI-Consent und physisches iPhone noch ungeprüft.', 'Safari opens inside the app. Credentials stay on your server. Simulator tested; real OpenAI consent and physical iPhone untested.', 'Safari открывается в приложении. Учётные данные остаются на сервере. Симулятор проверен; реальное согласие OpenAI и iPhone ещё не проверены.', 'Safari se abre dentro de la app. Las credenciales quedan en tu servidor. Simulador probado; consentimiento real de OpenAI e iPhone físico sin probar.', 'Safari s’ouvre dans l’app. Les identifiants restent sur votre serveur. Simulateur testé ; consentement OpenAI réel et iPhone physique non testés.'),
 ('chatgpt.failed', 'Verbindung abgebrochen, abgelaufen oder fehlgeschlagen. Bitte erneut versuchen.', 'Connection canceled, expired, or failed. Please try again.', 'Подключение отменено, истекло или не удалось. Повторите попытку.', 'Conexión cancelada, caducada o fallida. Inténtalo de nuevo.', 'Connexion annulée, expirée ou échouée. Réessayez.'),
 ('chatgpt.connect', 'ChatGPT verbinden', 'Connect ChatGPT', 'Подключить ChatGPT', 'Conectar ChatGPT', 'Connecter ChatGPT'),

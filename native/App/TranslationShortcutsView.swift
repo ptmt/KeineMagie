@@ -6,9 +6,9 @@ struct TranslationShortcutsView: View {
     @State private var adding = false
     @State private var managing = false
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 2) {
             ScrollView(.horizontal) {
-                HStack(spacing: 6) {
+                HStack(spacing: 16) {
                     chip(AppL10n.text("shortcut.friendly"), id: "friendly")
                     chip(AppL10n.text("shortcut.formal"), id: "formal")
                     ForEach(model.shortcuts) { item in chip(item.title, id: item.id.uuidString) }
@@ -18,8 +18,8 @@ struct TranslationShortcutsView: View {
             }
             .accessibilityIdentifier("shortcut-strip")
             Button { adding = true } label: {
-                Image(systemName: "plus").frame(minWidth: 28, minHeight: 32)
-            }.buttonStyle(.bordered)
+                Image(systemName: "plus").frame(width: 44, height: 44).contentShape(Rectangle())
+            }.buttonStyle(.plain).foregroundStyle(.secondary)
                 .accessibilityLabel("shortcut.add")
                 .accessibilityIdentifier("shortcut-add")
                 .contextMenu {
@@ -29,25 +29,27 @@ struct TranslationShortcutsView: View {
                 }
             if !model.shortcuts.isEmpty {
                 Button { managing = true } label: {
-                    Image(systemName: "ellipsis").frame(minWidth: 28, minHeight: 32)
-                }.buttonStyle(.bordered)
+                    Image(systemName: "ellipsis").frame(width: 44, height: 44).contentShape(Rectangle())
+                }.buttonStyle(.plain).foregroundStyle(.secondary)
                     .accessibilityLabel("shortcut.edit")
                     .accessibilityIdentifier("shortcut-manage")
             }
         }
-        .font(.subheadline)
+        .font(.footnote)
         .sheet(isPresented: $adding) { ShortcutEditor() }
         .sheet(isPresented: $managing) { ShortcutManager() }
     }
     private func chip(_ title: String, id: String) -> some View {
         let selected = model.selectedShortcutID == id
         return Button { model.selectedShortcutID = selected ? nil : id } label: {
-            HStack(spacing: 5) {
-                if selected { Image(systemName: "checkmark") }
-                Text(verbatim: title).lineLimit(1).fixedSize(horizontal: true, vertical: false)
-            }.frame(minHeight: 30)
+            Text(verbatim: title)
+                .lineLimit(1).fixedSize(horizontal: true, vertical: false)
+                .fontWeight(selected ? .semibold : .regular)
+                .foregroundStyle(selected ? Color.primary : Color.secondary)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
         }
-        .buttonStyle(.bordered).tint(selected ? .indigo : .secondary)
+        .buttonStyle(.plain)
         .accessibilityAddTraits(selected ? [.isSelected] : [])
         .disabled(model.busy)
     }

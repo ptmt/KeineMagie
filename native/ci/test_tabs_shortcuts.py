@@ -24,6 +24,16 @@ class TabsAndShortcutsTests(unittest.TestCase):
         self.assertIn('PodcastLibraryView(showAdd: $showPodcastAdd)', source)
         self.assertIn('Text("feature.unavailable")', source)
 
+    def test_inline_tags_are_small_plain_text_with_full_accessible_targets(self):
+        source = (ROOT / 'App/TranslationShortcutsView.swift').read_text().split('private struct ShortcutManager')[0]
+        self.assertNotIn('.buttonStyle(.bordered)', source)
+        self.assertNotIn('Capsule(', source)
+        self.assertNotIn('.background(', source)
+        self.assertIn('.font(.footnote)', source)
+        self.assertIn('.frame(minHeight: 44)', source)
+        self.assertIn('.fixedSize(horizontal: true, vertical: false)', source)
+        self.assertIn('.accessibilityAddTraits(selected ? [.isSelected] : [])', source)
+
     def test_identity_epoch_resets_tabs_and_account_local_content(self):
         source = (ROOT / 'App/KeineMagieApp.swift').read_text()
         self.assertIn('MainTabsView().id(model.session.generation)', source)

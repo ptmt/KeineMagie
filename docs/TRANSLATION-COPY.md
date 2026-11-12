@@ -1,6 +1,6 @@
 # One-tap translation copy
 
-- Web reuses the existing output-header Copy button; completed result only, not source/enrichment or a partial stream. Native adds a borderless `doc.on.doc` Label at the result card's top trailing edge, minimum 44-point target; no selection/scroll interception.
+- Web reuses the existing output-header Copy button; completed result only, not source/enrichment or a partial stream. Native uses a borderless icon-only `doc.on.doc` at the result card's top trailing edge, fixed 44-point invisible target; no visible Copy/Copied text and no selection/scroll interception.
 - Exact translation strings go to the clipboard unchanged (including leading/trailing whitespace, multiline Unicode and literal nested JSON). Empty output cannot be copied. Web uses secure-context Clipboard API, then a temporary readonly textarea/`execCommand('copy')`, restoring focus, selection and scroll and removing the temporary private content. Both APIs failing produces an inline error, not a false confirmation.
 - Copy/Copied labels are localized in German, English, Russian, Spanish and French. Confirmation resets after 1.8 seconds, with no modal. Identity/reset removes the output/action; never automatically erases the user's system clipboard.
 

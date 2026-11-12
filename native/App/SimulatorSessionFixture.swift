@@ -44,11 +44,13 @@ actor SimulatorSessionFixture {
                 try await Task.sleep(for: .seconds(2))
                 if mode == "revoked" { return AuthResponse(data: Data(), status: 401) }
             }
-            let user = mode == "account-change" && validations > 1 ? "synthetic-account-B" : "synthetic-ui-fixture"
+            let user = mode == "account-change" && validations > 1 ? "synthetic-account-B" : (mode == "translation-controls" ? "synthetic-quiet-controls" : "synthetic-ui-fixture")
             return AuthResponse(data: Data("{\"user\":{\"id\":\"\(user)\"},\"expires_at\":\"2099-12-01T12:00:00Z\"}".utf8), status: 200)
         case "/v1/translations":
-            if mode == "translation-copy", request.httpMethod == "POST" {
-                let item: [String: Any] = ["id": "synthetic-copy", "created_at": "2026-11-11T12:00:00Z", "text": "SOURCE NOT OUTPUT", "source_language": "ru", "target_language": "de", "translation": Self.copyTranslation, "idioms": [], "patterns": [], "vocabulary": []]
+            if mode.hasPrefix("translation-"), request.httpMethod == "POST" {
+                if mode == "translation-pending" { try await Task.sleep(for: .seconds(8)) }
+                let translation = mode == "translation-controls" ? "Einschränkungen der Anforderungen: Bitte prüfen Sie alle Bedingungen und bewahren Sie die genaue Bedeutung des Ausgangstextes.\n\nZusätzliche Zeile zur Prüfung des Eingabefelds. (Synthetic fixture)" : Self.copyTranslation
+                let item: [String: Any] = ["id": "synthetic-copy", "created_at": "2026-11-11T12:00:00Z", "text": "SOURCE NOT OUTPUT", "source_language": "ru", "target_language": "de", "translation": translation, "idioms": [], "patterns": [], "vocabulary": []]
                 return AuthResponse(data: try JSONSerialization.data(withJSONObject: item), status: 200)
             }
             if mode.hasPrefix("history-") || mode.hasPrefix("cache-") {
@@ -62,7 +64,7 @@ actor SimulatorSessionFixture {
             let items = mode == "account-change" && validations == 1 ? Self.record : ""
             return AuthResponse(data: Data("{\"items\":[\(items)]}".utf8), status: 200)
         case "/v1/provider":
-            if mode == "translation-copy" {
+            if mode.hasPrefix("translation-") {
                 return AuthResponse(data: Data(#"{"connected":true,"status":"connected","message":"Synthetic only","selected_model":"synthetic-only"}"#.utf8), status: 200)
             }
             let connected = mode == "account-change" && validations == 1
