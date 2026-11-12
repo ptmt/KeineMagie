@@ -46,10 +46,10 @@ func TestFollowupPreservesAllTranslationDirections(t *testing.T) {
 				if !strings.Contains(payload.Instructions, "German proofreading") || !strings.Contains(payload.Instructions, "language of the user's question") {
 					t.Fatal("task/language lost")
 				}
-				return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"Пояснение","revised_text":null}`, false, "response.completed")))}, nil
+				return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"Пояснение","revised_text":null,"revised_source_text":null}`, false, "response.completed")))}, nil
 			})}}
 			record := translationRecord{translationInput: translationInput{Text: "Exact original\n😀", SourceLanguage: direction[0], TargetLanguage: direction[1]}, translationResult: translationResult{Translation: "Exact output\n😀"}, Followups: []translationFollowup{{Question: "Первый вопрос", Answer: "Первый ответ"}}}
-			answer, revision, err := p.clarify(context.Background(), "synthetic", "offered", record, followupInput{Question: "Почему?", Locale: "fr"})
+			answer, revision, _, err := p.clarify(context.Background(), "synthetic", "offered", record, followupInput{Question: "Почему?", Locale: "fr"})
 			if err != nil || answer != "Пояснение" || revision != nil {
 				t.Fatalf("answer %q %v", answer, err)
 			}

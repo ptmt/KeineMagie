@@ -153,25 +153,25 @@ func TestFollowupStrictResponseAndCompletion(t *testing.T) {
 		name, output, terminal string
 		valid                  bool
 	}{
-		{"explanation only", `{"answer":"Объяснение","revised_text":null}`, "response.completed", true},
-		{"unicode revision", `{"revised_text":"  Bogen 😀\n ","answer":"Оружие"}`, "response.completed", true},
+		{"explanation only", `{"answer":"Объяснение","revised_text":null,"revised_source_text":null}`, "response.completed", true},
+		{"unicode revision", `{"revised_text":"  Bogen 😀\n ","answer":"Оружие","revised_source_text":null}`, "response.completed", true},
 		{"missing revision", `{"answer":"x"}`, "response.completed", false},
-		{"null answer", `{"answer":null,"revised_text":null}`, "response.completed", false},
-		{"blank answer", `{"answer":" ","revised_text":null}`, "response.completed", false},
-		{"blank revision", `{"answer":"x","revised_text":" "}`, "response.completed", false},
-		{"duplicate", `{"answer":"x","answer":"y","revised_text":null}`, "response.completed", false},
-		{"unknown", `{"answer":"x","revised_text":null,"extra":true}`, "response.completed", false},
-		{"case sensitive", `{"Answer":"x","revised_text":null}`, "response.completed", false},
-		{"two objects", `{"answer":"x","revised_text":null}{}`, "response.completed", false},
-		{"failed", `{"answer":"x","revised_text":null}`, "response.failed", false},
-		{"incomplete", `{"answer":"x","revised_text":null}`, "response.incomplete", false},
-		{"interrupted", `{"answer":"x","revised_text":null}`, "", false},
+		{"null answer", `{"answer":null,"revised_text":null,"revised_source_text":null}`, "response.completed", false},
+		{"blank answer", `{"answer":" ","revised_text":null,"revised_source_text":null}`, "response.completed", false},
+		{"blank revision", `{"answer":"x","revised_text":" ","revised_source_text":null}`, "response.completed", false},
+		{"duplicate", `{"answer":"x","answer":"y","revised_text":null,"revised_source_text":null}`, "response.completed", false},
+		{"unknown", `{"answer":"x","revised_text":null,"extra":true,"revised_source_text":null}`, "response.completed", false},
+		{"case sensitive", `{"Answer":"x","revised_text":null,"revised_source_text":null}`, "response.completed", false},
+		{"two objects", `{"answer":"x","revised_text":null,"revised_source_text":null}{}`, "response.completed", false},
+		{"failed", `{"answer":"x","revised_text":null,"revised_source_text":null}`, "response.failed", false},
+		{"incomplete", `{"answer":"x","revised_text":null,"revised_source_text":null}`, "response.incomplete", false},
+		{"interrupted", `{"answer":"x","revised_text":null,"revised_source_text":null}`, "", false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			p := &providerService{client: &http.Client{Transport: transportFunc(func(*http.Request) (*http.Response, error) {
 				return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(tc.output, true, tc.terminal)))}, nil
 			})}}
-			answer, revision, err := p.clarify(context.Background(), "synthetic", "offered", translationRecord{}, followupInput{})
+			answer, revision, _, err := p.clarify(context.Background(), "synthetic", "offered", translationRecord{}, followupInput{})
 			if tc.valid {
 				if err != nil || answer == "" {
 					t.Fatalf("valid rejected %v", err)
@@ -190,7 +190,7 @@ func TestFollowupFailureChargesSentAttemptWithoutSaving(t *testing.T) {
 		if strings.Contains(r.URL.Path, "models") {
 			return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(`{"models":[{"slug":"offered","visibility":"list"}]}`))}, nil
 		}
-		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"fake","revised_text":null}`, true, "response.incomplete")))}, nil
+		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"fake","revised_text":null,"revised_source_text":null}`, true, "response.incomplete")))}, nil
 	}))
 	w := followupCall(h, browser, followupValidBody)
 	if w.Code != 502 || strings.Contains(w.Body.String(), "fake") {
@@ -212,7 +212,7 @@ func TestFollowupRevocationIsSerializedWithFinalPersistence(t *testing.T) {
 		}
 		close(entered)
 		<-release
-		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"private","revised_text":null}`, true, "response.completed")))}, nil
+		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"private","revised_text":null,"revised_source_text":null}`, true, "response.completed")))}, nil
 	}))
 	// Hold the history sidecar while completion passes the old standalone auth check.
 	locked, unlock := make(chan struct{}), make(chan struct{})
@@ -274,7 +274,7 @@ func TestFollowupConcurrentHistoryMutation(t *testing.T) {
 				}
 				close(entered)
 				<-release
-				return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"answer","revised_text":"Bogen"}`, true, "response.completed")))}, nil
+				return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"answer","revised_text":"Bogen","revised_source_text":null}`, true, "response.completed")))}, nil
 			}))
 			done := make(chan *httptest.ResponseRecorder, 1)
 			go func() { done <- followupCall(h, browser, followupValidBody) }()
@@ -313,7 +313,7 @@ func TestFollowupConcurrentAdmissionAndRevocation(t *testing.T) {
 		calls.Add(1)
 		close(entered)
 		<-release
-		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"private answer","revised_text":null}`, true, "response.completed")))}, nil
+		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"private answer","revised_text":null,"revised_source_text":null}`, true, "response.completed")))}, nil
 	}))
 	done := make(chan *httptest.ResponseRecorder, 1)
 	go func() { done <- followupCall(h, browser, followupValidBody) }()

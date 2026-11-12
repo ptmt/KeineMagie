@@ -35,9 +35,33 @@ let selectedInstructions = '';
 let editingPrompt = null;
 let styleSignature = null;
 let appliedTranslation = null;
+const editingLabels={en:{edit:'Edit translation',done:'Done',draft:'Current draft only; original kept in history.'},de:{edit:'Übersetzung bearbeiten',done:'Fertig',draft:'Nur aktueller Entwurf; Original bleibt im Verlauf.'},ru:{edit:'Изменить перевод',done:'Готово',draft:'Только текущий черновик; оригинал остаётся в истории.'},es:{edit:'Editar traducción',done:'Listo',draft:'Solo borrador actual; el original sigue en el historial.'},fr:{edit:'Modifier la traduction',done:'Terminé',draft:'Brouillon actuel uniquement ; original conservé dans l’historique.'}};
+function currentOutput(){return appliedTranslation ?? record?.translation ?? '';}
+function localizeTranslationEditor(){
+ const labels=editingLabels[getInterfaceLanguage()]||editingLabels.en;
+ $('edit-translation').title=labels.edit;$('edit-translation').setAttribute('aria-label',labels.edit);
+ $('finish-translation-edit').textContent=labels.done;
+ if(record && appliedTranslation!==null)setText('result-caption',labels.draft);
+}
+function showTranslationEditor(open){
+ $('translation-editor').hidden=!open;$('result').hidden=!!open;
+ $('edit-translation').hidden=!!open;$('finish-translation-edit').hidden=!open;
+ if(open){$('translation-editor').value=currentOutput();$('translation-editor').lang=record.target_language;$('translation-editor').focus();}
+ localizeTranslationEditor();
+}
+function applyCurrentTranslation(text){
+ appliedTranslation=text;resetCopy();setText('result',text);$('translation-editor').value=text;
+ $('copy').disabled=false;localizeTranslationEditor();
+}
+$('edit-translation').addEventListener('click',()=>{if(record&&canEditDraft())showTranslationEditor(true);});
+$('finish-translation-edit').addEventListener('click',()=>showTranslationEditor(false));
+$('translation-editor').addEventListener('input',()=>{if(record)applyCurrentTranslation($('translation-editor').value);});
+$('translation-editor').addEventListener('keydown',event=>{if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();event.stopPropagation();showTranslationEditor(false);}});
+
 const followup = mountTranslatorFollowup({host:$('translation-followup'),api,locale:getInterfaceLanguage,unauthorized:handleUnauthorized,
+  currentDraft:()=>record?{current_source:$('source-text').value,current_translation:currentOutput()}:null,
   saved(item) { history = [item,...history.filter(existing=>existing.id!==item.id)]; renderHistory(); if(record?.id===item.id){record=item;} },
-  apply(item,text) { if(record?.id!==item.id)return; appliedTranslation=text; resetCopy(); setText('result',text); setText('result-caption',''); $('copy').disabled=false; }
+  apply(item,text,source) { if(record?.id!==item.id)return; if(typeof source==='string'){$('source-text').value=source;$('source-text').lang=item.source_language;$('language-direction').value=`${item.source_language}-${item.target_language}`;} applyCurrentTranslation(text);showTranslationEditor(false);updateInput(); }
 });
 function canEditDraft() { return !!session?.user?.id && !busy; }
 function styleStore() {
@@ -182,9 +206,10 @@ function status(message, error = false) {
 let copyTimer = null;
 function resetCopy() { clearTimeout(copyTimer); copyTimer = null; setText('copy', 'Kopieren'); }
 function resetResult() {
-  followup.select(null); appliedTranslation=null;
+  followup.select(null); appliedTranslation=null;showTranslationEditor(false);$('edit-translation').disabled=true;
   resetCopy();
   record = null;
+  $('translation-editor').value='';
   $('result').replaceChildren();
   setText('result-caption', '');
   $('copy').disabled = true;
@@ -212,6 +237,7 @@ function clearBootstrap() {
 function updateInput() {
   followup.identity(session, !busy && !checking && !providerFlight && !providerError && readiness(session) === 'ready');
   renderStyles();
+  localizeTranslationEditor();$('edit-translation').disabled=!record||!canEditDraft();
   const count = [...$('source-text').value].length;
   setText('input-count', `${count.toLocaleString(getInterfaceLanguage())} / ${(8000).toLocaleString(getInterfaceLanguage())}`);
   $('input-count').classList.toggle('error-state', count > 8000);
@@ -356,7 +382,7 @@ function restore({force = true, refreshProvider = false} = {}) {
   return task;
 }
 function renderRecord(item) {
-  appliedTranslation=null; followup.select(item);
+  appliedTranslation=null; showTranslationEditor(false);$('translation-editor').value='';followup.select(item);
   resetCopy();
   record = item;
   $('language-direction').value = `${item.source_language}-${item.target_language}`;

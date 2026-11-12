@@ -44,7 +44,7 @@ func TestTranslationFollowupConversation(t *testing.T) {
 		if payload["model"] != "offered" {
 			t.Error("not selected personal model")
 		}
-		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"В контексте оружия: Bogen.","revised_text":"Bogen"}`, true, "response.completed")))}, nil
+		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(accountTranslationSSE(`{"answer":"В контексте оружия: Bogen.","revised_text":"Bogen","revised_source_text":null}`, true, "response.completed")))}, nil
 	})}
 	h, err := newHandler(cfg)
 	if err != nil {

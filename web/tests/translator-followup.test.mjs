@@ -31,6 +31,18 @@ test('cached retry accepts its committed turn even when another client has appen
  assert.equal(saved?.followups.length,2);
  assert.equal(state.current().draft,'');
 });
+test('retry identity includes current paired draft without replacing immutable original',async()=>{
+ let id=0,draft={current_source:'paired source 😀\n',current_translation:'manual output\n'};const sent=[];
+ const state=createFollowupState({api:{request:async(path,{body})=>{sent.push(body);throw Object.assign(new Error('offline'),{status:502});}},currentDraft:()=>draft,changed:()=>{},saved:()=>{},locale:()=> 'en',requestID:()=>String(++id)});
+ state.identity({user:{id:'owner'}},true);state.select(record);state.draft('context');await state.send();await state.send();
+ assert.equal(sent[0].current_source,draft.current_source);assert.equal(sent[0].current_translation,draft.current_translation);assert.equal(sent[0].request_id,sent[1].request_id);
+ draft={...draft,current_translation:'changed after failure'};await state.send();assert.notEqual(sent[1].request_id,sent[2].request_id);assert.equal(state.current().record.translation,'Zwiebel');
+});
+
+test('oversize current pair stays local with a specific discussion limit',async()=>{
+ let calls=0;const state=createFollowupState({api:{request:async()=>{calls++;}},currentDraft:()=>({current_source:'x',current_translation:'😀'.repeat(8001)}),changed:()=>{},saved:()=>{},locale:()=> 'en'});
+ state.identity({user:{id:'owner'}},true);state.select(record);state.draft('question');await state.send();assert.equal(calls,0);assert.equal(state.current().error,'draft-limit');assert.equal(state.current().draft,'question');
+});
 test('all five dictionaries have identical keys and localized clarification',()=>{
  const keys=Object.keys(followupLabels.en).sort();assert.equal(Object.keys(followupLabels).length,5);
  for(const labels of Object.values(followupLabels))assert.deepEqual(Object.keys(labels).sort(),keys);
