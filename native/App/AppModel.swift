@@ -44,6 +44,115 @@ final class AppModel {
         let revision = cacheRevision
         try? await contentCache.save(data, dataset: dataset, session: lease, revision: revision)
     }
+    private(set) var episodeLearning: [String: EpisodeLearning] = [:]
+    private(set) var learningErrors: [String: String] = [:]
+    private(set) var learningProfiles: [String: LearningProfile] = [:]
+    private var learningRequests: [String: UUID] = [:]
+    private var profileRequests: [String: UUID] = [:]
+    private var profileWrites: Set<String> = []
+
+    private struct LearningSnapshot: Codable {
+        var episodes: [String: EpisodeLearning]
+        var profiles: [String: LearningProfile]
+    }
+    private var learningHydratedGeneration: Int?
+    private func hydrateLearning() async {
+        let version = session.generation
+        guard learningHydratedGeneration != version, cacheEnabled, session.phase == .signedIn, let owner = session.user?.id else { return }
+        let data = try? await contentCache.load(dataset: "learning", server: session.serverURL, owner: owner)
+        guard !Task.isCancelled, version == session.generation, session.phase == .signedIn, learningHydratedGeneration != version else { return }
+        learningHydratedGeneration = version
+        if let data, let saved = try? JSONDecoder().decode(LearningSnapshot.self, from: data) {
+            episodeLearning.merge(saved.episodes) { current, _ in current }
+            learningProfiles.merge(saved.profiles) { current, _ in current }
+        }
+    }
+    private func persistLearning() async {
+        guard let data = try? JSONEncoder().encode(LearningSnapshot(episodes: episodeLearning, profiles: learningProfiles)) else { return }
+        await persist(data, dataset: "learning")
+    }
+    func loadEpisodeLearning(_ job: PodcastJob) async {
+        guard session.phase == .signedIn, learningRequests[job.id] == nil else { return }
+        let version = session.generation
+        let request = UUID()
+        learningRequests[job.id] = request
+        defer { if learningRequests[job.id] == request { learningRequests[job.id] = nil } }
+        func current() -> Bool { !Task.isCancelled && session.generation == version && session.phase == .signedIn && learningRequests[job.id] == request }
+        await hydrateLearning()
+        guard current(), session.canWrite, let client = try? podcastAPI() else { return }
+        learningErrors[job.id] = nil
+        // Each stored dataset succeeds or fails independently. GET never generates analysis.
+        async let analysis: Void = loadSavedAnalysis()
+        async let vocabulary: Void = loadSavedVocabulary()
+        _ = await (analysis, vocabulary)
+
+        func loadSavedAnalysis() async {
+            let result = await captureLearning { try await client.analysis(id: job.id) }
+            guard current() else { return }
+            switch result {
+            case .success(let saved):
+                var value = episodeLearning[job.id] ?? EpisodeLearning()
+                value.analysis = saved
+                episodeLearning[job.id] = value
+                await persistLearning()
+            case .failure(let error):
+                if !learningFailure(error) { learningErrors[job.id] = AppL10n.text("episode.load.error") }
+            }
+        }
+        func loadSavedVocabulary() async {
+            let result = await captureLearning { try await client.vocabulary(id: job.id, language: job.sourceLanguage) }
+            guard current() else { return }
+            switch result {
+            case .success(let saved):
+                var value = episodeLearning[job.id] ?? EpisodeLearning()
+                value.vocabulary = saved
+                episodeLearning[job.id] = value
+                await persistLearning()
+            case .failure(let error):
+                if !learningFailure(error) { learningErrors[job.id] = AppL10n.text("episode.load.error") }
+            }
+        }
+    }
+    func loadLearningProfile(_ language: String, assessment: String? = nil) async {
+        guard session.phase == .signedIn, !profileWrites.contains(language) else { return }
+        if assessment == nil, profileRequests[language] != nil { return }
+        let version = session.generation
+        let request = UUID()
+        profileRequests[language] = request
+        if assessment != nil { profileWrites.insert(language) }
+        defer {
+            if profileRequests[language] == request {
+                profileRequests[language] = nil
+                profileWrites.remove(language)
+            }
+        }
+        func current() -> Bool { !Task.isCancelled && session.generation == version && session.phase == .signedIn && profileRequests[language] == request }
+        await hydrateLearning()
+        guard current(), session.canWrite else { return }
+        learningErrors["profile-" + language] = nil
+        do {
+            let client = try podcastAPI()
+            let response = try await client.profile(language: language, assessment: assessment)
+            guard current() else { return }
+            // Read the exact saved target back after an explicit assessment, not ordinary GETs.
+            let saved = assessment == nil ? response : try await client.profile(language: language)
+            guard current() else { return }
+            learningProfiles[language] = saved
+            await persistLearning()
+        } catch {
+            guard current() else { return }
+            if learningFailure(error) { return }
+            learningErrors["profile-" + language] = AppL10n.text("episode.load.error")
+        }
+    }
+    private nonisolated func captureLearning<T: Sendable>(_ operation: @Sendable () async throws -> T) async -> Result<T, Error> {
+        do { return .success(try await operation()) } catch { return .failure(error) }
+    }
+    private func learningFailure(_ error: Error) -> Bool {
+        if case APIError.http(401) = error { session.rejectUnauthorized(); resetSessionContent(); return true }
+        session.recordNetworkFailure(error)
+        return false
+    }
     private var cacheLease: ContentCacheSession?
     private var cacheGeneration: Int?
     private var cacheRevision = 0
@@ -345,6 +454,9 @@ final class AppModel {
         }
         cacheLease = nil; cacheGeneration = nil; hydratedGeneration = nil
         cancelChatGPT()
+        learningHydratedGeneration = nil
+        learningRequests = [:]; profileRequests = [:]; profileWrites = []
+        episodeLearning = [:]; learningProfiles = [:]; learningErrors = [:]
         podcasts.reset(); historyPhase = .idle; historyLoadError = nil
         input = ""
         result = nil

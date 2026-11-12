@@ -189,37 +189,16 @@ struct PodcastLibraryView: View {
     }
     private func jobDetail(_ original: PodcastJob) -> some View {
         let job = jobs.first { $0.id == original.id } ?? original
-        return List {
-            Section {
+        return VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(job.episodeTitle ?? URL(string: job.url)?.lastPathComponent ?? AppL10n.text("podcast.episode"))
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-                    .accessibilityIdentifier("podcast-detail-title")
-                Text(verbatim: stateLabel(job.state)).foregroundStyle(.secondary)
-                if job.active {
-                    if let progress = job.displayProgress {
-                        ProgressView(value: progress)
-                            .accessibilityLabel(Text(verbatim: stateLabel(job.state)))
-                            .accessibilityIdentifier("podcast-detail-progress")
-                    } else {
-                        ProgressView().accessibilityLabel(Text(verbatim: stateLabel(job.state)))
-                            .accessibilityIdentifier("podcast-detail-progress")
-                    }
-                }
-            }
-            if let message { Text(message).foregroundStyle(.secondary).accessibilityIdentifier("podcast.error") }
-            if let error = job.error {
-                Text(verbatim: AppL10n.text(error.contains("no extractable public audio") ? "podcast.source.failed" : "podcast.failed")).foregroundStyle(.secondary)
-            }
-            ForEach(job.segments) { segment in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(verbatim: AppL10n.text("podcast.time.range", Int(segment.start), Int(segment.end))).font(.caption).foregroundStyle(.secondary)
-                    Text(segment.text).textSelection(.enabled)
-                    if let translation = segment.translation { Text(translation).foregroundStyle(.secondary).textSelection(.enabled) }
-                }
-            }
-            if job.state == "failed" { Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !model.session.canWrite || !workerAvailable) }
-            if job.active { Button("podcast.cancel", role: .destructive) { Task { await action(job, "cancel") } }.disabled(busy || !model.session.canWrite) }
+                    .font(.headline).accessibilityIdentifier("podcast-detail-title")
+                if job.active { ProgressView(value: job.displayProgress).accessibilityIdentifier("podcast-detail-progress") }
+                if job.state != "completed" { Text(verbatim: stateLabel(job.state)).font(.caption).foregroundStyle(.secondary) }
+                if job.state == "failed" { Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !model.session.canWrite || !workerAvailable) }
+                if job.active { Button("podcast.cancel", role: .destructive) { Task { await action(job, "cancel") } }.disabled(busy || !model.session.canWrite) }
+            }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
+            EpisodeReaderView(job: job)
         }.navigationTitle("podcast.episode").navigationBarTitleDisplayMode(.inline)
     }
     private func stateLabel(_ state: String) -> String {

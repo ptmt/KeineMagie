@@ -41,7 +41,7 @@ public actor ContentCache {
     public func remove(session: ContentCacheSession) throws {
         try fence.lock.withLock {
             guard fence.current[session.scope] == session.id else { return }
-            for dataset in ["history", "podcasts"] {
+            for dataset in ["history", "podcasts", "learning"] {
                 let url = path(dataset: dataset, server: session.server, owner: session.owner)
                 if FileManager.default.fileExists(atPath: url.path) { try FileManager.default.removeItem(at: url) }
                 revisions[session.scope + "\u{0}" + dataset] = nil

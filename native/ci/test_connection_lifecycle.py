@@ -201,6 +201,7 @@ enum AppL10n { static func text(_ key:String) -> String { key } }
 ''')
         (p/'Tests/LifecycleTests/LifecycleTests.swift').write_text(HARNESS)
         (p/'Tests/LifecycleTests/DatasetTests.swift').write_text((ROOT/'ci/dataset_harness.swift').read_text())
+        (p/'Tests/LifecycleTests/LearningTests.swift').write_text((ROOT/'ci/learning_harness.swift').read_text())
         subprocess.run(['swift','test','--package-path',temp],check=True)
 
 class ConnectionLifecycleTests(unittest.TestCase):

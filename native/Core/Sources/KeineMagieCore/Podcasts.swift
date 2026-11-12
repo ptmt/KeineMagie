@@ -158,6 +158,47 @@ public struct PodcastAPI: Sendable {
         guard response.data.count <= 8 << 20 else { throw APIError.invalidResponse }
         return response.data
     }
+    public enum LearningResource: Sendable { case analysis(String), vocabulary(String, String), profile(String) }
+    public func learningRequest(resource: LearningResource, assessment: String? = nil) throws -> URLRequest {
+        var path: String
+        var query: [URLQueryItem] = []
+        func validID(_ id: String) -> Bool { id.range(of: "^[A-Za-z0-9_-]{20,128}$", options: .regularExpression) != nil }
+        switch resource {
+        case .analysis(let id):
+            guard validID(id), assessment == nil else { throw APIError.invalidResponse }
+            path = "episodes/" + id + "/analysis"
+        case .vocabulary(let id, let language):
+            guard validID(id), ["de", "ru"].contains(language), assessment == nil else { throw APIError.invalidResponse }
+            path = "vocabulary"
+            query = [URLQueryItem(name: "language", value: language), URLQueryItem(name: "job_id", value: id)]
+        case .profile(let language):
+            guard ["de", "ru"].contains(language), assessment.map(LearningProfile.levels.contains) ?? true else { throw APIError.invalidResponse }
+            path = "profiles/" + language
+        }
+        var value = try request()
+        var parts = URLComponents(url: endpoint.url(path: "v1/learning/" + path), resolvingAgainstBaseURL: false)!
+        if !query.isEmpty { parts.queryItems = query }
+        value.url = parts.url
+        value.cachePolicy = .reloadIgnoringLocalCacheData
+        value.setValue("no-store", forHTTPHeaderField: "Cache-Control")
+        if let assessment {
+            value.httpMethod = "PUT"
+            value.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            value.httpBody = try JSONEncoder().encode(["cefr": assessment])
+        }
+        return value
+    }
+    public func analysis(id: String) async throws -> LearningAnalysis {
+        do { return try JSONDecoder().decode(LearningAnalysis.self, from: await send(learningRequest(resource: .analysis(id)))) }
+        catch APIError.http(409) { return LearningAnalysis(state: "unavailable", result: nil) }
+    }
+    public func vocabulary(id: String, language: String) async throws -> [LearningVocabulary] {
+        struct Response: Decodable { let items: [LearningVocabulary] }
+        return try JSONDecoder().decode(Response.self, from: await send(learningRequest(resource: .vocabulary(id, language)))).items
+    }
+    public func profile(language: String, assessment: String? = nil) async throws -> LearningProfile {
+        try JSONDecoder().decode(LearningProfile.self, from: await send(learningRequest(resource: .profile(language), assessment: assessment)))
+    }
     public func library() async throws -> PodcastLibrary {
         try JSONDecoder().decode(PodcastLibrary.self, from: await send(request()))
     }

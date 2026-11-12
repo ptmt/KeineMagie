@@ -1,1267 +1,171 @@
 {
   "sourceLanguage": "de",
   "strings": {
-    "Offline. Showing saved history": {
-  "extractionState": "manual",
-  "localizations": {
-    "de": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Offline. Gespeicherter Verlauf wird angezeigt"
-      }
-    },
-    "en": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Offline. Showing saved history"
-      }
-    },
-    "ru": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Нет сети. Показана сохранённая история"
-      }
-    },
-    "es": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Sin conexión. Mostrando el historial guardado"
-      }
-    },
-    "fr": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Hors ligne. Affichage de l’historique enregistré"
-      }
-    }
-  }
-},
-    "translation.clear": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Text löschen" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Clear text" } },
-        "ru": { "stringUnit": { "state": "translated", "value": "Очистить текст" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Borrar texto" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Effacer le texte" } }
-      }
-    },
-  "translation.copy": {
-  "extractionState": "manual",
-  "localizations": {
-    "de": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Kopieren"
-      }
-    },
-    "en": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Copy"
-      }
-    },
-    "ru": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Копировать"
-      }
-    },
-    "es": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Copiar"
-      }
-    },
-    "fr": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Copier"
-      }
-    }
-  }
-},
-  "translation.copied": {
-  "extractionState": "manual",
-  "localizations": {
-    "de": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Kopiert"
-      }
-    },
-    "en": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Copied"
-      }
-    },
-    "ru": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Скопировано"
-      }
-    },
-    "es": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Copiado"
-      }
-    },
-    "fr": {
-      "stringUnit": {
-        "state": "translated",
-        "value": "Copié"
-      }
-    }
-  }
-},
-
-  "history.delete": {
-    "extractionState": "manual",
-    "localizations": {
-      "de": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Löschen"
-        }
-      },
-      "en": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Delete"
-        }
-      },
-      "ru": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Удалить"
-        }
-      },
-      "es": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Eliminar"
-        }
-      },
-      "fr": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Supprimer"
-        }
-      }
-    }
-  },
-  "history.addFavorite": {
-    "extractionState": "manual",
-    "localizations": {
-      "de": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Favorisieren"
-        }
-      },
-      "en": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Favorite"
-        }
-      },
-      "ru": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "В избранное"
-        }
-      },
-      "es": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Añadir a favoritos"
-        }
-      },
-      "fr": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Ajouter aux favoris"
-        }
-      }
-    }
-  },
-  "history.unfavorite": {
-    "extractionState": "manual",
-    "localizations": {
-      "de": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Favorit entfernen"
-        }
-      },
-      "en": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Remove favorite"
-        }
-      },
-      "ru": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Убрать из избранного"
-        }
-      },
-      "es": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Quitar de favoritos"
-        }
-      },
-      "fr": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Retirer des favoris"
-        }
-      }
-    }
-  },
-  "history.favorite": {
-    "extractionState": "manual",
-    "localizations": {
-      "de": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Favorit"
-        }
-      },
-      "en": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Favorite"
-        }
-      },
-      "ru": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Избранное"
-        }
-      },
-      "es": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Favorito"
-        }
-      },
-      "fr": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Favori"
-        }
-      }
-    }
-  },
-  "history.updating": {
-    "extractionState": "manual",
-    "localizations": {
-      "de": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Wird aktualisiert"
-        }
-      },
-      "en": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Updating"
-        }
-      },
-      "ru": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Обновление"
-        }
-      },
-      "es": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Actualizando"
-        }
-      },
-      "fr": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Mise à jour"
-        }
-      }
-    }
-  },
-  "direction.germanToRussian": {
-    "extractionState": "manual",
-    "localizations": {
-      "de": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Deutsch nach Russisch"
-        }
-      },
-      "en": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "German to Russian"
-        }
-      },
-      "ru": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "С немецкого на русский"
-        }
-      },
-      "es": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Alemán a ruso"
-        }
-      },
-      "fr": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Allemand vers russe"
-        }
-      }
-    }
-  },
-  "direction.russianToGerman": {
-    "extractionState": "manual",
-    "localizations": {
-      "de": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Russisch nach Deutsch"
-        }
-      },
-      "en": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Russian to German"
-        }
-      },
-      "ru": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "С русского на немецкий"
-        }
-      },
-      "es": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Ruso a alemán"
-        }
-      },
-      "fr": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Russe vers allemand"
-        }
-      }
-    }
-  },
-  "direction.germanPolishing": {
-    "extractionState": "manual",
-    "localizations": {
-      "de": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Deutsch verbessern"
-        }
-      },
-      "en": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Polish German"
-        }
-      },
-      "ru": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Улучшить немецкий текст"
-        }
-      },
-      "es": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Mejorar el alemán"
-        }
-      },
-      "fr": {
-        "stringUnit": {
-          "state": "translated",
-          "value": "Améliorer le texte allemand"
-        }
-      }
-    }
-  },
-    "podcast.add": {
+    "episode.language": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podcast hinzufügen"
+            "value": "Sprache"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add podcast"
+            "value": "Language"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Добавить подкаст"
+            "value": "Язык"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Añadir podcast"
+            "value": "Idioma"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajouter un podcast"
+            "value": "Langue"
           }
         }
       }
     },
-    "podcast.none": {
+    "episode.summary": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noch keine Podcasts"
+            "value": "Zusammenfassung"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No podcasts yet"
+            "value": "Summary"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Пока нет подкастов"
+            "value": "Резюме"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no hay podcasts"
+            "value": "Resumen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun podcast pour le moment"
+            "value": "Résumé"
           }
         }
       }
     },
-    "podcast.none.hint": {
+    "episode.vocabulary": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tippe auf +, um einen Podcast hinzuzufügen."
+            "value": "Wortschatz"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap + to add a podcast."
+            "value": "Vocabulary"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нажмите +, чтобы добавить подкаст."
+            "value": "Словарь"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pulsa + para añadir un podcast."
+            "value": "Vocabulario"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Touchez + pour ajouter un podcast."
+            "value": "Vocabulaire"
           }
         }
       }
     },
-    "podcast.mode": {
+    "episode.recommendations": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hinzufügen als"
+            "value": "Empfehlungen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add as"
+            "value": "Recommendations"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Добавить как"
+            "value": "Рекомендации"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Añadir como"
+            "value": "Recomendaciones"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajouter comme"
+            "value": "Recommandations"
           }
         }
       }
     },
-    "podcast.mode.episode": {
+    "episode.transcript": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Episode"
+            "value": "Transkript"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Episode"
+            "value": "Transcript"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Эпизод"
+            "value": "Расшифровка"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Episodio"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Épisode"
-          }
-        }
-      }
-    },
-    "podcast.mode.feed": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Feed"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Feed"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Лента"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fuente"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flux"
-          }
-        }
-      }
-    },
-    "podcast.info": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Datenschutz & Grenzen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Privacy & limits"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Конфиденциальность и ограничения"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Privacidad y límites"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confidentialité et limites"
-          }
-        }
-      }
-    },
-    "podcast.url": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Podcast-URL"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Podcast URL"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "URL подкаста"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "URL del podcast"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "URL du podcast"
-          }
-        }
-      }
-    },
-    "podcast.sources.expanded": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Öffentliche Audiodateien, Episodenseiten mit Audio und RSS-/Atom-Abos. Maximal 3 Stunden / 300 MiB. Übersetzung in Batches: 100 Versuche pro UTC-Tag, mit Textübersetzungen geteilt; nur gesendete Batches zählen, auch bei Fehlern. Gespeicherte Übersetzungen werden fortgesetzt; unterbrochene Erkennung beginnt neu. YouTube und private Feeds werden nicht unterstützt."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Public audio files, episode pages with audio and RSS/Atom subscriptions. Maximum 3 hours / 300 MiB. Translation uses batches: 100 attempts per UTC day, shared with text translation; only sent batches count, including failures. Saved translations resume; interrupted recognition restarts. YouTube and private feeds are unsupported."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Общедоступные аудиофайлы, страницы эпизодов с аудио и подписки RSS/Atom. До 3 часов / 300 МиБ. Перевод пакетами: 100 попыток за сутки UTC, общий лимит с переводом текста; учитываются только отправленные пакеты, включая ошибки. Сохранённый перевод продолжается; прерванное распознавание начинается заново. YouTube и закрытые ленты не поддерживаются."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Archivos de audio públicos, páginas de episodios con audio y suscripciones RSS/Atom. Máximo 3 horas / 300 MiB. Traducción por lotes: 100 intentos por día UTC, compartidos con la traducción de texto; solo cuentan los lotes enviados, incluidos los fallidos. Se retoman las traducciones guardadas; el reconocimiento interrumpido se reinicia. YouTube y fuentes privadas no son compatibles."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fichiers audio publics, pages d’épisodes avec audio et abonnements RSS/Atom. Maximum 3 heures / 300 Mio. Traduction par lots : 100 tentatives par jour UTC, partagées avec la traduction de texte ; seuls les lots envoyés comptent, y compris les échecs. Les traductions enregistrées reprennent ; la reconnaissance interrompue recommence. YouTube et flux privés non pris en charge."
-          }
-        }
-      }
-    },
-    "podcast.subscribe": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abonnieren"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Subscribe"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подписаться"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suscribirse"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "S’abonner"
-          }
-        }
-      }
-    },
-    "podcast.discovery.privacy": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein Abonnement lädt nur Episodeninfos. Erst „Vorbereiten“ startet Transkription und Übersetzung. Neue Folgen über „Feed aktualisieren“ laden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Subscribing only discovers episode metadata. Prepare starts transcription and translation. Use Refresh feed to find new episodes."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подписка загружает только сведения об эпизодах. Распознавание и перевод начинаются только после нажатия «Импортировать и подготовить на сервере». Чтобы найти новые эпизоды, нажмите «Обновить ленту»."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La suscripción solo carga información de los episodios. La transcripción y la traducción empiezan al pulsar «Importar y preparar en el servidor». Usa «Actualizar fuente» para buscar episodios nuevos."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "L’abonnement charge uniquement les informations des épisodes. La transcription et la traduction commencent après avoir choisi « Importer et préparer sur le serveur ». Utilisez « Actualiser le flux » pour trouver de nouveaux épisodes."
-          }
-        }
-      }
-    },
-    "podcast.subscriptions": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abonnierte Podcasts"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Subscribed podcasts"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подписки на подкасты"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pódcasts suscritos"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abonnements aux podcasts"
-          }
-        }
-      }
-    },
-    "podcast.subscriptions.empty": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Noch keine Feeds abonniert."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No subscribed feeds yet."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подписок на ленты пока нет."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aún no te has suscrito a ninguna fuente."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun abonnement à un flux pour le moment."
-          }
-        }
-      }
-    },
-    "podcast.feed.refresh": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Feed aktualisieren"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh feed"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Обновить ленту"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Actualizar fuente"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Actualiser le flux"
-          }
-        }
-      }
-    },
-    "podcast.unsubscribe": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abonnement entfernen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unsubscribe"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отменить подписку"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancelar suscripción"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se désabonner"
-          }
-        }
-      }
-    },
-    "podcast.source.failed": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keine öffentlich abrufbare Audiospur oder kein Feed gefunden. Nutze eine Seite mit HTML-Audio oder einen öffentlichen RSS-/Atom-Feed. JavaScript-Player, geschützte Spotify-/Apple-Inhalte und Anmeldungen werden nicht unterstützt."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No public audio or feed found. Use an HTML-audio page or public RSS/Atom feed. JavaScript players, protected Spotify/Apple media and sign-in content are unsupported."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Общедоступное аудио или лента не найдены. Используйте страницу с HTML-аудио или открытую ленту RSS/Atom. JavaScript-плееры, защищённые материалы Spotify/Apple и контент, требующий входа, не поддерживаются."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No se encontró audio ni una fuente públicos. Usa una página con audio HTML o una fuente RSS/Atom pública. No se admiten reproductores JavaScript, contenido protegido de Spotify/Apple ni contenido que requiera iniciar sesión."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun audio ou flux public trouvé. Utilisez une page avec audio HTML ou un flux RSS/Atom public. Les lecteurs JavaScript, les contenus protégés Spotify/Apple et les contenus nécessitant une connexion ne sont pas pris en charge."
-          }
-        }
-      }
-    },
-    "podcast.episode": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Episode"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Episode"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Эпизод"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Episodio"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Épisode"
-          }
-        }
-      }
-    },
-    "podcast.language.de_ru": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deutsch → Russisch"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "German → Russian"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Немецкий → русский"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alemán → ruso"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Allemand → russe"
-          }
-        }
-      }
-    },
-    "podcast.language.ru_de": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Russisch → Deutsch"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Russian → German"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Русский → немецкий"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ruso → alemán"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Russe → allemand"
-          }
-        }
-      }
-    },
-    "podcast.failed": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Podcasts konnten nicht geladen oder aktualisiert werden. Bitte erneut versuchen."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Could not load or update podcasts. Please try again."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не удалось загрузить или обновить подкасты. Повторите попытку."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No se pudieron cargar o actualizar los pódcasts. Inténtalo de nuevo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impossible de charger ou de mettre à jour les podcasts. Réessayez."
-          }
-        }
-      }
-    },
-    "podcast.state.unknown": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Status unbekannt"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unknown status"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Неизвестный статус"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Estado desconocido"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "État inconnu"
-          }
-        }
-      }
-    },
-    "podcast.time.range": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d–%d s"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d–%d s"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d–%d s"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d–%d s"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d–%d s"
-          }
-        }
-      }
-    },
-    "podcast.state.queued": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In Warteschlange"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Queued"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "В очереди"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En cola"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En attente"
-          }
-        }
-      }
-    },
-    "podcast.state.fetching": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wird geladen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Downloading"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Загрузка"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descargando"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Téléchargement"
-          }
-        }
-      }
-    },
-    "podcast.state.transcribing": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wird transkribiert"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transcribing"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Распознавание"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transcribiendo"
+            "value": "Transcripción"
           }
         },
         "fr": {
@@ -1272,667 +176,982 @@
         }
       }
     },
-    "podcast.state.translating": {
+    "episode.profile": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wird übersetzt"
+            "value": "Profil"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Translating"
+            "value": "Profile"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перевод"
+            "value": "Профиль"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Traduciendo"
+            "value": "Perfil"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Traduction"
+            "value": "Profil"
           }
         }
       }
     },
-    "podcast.state.ready": {
+    "episode.search": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bereit"
+            "value": "Transkript durchsuchen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ready"
+            "value": "Search transcript"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Готово"
+            "value": "Поиск в расшифровке"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Listo"
+            "value": "Buscar en transcripción"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prêt"
+            "value": "Rechercher dans la transcription"
           }
         }
       }
     },
-    "podcast.state.failed": {
+    "episode.time": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fehlgeschlagen"
+            "value": "Transkriptzeit (mm:ss)"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Failed"
+            "value": "Transcript time (mm:ss)"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ошибка"
+            "value": "Время расшифровки (мм:сс)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Error"
+            "value": "Tiempo de transcripción (mm:ss)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec"
+            "value": "Temps de transcription (mm:ss)"
           }
         }
       }
     },
-    "podcast.state.cancelled": {
+    "episode.jump": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abgebrochen"
+            "value": "Springen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancelled"
+            "value": "Go"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отменено"
+            "value": "Перейти"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancelado"
+            "value": "Ir"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Annulé"
+            "value": "Aller"
           }
         }
       }
     },
-    "podcast.import": {
+    "episode.previous.match": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Episode importieren"
+            "value": "Vorheriger Treffer"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import episode"
+            "value": "Previous match"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Импорт эпизода"
+            "value": "Предыдущее совпадение"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importar episodio"
+            "value": "Coincidencia anterior"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importer un épisode"
+            "value": "Résultat précédent"
           }
         }
       }
     },
-    "podcast.sources": {
+    "episode.next.match": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Öffentliche Audiodateien, Episodenseiten mit Audio und RSS-/Atom-Abos. Maximal 3 Stunden / 300 MiB. Übersetzung in Batches: 100 Versuche pro UTC-Tag, mit Textübersetzungen geteilt; nur gesendete Batches zählen, auch bei Fehlern. Gespeicherte Übersetzungen werden fortgesetzt; unterbrochene Erkennung beginnt neu. YouTube und private Feeds werden nicht unterstützt."
+            "value": "Nächster Treffer"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Public audio files, episode pages with audio and RSS/Atom subscriptions. Maximum 3 hours / 300 MiB. Translation uses batches: 100 attempts per UTC day, shared with text translation; only sent batches count, including failures. Saved translations resume; interrupted recognition restarts. YouTube and private feeds are unsupported."
+            "value": "Next match"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Общедоступные аудиофайлы, страницы эпизодов с аудио и подписки RSS/Atom. До 3 часов / 300 МиБ. Перевод пакетами: 100 попыток за сутки UTC, общий лимит с переводом текста; учитываются только отправленные пакеты, включая ошибки. Сохранённый перевод продолжается; прерванное распознавание начинается заново. YouTube и закрытые ленты не поддерживаются."
+            "value": "Следующее совпадение"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Archivos de audio públicos, páginas de episodios con audio y suscripciones RSS/Atom. Máximo 3 horas / 300 MiB. Traducción por lotes: 100 intentos por día UTC, compartidos con la traducción de texto; solo cuentan los lotes enviados, incluidos los fallidos. Se retoman las traducciones guardadas; el reconocimiento interrumpido se reinicia. YouTube y fuentes privadas no son compatibles."
+            "value": "Siguiente coincidencia"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fichiers audio publics, pages d’épisodes avec audio et abonnements RSS/Atom. Maximum 3 heures / 300 Mio. Traduction par lots : 100 tentatives par jour UTC, partagées avec la traduction de texte ; seuls les lots envoyés comptent, y compris les échecs. Les traductions enregistrées reprennent ; la reconnaissance interrompue recommence. YouTube et flux privés non pris en charge."
+            "value": "Résultat suivant"
           }
         }
       }
     },
-    "podcast.language": {
+    "episode.no.matches": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Übersetzen"
+            "value": "Keine Treffer"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Translate"
+            "value": "No matches"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перевести"
+            "value": "Совпадений нет"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Traducir"
+            "value": "Sin coincidencias"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Traduire"
+            "value": "Aucun résultat"
           }
         }
       }
     },
-    "podcast.prepare": {
+    "episode.return": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importieren"
+            "value": "Zurück zur Quelle"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import episode"
+            "value": "Back to source"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Импортировать"
+            "value": "Назад к источнику"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importar episodio"
+            "value": "Volver a la fuente"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importer l’épisode"
+            "value": "Retour à la source"
           }
         }
       }
     },
-    "podcast.worker": {
+    "episode.previous.segments": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Audioverarbeitung nicht verfügbar."
+            "value": "Vorherige Abschnitte"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Audio processing is unavailable."
+            "value": "Previous segments"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Обработка аудио недоступна."
+            "value": "Предыдущие фрагменты"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Procesamiento de audio no disponible."
+            "value": "Segmentos anteriores"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le traitement audio est indisponible."
+            "value": "Segments précédents"
           }
         }
       }
     },
-    "podcast.privacy": {
+    "episode.next.segments": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Erkennung läuft lokal auf deinem Server. Übersetzungen nutzen nur dein verbundenes persönliches ChatGPT-Konto und dessen Kontingent; jedes Segment zählt als Übersetzungsversuch."
+            "value": "Weitere Abschnitte"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recognition runs locally on your server. Translation uses only your connected personal ChatGPT account and its quota; each segment counts as a translation attempt."
+            "value": "More segments"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Распознавание выполняется локально на вашем сервере. Перевод использует только подключённый личный аккаунт ChatGPT и его квоту; каждый сегмент считается попыткой перевода."
+            "value": "Ещё фрагменты"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El reconocimiento se ejecuta localmente en tu servidor. La traducción usa solo tu cuenta personal de ChatGPT conectada y su cuota; cada segmento cuenta como un intento."
+            "value": "Más segmentos"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La reconnaissance s’exécute localement sur votre serveur. La traduction utilise uniquement votre compte ChatGPT personnel connecté et son quota ; chaque segment compte comme une tentative."
+            "value": "Autres segments"
           }
         }
       }
     },
-    "podcast.shared": {
+    "episode.transcript.only": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geteilte URLs – vor dem Senden bestätigen"
+            "value": "Transkript-Navigation, keine Audiowiedergabe"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shared URLs — confirm before sending"
+            "value": "Transcript navigation, not audio playback"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Общие ссылки — подтвердите отправку"
+            "value": "Навигация по расшифровке, не воспроизведение аудио"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enlaces compartidos: confirma antes de enviar"
+            "value": "Navegación de transcripción, no reproducción de audio"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Liens partagés — confirmer avant l’envoi"
+            "value": "Navigation de transcription, pas de lecture audio"
           }
         }
       }
     },
-    "podcast.review": {
+    "episode.no.transcript": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import prüfen"
+            "value": "Noch kein Transkript"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Review import"
+            "value": "No transcript yet"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Проверить импорт"
+            "value": "Расшифровки пока нет"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Revisar importación"
+            "value": "Aún no hay transcripción"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vérifier l’importation"
+            "value": "Pas encore de transcription"
           }
         }
       }
     },
-    "podcast.discard": {
+    "episode.not.loaded": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verwerfen"
+            "value": "Keine gespeicherten Daten geladen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Discard"
+            "value": "No saved data loaded"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отклонить"
+            "value": "Сохранённые данные не загружены"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Descartar"
+            "value": "No se han cargado datos guardados"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ignorer"
+            "value": "Aucune donnée enregistrée chargée"
           }
         }
       }
     },
-    "podcast.library": {
+    "episode.not.generated": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mediathek"
+            "value": "Noch nicht erstellt. KI-Analyse nur ausdrücklich im Web starten."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Library"
+            "value": "Not generated. Start AI analysis explicitly on the web."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Библиотека"
+            "value": "Ещё не создано. Запустите ИИ-анализ явно в веб-версии."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Biblioteca"
+            "value": "Sin generar. Inicia el análisis de IA explícitamente en la web."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bibliothèque"
+            "value": "Non généré. Lancez explicitement l’analyse IA sur le web."
           }
         }
       }
     },
-    "podcast.empty": {
+    "episode.no.words": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noch keine Episoden importiert."
+            "value": "Keine gespeicherten Wörter"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No episodes imported."
+            "value": "No saved words"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Эпизоды ещё не импортированы."
+            "value": "Сохранённых слов нет"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No hay episodios importados."
+            "value": "Sin palabras guardadas"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun épisode importé."
+            "value": "Aucun mot enregistré"
           }
         }
       }
     },
-    "podcast.cancel": {
+    "episode.no.recommendations": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abbrechen"
+            "value": "Keine gespeicherten Empfehlungen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancel"
+            "value": "No saved recommendations"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отменить"
+            "value": "Сохранённых рекомендаций нет"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancelar"
+            "value": "Sin recomendaciones guardadas"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Annuler"
+            "value": "Aucune recommandation enregistrée"
           }
         }
       }
     },
-    "podcast.retry": {
+    "episode.favorite": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erneut versuchen"
+            "value": "Favorit"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Retry"
+            "value": "Favorite"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Повторить"
+            "value": "Избранное"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reintentar"
+            "value": "Favorito"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réessayer"
+            "value": "Favori"
           }
         }
       }
     },
-    "podcast.delete": {
+    "episode.status.saved": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Löschen"
+            "value": "Gespeichert"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete"
+            "value": "Saved"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Удалить"
+            "value": "Сохранено"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar"
+            "value": "Guardado"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer"
+            "value": "Enregistré"
           }
         }
       }
     },
-    "podcast.title": {
+    "episode.status.learning": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podcasts"
+            "value": "Wird gelernt"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podcasts"
+            "value": "Learning"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подкасты"
+            "value": "Изучаю"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podcasts"
+            "value": "Aprendiendo"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podcasts"
+            "value": "En apprentissage"
+          }
+        }
+      }
+    },
+    "episode.status.known": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bekannt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Known"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знаю"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conocido"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connu"
+          }
+        }
+      }
+    },
+    "episode.cefr": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprachniveau (CEFR)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language level (CEFR)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уровень языка (CEFR)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nivel de idioma (MCER)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niveau de langue (CECR)"
+          }
+        }
+      }
+    },
+    "episode.unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht angegeben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not set"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не указан"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin indicar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non défini"
+          }
+        }
+      }
+    },
+    "episode.self.assessment": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selbsteinschätzung. Wird nicht automatisch erhöht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-assessed. Never raised automatically."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Самооценка. Не повышается автоматически."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoevaluación. Nunca aumenta automáticamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoévaluation. Jamais augmenté automatiquement."
+          }
+        }
+      }
+    },
+    "episode.save.level": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niveau speichern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save level"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить уровень"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar nivel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer le niveau"
+          }
+        }
+      }
+    },
+    "episode.assessments": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bisherige Selbsteinschätzungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assessment history"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История самооценки"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historial de autoevaluación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historique des évaluations"
+          }
+        }
+      }
+    },
+    "episode.load.error": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Daten konnten nicht aktualisiert werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not refresh saved data."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось обновить сохранённые данные."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron actualizar los datos guardados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’actualiser les données enregistrées."
+          }
+        }
+      }
+    },
+    "Offline. Showing saved history": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline. Gespeicherter Verlauf wird angezeigt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline. Showing saved history"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет сети. Показана сохранённая история"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin conexión. Mostrando el historial guardado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hors ligne. Affichage de l’historique enregistré"
+          }
+        }
+      }
+    },
+    "translation.clear": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear text"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить текст"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar texto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer le texte"
           }
         }
       }
@@ -4558,6 +3777,1896 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trousseau indisponible (%d). Déverrouillez l’appareil et réessayez."
+          }
+        }
+      }
+    },
+    "translation.copy": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Копировать"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copier"
+          }
+        }
+      }
+    },
+    "translation.copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiert"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скопировано"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copié"
+          }
+        }
+      }
+    },
+    "history.delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer"
+          }
+        }
+      }
+    },
+    "history.addFavorite": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorisieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В избранное"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir a favoritos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter aux favoris"
+          }
+        }
+      }
+    },
+    "history.unfavorite": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorit entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove favorite"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Убрать из избранного"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar de favoritos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer des favoris"
+          }
+        }
+      }
+    },
+    "history.favorite": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Избранное"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorito"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favori"
+          }
+        }
+      }
+    },
+    "history.updating": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird aktualisiert"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обновление"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizando"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mise à jour"
+          }
+        }
+      }
+    },
+    "direction.germanToRussian": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deutsch nach Russisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "German to Russian"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С немецкого на русский"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alemán a ruso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allemand vers russe"
+          }
+        }
+      }
+    },
+    "direction.russianToGerman": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Russisch nach Deutsch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Russian to German"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С русского на немецкий"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruso a alemán"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Russe vers allemand"
+          }
+        }
+      }
+    },
+    "direction.germanPolishing": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deutsch verbessern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish German"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Улучшить немецкий текст"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejorar el alemán"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Améliorer le texte allemand"
+          }
+        }
+      }
+    },
+    "podcast.add": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add podcast"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить подкаст"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir podcast"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter un podcast"
+          }
+        }
+      }
+    },
+    "podcast.none": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Podcasts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No podcasts yet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока нет подкастов"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay podcasts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun podcast pour le moment"
+          }
+        }
+      }
+    },
+    "podcast.none.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf +, um einen Podcast hinzuzufügen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap + to add a podcast."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите +, чтобы добавить подкаст."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulsa + para añadir un podcast."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez + pour ajouter un podcast."
+          }
+        }
+      }
+    },
+    "podcast.mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinzufügen als"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add as"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить как"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir como"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter comme"
+          }
+        }
+      }
+    },
+    "podcast.mode.episode": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episode"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эпизод"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episodio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisode"
+          }
+        }
+      }
+    },
+    "podcast.mode.feed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лента"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux"
+          }
+        }
+      }
+    },
+    "podcast.info": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutz & Grenzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy & limits"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Конфиденциальность и ограничения"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidad y límites"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confidentialité et limites"
+          }
+        }
+      }
+    },
+    "podcast.url": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast-URL"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast URL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL подкаста"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL del podcast"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL du podcast"
+          }
+        }
+      }
+    },
+    "podcast.sources.expanded": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffentliche Audiodateien, Episodenseiten mit Audio und RSS-/Atom-Abos. Maximal 3 Stunden / 300 MiB. Übersetzung in Batches: 100 Versuche pro UTC-Tag, mit Textübersetzungen geteilt; nur gesendete Batches zählen, auch bei Fehlern. Gespeicherte Übersetzungen werden fortgesetzt; unterbrochene Erkennung beginnt neu. YouTube und private Feeds werden nicht unterstützt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public audio files, episode pages with audio and RSS/Atom subscriptions. Maximum 3 hours / 300 MiB. Translation uses batches: 100 attempts per UTC day, shared with text translation; only sent batches count, including failures. Saved translations resume; interrupted recognition restarts. YouTube and private feeds are unsupported."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общедоступные аудиофайлы, страницы эпизодов с аудио и подписки RSS/Atom. До 3 часов / 300 МиБ. Перевод пакетами: 100 попыток за сутки UTC, общий лимит с переводом текста; учитываются только отправленные пакеты, включая ошибки. Сохранённый перевод продолжается; прерванное распознавание начинается заново. YouTube и закрытые ленты не поддерживаются."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivos de audio públicos, páginas de episodios con audio y suscripciones RSS/Atom. Máximo 3 horas / 300 MiB. Traducción por lotes: 100 intentos por día UTC, compartidos con la traducción de texto; solo cuentan los lotes enviados, incluidos los fallidos. Se retoman las traducciones guardadas; el reconocimiento interrumpido se reinicia. YouTube y fuentes privadas no son compatibles."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichiers audio publics, pages d’épisodes avec audio et abonnements RSS/Atom. Maximum 3 heures / 300 Mio. Traduction par lots : 100 tentatives par jour UTC, partagées avec la traduction de texte ; seuls les lots envoyés comptent, y compris les échecs. Les traductions enregistrées reprennent ; la reconnaissance interrompue recommence. YouTube et flux privés non pris en charge."
+          }
+        }
+      }
+    },
+    "podcast.subscribe": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscribe"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подписаться"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suscribirse"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’abonner"
+          }
+        }
+      }
+    },
+    "podcast.discovery.privacy": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Abonnement lädt nur Episodeninfos. Erst „Vorbereiten“ startet Transkription und Übersetzung. Neue Folgen über „Feed aktualisieren“ laden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscribing only discovers episode metadata. Prepare starts transcription and translation. Use Refresh feed to find new episodes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подписка загружает только сведения об эпизодах. Распознавание и перевод начинаются только после нажатия «Импортировать и подготовить на сервере». Чтобы найти новые эпизоды, нажмите «Обновить ленту»."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La suscripción solo carga información de los episodios. La transcripción y la traducción empiezan al pulsar «Importar y preparar en el servidor». Usa «Actualizar fuente» para buscar episodios nuevos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’abonnement charge uniquement les informations des épisodes. La transcription et la traduction commencent après avoir choisi « Importer et préparer sur le serveur ». Utilisez « Actualiser le flux » pour trouver de nouveaux épisodes."
+          }
+        }
+      }
+    },
+    "podcast.subscriptions": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnierte Podcasts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscribed podcasts"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подписки на подкасты"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pódcasts suscritos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnements aux podcasts"
+          }
+        }
+      }
+    },
+    "podcast.subscriptions.empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Feeds abonniert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No subscribed feeds yet."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подписок на ленты пока нет."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no te has suscrito a ninguna fuente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun abonnement à un flux pour le moment."
+          }
+        }
+      }
+    },
+    "podcast.feed.refresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed aktualisieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh feed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обновить ленту"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizar fuente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualiser le flux"
+          }
+        }
+      }
+    },
+    "podcast.unsubscribe": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnement entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsubscribe"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменить подписку"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar suscripción"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se désabonner"
+          }
+        }
+      }
+    },
+    "podcast.source.failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine öffentlich abrufbare Audiospur oder kein Feed gefunden. Nutze eine Seite mit HTML-Audio oder einen öffentlichen RSS-/Atom-Feed. JavaScript-Player, geschützte Spotify-/Apple-Inhalte und Anmeldungen werden nicht unterstützt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No public audio or feed found. Use an HTML-audio page or public RSS/Atom feed. JavaScript players, protected Spotify/Apple media and sign-in content are unsupported."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общедоступное аудио или лента не найдены. Используйте страницу с HTML-аудио или открытую ленту RSS/Atom. JavaScript-плееры, защищённые материалы Spotify/Apple и контент, требующий входа, не поддерживаются."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró audio ni una fuente públicos. Usa una página con audio HTML o una fuente RSS/Atom pública. No se admiten reproductores JavaScript, contenido protegido de Spotify/Apple ni contenido que requiera iniciar sesión."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun audio ou flux public trouvé. Utilisez une page avec audio HTML ou un flux RSS/Atom public. Les lecteurs JavaScript, les contenus protégés Spotify/Apple et les contenus nécessitant une connexion ne sont pas pris en charge."
+          }
+        }
+      }
+    },
+    "podcast.episode": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episode"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эпизод"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episodio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épisode"
+          }
+        }
+      }
+    },
+    "podcast.language.de_ru": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deutsch → Russisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "German → Russian"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немецкий → русский"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alemán → ruso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allemand → russe"
+          }
+        }
+      }
+    },
+    "podcast.language.ru_de": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Russisch → Deutsch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Russian → German"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Русский → немецкий"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruso → alemán"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Russe → allemand"
+          }
+        }
+      }
+    },
+    "podcast.failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts konnten nicht geladen oder aktualisiert werden. Bitte erneut versuchen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not load or update podcasts. Please try again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить или обновить подкасты. Повторите попытку."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron cargar o actualizar los pódcasts. Inténtalo de nuevo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger ou de mettre à jour les podcasts. Réessayez."
+          }
+        }
+      }
+    },
+    "podcast.state.unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status unbekannt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown status"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неизвестный статус"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado desconocido"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "État inconnu"
+          }
+        }
+      }
+    },
+    "podcast.time.range": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d–%d s"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d–%d s"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d–%d s"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d–%d s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d–%d s"
+          }
+        }
+      }
+    },
+    "podcast.state.queued": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Warteschlange"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queued"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В очереди"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cola"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attente"
+          }
+        }
+      }
+    },
+    "podcast.state.fetching": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird geladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descargando"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargement"
+          }
+        }
+      }
+    },
+    "podcast.state.transcribing": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird transkribiert"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribing"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Распознавание"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcribiendo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcription"
+          }
+        }
+      }
+    },
+    "podcast.state.translating": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird übersetzt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translating"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перевод"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduciendo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduction"
+          }
+        }
+      }
+    },
+    "podcast.state.ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bereit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готово"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prêt"
+          }
+        }
+      }
+    },
+    "podcast.state.failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehlgeschlagen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ошибка"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec"
+          }
+        }
+      }
+    },
+    "podcast.state.cancelled": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abgebrochen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelled"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменено"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annulé"
+          }
+        }
+      }
+    },
+    "podcast.import": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episode importieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import episode"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импорт эпизода"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar episodio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer un épisode"
+          }
+        }
+      }
+    },
+    "podcast.sources": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffentliche Audiodateien, Episodenseiten mit Audio und RSS-/Atom-Abos. Maximal 3 Stunden / 300 MiB. Übersetzung in Batches: 100 Versuche pro UTC-Tag, mit Textübersetzungen geteilt; nur gesendete Batches zählen, auch bei Fehlern. Gespeicherte Übersetzungen werden fortgesetzt; unterbrochene Erkennung beginnt neu. YouTube und private Feeds werden nicht unterstützt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public audio files, episode pages with audio and RSS/Atom subscriptions. Maximum 3 hours / 300 MiB. Translation uses batches: 100 attempts per UTC day, shared with text translation; only sent batches count, including failures. Saved translations resume; interrupted recognition restarts. YouTube and private feeds are unsupported."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общедоступные аудиофайлы, страницы эпизодов с аудио и подписки RSS/Atom. До 3 часов / 300 МиБ. Перевод пакетами: 100 попыток за сутки UTC, общий лимит с переводом текста; учитываются только отправленные пакеты, включая ошибки. Сохранённый перевод продолжается; прерванное распознавание начинается заново. YouTube и закрытые ленты не поддерживаются."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivos de audio públicos, páginas de episodios con audio y suscripciones RSS/Atom. Máximo 3 horas / 300 MiB. Traducción por lotes: 100 intentos por día UTC, compartidos con la traducción de texto; solo cuentan los lotes enviados, incluidos los fallidos. Se retoman las traducciones guardadas; el reconocimiento interrumpido se reinicia. YouTube y fuentes privadas no son compatibles."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichiers audio publics, pages d’épisodes avec audio et abonnements RSS/Atom. Maximum 3 heures / 300 Mio. Traduction par lots : 100 tentatives par jour UTC, partagées avec la traduction de texte ; seuls les lots envoyés comptent, y compris les échecs. Les traductions enregistrées reprennent ; la reconnaissance interrompue recommence. YouTube et flux privés non pris en charge."
+          }
+        }
+      }
+    },
+    "podcast.language": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übersetzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translate"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перевести"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traducir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduire"
+          }
+        }
+      }
+    },
+    "podcast.prepare": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import episode"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импортировать"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar episodio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer l’épisode"
+          }
+        }
+      }
+    },
+    "podcast.worker": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audioverarbeitung nicht verfügbar."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio processing is unavailable."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обработка аудио недоступна."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procesamiento de audio no disponible."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le traitement audio est indisponible."
+          }
+        }
+      }
+    },
+    "podcast.privacy": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Erkennung läuft lokal auf deinem Server. Übersetzungen nutzen nur dein verbundenes persönliches ChatGPT-Konto und dessen Kontingent; jedes Segment zählt als Übersetzungsversuch."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recognition runs locally on your server. Translation uses only your connected personal ChatGPT account and its quota; each segment counts as a translation attempt."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Распознавание выполняется локально на вашем сервере. Перевод использует только подключённый личный аккаунт ChatGPT и его квоту; каждый сегмент считается попыткой перевода."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El reconocimiento se ejecuta localmente en tu servidor. La traducción usa solo tu cuenta personal de ChatGPT conectada y su cuota; cada segmento cuenta como un intento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La reconnaissance s’exécute localement sur votre serveur. La traduction utilise uniquement votre compte ChatGPT personnel connecté et son quota ; chaque segment compte comme une tentative."
+          }
+        }
+      }
+    },
+    "podcast.shared": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geteilte URLs – vor dem Senden bestätigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shared URLs — confirm before sending"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общие ссылки — подтвердите отправку"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enlaces compartidos: confirma antes de enviar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liens partagés — confirmer avant l’envoi"
+          }
+        }
+      }
+    },
+    "podcast.review": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import prüfen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review import"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверить импорт"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisar importación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier l’importation"
+          }
+        }
+      }
+    },
+    "podcast.discard": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwerfen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отклонить"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descartar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorer"
+          }
+        }
+      }
+    },
+    "podcast.library": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mediathek"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Библиотека"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biblioteca"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliothèque"
+          }
+        }
+      }
+    },
+    "podcast.empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Episoden importiert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No episodes imported."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эпизоды ещё не импортированы."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay episodios importados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun épisode importé."
+          }
+        }
+      }
+    },
+    "podcast.cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменить"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        }
+      }
+    },
+    "podcast.retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        }
+      }
+    },
+    "podcast.delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer"
+          }
+        }
+      }
+    },
+    "podcast.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подкасты"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
           }
         }
       }

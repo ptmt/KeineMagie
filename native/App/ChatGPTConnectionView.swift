@@ -28,6 +28,7 @@ struct ChatGPTConnectionView: View {
             if model.busy { ProgressView(); Button("Abbrechen") { model.cancelChatGPT() } }
             if let error = model.translatorError { ErrorNotice(text: error) }
             Section("Konto") {
+                NavigationLink { LearningProfileView() } label: { Label("episode.profile", systemImage: "graduationcap") }
                 NavigationLink { BrowserPairingView() } label: { Label("browser.connect", systemImage: "desktopcomputer") }
                 Button("Abmelden", role: .destructive) { Task { await model.logout() } }
             }

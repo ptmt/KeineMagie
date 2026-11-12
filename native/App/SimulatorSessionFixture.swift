@@ -6,6 +6,7 @@ import KeineMagieCore
 /// Test transport only. Device builds do not contain this fixture.
 actor SimulatorSessionFixture {
     private var validations = 0
+    private var profileLevels: [String: String] = [:]
     private var podcastRefreshed = false
     private var preparedJob: [String: Any]?
     private var prepareRequests = 0
@@ -49,6 +50,21 @@ actor SimulatorSessionFixture {
             let body = try JSONSerialization.jsonObject(with: request.httpBody ?? Data()) as? [String: Bool]
             historyItems[index]["favorite"] = body?["favorite"] ?? false
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: historyItems[index]), status: 200)
+        }
+        if let path = request.url?.path, path.hasPrefix("/v1/learning/") {
+            guard request.httpMethod == "GET" || (path.hasPrefix("/v1/learning/profiles/") && request.httpMethod == "PUT") else { return AuthResponse(data: Data(), status: 405) }
+            let citation: [String: Any] = ["segment_id": 2012, "quote": "Synthetic segment 2012", "start": 20120, "end": 20128]
+            let response: [String: Any]
+            if path.hasSuffix("/analysis") {
+                response = ["state": "completed", "result": ["narrative": [["text": "Synthetic saved summary", "citations": [citation]]], "topics": [["title": "Synthetic topic", "key_points": [["text": "Synthetic topic detail", "citations": [citation]]]]], "recommendations": [["term": "Alltag", "translation": "повседневность", "cefr": "B1", "reason": "Synthetic recommendation", "citation": citation]]]]
+            } else if path.hasSuffix("/vocabulary") {
+                response = ["items": [["id": "synthetic-word", "term": "Alltag", "translation": "повседневность", "segment_id": 2012, "quote": "Synthetic segment 2012", "favorite": true, "status": "learning"]]]
+            } else {
+                let language = request.url?.lastPathComponent ?? "de"
+                if request.httpMethod == "PUT", let data = request.httpBody, let body = try JSONSerialization.jsonObject(with: data) as? [String: String], let level = body["cefr"] { profileLevels[language] = level }
+                response = ["language": language, "cefr": profileLevels[language] ?? "B1", "self_assessments": [["cefr": profileLevels[language] ?? "B1", "assessed_at": "2026-11-12T12:00:00Z"]]]
+            }
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: response), status: 200)
         }
         switch request.url?.path {
         case "/v1/auth/session":
@@ -99,8 +115,11 @@ actor SimulatorSessionFixture {
                 try? await Task.sleep(for: .seconds(mode == "account-change" ? 7 : 1))
                 return AuthResponse(data: try JSONSerialization.data(withJSONObject: Self.job(1)), status: 200)
             }
-            let populated = ["podcast-populated", "delayed-populated", "cache-populated"].contains(mode)
-            let items = populated ? (1...18).map { Self.job($0) } : preparedJob.map { [$0] } ?? []
+            let populated = ["podcast-populated", "podcast-timeline", "delayed-populated", "cache-populated"].contains(mode)
+            var items = populated ? (1...18).map { Self.job($0) } : preparedJob.map { [$0] } ?? []
+            if mode == "podcast-timeline", !items.isEmpty {
+                items[0]["segments"] = (0..<2113).map { ["start": $0 * 10, "end": $0 * 10 + 8, "text": "Synthetic segment \($0)", "translation": "Перевод \($0)"] as [String: Any] }
+            }
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": items, "worker_available": true]), status: 200)
         case "/v1/podcasts/subscriptions":
             let feed = podcastFeed()

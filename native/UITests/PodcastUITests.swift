@@ -14,6 +14,87 @@ final class PodcastUITests: XCTestCase {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
     }
+    @MainActor private func section(_ key: String, in app: XCUIApplication) {
+        let button = app.buttons["episode-section-" + key]
+        let strip = app.scrollViews.containing(.button, identifier: "episode-section-summary").firstMatch
+        for _ in 0..<5 {
+            if button.frame.minX >= 0 && button.frame.maxX <= app.frame.maxX - 52 { break }
+            if key == "transcript" { strip.swipeLeft() } else { strip.swipeRight() }
+        }
+        XCTAssertTrue(button.isHittable); button.tap()
+    }
+    @MainActor func testTimelineSearchSummaryCitationAndProfile() {
+        let app = launch("podcast-timeline")
+        let episode = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "episode-1.mp3")).firstMatch
+        XCTAssertTrue(episode.waitForExistence(timeout: 8)); episode.tap()
+        XCTAssertTrue(app.buttons["episode-section-summary"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.sliders["episode-timeline"].exists)
+        XCTAssertGreaterThanOrEqual(app.buttons["episode-profile"].frame.height, 43.99)
+        app.sliders["episode-timeline"].adjust(toNormalizedSliderPosition: 0.5)
+        XCTAssertFalse(app.staticTexts["Synthetic segment 0"].isHittable)
+        screenshot(app, "synthetic-timeline-initial")
+        section("summary", in: app)
+        XCTAssertTrue(app.staticTexts["Synthetic saved summary"].waitForExistence(timeout: 5))
+        app.buttons["episode-citation-2012"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Synthetic segment 2012"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["335:20"].exists)
+        screenshot(app, "synthetic-timeline-citation")
+        section("transcript", in: app)
+        let search = app.textFields["episode-search"]
+        search.tap(); search.typeText("Перевод 2050")
+        app.buttons["episode-next-match"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic segment 2050"].waitForExistence(timeout: 5))
+        screenshot(app, "synthetic-timeline-search")
+        let time = app.textFields["episode-time"]
+        time.tap(); time.typeText("335:29")
+        app.buttons["episode-jump"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic segment 2012"].waitForExistence(timeout: 5))
+        section("vocabulary", in: app)
+        XCTAssertTrue(app.staticTexts["Alltag"].waitForExistence(timeout: 5))
+        screenshot(app, "synthetic-timeline-vocabulary")
+        app.buttons["episode-profile"].tap()
+        XCTAssertTrue(app.buttons["profile-cefr"].waitForExistence(timeout: 5))
+        app.buttons["profile-cefr"].tap()
+        app.buttons["B2"].tap()
+        XCTAssertTrue(app.buttons["profile-save"].isEnabled)
+        app.buttons["profile-save"].tap()
+        let assessment = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "B2, ")).firstMatch
+        for _ in 0..<4 { if assessment.exists { break }; app.collectionViews.firstMatch.swipeUp() }
+        XCTAssertTrue(assessment.waitForExistence(timeout: 5))
+        screenshot(app, "synthetic-timeline-profile")
+    }
+    @MainActor func testSavedEpisodeSummaryAndProfileSurviveOfflineRelaunch() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "cache-populated"
+        app.launchArguments = ["-AppleLanguages", "(en)"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Podcasts"].waitForExistence(timeout: 10)); app.tabBars.buttons["Podcasts"].tap()
+        let episode = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "episode-1.mp3")).firstMatch
+        XCTAssertTrue(episode.waitForExistence(timeout: 5)); episode.tap()
+        section("summary", in: app)
+        XCTAssertTrue(app.staticTexts["Synthetic saved summary"].waitForExistence(timeout: 5))
+        app.buttons["episode-profile"].tap()
+        XCTAssertTrue(app.buttons["profile-cefr"].waitForExistence(timeout: 5))
+        app.buttons["Done"].tap()
+        app.terminate()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "cache-offline"
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Podcasts"].waitForExistence(timeout: 5)); app.tabBars.buttons["Podcasts"].tap()
+        for _ in 0..<5 {
+            if episode.exists && episode.frame.minY < 700 { break }
+            app.collectionViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(episode.waitForExistence(timeout: 5)); episode.tap()
+        section("summary", in: app)
+        XCTAssertTrue(app.staticTexts["Synthetic saved summary"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Retry"].exists)
+        screenshot(app, "synthetic-offline-saved-summary")
+        app.buttons["episode-profile"].tap()
+        XCTAssertTrue(app.buttons["profile-cefr"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["profile-cefr"].isEnabled)
+        screenshot(app, "synthetic-offline-saved-profile")
+    }
     @MainActor func testPopulatedListFeedDetailAndBottomSafeArea() {
         let app = launch()
         let feed = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Synthetic language podcast")).firstMatch
