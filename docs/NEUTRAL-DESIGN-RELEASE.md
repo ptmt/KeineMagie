@@ -24,6 +24,10 @@ Nonblocking follow-ups observed by Astra: mobile return navigation can land at s
 
 Native Astra review remains **partial screenshot-only**: Accessibility and Screen Recording permission grants are absent. User must grant them before full independent native navigation; no bypass/permission acceptance performed. Long-label horizontal viewport naturally reveals part of oversized content, but intrinsic label content is scrollable, not ellipsized/wrapped; synthetic UI tests, not a fabricated screenshot summary, establish reachability/selection.
 
+## Native follow-up — 2026-11-12
+
+Native-only quiet controls delivered in `96ce989fe86ba9345cf4ec219df79a711c16857b`: plain smaller style text, unfilled add/manage icons, icon-only Copy/checkmark and clear inside input with a reserved trailing lane. No web/backend redeploy. Final 10 targeted UI, 44 native CI, Core 10+56 and signed Release simulator verification passed. Exact iOS run [43190351589](https://github.com/ptmt/KeineMagie/actions/runs/43190351589) completed success; build `2725.97.61`, upload succeeded at 2026-11-12T09:25:58Z. Details and separate unverified processing/iPhone gates: `docs/TRANSLATION-COPY.md`, `native/QUIET-TRANSLATOR-VERIFICATION.md`.
+
 ## iOS delivery
 
 Exact source workflow **[43050043053](https://github.com/ptmt/KeineMagie/actions/runs/43050043053)** completed **success**. Validation and exact distribution sign/export/validate/upload step succeeded; upload log explicitly records **`UPLOAD SUCCEEDED with no errors`** at **2026-11-11T15:42:29Z**, build **`2719.59.56`**, delivery UUID **`42ac187b-2a71-4bd2-b2bc-e41af2566082`**. Signing cleanup succeeded. App Store processing/tester availability and iPhone installation remain unverified; upload success does not establish them.

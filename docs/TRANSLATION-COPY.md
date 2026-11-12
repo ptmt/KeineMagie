@@ -12,6 +12,14 @@ Native simulator UI test `TranslationCopyUITests/testOneTapCopiesExactCompletedT
 
 Node 61 tests passed; seven browser regression suites (including direction/style/guest) passed. Native CI 43 tests passed with one existing built-plist metadata skip; Swift Core passed. Local execution evidence: scratch `km-copy-*.log`, `km-copy-build/Logs/Test/*.xcresult`.
 
+## Native quiet-controls follow-up — 2026-11-12
+
+Native-only source **`96ce989fe86ba9345cf4ec219df79a711c16857b`** pushed/read back on main. Plain footnote style tags, compact unfilled add/manage icons, icon-only copy/checkmark and inside-input clear with reserved typing lane. Clear preserves keyboard/output/history and is disabled during pending translation; empty input hides it. Five localized clear labels added without removing existing catalog entries. No web changes or backend deployment.
+
+Local final **10 UI tests passed**, **44 native CI tests passed with no skips**, Core **10 XCTest + 56 Swift tests** passed; ad-hoc signed Release simulator build and strict codesign verification passed. Actual offline long-input normal/keyboard screenshots inspected, including visible copy checkmark. See `native/QUIET-TRANSLATOR-VERIFICATION.md`.
+
+Exact-source [iOS run 43190351589](https://github.com/ptmt/KeineMagie/actions/runs/43190351589) read back **completed/success**, both validate and testflight jobs successful. Actual archive build **`2725.97.61`**; log **`UPLOAD SUCCEEDED with no errors`**, **2026-11-12T09:25:58Z**, delivery **`c6a22781-c690-49ca-bdc3-5376229ce365`**. Processing, tester availability and physical iPhone installation remain unverified.
+
 ## Release
 
 Implementation **`9f784f80d97989e0d49369fd6d5e2fd726ce067b`** pushed/read back on main. Public HTTPS health **200**, all **16 public asset bytes** equal source. Actual deployed HTTPS assets also copied a **46,841-character** synthetic result exactly to Chromium's real clipboard; live guest remains disabled. Mobile output-header action inspected unobstructed. API interception was explicitly synthetic, not an authenticated production provider test.
