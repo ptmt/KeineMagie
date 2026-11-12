@@ -43,6 +43,12 @@ Independent follow-up and episode/profile reviews completed before release. Inte
 
 Lock ordering audited: final append holds auth → owner-history only across local read/atomic write; history callbacks do not acquire auth and no provider HTTP runs under the global auth lock. Docker/static allowlists contain exactly **18 public assets**, including both new follow-up files. Production rollout evidence is recorded separately in `COMBINED-WEB-RELEASE.md`.
 
+## Follow-up textarea autogrow (2026-11-12)
+
+Textarea-only correction: native `field-sizing: content`, stable three-line minimum, `min(50dvh, 20rem)` cap and internal scrolling only at the cap. Older Safari uses border-box scrollHeight measurement, width-only container observation, viewport resize and fonts-ready recalculation. Type/paste/undo/deletion, restored drafts, locale rerender and disclosure opening resize the same textarea without replacing it or losing focus/selection. Existing 2,000-code-point validation and send/API behavior are unchanged.
+
+RED: Chromium failed the screenshot-length wrapped-draft growth assertion against the original fixed rows. GREEN: the complete suite passes **31 checks** in native sizing and **31 checks** with native CSS disabled plus forced JS fallback; **67 Node tests pass**. Includes 320px/desktop width changes, 2,000-character clipboard paste and undo, capped viewport-height resize, thread restoration, all locales, focused selection and empty successful-send reset. Synthetic API fixtures only; no provider inference. Screenshot: scratch `followup-autogrow-320.png`. System Python lacks Playwright; tests use the existing `episode-browser-venv` interpreter. Deployment recorded in `COMBINED-WEB-RELEASE.md`.
+
 ## Implementation scope
 
 Feature code is isolated in `server/translation_followup.go`, `web/translator-followup.mjs` and `.css`; existing translation SSE decoding was extracted without changing ordinary translation schema. Minimal app/index seams and exact static/Docker asset lists are integrated. Parent subsequently combined both reviewed scopes and deployed the backend-only release; see `COMBINED-WEB-RELEASE.md`. Live personal-provider semantic quality has intentionally not been exercised; synthetic tests prove the contract, not a real model's answer quality.

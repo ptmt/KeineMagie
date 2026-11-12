@@ -47,6 +47,31 @@ export function mountTranslatorFollowup({host,api,locale,saved,apply,unauthorize
  const footer=node('div','followup-footer');const count=node('small');count.id='followup-count';const send=node('button','small-button');send.id='send-followup';send.type='button';footer.append(count,send);
  const status=node('p','followup-status');status.id='followup-status';status.setAttribute('role','status');
  panel.append(thread,label,input,footer,status);host.append(toggle,panel);
+ // Native content sizing where available; older Safari needs border-box measurement.
+ const view=document.defaultView;
+ const nativeSizing=view?.CSS?.supports('field-sizing','content');
+ function resizeInput() {
+  if(nativeSizing||host.hidden||panel.hidden||!input.getClientRects().length)return;
+  input.style.height='auto';
+  const style=view.getComputedStyle(input);
+  const borders=parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth);
+  input.style.height=`${Math.ceil(input.scrollHeight+borders)}px`;
+ }
+ let resizeFrame=0;
+ function scheduleResize() {
+  if(resizeFrame)return;
+  resizeFrame=view.requestAnimationFrame(()=>{resizeFrame=0;resizeInput();});
+ }
+ if(!nativeSizing&&view){
+  let width=-1;
+  // Observe only container width: changing textarea height cannot retrigger a loop.
+  const observer=new view.ResizeObserver(entries=>{
+   const next=entries[0].contentRect.width;if(next===width)return;width=next;scheduleResize();
+  });
+  observer.observe(panel);
+  view.addEventListener('resize',scheduleResize);
+  document.fonts?.ready.then(scheduleResize);
+ }
  let signature='';
  const state=createFollowupState({api,locale,saved,unauthorized,changed:render});
  function render() {
@@ -55,6 +80,7 @@ export function mountTranslatorFollowup({host,api,locale,saved,apply,unauthorize
   if(!entry){thread.replaceChildren();input.value='';signature='';return;}
   label.textContent=l.prompt;input.placeholder=l.prompt;send.textContent=entry.pending?l.sending:l.send;
   if(input.value!==entry.draft)input.value=entry.draft;
+  resizeInput();
   const length=[...entry.draft].length,turns=entry.record.followups||[];
   count.textContent=`${length} / 2,000 ${l.count}`;
   input.disabled=!!entry.pending||!state.available()||turns.length>=6;
