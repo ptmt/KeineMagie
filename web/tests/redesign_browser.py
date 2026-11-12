@@ -29,7 +29,7 @@ try:
   assert page.locator('#prompt-dialog').evaluate('(e)=>e.open') and page.locator('#prompt-name').input_value()=='Draft'
   page.locator('#close-prompt').click()
   ns['JOB']['segments']=[{'start':i,'end':i+1,'text':'Guten Morgen '+str(i),'translation':'Доброе утро'} for i in range(2113)]
-  page.goto(origin+ns['PATH']);page.locator('#episode-cefr:enabled').wait_for()
+  page.goto(origin+ns['PATH']);page.locator('.episode-profile-link').wait_for()
   assert page.locator('.podcast-segments>li').count()==100,'bounded initial transcript'
   assert page.locator('.episode-quote form').count()==0,'no unopened quote forms'
   page.evaluate("window.readerNode=document.querySelector('.episode-reader')")
@@ -37,7 +37,7 @@ try:
   page.reload();page.locator('.episode-citation').first.wait_for();page.locator('.episode-citation').first.click()
   assert page.evaluate('document.activeElement.id')=='episode-segment-2112'
   assert page.locator('.episode-quote form').count()==0
-  page.unroute('**/v1/learning/episodes/*/analysis');page.reload();page.locator('#episode-cefr:enabled').wait_for()
+  page.unroute('**/v1/learning/episodes/*/analysis');page.reload();page.locator('.episode-profile-link').wait_for()
   page.locator('.episode-quote summary').first.click();draft=page.locator('.episode-quote input').first;draft.fill('Guten');draft.focus();draft.evaluate('(e)=>{window.savedQuote=e;e.setSelectionRange(1,4)}')
   page.evaluate("document.dispatchEvent(new Event('visibilitychange'))")
   page.wait_for_timeout(200)
@@ -49,7 +49,7 @@ try:
   page.route('**/v1/learning/profiles/de',lambda r:r.fulfill(status=503,json={}))
   page.goto(origin+ns['PATH']);page.get_by_role('button',name='Создать анализ',exact=True).wait_for()
   assert page.get_by_role('button',name='Создать анализ',exact=True).is_enabled(),'profile failure must not gate independent analysis'
-  page.unroute('**/v1/learning/profiles/de');page.reload();page.locator('#episode-cefr:enabled').wait_for()
+  page.unroute('**/v1/learning/profiles/de');page.reload();page.locator('.episode-profile-link').wait_for()
   page.locator('.episode-quote summary').first.click();page.locator('.episode-quote input').first.fill('Guten')
   assert page.locator('.episode-quote input').first.input_value()=='Guten'
   assert page.locator('.episode-quote').first.evaluate('(e)=>e.open')

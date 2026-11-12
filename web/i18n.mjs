@@ -1,7 +1,15 @@
 // UI-only copy. Never pass user text, prompt instructions or server content here.
 export const interfaceLocales = Object.freeze({de:'Deutsch',en:'English',ru:'Русский',es:'Español',fr:'Français'});
 export const interfaceLanguageKey = 'keinemagie:interface-language:v1';
-const rows = `Liste aktualisieren|Refresh list|Обновить список|Actualizar lista|Actualiser la liste
+const rows = `Profil|Profile|Профиль|Perfil|Profil
+Lernprofil|Learning profile|Учебный профиль|Perfil de aprendizaje|Profil d’apprentissage
+Selbst eingeschätztes Sprachniveau|Self-assessed language level|Самооценка уровня языка|Nivel de idioma autoevaluado|Niveau de langue autoévalué
+Deine Auswahl ist keine automatische Einstufung. Vokabelaktivität verändert dein GER-Niveau nicht.|Your choice is not an automatic assessment. Vocabulary activity does not change your CEFR level.|Ваш выбор — не автоматическая оценка. Изучение слов не меняет ваш уровень CEFR.|Tu elección no es una evaluación automática. La actividad de vocabulario no cambia tu nivel MCER.|Votre choix n’est pas une évaluation automatique. L’activité de vocabulaire ne change pas votre niveau CECR.
+Bisherige Einschätzungen|Assessment history|История самооценки|Historial de autoevaluación|Historique des autoévaluations
+Unbekannt|Unknown|Неизвестно|Desconocido|Inconnu
+Profil wird geladen …|Loading profile …|Загрузка профиля …|Cargando perfil …|Chargement du profil …
+Profil konnte nicht gespeichert oder geladen werden.|Could not save or load profile.|Не удалось сохранить или загрузить профиль.|No se pudo guardar o cargar el perfil.|Impossible d’enregistrer ou de charger le profil.
+Liste aktualisieren|Refresh list|Обновить список|Actualizar lista|Actualiser la liste
 Folgenaktionen|Episode actions|Действия с выпуском|Acciones del episodio|Actions de l’épisode
 Podcast-Aktionen|Podcast actions|Действия с подкастом|Acciones del pódcast|Actions du podcast
 Vorbereiten startet Transkription und Übersetzung über dein Konto.|Prepare starts transcription and translation using your account.|Подготовка запускает расшифровку и перевод через ваш аккаунт.|Preparar inicia la transcripción y traducción con tu cuenta.|Préparer lance la transcription et la traduction avec votre compte.

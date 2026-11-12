@@ -58,9 +58,10 @@ type translationResult struct {
 	Vocabulary  []vocabularyItem `json:"vocabulary"`
 }
 type translationRecord struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	Favorite  bool      `json:"favorite,omitempty"`
+	ID        string                `json:"id"`
+	CreatedAt time.Time             `json:"created_at"`
+	Favorite  bool                  `json:"favorite,omitempty"`
+	Followups []translationFollowup `json:"followups,omitempty"`
 	translationInput
 	translationResult
 }
@@ -110,6 +111,7 @@ func newHandler(cfg *serverConfig) (http.Handler, error) {
 	mux.HandleFunc("/v1/auth/apple/challenge", auth.challenge)
 	mux.HandleFunc("/health", withCORS(cfg.handleHealth))
 	mux.HandleFunc("/tts", withCORS(cfg.handleTTS))
+	mux.HandleFunc("/v1/translation-followups", cfg.handleTranslationFollowups)
 	mux.HandleFunc("/v1/history", cfg.handleHistory)
 	mux.HandleFunc("/v1/history/", cfg.handleHistory)
 	mux.HandleFunc("/v1/translations", withCORS(func(w http.ResponseWriter, r *http.Request) { cfg.handleTranslations(history, w, r) }))

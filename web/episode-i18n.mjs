@@ -18,5 +18,12 @@ for(const [language,messages] of Object.entries({
  es:{continue:'Reanudar análisis',analysisConsent:'Generar o reanudar autoriza hasta las solicitudes restantes indicadas mediante tu cuenta personal de ChatGPT, una a una. Cancela o sal de la página para detenerlo. Abrir la página nunca genera análisis.'},
  fr:{continue:'Reprendre l’analyse',analysisConsent:'Générer ou reprendre autorise au plus le nombre de requêtes restantes affiché via votre compte ChatGPT personnel, une à la fois. Annulez ou quittez la page pour arrêter. Ouvrir la page ne lance jamais d’analyse.'}
 }))Object.assign(episodeMessages[language],messages);
+for(const [language,values] of Object.entries({
+ en:['Summary','Words','Find in transcript','Previous match','Next match','matches','Change in profile','Learning profile','Assessment history','Profile','No matches','Jump to time','Go','Back to section'],
+ de:['Zusammenfassung','Wörter','Im Transkript suchen','Vorheriger Treffer','Nächster Treffer','Treffer','Im Profil ändern','Lernprofil','Bisherige Einschätzungen','Profil','Keine Treffer','Zur Zeit springen','Los','Zurück zum Abschnitt'],
+ ru:['Резюме','Слова','Найти в расшифровке','Предыдущее совпадение','Следующее совпадение','совпадений','Изменить в профиле','Учебный профиль','История самооценки','Профиль','Нет совпадений','Перейти ко времени','Перейти','Назад к разделу'],
+ es:['Resumen','Palabras','Buscar en transcripción','Coincidencia anterior','Siguiente coincidencia','coincidencias','Cambiar en el perfil','Perfil de aprendizaje','Historial de autoevaluación','Perfil','Sin coincidencias','Ir al tiempo','Ir','Volver a la sección'],
+ fr:['Résumé','Mots','Chercher dans la transcription','Résultat précédent','Résultat suivant','résultats','Modifier dans le profil','Profil d’apprentissage','Historique des autoévaluations','Profil','Aucun résultat','Aller au temps','Aller','Retour à la rubrique']
+}))Object.assign(episodeMessages[language],Object.fromEntries(['summary','navVocabulary','find','previousMatch','nextMatch','matches','changeProfile','learningProfile','assessmentHistory','accountProfile','noMatches','jumpTime','go','backSection'].map((key,index)=>[key,values[index]])));
 export function episodeText(key) { const language=getInterfaceLanguage();return episodeMessages[language]?.[key] || episodeMessages.de[key] || key; }
 export function relocalizeEpisodeMessage(value){for(const messages of Object.values(episodeMessages)){const key=Object.keys(messages).find(key=>messages[key]===value);if(key)return episodeText(key);}return value;}

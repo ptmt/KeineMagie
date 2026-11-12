@@ -6,6 +6,7 @@ import * as core from '../core.mjs';
 import * as episode from '../episode.mjs';
 import * as i18n from '../i18n.mjs';
 import { createEpisodeView } from '../episode-view.mjs';
+import { mountTranslatorFollowup } from '../translator-followup.mjs';
 
 export async function harness({deferSession, deferHistory, deferProvider, config: configOverride, leanSession = false} = {}) {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -47,12 +48,12 @@ export async function harness({deferSession, deferHistory, deferProvider, config
   const links = [...html.matchAll(/<a href="#(translator|dictation|podcasts|coach)"[^>]*>([^<]+)<\/a>/g)].map(([,id,textContent]) => ({hash:`#${id}`,textContent,setAttribute(){},removeAttribute(){}}));
   const createElement = () => {
     const listeners = {};
-    return { dataset:{}, attributes:[], childNodes:[], children: [], replaceChildren(){this.children=[];},getAttribute(){return null;},removeAttribute(){},append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
+    return { classList:{toggle(){}}, dataset:{}, attributes:[], childNodes:[], children: [], replaceChildren(){this.children=[];},getAttribute(){return null;},removeAttribute(){},append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
   };
   const events = {}, location = {hash:'#podcasts'};
   const document = {hidden:false, addEventListener(type,fn){events[type]=fn;}, getElementById:id=>nodes.get(id), querySelectorAll:selector=>selector==='.section-nav a'?links:[], createElement};
   i18n.setInterfaceLanguage('de');
-  vm.runInNewContext(app, {...core, ...episode, ...i18n, reconcileDOM(target,next){target.children=next.children;}, registerStaticInterface(){}, createEpisodeView:options=>createEpisodeView({...options,document}), createAPI:()=>core.createAPI(fetch), document, window:{addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
+  vm.runInNewContext(app, {...core, ...episode, ...i18n, reconcileDOM(target,next){target.children=next.children;}, registerStaticInterface(){}, createEpisodeView:options=>createEpisodeView({...options,document}), mountTranslatorFollowup:options=>mountTranslatorFollowup({...options,document}), createAPI:()=>core.createAPI(fetch), document, window:{addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
   const settle = () => new Promise(resolve=>setImmediate(resolve));
   await settle();
   return {nodes, calls, settle, storage, events, document, location, signIn(value, id=userID){signedIn=value;userID=id;}, provider(value, status=200){provider=value;providerHTTPStatus=status;}, history(value){items=value;}, defer(fn){deferConnect=fn;}};

@@ -59,32 +59,32 @@ server=ThreadingHTTPServer(('127.0.0.1',0),Handler);Thread(target=server.serve_f
 try:
  with sync_playwright() as p:
   browser=p.chromium.launch();context=browser.new_context(locale='de-DE',permissions=['clipboard-read','clipboard-write']);page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
-  page.goto(origin+'/#podcasts/job/'+JOB['id']);page.wait_for_url('**'+PATH);page.locator('#episode-cefr:enabled').wait_for()
+  page.goto(origin+'/#podcasts/job/'+JOB['id']);page.wait_for_url('**'+PATH);page.locator('.episode-profile-link').wait_for()
   assert page.locator('#podcasts').is_visible() and page.locator('.podcast-segments>li').count()==100
   while page.locator('[data-transcript-more]').count():page.locator('[data-transcript-more]').click()
   assert page.locator('.podcast-segments>li').count()==1000
   assert page.locator('.episode-pending').count()==46
-  assert page.locator('#episode-overview').inner_text().find('954')>=0
+  assert page.locator('.episode-facts').inner_text().find('954')>=0
   assert page.locator('.episode-reader progress').count()==0
   assert not [c for c in CALLS if c[0] in ['POST','PUT','PATCH']]
   before=len([c for c in CALLS if c[1].endswith('/analysis')]);page.get_by_role('button',name='Analyse erstellen',exact=True).click();page.get_by_text('Fixture detailed source-grounded summary',exact=False).first.wait_for()
   assert len([c for c in CALLS if c[0]=='POST' and c[1].endswith('/analysis')])==1
   page.locator('.episode-citation').first.click();assert page.evaluate('document.activeElement.id')=='episode-segment-2'
-  page.select_option('#episode-cefr','B1');page.wait_for_function("() => document.querySelector('#episode-cefr').value==='B1' && !document.querySelector('#episode-cefr').disabled")
+  page.locator('.episode-profile-link').click();page.locator('#profile-cefr:enabled').wait_for();page.select_option('#profile-cefr','B1');page.wait_for_function("() => document.querySelector('#profile-cefr').value==='B1' && !document.querySelector('#profile-cefr').disabled");page.locator('#close-account').click()
   page.locator('.episode-quote summary').first.click();page.locator('.episode-quote input').first.fill('Guten Morgen');page.locator('.episode-quote form button').first.click();page.get_by_role('heading',name='Guten Morgen',exact=True).wait_for()
   assert len(ITEMS)==1 and ITEMS[0]['favorite'] is True and ITEMS[0]['segment_id']==0
   page.get_by_role('button',name='Favorit entfernen',exact=True).click();page.get_by_role('button',name='Als Favorit speichern',exact=True).first.wait_for();assert ITEMS[0]['favorite'] is False
-  page.get_by_role('button',name='Link kopieren',exact=True).click();page.get_by_text('Link kopiert',exact=True).wait_for();assert page.evaluate('navigator.clipboard.readText()')==origin+PATH
+  page.get_by_role('button',name='Link kopieren',exact=True).click();page.get_by_text('Link kopiert',exact=True).wait_for();assert page.evaluate('navigator.clipboard.readText()')==origin+PATH+'?section=transcript&segment=2'
   for tab in ['translator','dictation','coach','podcasts']:
    page.locator('.section-nav a[href="#'+tab+'"]').click(force=True);page.wait_for_function('(id)=>!document.getElementById(id).hidden',arg=tab)
   page.go_back();page.locator('#coach').wait_for(state='visible')
   page.go_forward();page.locator('#podcasts').wait_for(state='visible')
-  page.goto(origin+PATH);page.locator('#episode-cefr:enabled').wait_for();assert page.locator('.episode-header').inner_text().find('The Nut Sisters')>=0
+  page.goto(origin+PATH);page.locator('.episode-profile-link').wait_for();assert page.locator('.episode-header').inner_text().find('The Nut Sisters')>=0
   page.evaluate("history.pushState(null,'','/podcasts/episodes/cosmetic-title-"+SUFFIX+"');dispatchEvent(new PopStateEvent('popstate'))")
-  page.locator('#episode-cefr:enabled').wait_for()
-  page.go_back();page.locator('#episode-cefr:enabled').wait_for();assert page.url==origin+PATH
-  page.go_forward();page.locator('#episode-cefr:enabled').wait_for();assert page.url.endswith('/cosmetic-title-'+SUFFIX)
-  page.goto(origin+'/podcasts/episodes/cosmetic-title-'+SUFFIX);page.locator('#episode-cefr:enabled').wait_for()
+  page.locator('.episode-profile-link').wait_for()
+  page.go_back();page.locator('.episode-profile-link').wait_for();assert page.url==origin+PATH
+  page.go_forward();page.locator('.episode-profile-link').wait_for();assert page.url.endswith('/cosmetic-title-'+SUFFIX)
+  page.goto(origin+'/podcasts/episodes/cosmetic-title-'+SUFFIX);page.locator('.episode-profile-link').wait_for()
   for width in [320,390,768,1440]:
    page.set_viewport_size({'width':width,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),width
   evidence=Path('/Users/tinyserve/.hermes/cache/scratch/episode-evidence');evidence.mkdir(exist_ok=True);page.screenshot(path=str(evidence/'reader-1440.png'))

@@ -34,17 +34,17 @@ try:
    }};
    window.mount=()=>{window.reader?.dispose();window.reader=createEpisodeView({api});reader.identity({user:{id:'owner'},csrf_token:'csrf'});reader.render(document.getElementById('host'),{id:'job',state:'completed',source_language:'de',target_language:'ru',segments:[{text:'Hallo',start:0,end:1}]});};mount();
   }''')
-  page.locator('#episode-cefr:enabled').wait_for()
+  page.locator('#episode-summary button:enabled').first.wait_for()
   assert page.evaluate('calls')==0
-  assert 'A2' in page.locator('.episode-assessment-history').inner_text()
+  assert page.locator('.episode-assessment-history').count()==0 and page.locator('#episode-cefr').count()==0
   assert page.locator('.episode-vocabulary-history').count()==1
   page.get_by_role('button',name='Generate analysis',exact=True).click();page.wait_for_function('steps===3');page.get_by_text('Complete summary',exact=False).first.wait_for();assert page.evaluate('calls')==3, page.evaluate('({calls,steps,body:document.body.innerText})')
-  page.evaluate('steps=0;calls=0;delay=1000;mount()');page.locator('#episode-cefr:enabled').wait_for();page.get_by_role('button',name='Generate analysis',exact=True).click();page.get_by_role('button',name='Cancel',exact=True).click();page.wait_for_timeout(1100)
+  page.evaluate('steps=0;calls=0;delay=1000;mount()');page.locator('#episode-summary button:enabled').first.wait_for();page.get_by_role('button',name='Generate analysis',exact=True).click();page.get_by_role('button',name='Cancel',exact=True).click();page.wait_for_timeout(1100)
   assert page.evaluate('calls')==1 and page.evaluate('steps')==0
-  page.evaluate('mount()');page.locator('#episode-cefr:enabled').wait_for();assert page.evaluate('calls')==1
-  page.evaluate('steps=1;delay=0;mount()');page.locator('#episode-cefr:enabled').wait_for();page.get_by_role('button',name='Resume analysis',exact=True).click();page.wait_for_function('steps===3');page.get_by_text('Complete summary',exact=False).first.wait_for();assert page.evaluate('calls')==3, page.evaluate('({calls,steps,body:document.body.innerText})')
-  page.evaluate('steps=0;calls=0;delay=1000;mount()');page.locator('#episode-cefr:enabled').wait_for();page.get_by_role('button',name='Generate analysis',exact=True).click();page.evaluate("location.hash='#elsewhere'");page.wait_for_timeout(1100);assert page.evaluate('calls')==1 and page.evaluate('steps')==0
+  page.evaluate('mount()');page.locator('#episode-summary button:enabled').first.wait_for();assert page.evaluate('calls')==1
+  page.evaluate('steps=1;delay=0;mount()');page.locator('#episode-summary button:enabled').first.wait_for();page.get_by_role('button',name='Resume analysis',exact=True).click();page.wait_for_function('steps===3');page.get_by_text('Complete summary',exact=False).first.wait_for();assert page.evaluate('calls')==3, page.evaluate('({calls,steps,body:document.body.innerText})')
+  page.evaluate('steps=0;calls=0;delay=1000;mount()');page.locator('#episode-summary button:enabled').first.wait_for();page.get_by_role('button',name='Generate analysis',exact=True).click();page.evaluate("location.hash='#elsewhere'");page.wait_for_timeout(1100);assert page.evaluate('calls')==1 and page.evaluate('steps')==0
   assert not errors,errors
-  print(json.dumps({'checks':7,'passed':['no implicit generation','dated level history','vocabulary history','single-click three-step completion','cancel aborts and stops','explicit resume only','navigation cancels'],'page_errors':errors}))
+  print(json.dumps({'checks':7,'passed':['no implicit generation','episode level controls absent','vocabulary history','single-click three-step completion','cancel aborts and stops','explicit resume only','navigation cancels'],'page_errors':errors}))
   browser.close()
 finally:server.shutdown()

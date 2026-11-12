@@ -8,6 +8,20 @@ export function episodeLocation(pathname, hash) {
   if (hash) return null;
   return /^\/podcasts\/episodes\/([a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{12})$/.exec(pathname)?.[1] || null;
 }
+export function transcriptTimeIndex(segments, value) {
+  if(!/^\d+:[0-5]\d$/.test(value))return -1;
+  const [minutes,seconds]=value.split(':').map(Number),at=minutes*60+seconds;
+  if(!Number.isSafeInteger(at))return -1;
+  let nearest=-1,distance=Infinity;
+  for(const [index,segment] of (segments||[]).entries()){
+    const {start,end}=segment;
+    if(!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<start)continue;
+    if(at>=start&&at<end)return index;
+    const gap=Math.min(Math.abs(at-start),Math.abs(at-end));
+    if(gap<distance){distance=gap;nearest=index;}
+  }
+  return nearest;
+}
 export function transcriptStats(job) {
   const segments=job.segments || [], translated=segments.filter(s => typeof s.translation==='string' && s.translation.trim()).length;
   return {recognized:segments.length,translated,pending:segments.length-translated};

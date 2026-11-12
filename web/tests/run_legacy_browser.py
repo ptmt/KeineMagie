@@ -25,6 +25,12 @@ try:
    def nav(url):
     page.goto(url);return {}
    def js(code):
+    # Flatten the actual new module for older eval-only browser fixtures too.
+    source=re.sub(r"export (?=(function|async function|const))","",(root/"translator-followup.mjs").read_text())
+    if "const followup = mountTranslatorFollowup" in code and "function mountTranslatorFollowup" not in code:
+     code=code.replace("(() => {","(() => {"+source+"\n",1)
+    if code=="eval(window.__fixtureSource)":
+     page.evaluate("(source)=>{window.__fixtureSource=window.__fixtureSource.replace('(() => {','(() => {'+source+String.fromCharCode(10));}",source)
     # Old eval fixtures flattened modules. Resolve their original imports from
     # the actual shipped module sources rather than inventing dependencies.
     if 'function mountPodcasts' in code:

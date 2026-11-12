@@ -115,6 +115,32 @@ func (p *providerService) translate(ctx context.Context, token, model string, in
 			},
 		}},
 	})
+	return p.responseText(ctx, token, body, decodeTranslationText)
+}
+
+func decodeTranslationText(text string) (string, error) {
+	decoder := json.NewDecoder(strings.NewReader(text))
+	open, err := decoder.Token()
+	if err != nil || open != json.Delim('{') {
+		return "", errors.New("invalid translation result")
+	}
+	key, err := decoder.Token()
+	if err != nil || key != "text" {
+		return "", errors.New("invalid translation result")
+	}
+	var result *string
+	if decoder.Decode(&result) != nil || result == nil || strings.TrimSpace(*result) == "" {
+		return "", errors.New("invalid translation result")
+	}
+	close, err := decoder.Token()
+	if err != nil || close != json.Delim('}') || decoder.Decode(new(any)) != io.EOF {
+		return "", errors.New("invalid translation result")
+	}
+	return *result, nil
+}
+
+// Shared bounded Responses reader: only terminal completed output is accepted.
+func (p *providerService) responseText(ctx context.Context, token string, body []byte, decode func(string) (string, error)) (string, error) {
 	req, _ := http.NewRequestWithContext(ctx, "POST", "https://api.openai.com/v1/responses", bytes.NewReader(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
@@ -210,26 +236,7 @@ func (p *providerService) translate(ctx context.Context, token, model string, in
 				return "", e
 			}
 			if done {
-				// This request explicitly asks for a schema envelope. Decode exactly
-				// one layer; the translation itself may legitimately be JSON/code.
-				decoder := json.NewDecoder(strings.NewReader(text.String()))
-				open, err := decoder.Token()
-				if err != nil || open != json.Delim('{') {
-					return "", errors.New("invalid translation result")
-				}
-				key, err := decoder.Token()
-				if err != nil || key != "text" {
-					return "", errors.New("invalid translation result")
-				}
-				var result *string
-				if decoder.Decode(&result) != nil || result == nil || strings.TrimSpace(*result) == "" {
-					return "", errors.New("invalid translation result")
-				}
-				close, err := decoder.Token()
-				if err != nil || close != json.Delim('}') || decoder.Decode(new(any)) != io.EOF {
-					return "", errors.New("invalid translation result")
-				}
-				return *result, nil
+				return decode(text.String())
 			}
 			continue
 		}

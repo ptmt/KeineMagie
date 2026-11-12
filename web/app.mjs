@@ -1,6 +1,7 @@
 // Keep session bootstrap independent of the episode reader/module graph.
 function episodeLocation(pathname,hash) { return hash ? null : /^\/podcasts\/episodes\/([a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{12})$/.exec(pathname)?.[1] || null; }
 async function episodePath(job) { return (await import('./episode.mjs')).episodePath(job); }
+import { mountTranslatorFollowup } from './translator-followup.mjs';
 import { t, interfaceCatalog, getInterfaceLanguage, setInterfaceLanguage, bindInterfaceText, unbindInterfaceText, applyInterfaceLanguage, registerStaticInterface } from './i18n.mjs';
 import { copyText, reconcileDOM, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
@@ -33,6 +34,11 @@ let savedPrompts = [];
 let selectedInstructions = '';
 let editingPrompt = null;
 let styleSignature = null;
+let appliedTranslation = null;
+const followup = mountTranslatorFollowup({host:$('translation-followup'),api,locale:getInterfaceLanguage,unauthorized:handleUnauthorized,
+  saved(item) { history = [item,...history.filter(existing=>existing.id!==item.id)]; renderHistory(); if(record?.id===item.id){record=item;} },
+  apply(item,text) { if(record?.id!==item.id)return; appliedTranslation=text; resetCopy(); setText('result',text); setText('result-caption',''); $('copy').disabled=false; }
+});
 function canEditDraft() { return !!session?.user?.id && !busy; }
 function styleStore() {
   // owner ID comes exclusively from the authenticated /v1/web/session response.
@@ -101,7 +107,44 @@ $('delete-prompt').addEventListener('click', () => {
   catch { setText('prompt-error', 'Löschen nicht möglich. Bitte den Browser-Speicher prüfen.'); }
 });
 
-const podcasts = mountPodcasts({api, account:() => $('account-dialog').showModal(), unauthorized:handleUnauthorized});
+// Learning settings use the existing owner-scoped server profile, never browser storage.
+let profileEpoch=0, profileOwner=null, profileLanguage='de', profileValue=null, profileLoading=false,profileFailed=false;
+function resetLearningProfile(){profileEpoch++;profileOwner=null;profileValue=null;profileLoading=false;profileFailed=false;$('learning-profile').hidden=true;$('profile-cefr').value='unknown';$('profile-cefr').disabled=true;$('profile-history').replaceChildren();setText('profile-error','');}
+function renderLearningProfile(){
+ $('learning-profile').hidden=!session?.user?.id;
+ $('profile-language').value=profileLanguage;
+ $('profile-language').disabled=profileLoading;
+ $('profile-cefr').disabled=profileLoading||!profileValue;
+ if(profileValue)$('profile-cefr').value=profileValue.cefr;
+ $('profile-retry').hidden=profileLoading||!profileFailed;
+ $('profile-history').replaceChildren();
+ for(const entry of profileValue?.self_assessments||[]){const li=document.createElement('li'),date=new Date(entry.assessed_at),time=document.createElement('time');time.dateTime=entry.assessed_at;time.textContent=Number.isNaN(date.valueOf())?'':date.toLocaleString(getInterfaceLanguage(),{dateStyle:'medium',timeStyle:'short'});li.append(document.createTextNode((entry.cefr==='unknown'?t('Unbekannt'):entry.cefr)+' · '),time);$('profile-history').append(li);}
+}
+async function loadLearningProfile({cefr,focus=false}={}){
+ if(!session?.user?.id)return;
+ const epoch=++profileEpoch,owner=session.user.id,language=profileLanguage;profileOwner=owner;profileLoading=true;profileFailed=false;setText('profile-error','Profil wird geladen …');renderLearningProfile();
+ const valid=()=>epoch===profileEpoch&&session?.user?.id===owner&&profileLanguage===language;
+ try{
+  if(cefr!==undefined)await api.request(`/v1/learning/profiles/${language}`,{method:'PUT',csrf:session.csrf_token,body:{cefr}});
+  if(!valid())return;
+  const value=await api.request(`/v1/learning/profiles/${language}`);
+  if(!valid())return;
+  if(!['unknown','A1','A2','B1','B2','C1','C2'].includes(value.cefr))throw new Error('Invalid profile');
+  profileValue=value;profileOwner=owner;setText('profile-error','');
+  if(cefr!==undefined)window.dispatchEvent(new CustomEvent('learning-profile-changed',{detail:{language}}));
+ }catch(error){if(valid()){if(error.status===401)handleUnauthorized(error);else {profileFailed=true;setText('profile-error','Profil konnte nicht gespeichert oder geladen werden.');}}}
+ finally{if(valid()){profileLoading=false;renderLearningProfile();if(focus&&$('account-dialog').open)$('profile-cefr').focus({preventScroll:true});}}
+}
+function openLearningProfile(language='de'){
+ if(!['de','ru'].includes(language))language='de';
+ if(profileLanguage!==language){profileValue=null;profileLanguage=language;}
+ $('account-dialog').showModal();void loadLearningProfile({focus:true});
+ if(session?.user?.id&&!session.provider)void loadProvider();
+}
+$('profile-language').addEventListener('change',()=>{profileLanguage=$('profile-language').value;profileValue=null;void loadLearningProfile();});
+$('profile-cefr').addEventListener('change',()=>void loadLearningProfile({cefr:$('profile-cefr').value}));
+$('profile-retry').addEventListener('click',()=>void loadLearningProfile());
+const podcasts = mountPodcasts({api, account:openLearningProfile, unauthorized:handleUnauthorized});
 const sectionLinks = [...document.querySelectorAll('.section-nav a')];
 let activeSection = 'translator';
 function renderRoute(focus = false) {
@@ -139,6 +182,7 @@ function status(message, error = false) {
 let copyTimer = null;
 function resetCopy() { clearTimeout(copyTimer); copyTimer = null; setText('copy', 'Kopieren'); }
 function resetResult() {
+  followup.select(null); appliedTranslation=null;
   resetCopy();
   record = null;
   $('result').replaceChildren();
@@ -146,6 +190,7 @@ function resetResult() {
   $('copy').disabled = true;
 }
 function clearPrivateData() {
+  resetLearningProfile();
   generation++;
   validatedAt = 0; providerFlight = null; providerError = '';
   accountRun++;
@@ -165,6 +210,7 @@ function clearBootstrap() {
   $('provider-bootstrap').hidden = true;
 }
 function updateInput() {
+  followup.identity(session, !busy && !checking && !providerFlight && !providerError && readiness(session) === 'ready');
   renderStyles();
   const count = [...$('source-text').value].length;
   setText('input-count', `${count.toLocaleString(getInterfaceLanguage())} / ${(8000).toLocaleString(getInterfaceLanguage())}`);
@@ -191,7 +237,9 @@ function renderConnection() {
   const modelUnavailable = phase === 'model-unavailable';
   const catalogWarning = 'Dein ChatGPT-Konto ist verbunden, aber der Modellkatalog ist gerade nicht verfügbar. Bitte die Verbindung erneut prüfen. Eine neue Verbindung ist dafür nicht erforderlich.';
   $('account-indicator').classList.toggle('connected', signedIn);
-  setText('account-label', signedIn ? 'Dein Konto' : 'Anmelden');
+  if(profileOwner&&profileOwner!==session?.user?.id)resetLearningProfile();
+  $('learning-profile').hidden=!signedIn;
+  setText('account-label', signedIn ? 'Profil' : 'Anmelden');
   setText('account-title', signedIn ? 'Dein Konto' : 'Anmelden');
   $('sign-in-options').hidden = signedIn;
   $('signed-in-account').hidden = !signedIn;
@@ -308,6 +356,7 @@ function restore({force = true, refreshProvider = false} = {}) {
   return task;
 }
 function renderRecord(item) {
+  appliedTranslation=null; followup.select(item);
   resetCopy();
   record = item;
   $('language-direction').value = `${item.source_language}-${item.target_language}`;
@@ -395,7 +444,7 @@ $('translation-form').addEventListener('submit', translate);
 $('source-text').addEventListener('input', () => { if (record) resetResult(); updateInput(); });
 $('source-text').addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); $('translation-form').requestSubmit(); } });
 $('language-direction').addEventListener('change', () => changeLanguage(...$('language-direction').value.split('-')));
-$('swap').addEventListener('click', () => { if (!canEditDraft()) return; const [source, target] = $('language-direction').value.split('-'); const swapped = swapDraft(source, $('source-text').value, record?.translation, target); $('source-text').value = swapped.text; changeLanguage(swapped.source, swapped.target); });
+$('swap').addEventListener('click', () => { if (!canEditDraft()) return; const [source, target] = $('language-direction').value.split('-'); const swapped = swapDraft(source, $('source-text').value, appliedTranslation ?? record?.translation, target); $('source-text').value = swapped.text; changeLanguage(swapped.source, swapped.target); });
 $('clear').addEventListener('click', () => { if (!canEditDraft()) return; $('source-text').value = ''; resetResult(); updateInput(); status('Text geleert.'); $('source-text').focus(); });
 $('cancel').addEventListener('click', () => controller?.abort());
 $('copy').addEventListener('click', async () => {
@@ -403,14 +452,14 @@ $('copy').addEventListener('click', async () => {
   const item = record, run = generation;
   resetCopy();
   try {
-    await copyText(item.translation);
+    await copyText(appliedTranslation ?? item.translation);
     if (run !== generation || record !== item) return;
     setText('copy', 'Kopiert'); status('Übersetzung kopiert.');
     copyTimer = setTimeout(resetCopy, 1800);
   } catch { if (run === generation && record === item) status('Kopieren fehlgeschlagen. Bitte erneut versuchen.', true); }
 });
 $('refresh-history').addEventListener('click', loadHistory);
-$('account').addEventListener('click', () => { $('account-dialog').showModal(); if (session?.user?.id && !session.provider) void loadProvider(); });
+$('account').addEventListener('click', () => openLearningProfile(profileLanguage));
 $('connection-action').addEventListener('click', () => { if (sessionError || providerError || readiness(session) === 'model-unavailable') return recheckConnection(); if (!config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); $('account-dialog').showModal(); if (session?.user?.id && !session.provider) void loadProvider(); });
 function resetAccountDialog() { accountRun++; clearBootstrap(); clearPairing(); setText('account-error', ''); }
 $('close-account').addEventListener('click', () => { resetAccountDialog(); $('account-dialog').close(); });
@@ -500,7 +549,7 @@ document.querySelectorAll('[data-interface-language]').forEach(select=>select.ad
   const appleArt=!checking&&!sessionError&&!session?.user?.id&&config?.apple_available===true;
   $('connection-action').classList.toggle('apple-button',appleArt);$('connection-action-art').hidden=!appleArt;$('connection-action-label').hidden=appleArt;
   document.querySelectorAll('[data-history-date]').forEach(el=>{const date=new Date(el.dataset.historyDate);el.textContent=el.dataset.direction+(Number.isNaN(date.valueOf())?'':` · ${date.toLocaleString(getInterfaceLanguage(),{dateStyle:'medium',timeStyle:'short'})}`);});
-  podcasts.localize();
+  followup.localize(); podcasts.localize();renderLearningProfile();
   document.title=`Keine Magie · ${document.querySelector('.section-nav [aria-current="page"]').textContent}`;
 }));
 
@@ -512,7 +561,7 @@ function mountPodcasts({api, account, unauthorized}) {
   const library=createPodcasts({api,changed:render,unauthorized,visible:()=>!document.hidden});
   let episodeView=null, episodeFlight=null;
   async function ensureEpisode() {
-    if (!episodeFlight) episodeFlight=import('./episode-view.mjs').then(({createEpisodeView})=>{episodeView=createEpisodeView({api,unauthorized});episodeView.identity(session);return episodeView;});
+    if (!episodeFlight) episodeFlight=import('./episode-view.mjs').then(({createEpisodeView})=>{episodeView=createEpisodeView({api,unauthorized,openProfile:account});episodeView.identity(session);return episodeView;});
     return episodeFlight;
   }
   let renderSignature='', reader=null;
@@ -611,7 +660,7 @@ function mountPodcasts({api, account, unauthorized}) {
     $('podcast-reload').disabled=checking||(!session?.user?.id&&!identityError)||s.phase==='loading';
     $('podcast-signin').hidden=checking||!!session?.user?.id||config?.apple_available!==true;
     $('podcast-notice').classList.toggle('error-text',!!s.error);
-    $('podcast-notice').textContent=t(checking?'Sitzung wird geprüft …':identityError||!session?.user?.id?(identityError||'Melde dich an, um deine Podcasts zu öffnen.'):s.error||(['idle','loading'].includes(s.phase)?'Podcasts werden geladen …':!s.worker?'Vorbereitung derzeit nicht verfügbar. Abos und Folgen bleiben zugänglich.':''));
+    $('podcast-notice').textContent=t(checking?'Sitzung wird geprüft …':identityError||!session?.user?.id?(identityError||'Melde dich an, um deine Podcasts zu öffnen.'):s.error||(!selectedJob&&['idle','loading'].includes(s.phase)?'Podcasts werden geladen …':!s.worker?'Vorbereitung derzeit nicht verfügbar. Abos und Folgen bleiben zugänglich.':''));
     content.setAttribute('aria-busy',String(s.phase==='loading'));
     if(checking||!session?.user?.id)return;
     if(['idle','loading'].includes(s.phase)&&!selectedJob){for(let i=0;i<3;i++)content.append(node('div',undefined,'podcast-skeleton'));return;}

@@ -13,6 +13,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/episode.css">
+  <link rel="stylesheet" href="/translator-followup.css">
   <script src="/app.mjs" type="module"></script>
 </head>
 <body>
@@ -44,6 +45,7 @@
               <span class="style-label sr-only">Stil</span><div id="style-chips" class="style-chips" role="group" aria-label="Übersetzungsstil"></div>
               <button id="add-prompt" disabled type="button" class="quiet-button" aria-label="Eigenen Stil hinzufügen" title="Eigener Stil">+</button><button id="edit-prompt" type="button" class="quiet-button" hidden>Bearbeiten</button>
             </div>
+            <div id="translation-followup" class="translation-followup" hidden></div>
             <div class="panel-bottom"><span id="input-count">0 / 8.000</span><span class="keyboard-hint">⌘ / Ctrl + Enter</span></div>
           </div>
           <div class="output-panel">
@@ -103,6 +105,14 @@
       <div id="browser-pairing" hidden><p>Keine Magie auf deinem angemeldeten iPhone öffnen → Browser verbinden. Nur diesen eigenen Browser bestätigen. Der Code gilt fünf Minuten.</p><output id="pairing-code" aria-live="polite"></output><p id="pairing-status" role="status"></p></div>
     </div>
     <section id="signed-in-account" class="account-section" hidden><p id="apple-status"></p><button id="logout" class="quiet-button" hidden>Abmelden</button></section>
+    <section id="learning-profile" class="account-section" hidden aria-labelledby="profile-title">
+      <h3 id="profile-title">Lernprofil</h3>
+      <label for="profile-language">Sprache</label><select id="profile-language"><option value="de">Deutsch</option><option value="ru">Русский</option></select>
+      <label for="profile-cefr">Selbst eingeschätztes Sprachniveau</label><select id="profile-cefr" disabled><option value="unknown">Unbekannt</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option></select>
+      <p id="profile-help" class="muted">Deine Auswahl ist keine automatische Einstufung. Vokabelaktivität verändert dein GER-Niveau nicht.</p>
+      <details class="profile-history"><summary id="profile-history-label">Bisherige Einschätzungen</summary><ol id="profile-history"></ol></details>
+      <p id="profile-error" role="status" class="error-text"></p><button id="profile-retry" class="quiet-button" hidden>Erneut versuchen</button>
+    </section>
     <section id="provider-section" class="account-section" hidden>
       <h3>ChatGPT</h3><p id="provider-status"></p><p id="provider-detail" class="muted"></p><button id="provider-connect" class="small-button" disabled>Continue with ChatGPT</button>
       <div id="provider-bootstrap" hidden><p>Auf deinem Desktop im KeineMagie-Projekt ausführen:</p><code>cd server &amp;&amp; go run . connect</code><p>Server-Adresse und diesen kurzlebigen Einmalcode nur im lokalen Programm eingeben. Das Programm öffnet die offizielle ChatGPT-Zustimmung.</p><label for="bootstrap-code">Einmalcode</label><input id="bootstrap-code" readonly autocomplete="off" spellcheck="false"><p id="bootstrap-expiry" class="muted"></p></div>

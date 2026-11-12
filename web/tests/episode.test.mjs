@@ -2,7 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import { episodePath, episodeLocation, transcriptStats, createEpisodeClient } from '../episode.mjs';
+import * as episodeHelpers from '../episode.mjs';
 import { createAPI } from '../core.mjs';
+test('timestamp jumps select containing or nearest valid range, preserve zero, and reject invalid input',()=>{
+ const segments=[{start:0,end:3},{start:12,end:15},{start:30,end:33},{start:null,end:40},{start:-4,end:0}];
+ assert.equal(typeof episodeHelpers.transcriptTimeIndex,'function');
+ const find=episodeHelpers.transcriptTimeIndex;
+ for(const [input,index] of [['0:00',0],['0:02',0],['0:04',0],['0:10',1],['0:15',1],['0:29',2],['999:00',2]])assert.equal(find(segments,input),index,input);
+ for(const value of ['','-1:00','0:60','1:2','Infinity:00','99999999999999999999999:00'])assert.equal(find(segments,value),-1,value);
+ assert.equal(find([], '0:00'),-1);
+});
 test('transport permits only the documented owner vocabulary filters',async()=>{
  const calls=[];const api=createAPI(async path=>{calls.push(path);return {ok:true,status:200,json:async()=>({items:[]})};});
  await api.request('/v1/learning/vocabulary?language=de&job_id=Exact_ABC-123');
