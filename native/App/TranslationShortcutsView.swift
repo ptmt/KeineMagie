@@ -22,6 +22,7 @@ struct TranslationShortcutsView: View {
             }.buttonStyle(.plain).foregroundStyle(.secondary)
                 .accessibilityLabel("shortcut.add")
                 .accessibilityIdentifier("shortcut-add")
+                .disabled(!model.session.canWrite)
                 .contextMenu {
                     if !model.shortcuts.isEmpty {
                         Button("shortcut.edit") { managing = true }
@@ -33,6 +34,7 @@ struct TranslationShortcutsView: View {
                 }.buttonStyle(.plain).foregroundStyle(.secondary)
                     .accessibilityLabel("shortcut.edit")
                     .accessibilityIdentifier("shortcut-manage")
+                    .disabled(!model.session.canWrite)
             }
         }
         .font(.footnote)
@@ -113,7 +115,7 @@ private struct ShortcutEditor: View {
                 if let shortcut {
                     Button("shortcut.delete", role: .destructive) {
                         do { try model.deleteShortcut(shortcut.id); dismiss() } catch { failed = true }
-                    }.accessibilityIdentifier("shortcut-delete")
+                    }.accessibilityIdentifier("shortcut-delete").disabled(!model.session.canWrite)
                 }
             }
             .navigationTitle(shortcut == nil ? "shortcut.add" : "shortcut.edit")
@@ -123,7 +125,7 @@ private struct ShortcutEditor: View {
                     Button("shortcut.save") {
                         do { try model.saveShortcut(id: shortcut?.id ?? UUID(), title: title, instruction: instruction); dismiss() }
                         catch { failed = true }
-                    }.disabled(!valid).accessibilityIdentifier("shortcut-save")
+                    }.disabled(!valid || !model.session.canWrite).accessibilityIdentifier("shortcut-save")
                 }
             }
         }

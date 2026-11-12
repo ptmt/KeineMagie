@@ -1,6 +1,41 @@
 {
   "sourceLanguage": "de",
   "strings": {
+    "Offline. Showing saved history": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Offline. Gespeicherter Verlauf wird angezeigt"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Offline. Showing saved history"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Нет сети. Показана сохранённая история"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Sin conexión. Mostrando el historial guardado"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Hors ligne. Affichage de l’historique enregistré"
+      }
+    }
+  }
+},
     "translation.clear": {
       "extractionState": "manual",
       "localizations": {

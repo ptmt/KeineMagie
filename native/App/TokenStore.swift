@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import KeineMagieCore
 
 // The only persisted copy of the bearer token lives in the device Keychain.
 enum TokenStore {
@@ -8,8 +9,10 @@ enum TokenStore {
          kSecAttrService as String: "de.keinemagie.app.server",
          kSecAttrAccount as String: "bearer-token"]
     }
-    static func read() throws -> String {
+    static func read(account: String = "bearer-token") throws -> String {
+        if account == "bearer-token", UserDefaults.standard.bool(forKey: "nativeIdentityRevoked") { return "" }
         var attributes = query
+        attributes[kSecAttrAccount as String] = account
         attributes[kSecReturnData as String] = true
         attributes[kSecMatchLimit as String] = kSecMatchLimitOne
         var result: CFTypeRef?
@@ -20,7 +23,9 @@ enum TokenStore {
         }
         return value
     }
-    static func save(_ value: String) throws {
+    static func save(_ value: String, account: String = "bearer-token") throws {
+        var query = query
+        query[kSecAttrAccount as String] = account
         if value.isEmpty {
             let status = SecItemDelete(query as CFDictionary)
             guard status == errSecSuccess || status == errSecItemNotFound else { throw KeychainFailure(status: status) }
@@ -35,6 +40,20 @@ enum TokenStore {
             status = SecItemAdd(attributes as CFDictionary, nil)
         }
         guard status == errSecSuccess else { throw KeychainFailure(status: status) }
+        if account == "bearer-token" { UserDefaults.standard.removeObject(forKey: "nativeIdentityRevoked") }
+    }
+    static func readIdentity() throws -> SavedNativeIdentity? {
+        guard !UserDefaults.standard.bool(forKey: "nativeIdentityRevoked") else { return nil }
+        let value = try read(account: "verified-native-identity-v1")
+        guard !value.isEmpty else { return nil }
+        return try JSONDecoder().decode(SavedNativeIdentity.self, from: Data(value.utf8))
+    }
+    static func saveIdentity(_ identity: SavedNativeIdentity?) throws {
+        // A deny-only tombstone survives Keychain deletion failure. It never grants access.
+        if identity == nil { UserDefaults.standard.set(true, forKey: "nativeIdentityRevoked") }
+        let value = try identity.map { String(decoding: try JSONEncoder().encode($0), as: UTF8.self) } ?? ""
+        try save(value, account: "verified-native-identity-v1")
+        if identity != nil { UserDefaults.standard.removeObject(forKey: "nativeIdentityRevoked") }
     }
 }
 private struct KeychainFailure: LocalizedError {

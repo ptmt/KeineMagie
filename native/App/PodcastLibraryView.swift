@@ -23,6 +23,13 @@ struct PodcastLibraryView: View {
     private func api() throws -> PodcastAPI { try model.podcastAPI() }
     var body: some View {
         List {
+            if model.session.isOffline || (!model.session.canWrite && !model.session.checking && model.session.message != nil) {
+                Label(model.session.isOffline ? AppL10n.text("Offline. Showing saved history") : (model.session.message ?? ""), systemImage: "wifi.slash")
+                    .font(.footnote).foregroundStyle(.secondary)
+                    .accessibilityIdentifier("offline.saved-history")
+                Button("Sitzung erneut prüfen") { Task { await model.session.restore() } }
+                    .disabled(model.session.checking)
+            }
             if let error = message ?? model.podcasts.message {
                 Text(verbatim: error).foregroundStyle(.secondary).accessibilityIdentifier("podcast.error")
                 Button("podcast.retry") { Task { await refresh() } }
@@ -56,7 +63,7 @@ struct PodcastLibraryView: View {
                             }.padding(.vertical, 6)
                         }
                         .swipeActions {
-                            Button("podcast.unsubscribe", role: .destructive) { Task { await subscriptionAction(subscription, "delete") } }.disabled(busy)
+                            Button("podcast.unsubscribe", role: .destructive) { Task { await subscriptionAction(subscription, "delete") } }.disabled(busy || !model.session.canWrite)
                         }
                     }
                 }
@@ -73,9 +80,9 @@ struct PodcastLibraryView: View {
                         }
                         .swipeActions {
                             if job.active {
-                                Button("podcast.cancel", role: .destructive) { Task { await action(job, "cancel") } }.disabled(busy)
+                                Button("podcast.cancel", role: .destructive) { Task { await action(job, "cancel") } }.disabled(busy || !model.session.canWrite)
                             } else {
-                                Button("podcast.delete", role: .destructive) { Task { await action(job, "delete") } }.disabled(busy)
+                                Button("podcast.delete", role: .destructive) { Task { await action(job, "delete") } }.disabled(busy || !model.session.canWrite)
                             }
                         }
                     }
@@ -116,7 +123,7 @@ struct PodcastLibraryView: View {
                     Button(mode == "episode" ? "podcast.prepare" : "podcast.subscribe") {
                         Task { if mode == "episode" { await enqueue() } else { await subscribe() } }
                     }
-                    .disabled(busy || (mode == "episode" && !workerAvailable) || (try? PodcastShareURL(url)) == nil)
+                    .disabled(busy || !model.session.canWrite || (mode == "episode" && !workerAvailable) || (try? PodcastShareURL(url)) == nil)
                     .accessibilityIdentifier("podcast-submit")
                     if busy { ProgressView() }
                     if let addError { Text(addError).foregroundStyle(.red).accessibilityIdentifier("podcast-add-error") }
@@ -161,20 +168,20 @@ struct PodcastLibraryView: View {
                         if let progress = job.displayProgress { ProgressView(value: progress) }
                         if job.state == "failed" {
                             Text("podcast.failed").font(.caption).foregroundStyle(.secondary)
-                            Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy)
+                            Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !model.session.canWrite)
                         }
                     }
                     if let error = model.podcasts.episodeErrors[key] { Text(verbatim: error).font(.caption).foregroundStyle(.secondary) }
                     if linked.isEmpty {
                         Button("podcast.prepare") {
                             model.preparePodcast(episode, feedID: feed.id, source: source)
-                        }.disabled(pending || !workerAvailable)
+                        }.disabled(!model.session.canWrite || pending || !workerAvailable)
                             .accessibilityIdentifier("podcast-prepare-" + episode.id)
                     }
                 }.padding(.vertical, 4)
             }
             Section {
-                Button("podcast.feed.refresh") { Task { await subscriptionAction(feed, "refresh") } }.disabled(busy)
+                Button("podcast.feed.refresh") { Task { await subscriptionAction(feed, "refresh") } }.disabled(busy || !model.session.canWrite)
                 if busy { ProgressView().accessibilityIdentifier("podcast.feed.busy") }
             }
             }
@@ -211,8 +218,8 @@ struct PodcastLibraryView: View {
                     if let translation = segment.translation { Text(translation).foregroundStyle(.secondary).textSelection(.enabled) }
                 }
             }
-            if job.state == "failed" { Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !workerAvailable) }
-            if job.active { Button("podcast.cancel", role: .destructive) { Task { await action(job, "cancel") } }.disabled(busy) }
+            if job.state == "failed" { Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !model.session.canWrite || !workerAvailable) }
+            if job.active { Button("podcast.cancel", role: .destructive) { Task { await action(job, "cancel") } }.disabled(busy || !model.session.canWrite) }
         }.navigationTitle("podcast.episode").navigationBarTitleDisplayMode(.inline)
     }
     private func stateLabel(_ state: String) -> String {
@@ -237,7 +244,7 @@ struct PodcastLibraryView: View {
     }
 
     @MainActor private func enqueue(episodeURL: String? = nil) async {
-        guard !busy, workerAvailable, (try? PodcastShareURL(episodeURL ?? url)) != nil else { return }
+        guard model.session.canWrite, !busy, workerAvailable, (try? PodcastShareURL(episodeURL ?? url)) != nil else { return }
         let generation = model.session.generation
         busy = true; defer { if isCurrent(generation) { busy = false } }
         do {
@@ -257,7 +264,7 @@ struct PodcastLibraryView: View {
         selectedShare = nil; url = ""; addError = nil; showAdd = false; loadInbox()
     }
     @MainActor private func subscribe() async {
-        guard !busy, (try? PodcastShareURL(url)) != nil else { return }
+        guard model.session.canWrite, !busy, (try? PodcastShareURL(url)) != nil else { return }
         let generation = model.session.generation
         busy = true; defer { if isCurrent(generation) { busy = false } }
         do {
@@ -267,7 +274,7 @@ struct PodcastLibraryView: View {
         } catch { if isCurrent(generation) { addError = AppL10n.text("podcast.source.failed") } }
     }
     @MainActor private func subscriptionAction(_ subscription: PodcastSubscription, _ action: String) async {
-        guard !busy else { return }
+        guard model.session.canWrite, !busy else { return }
         let generation = model.session.generation
         busy = true; defer { if isCurrent(generation) { busy = false } }
         do {
@@ -277,7 +284,7 @@ struct PodcastLibraryView: View {
         } catch { if isCurrent(generation) { message = AppL10n.text("podcast.source.failed") } }
     }
     @MainActor private func action(_ job: PodcastJob, _ action: String) async {
-        guard !busy else { return }
+        guard model.session.canWrite, !busy else { return }
         let generation = model.session.generation
         busy = true; defer { if isCurrent(generation) { busy = false } }
         do {

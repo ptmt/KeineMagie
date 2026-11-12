@@ -8,7 +8,7 @@ final class AppModel {
     private(set) var historyPhase: DatasetPhase = .idle
     private(set) var historyLoadError: String?
     func podcastAPI() throws -> PodcastAPI {
-        guard session.phase == .signedIn else { throw APIError.http(401) }
+        guard session.canWrite else { throw APIError.http(401) }
         if let injectedPodcastClient { return injectedPodcastClient }
         #if targetEnvironment(simulator)
         if let fixtureTransport { return PodcastAPI(endpoint: try ServerEndpoint(session.serverURL), token: "synthetic-session-not-a-credential", transport: fixtureTransport) }
@@ -16,6 +16,7 @@ final class AppModel {
         return PodcastAPI(endpoint: try ServerEndpoint(session.serverURL, allowLocalHTTP: Self.allowLocalHTTP), token: try TokenStore.read())
     }
     func preparePodcast(_ episode: PodcastEpisode, feedID: String, source: String) {
+        guard session.canWrite else { return }
         let version = session.generation
         guard let client = try? podcastAPI() else { return }
         podcasts.prepare(episode, feedID: feedID, source: source, client: client, current: {
@@ -23,6 +24,7 @@ final class AppModel {
         }, didChange: { await self.persistPodcasts() })
     }
     func refreshPodcasts() async {
+        guard session.canWrite else { return }
         let version = session.generation
         guard let client = try? podcastAPI() else { return }
         await podcasts.refresh(client: client) { !Task.isCancelled && self.session.phase == .signedIn && self.session.generation == version }
@@ -45,6 +47,7 @@ final class AppModel {
     private var cacheLease: ContentCacheSession?
     private var cacheGeneration: Int?
     private var cacheRevision = 0
+    private var hydratedGeneration: Int?
     private func cacheSession() -> ContentCacheSession? {
         guard cacheEnabled, session.phase == .signedIn, let owner = session.user?.id else { return nil }
         if cacheGeneration != session.generation {
@@ -65,17 +68,20 @@ final class AppModel {
     private var injectedPodcastClient: PodcastAPI?
     private struct PodcastSnapshot: Codable { let jobs: [PodcastJob]; let subscriptions: [PodcastSubscription] }
     func warmData() async {
+        guard session.phase == .signedIn else { return }
         let version = session.generation
         let snapshot = historyState.snapshot()
         _ = cacheSession()
-        if cacheEnabled, let owner = session.user?.id {
+        if hydratedGeneration != version, cacheEnabled, let owner = session.user?.id {
             let server = session.serverURL
             let historyData = try? await contentCache.load(dataset: "history", server: server, owner: owner)
             let podcastData = try? await contentCache.load(dataset: "podcasts", server: server, owner: owner)
             guard !Task.isCancelled, session.generation == version, session.phase == .signedIn else { return }
+            hydratedGeneration = version
             if let historyData, let records = try? JSONDecoder().decode([TranslationRecord].self, from: historyData) { historyState.apply(records, since: snapshot); historyPhase = .loaded }
             if podcasts.phase == .idle, podcasts.jobs.isEmpty, let podcastData, let snapshot = try? JSONDecoder().decode(PodcastSnapshot.self, from: podcastData) { podcasts.jobs = snapshot.jobs; podcasts.subscriptions = snapshot.subscriptions; podcasts.phase = .loaded }
         }
+        guard session.canWrite else { return }
         async let translator: () = refreshTranslator()
         async let podcast: () = refreshPodcasts()
         _ = await (translator, podcast)
@@ -90,7 +96,7 @@ final class AppModel {
     func deleteHistory(_ item: TranslationRecord) { mutateHistory(item, favorite: nil) }
     func toggleHistoryFavorite(_ item: TranslationRecord) { mutateHistory(item, favorite: !item.favorite) }
     private func mutateHistory(_ item: TranslationRecord, favorite: Bool?) {
-        guard session.phase == .signedIn, !historyBusy(item.id), let mutation = historyState.beginMutation(id: item.id) else { return }
+        guard session.canWrite, !historyBusy(item.id), let mutation = historyState.beginMutation(id: item.id) else { return }
         let version = session.generation
         historyErrors[item.id] = nil
         historyTasks[item.id] = Task { [self] in
@@ -116,6 +122,8 @@ final class AppModel {
                 await persistHistory()
             } catch {
                 guard !Task.isCancelled, version == session.generation, session.phase == .signedIn else { return }
+                if case APIError.http(401) = error { session.rejectUnauthorized(); resetSessionContent(); return }
+                session.recordNetworkFailure(error)
                 historyErrors[item.id] = Self.connectionError(error)
             }
         }
@@ -138,7 +146,7 @@ final class AppModel {
         catch { shortcuts = []; translatorError = AppL10n.text("shortcut.storage.error") }
     }
     func saveShortcut(id: UUID = UUID(), title: String, instruction: String) throws {
-        guard let owner = session.user?.id, session.phase == .signedIn else { throw APIError.missingToken }
+        guard let owner = session.user?.id, session.canWrite else { throw APIError.missingToken }
         let shortcut = try TranslationShortcut(id: id, title: title, instruction: instruction)
         var updated = shortcuts
         if let index = updated.firstIndex(where: { $0.id == id }) { updated[index] = shortcut } else { updated.append(shortcut) }
@@ -146,7 +154,7 @@ final class AppModel {
         shortcuts = updated
     }
     func deleteShortcut(_ id: UUID) throws {
-        guard let owner = session.user?.id, session.phase == .signedIn else { throw APIError.missingToken }
+        guard let owner = session.user?.id, session.canWrite else { throw APIError.missingToken }
         let updated = shortcuts.filter { $0.id != id }
         try shortcutStore.save(updated, server: session.serverURL, owner: owner)
         shortcuts = updated
@@ -175,7 +183,7 @@ final class AppModel {
     private var fixtureTransport: AuthClient.Transport?
     #endif
     func api() throws -> APIClient {
-        guard session.phase == .signedIn else { throw APIError.http(401) }
+        guard session.canWrite else { throw APIError.http(401) }
         if let injectedClient { return injectedClient }
         #if targetEnvironment(simulator)
         if let fixtureTransport {
@@ -203,6 +211,8 @@ final class AppModel {
                 historyPhase = .loaded; historyLoadError = nil
                 await persistHistory()
             case .failure(let error):
+                session.recordNetworkFailure(error)
+                if case APIError.http(401) = error { session.rejectUnauthorized(); return }
                 historyPhase = .error; historyLoadError = Self.connectionError(error)
                 translatorError = Self.connectionError(error)
             }
@@ -224,6 +234,7 @@ final class AppModel {
         do { return .success(try await operation()) } catch { return .failure(error) }
     }
     func connectChatGPT() async {
+        guard session.canWrite else { return }
         cancelChatGPT()
         let version = session.generation
         let id = UUID(); connectionID = id
@@ -277,6 +288,7 @@ final class AppModel {
         return AppL10n.text("chatgpt.failed")
     }
     func disconnectChatGPT() async {
+        guard session.canWrite else { return }
         cancelChatGPT()
         let version = session.generation
         busy = true; defer { busy = false }
@@ -284,6 +296,7 @@ final class AppModel {
         catch { if version == session.generation { translatorError = error.localizedDescription } }
     }
     func translate() async {
+        guard session.canWrite else { return }
         let version = session.generation
         busy = true; defer { busy = false }
         do {
@@ -292,7 +305,7 @@ final class AppModel {
             result = item; historyState.insert(item); translatorError = nil
             selectedShortcutID = nil
             await persistHistory()
-        } catch { if version == session.generation { translatorError = error.localizedDescription } }
+        } catch { if version == session.generation { session.recordNetworkFailure(error); translatorError = error.localizedDescription } }
     }
 
     init() {
@@ -302,7 +315,11 @@ final class AppModel {
         if let mode = ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] {
             let fixture = SimulatorSessionFixture(mode: mode)
             if let namespace = ProcessInfo.processInfo.environment["KM_SIMULATOR_CACHE_NAMESPACE"], UUID(uuidString: namespace) != nil {
-                contentCache = ContentCache(root: URL.applicationSupportDirectory.appendingPathComponent("UITestContentCache").appendingPathComponent(namespace))
+                let root = URL.applicationSupportDirectory.appendingPathComponent("UITestContentCache").appendingPathComponent(namespace)
+                contentCache = ContentCache(root: root)
+                fixtureTransport = { request in try await fixture.send(request) }
+                session = SessionController(serverURL: "https://fixture.invalid", readToken: { "synthetic-session-not-a-credential" }, saveToken: { _ in }, readIdentity: { try SimulatorIdentityStore.read(root) }, saveIdentity: { try SimulatorIdentityStore.save($0, root: root) }, transport: { request in try await fixture.send(request) })
+                return
             }
             fixtureTransport = { request in try await fixture.send(request) }
             session = SessionController(serverURL: "https://fixture.invalid", readToken: { "synthetic-session-not-a-credential" }, saveToken: { _ in }, transport: { request in try await fixture.send(request) })
@@ -311,7 +328,8 @@ final class AppModel {
         #endif
         let url = UserDefaults.standard.string(forKey: "serverURL") ?? ProductIdentity.defaultServerURL
         session = SessionController(serverURL: url, allowLocalHTTP: Self.allowLocalHTTP,
-                                    readToken: { try TokenStore.read() }, saveToken: { try TokenStore.save($0) })
+                                    readToken: { try TokenStore.read() }, saveToken: { try TokenStore.save($0) },
+                                    readIdentity: { try TokenStore.readIdentity() }, saveIdentity: { try TokenStore.saveIdentity($0) })
     }
     static var allowLocalHTTP: Bool {
         #if DEBUG && targetEnvironment(simulator)
@@ -325,7 +343,7 @@ final class AppModel {
             lease.invalidate()
             Task { try? await contentCache.remove(session: lease) }
         }
-        cacheLease = nil; cacheGeneration = nil
+        cacheLease = nil; cacheGeneration = nil; hydratedGeneration = nil
         cancelChatGPT()
         podcasts.reset(); historyPhase = .idle; historyLoadError = nil
         input = ""

@@ -20,6 +20,19 @@ actor SimulatorSessionFixture {
     static let copyTranslation = "  Übersetzung 👩🏽‍💻 Привет e\u{0301}\n\n" + String(repeating: "Zeile 日本語\t  {\"nested\":{\"literal\":\"\\n\",\"items\":[1,2]}}\n", count: 1200) + "  Ende\n "
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
     func send(_ request: URLRequest) async throws -> AuthResponse {
+        if mode == "cache-offline" || mode == "cache-blackhole" {
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.protocolClasses = [OfflineFixtureProtocol.self]
+            configuration.timeoutIntervalForRequest = 3
+            configuration.timeoutIntervalForResource = 3
+            let session = URLSession(configuration: configuration)
+            defer { session.invalidateAndCancel() }
+            var probe = request
+            probe.timeoutInterval = 3
+            probe.setValue(mode, forHTTPHeaderField: "X-Synthetic-Network")
+            let _ = try await session.data(for: probe)
+            throw URLError(.badServerResponse)
+        }
         if mode == "cache-delayed-error", ["/v1/translations", "/v1/podcasts", "/v1/podcasts/subscriptions"].contains(request.url?.path ?? "") {
             try await Task.sleep(for: .seconds(10))
             return AuthResponse(data: Data(), status: 503)
@@ -112,6 +125,34 @@ actor SimulatorSessionFixture {
     }
     private static func job(_ index: Int) -> [String: Any] {
         ["id": "synthetic-job-0000000\(index)", "url": "https://audio.example/episode-\(index).mp3", "source_language": "de", "target_language": "ru", "state": index == 2 ? "transcribing" : "completed", "progress": index == 2 ? 45 : 100, "segments": [["start": 0, "end": 12, "text": "Synthetic transcript", "translation": "Синтетический перевод"]]]
+    }
+}
+
+/// Real URLSession failure/blackhole, confined to simulator synthetic requests.
+private final class OfflineFixtureProtocol: URLProtocol, @unchecked Sendable {
+    override class func canInit(with request: URLRequest) -> Bool { request.value(forHTTPHeaderField: "X-Synthetic-Network") != nil }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {
+        if request.value(forHTTPHeaderField: "X-Synthetic-Network") == "cache-offline" {
+            client?.urlProtocol(self, didFailWithError: URLError(.notConnectedToInternet))
+        }
+        // Blackhole intentionally sends nothing; URLSession's resource deadline expires.
+    }
+    override func stopLoading() {}
+}
+
+enum SimulatorIdentityStore {
+    static func read(_ root: URL) throws -> SavedNativeIdentity? {
+        let file = root.appendingPathComponent("synthetic-identity.json")
+        guard FileManager.default.fileExists(atPath: file.path) else { return nil }
+        return try JSONDecoder().decode(SavedNativeIdentity.self, from: Data(contentsOf: file))
+    }
+    static func save(_ identity: SavedNativeIdentity?, root: URL) throws {
+        let file = root.appendingPathComponent("synthetic-identity.json")
+        if let identity {
+            try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+            try JSONEncoder().encode(identity).write(to: file, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+        } else if FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
     }
 }
 #endif

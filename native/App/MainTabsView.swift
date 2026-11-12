@@ -16,7 +16,7 @@ struct MainTabsView: View {
             UnavailableFeatureView(title: "feature.coach", symbol: "bubble.left.and.bubble.right")
                 .tabItem { Label("feature.coach", systemImage: "bubble.left.and.bubble.right") }.tag("coach")
         }
-        .task(id: model.session.generation) { await model.warmData() }
+        .task(id: "\(model.session.generation)-\(model.session.canWrite)") { await model.warmData() }
         .task(id: scenePhase) {
             guard scenePhase == .active else { return }
             while !Task.isCancelled {
@@ -32,6 +32,7 @@ struct MainTabsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("podcast.add", systemImage: "plus") { showPodcastAdd = true }
                         .accessibilityIdentifier("podcast-add")
+                        .disabled(!model.session.canWrite)
                 }
             }
         }

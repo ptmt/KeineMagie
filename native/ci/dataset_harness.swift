@@ -115,11 +115,20 @@ import KeineMagieCore
     var deleted = false
     var historyCalls = 0
     let owner = "cache-\(UUID())"
+    var proof: SavedNativeIdentity?
+    var authOffline = false
+    var mutationUnauthorized = false
+    var authHeld = false
+    var authWaiting: CheckedContinuation<Void, Never>?
     var record: String { "{\"id\":\"record\",\"created_at\":\"2026-11-09T12:00:00Z\",\"text\":\"Cached text\",\"source_language\":\"de\",\"target_language\":\"ru\",\"translation\":\"Cached result\",\"favorite\":\(favorite),\"idioms\":[],\"patterns\":[],\"vocabulary\":[]}" }
     func send(_ request: URLRequest) async throws -> AuthResponse {
         let path = request.url!.path
-        if path == "/v1/auth/session" { return AuthResponse(data: Data("{\"user\":{\"id\":\"\(owner)\"},\"expires_at\":\"2099-01-01T00:00:00Z\"}".utf8), status: 200) }
+        if path == "/v1/auth/session" {
+            if authHeld { await withCheckedContinuation { authWaiting = $0 } }
+            if authOffline { throw URLError(.timedOut) }
+            return AuthResponse(data: Data("{\"user\":{\"id\":\"\(owner)\"},\"expires_at\":\"2099-01-01T00:00:00Z\"}".utf8), status: 200) }
         if path == "/v1/history/record" {
+            if mutationUnauthorized { return AuthResponse(data: Data(), status: 401) }
             if request.httpMethod == "DELETE" { deleted = true; return AuthResponse(data: Data(), status: 204) }
             favorite = true
             return AuthResponse(data: Data(record.utf8), status: 200)
@@ -138,11 +147,53 @@ import KeineMagieCore
     }
     func model(_ cache: ContentCache) async throws -> AppModel {
         let transport: AuthClient.Transport = { try await self.send($0) }
-        let session = SessionController(serverURL: "https://cache.invalid", readToken: { "synthetic" }, saveToken: { _ in }, transport: transport)
+        let session = SessionController(serverURL: "https://cache.invalid", readToken: { "synthetic" }, saveToken: { _ in }, readIdentity: { self.proof }, saveIdentity: { self.proof = $0 }, transport: transport)
         await session.restore()
         let endpoint = try ServerEndpoint("https://cache.invalid")
         return AppModel(session: session, client: APIClient(endpoint: endpoint, token: "synthetic", transport: transport), podcastClient: PodcastAPI(endpoint: endpoint, token: "synthetic", transport: transport), cache: cache)
     }
+}
+@Test @MainActor func mutationUnauthorizedInvalidatesSavedOfflineOwner() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CacheGate(); let model = try await gate.model(ContentCache(root: root))
+    await model.warmData()
+    gate.mutationUnauthorized = true
+    let item = try #require(model.history.first)
+    model.toggleHistoryFavorite(item)
+    for _ in 0..<10000 { if model.session.user == nil { break }; await Task.yield() }
+    #expect(model.session.user == nil)
+    #expect(gate.proof == nil)
+    #expect(!model.session.canWrite)
+}
+@Test @MainActor func offlineColdRelaunchHydratesRealAppModelWithoutWaitingForIdentityNetwork() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CacheGate(); let first = try await gate.model(ContentCache(root: root))
+    await first.warmData()
+    gate.authHeld = true; gate.authOffline = true
+    let transport: AuthClient.Transport = { try await gate.send($0) }
+    let session = SessionController(serverURL: "https://cache.invalid", readToken: { "synthetic" }, saveToken: { _ in }, readIdentity: { gate.proof }, saveIdentity: { gate.proof = $0 }, transport: transport)
+    let endpoint = try ServerEndpoint("https://cache.invalid")
+    let model = AppModel(session: session, client: APIClient(endpoint: endpoint, token: "synthetic", transport: transport), cache: ContentCache(root: root))
+    let restore = Task { await session.restore() }
+    while gate.authWaiting == nil { await Task.yield() }
+    await model.warmData()
+    #expect(model.history.count == 1)
+    #expect(model.podcasts.jobs.count == 1)
+    #expect(!session.canWrite)
+    let count = gate.historyCalls
+    model.toggleHistoryFavorite(try #require(model.history.first))
+    model.deleteHistory(try #require(model.history.first))
+    model.draft = "offline"
+    await model.translate()
+    #expect(model.result == nil)
+    #expect(gate.historyCalls == count)
+    gate.authWaiting?.resume(); gate.authWaiting = nil
+    await restore.value
+    #expect(session.isOffline)
+    #expect(model.history.count == 1)
+    #expect(gate.proof != nil)
 }
 @Test @MainActor func freshDirectionDefaultsRussianToGermanAndExplicitChoiceSurvivesRefreshAndReset() async throws {
     let gate = CacheGate()

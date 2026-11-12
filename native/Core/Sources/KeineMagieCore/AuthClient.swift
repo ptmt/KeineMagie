@@ -16,7 +16,7 @@ public struct ValidatedSession: Decodable, Sendable {
     public let expiresAt: Date
     enum CodingKeys: String, CodingKey { case user, expiresAt = "expires_at" }
 }
-public struct SessionUser: Decodable, Sendable, Equatable { public let id: String }
+public struct SessionUser: Codable, Sendable, Equatable { public let id: String }
 public struct AppleSession: Decodable, Sendable {
     public let sessionToken: String
     public let user: SessionUser
@@ -66,14 +66,18 @@ public struct AuthClient: Sendable {
         guard !token.isEmpty, !token.contains(where: { $0.isWhitespace || $0.asciiValue.map { $0 < 32 || $0 == 127 } == true }) else { throw AuthError.invalidCredential }
         var request = URLRequest(url: endpoint.url(path: path))
         request.httpMethod = method
-        request.timeoutInterval = 30
+        request.timeoutInterval = 8
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         let response = try await transport(request)
         guard (200..<300).contains(response.status) else { throw APIError.http(response.status) }
         return response
     }
     public static func network(_ request: URLRequest) async throws -> AuthResponse {
-        let session = URLSession(configuration: .ephemeral, delegate: AuthNoRedirects(), delegateQueue: nil)
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = 8
+        configuration.timeoutIntervalForResource = 8
+        configuration.waitsForConnectivity = false
+        let session = URLSession(configuration: configuration, delegate: AuthNoRedirects(), delegateQueue: nil)
         defer { session.invalidateAndCancel() }
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }

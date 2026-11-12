@@ -40,7 +40,10 @@ struct RootView: View {
             await model.session.restore()
         }
         .onChange(of: model.session.generation) { _, _ in model.resetSessionContent(); model.loadShortcuts() }
-        .onChange(of: model.session.phase) { _, _ in model.resetSessionContent(); model.loadShortcuts() }
+        .onChange(of: model.session.phase) { _, phase in
+            if phase != .signedIn { model.resetSessionContent() }
+            model.loadShortcuts()
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background { enteredBackground = true }
             if phase == .active && enteredBackground {

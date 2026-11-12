@@ -193,8 +193,9 @@ let package = Package(name:"Lifecycle",platforms:[.macOS(.v14)],dependencies:[.p
         (p/'Sources/Lifecycle/AppModel.swift').write_text(app)
         (p/'Sources/Lifecycle/PodcastStore.swift').write_text((ROOT/'App/PodcastStore.swift').read_text())
         (p/'Sources/Lifecycle/Stubs.swift').write_text('''import Foundation
+import KeineMagieCore
 struct ChatGPTBrowser: Identifiable { let id = UUID(); let url: URL }
-enum TokenStore { static func read() throws -> String { fatalError("Keychain forbidden") }; static func save(_ s:String) throws { fatalError("Keychain forbidden") } }
+enum TokenStore { static func readIdentity() throws -> SavedNativeIdentity? { fatalError("Keychain forbidden") }; static func saveIdentity(_ identity: SavedNativeIdentity?) throws { fatalError("Keychain forbidden") }; static func read() throws -> String { fatalError("Keychain forbidden") }; static func save(_ s:String) throws { fatalError("Keychain forbidden") } }
 enum ProductIdentity { static let defaultServerURL = "https://synthetic.invalid" }
 enum AppL10n { static func text(_ key:String) -> String { key } }
 ''')

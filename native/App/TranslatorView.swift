@@ -11,6 +11,13 @@ struct TranslatorView: View {
     var body: some View {
         @Bindable var model = model
         List {
+            if model.session.isOffline || (!model.session.canWrite && !model.session.checking && model.session.message != nil) {
+                Label(model.session.isOffline ? AppL10n.text("Offline. Showing saved history") : (model.session.message ?? ""), systemImage: "wifi.slash")
+                    .font(.footnote).foregroundStyle(.secondary)
+                    .accessibilityIdentifier("offline.saved-history")
+                Button("Sitzung erneut prüfen") { Task { await model.session.restore() } }
+                    .disabled(model.session.checking)
+            }
             VStack(alignment: .leading, spacing: 12) {
                 Picker("Richtung", selection: $model.direction) {
                     ForEach(TranslationDirection.allCases, id: \.self) { direction in
@@ -70,8 +77,8 @@ struct TranslatorView: View {
                     Text("Übersetzen").frame(maxWidth: .infinity)
                 }.buttonStyle(.borderedProminent).controlSize(.large)
                     .accessibilityIdentifier("translator-submit")
-                    .disabled(model.busy || model.provider?.connected != true || model.provider?.selectedModel?.isEmpty != false || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
-                if model.provider == nil {
+                    .disabled(!model.session.canWrite || model.busy || model.provider?.connected != true || model.provider?.selectedModel?.isEmpty != false || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
+                if model.session.canWrite && model.provider == nil {
                     if model.refreshing || model.historyPhase == .idle {
                         ProgressView("Verbindung prüfen")
                             .font(.callout).foregroundStyle(.secondary)
@@ -79,7 +86,7 @@ struct TranslatorView: View {
                     } else {
                         Button("Verbindung prüfen") { Task { await model.refreshTranslator() } }
                     }
-                } else if model.provider?.connected != true {
+                } else if model.session.canWrite && model.provider?.connected != true {
                     NavigationLink { ChatGPTConnectionView() } label: {
                         Label("chatgpt.connect", systemImage: "link.badge.plus")
                             .font(.callout)
@@ -116,6 +123,9 @@ struct TranslatorView: View {
                             }
                         }
                         Text(verbatim: item.translation).textSelection(.enabled)
+                        Button { UIPasteboard.general.string = item.translation } label: {
+                            Label("translation.copy", systemImage: "doc.on.doc").labelStyle(.iconOnly).frame(width: 44, height: 44)
+                        }.buttonStyle(.borderless).accessibilityIdentifier("history-copy-\(item.id)")
                         if let error = model.historyErrors[item.id] { ErrorNotice(text: error) }
                     }.frame(maxWidth: 700, alignment: .leading).frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
@@ -127,14 +137,14 @@ struct TranslatorView: View {
                             Button { model.deleteHistory(item) } label: {
                                 Label("history.delete", systemImage: "trash")
                             }.tint(.red).accessibilityIdentifier("history-delete-\(item.id)")
-                                .disabled(model.historyBusy(item.id))
+                                .disabled(!model.session.canWrite || model.historyBusy(item.id))
                         }
                         .swipeActions(edge: .leading, allowsFullSwipe: false) {
                             Button { model.toggleHistoryFavorite(item) } label: {
                                 Label(LocalizedStringKey(item.favorite ? "history.unfavorite" : "history.addFavorite"), systemImage: item.favorite ? "star.slash" : "star")
                             }.tint(.orange)
                                 .accessibilityIdentifier("history-favorite-\(item.id)")
-                                .disabled(model.historyBusy(item.id))
+                                .disabled(!model.session.canWrite || model.historyBusy(item.id))
                         }
                 }
             } header: { Text("Dein Verlauf").font(.headline).textCase(nil) }
