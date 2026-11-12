@@ -49,4 +49,7 @@ Remaining: App Store processing/tester visibility, physical-device/live-account 
 
 ## Release evidence
 
-Pending remote exact-commit CI and explicit Apple upload readback; pushing native files automatically runs the existing `iOS TestFlight` main workflow, so no duplicate manual dispatch is needed.
+- Shipped native source: `c798c9d791c319a7fe0dd5351bf767d3adb31b7d` on existing `main`.
+- Existing push-triggered [iOS TestFlight run 43316659380](https://github.com/ptmt/KeineMagie/actions/runs/43316659380), exact `headSha` above, read back **completed / success**. `validate` and `testflight` passed; signing cleanup passed. No duplicate dispatch or backend deployment.
+- Marketing version **1.0**, build **2730.57.80**. Actual runner output: `2026-11-12T22:10:24.3948890Z ** ARCHIVE SUCCEEDED **`, `22:10:25.7970960Z ** EXPORT SUCCEEDED **`, `22:14:01.9132350Z UPLOAD SUCCEEDED with no errors`, `22:14:01.9180020Z Apple upload command succeeded. Check App Store Connect processing and TestFlight availability.`
+- Raw CI evidence retained locally at `/Users/tinyserve/.hermes/cache/scratch/km-review-release-ci.log`; exact run/job handles: validation `131526320451`, upload `131528357902`. Apple processing, tester assignment/visibility and physical installation remain unverified; upload is not availability.
