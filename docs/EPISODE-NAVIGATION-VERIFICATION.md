@@ -2,7 +2,7 @@
 
 ## Scope and behavior
 
-Web-only reader/profile implementation, awaiting the parent’s combined translator-follow-up release. **Not committed, pushed or deployed by this task.** Native and production owner data were not accessed.
+Web-only reader/profile implementation; subsequently included in the combined deployed release documented in `COMBINED-WEB-RELEASE.md`. Native and production owner data were not accessed by the local verification task.
 
 - Removed the redundant Overview/statistics/profile wall. Compact episode identity, breadcrumbs, one counts line (pending only when nonzero), quiet private-copy explanation; collection creation/refresh controls stay on the collection.
 - Persistent semantic Summary / Words / Recommendations / Transcript links; `aria-current="location"` scrollspy never moves focus. Meaningful query URLs (`section`, stable zero-based `segment`, optional summary `topic`) preserve the clean episode pathname and legacy hash router. Keyboard Enter, Back/Forward, reload and source citation reveal are supported.
