@@ -39,6 +39,18 @@ class TranslatorSurfaceTests(unittest.TestCase):
         self.assertIn('.contextMenu', inline_styles)
         self.assertIn('.accessibilityLabel("shortcut.add")', inline_styles)
 
+    def test_initial_history_loading_is_quiet_without_false_empty_or_delayed_work(self):
+        view = (ROOT / 'App/TranslatorView.swift').read_text()
+        history = view.split('Section {', 1)[1].split('ForEach(model.history)', 1)[0]
+        self.assertNotIn('ProgressView', history)
+        self.assertIn('model.historyPhase == .loaded', history)
+        self.assertIn('model.history.isEmpty', history)
+        self.assertNotIn('Task.sleep', view.split('private struct TranslationResultView')[0])
+        # A provider spinner also appeared above cached rows, and waited for history.
+        provider = view.split('if model.session.canWrite && model.provider == nil {', 1)[1].split('if model.busy', 1)[0]
+        self.assertNotIn('ProgressView', provider)
+        self.assertIn('Verbindung prüfen', provider)
+
     def test_direct_login_is_not_a_mislabelled_cli_button(self):
         view = (ROOT / 'App/ChatGPTConnectionView.swift').read_text()
         self.assertNotIn('chatgpt.direct.blocked', view)

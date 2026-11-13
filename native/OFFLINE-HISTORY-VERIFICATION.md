@@ -1,5 +1,33 @@
 # Native offline saved history
 
+## Quiet translator history follow-up (13 November 2026, not released)
+
+History **already is cached** on disk, scoped to exact server + verified owner + dataset. `warmData()` hydrates once per session generation before requesting fresh data. Successful history GETs, translations and acknowledged favorite/delete changes persist the reconciled rows. Protected JSON lives in Application Support/ContentCache with hashed filenames, owner-only permissions, iOS file protection and backup exclusion. Offline access still requires the device-secure owner provenance below; no owner is inferred from cache files. Cache writes are best-effort (`try?`), so this is not a guarantee against disk failures.
+
+The reproduced UI defect was immediate `history.loading` while the array was empty (including pre-hydration `.idle`), plus a separate `provider.loading` above the history that remained pending until history completed. Existing rows were not hidden by the history loading branch. Continuation-based actual-AppModel tests confirm concurrent refresh callers coalesce; tab return does not itself request history. No cache-loss or redundant-tab-reload defect was reproduced, so cache/session/mutation implementation is unchanged.
+
+Chosen user-requested option: **remove the history loading indicator entirely**, rather than add a three-second timer. Provider checking is quiet localized text, not an activity indicator. This guarantees no indicator during the first three seconds or later, and introduces no timer/cancellation/navigation/generation race. User-initiated translation/mutation progress remains. Initial hydration/loading stays blank beneath the history heading, never claims “No translations yet”; that message requires a successful loaded empty dataset. Cached rows stay visible through background refresh and failure, with the existing safe error/retry UI.
+
+Verification on this working tree:
+- RED: deterministic surface contract failed on the original history ProgressView; Release simulator UI failed on both original loading indicators. GREEN: same contracts and UI passed after the change.
+- Xcode SwiftPM Core: **11 XCTest + 65 Swift Testing passed**. Native CI: **45 tests, 1 built-plist check skipped**, including **29 actual AppModel/PodcastStore harness tests**. New continuation tests cover coalescing/cancellation with saved rows and rejecting an uncancellable old response after replacement/reset. Existing disk restart/favorite/delete, offline provenance, owner and 401 tests remain green.
+- Release iPhone 17e / iOS 27.2: **12 dataset/history/offline UI + 4 foreground UI passed**. Fast populated history, slow first load (quiet before/after three seconds), successful empty completion, pending tab navigation, protected-cache terminate/relaunch, favorite/delete persistence, failed refresh retaining rows, unreachable/blackhole offline relaunch, account change and revocation exercised with synthetic transports only.
+- Exported screenshots inspected: fast populated, slow initial/past-three-seconds, completed empty, cached refresh and cached error; no history/provider spinner. Existing failed-history refresh shows the safe HTTP error both in the translator and inline history; this duplication was not changed. Scrollable rows continue beneath the native floating tab bar.
+- Evidence: `/Users/tinyserve/.hermes/cache/scratch/km-history-quiet/` (`red.xcresult`, `green.xcresult`, `foreground.xcresult`, `core.log`, `native-ci.log`, `screenshots/manifest.json`). Screenshots are synthetic, not private user data. Existing ForegroundUITests actor-isolation and AppIntents metadata warnings remain; no compile/test failure in GREEN.
+- Implementation-stage checks used no real credentials, external provider request or paid inference. Physical-device connectivity remains unverified; publication is tracked below.
+
+### Independent release review
+
+A separate reviewer read the complete diff and the actual AppModel, cache hydration, MainTabs lifetime and network transport. No substantive regression found; implementation unchanged. `.loaded` plus an empty collection gates the empty message; errors are evaluated before that message and rows are rendered independently. The quiet initial section is intentionally blank, not an empty-state claim. Production API transport uses `AuthClient.network` with an eight-second resource timeout and no waits-for-connectivity, so ordinary stalled initial requests reach existing error/retry UI rather than remaining silently pending indefinitely. The request-level 90-second API setting does not remove that resource bound. Offline/unchecked sessions retain their existing session notice and explicit retry; no cached owner is guessed. Tab navigation does not cancel the MainTabs warm-up. Cancellation and owner replacement tests preserve/reject rows as appropriate. Synthetic injected transports can deliberately remain suspended; this is test behavior, not a new production task or timer.
+
+Independent rerun on Xcode 27.2 / Release iPhone 17e iOS 27.2:
+- **29 actual AppModel/PodcastStore tests passed**, within 45 native CI cases (one built-plist case initially skipped, then all three metadata tests passed against the actual Release app).
+- **11 XCTest + 65 Core Swift Testing passed**.
+- **16 Release UI passed**: six DatasetLoading, two OfflineHistory, four Foreground, four History. This includes slow completion beyond three seconds, cache restart/error, unreachable/blackhole, mutation persistence/failure, owner change and revocation.
+- Reviewed new screenshots for slow pending status and retained cached rows/error/retry. The initial history section has no spinner or false empty message; cached error retains text/favorite and retry. Existing duplicate error and scrollable rows behind the floating native tab bar remain nonblocking and unchanged.
+- Added-line security scan, `git diff --check`, shell syntax and plist lint passed. Existing Foreground actor-isolation and optional AppIntents metadata warnings remain.
+- Review evidence: `/Users/tinyserve/.hermes/cache/scratch/km-history-release-review/` (`native-ci.log`, `core.log`, `review.xcresult`, `history.xcresult`, `screenshots/manifest.json`). Synthetic fixtures only; no real provider tests or backend deployment.
+
 ## Cause and policy
 
 Cold launch previously persisted only the bearer token. `SessionController.restore()` entered `.restoring` without an owner until `/v1/auth/session` completed; RootView rendered the four-feature login screen, so MainTabsView never ran owner-scoped cache hydration. A blackholed request therefore hid already-saved history. Foreground validation already retained an in-memory owner, but that identity did not survive termination.

@@ -226,6 +226,50 @@ import KeineMagieCore
     await again.warmData()
     #expect(again.history.isEmpty)
 }
+@Test @MainActor func historyRefreshCoalescesAndCancellationRetainsSavedRows() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CacheGate(); let model = try await gate.model(ContentCache(root: root))
+    await model.warmData()
+    let calls = gate.historyCalls
+    gate.hold = true
+    let refresh = Task { await model.refreshTranslator() }
+    while gate.waiting.count < 2 { await Task.yield() }
+    await model.refreshTranslator()
+    #expect(gate.waiting.count == 2, "Concurrent callers share the existing history/provider pair")
+    #expect(model.history.map(\.id) == ["record"])
+    #expect(model.historyPhase == .loading)
+    refresh.cancel()
+    gate.waiting.forEach { $0.resume() }; gate.waiting = []
+    await refresh.value
+    #expect(!model.refreshing)
+    #expect(model.history.map(\.id) == ["record"])
+    #expect(gate.historyCalls == calls + 1)
+    gate.hold = false
+    await model.refreshTranslator()
+    #expect(model.historyPhase == .loaded)
+    #expect(gate.historyCalls == calls + 2)
+}
+@Test @MainActor func historyResetRejectsOldUncancellableRefreshWhileReplacementCompletes() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CacheGate(); let model = try await gate.model(ContentCache(root: root))
+    gate.hold = true
+    let old = Task { await model.refreshTranslator() }
+    while gate.waiting.count < 2 { await Task.yield() }
+    model.resetSessionContent()
+    #expect(model.history.isEmpty)
+    #expect(model.historyPhase == .idle)
+    gate.hold = false; gate.deleted = true
+    await model.refreshTranslator()
+    #expect(model.historyPhase == .loaded)
+    gate.deleted = false
+    gate.waiting.forEach { $0.resume() }; gate.waiting = []
+    await old.value
+    #expect(model.history.isEmpty, "Old response must not resurrect private history")
+    #expect(model.historyPhase == .loaded)
+    #expect(!model.refreshing)
+}
 @Test @MainActor func cacheHydratesBeforeDelayedServerAndRefreshFailureRetainsIt() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }

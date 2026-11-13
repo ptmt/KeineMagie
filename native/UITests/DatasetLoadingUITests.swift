@@ -1,6 +1,10 @@
 import XCTest
 
 final class DatasetLoadingUITests: XCTestCase {
+    @MainActor private func screenshot(_ app: XCUIApplication, _ name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name; shot.lifetime = .keepAlways; add(shot)
+    }
     @MainActor func testInitialLoadingIsLocalAndDoesNotClaimDisconnectedProvider() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "delayed-populated"
@@ -9,12 +13,42 @@ final class DatasetLoadingUITests: XCTestCase {
         XCTAssertTrue(app.textViews["translator-input"].waitForExistence(timeout: 8))
         let before = XCTAttachment(screenshot: app.screenshot())
         before.name = "native-provider-loading"; before.lifetime = .keepAlways; add(before)
-        XCTAssertEqual(app.activityIndicators.matching(identifier: "history.loading").count, 1)
-        XCTAssertTrue(app.activityIndicators["provider.loading"].exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "provider.loading").firstMatch.exists)
+        XCTAssertFalse(app.staticTexts["No translations yet."].exists)
+        screenshot(app, "history-slow-quiet-initial")
+        // Deliberately stay pending beyond the old requested three-second threshold.
+        let quietUntil = Date().addingTimeInterval(4)
+        while Date() < quietUntil {
+            XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+            XCTAssertFalse(app.staticTexts["No translations yet."].exists)
+        }
+        screenshot(app, "history-slow-quiet-after-three-seconds")
         XCTAssertFalse(app.buttons["Connect ChatGPT"].exists, "Unknown provider status is not disconnected")
         XCTAssertTrue(app.buttons["translator-submit"].exists)
+        app.tabBars.buttons["Coach"].tap()
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+        app.tabBars.buttons["Translator"].tap()
+        XCTAssertTrue(app.staticTexts["No translations yet."].waitForExistence(timeout: 20))
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+        screenshot(app, "history-verified-empty-after-slow-load")
     }
 
+    @MainActor func testFastHistoryAndTabReturnStayQuiet() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "history-populated"
+        app.launchArguments = ["-AppleLanguages", "(en)"]
+        app.launch()
+        let row = app.descendants(matching: .any).matching(identifier: "history-row-synthetic-history-1").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "provider.loading").firstMatch.exists)
+        screenshot(app, "history-fast-populated-quiet")
+        app.tabBars.buttons["Coach"].tap(); app.tabBars.buttons["Translator"].tap()
+        XCTAssertTrue(row.exists)
+        XCTAssertFalse(app.staticTexts["No translations yet."].exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+    }
     @MainActor func testPendingPreparationSurvivesBackNavigationAndForeground() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "podcast-prepare"
@@ -76,6 +110,9 @@ final class DatasetLoadingUITests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         XCTAssertTrue(app.images["history-star-synthetic-history-1"].exists)
         XCTAssertFalse(deleted.exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "provider.loading").firstMatch.exists)
+        screenshot(app, "history-cached-relaunch-during-refresh")
         app.tabBars.buttons["Podcasts"].tap()
         XCTAssertTrue(app.staticTexts["Synthetic latest episode"].waitForExistence(timeout: 3))
         XCTAssertFalse(app.staticTexts["No podcasts yet"].exists)
@@ -83,14 +120,20 @@ final class DatasetLoadingUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["podcast.error"].waitForExistence(timeout: 15))
         XCTAssertTrue(app.staticTexts["Synthetic latest episode"].exists)
         let failure = XCTAttachment(screenshot: app.screenshot()); failure.lifetime = .keepAlways; failure.name = "protected-cache-retained-on-error"; add(failure)
+        app.tabBars.buttons["Translator"].tap()
+        XCTAssertTrue(row.exists)
+        XCTAssertTrue(app.images["history-star-synthetic-history-1"].exists)
+        XCTAssertFalse(deleted.exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+        screenshot(app, "history-cached-retained-after-error")
     }
     @MainActor func testDelayedFirstLoadsNeverShowEmptyStates() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "delayed-populated"
         app.launchArguments = ["-AppleLanguages", "(en)"]
         app.launch()
-        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.staticTexts["Noch keine Übersetzungen."].exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "history.loading").firstMatch.exists)
+        XCTAssertFalse(app.staticTexts["No translations yet."].exists)
         app.tabBars.buttons["Podcasts"].tap()
         XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "podcast.loading").firstMatch.waitForExistence(timeout: 2))
         XCTAssertFalse(app.staticTexts["No podcasts yet"].exists)

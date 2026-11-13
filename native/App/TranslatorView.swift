@@ -80,9 +80,9 @@ struct TranslatorView: View {
                     .disabled(!model.session.canWrite || model.busy || model.provider?.connected != true || model.provider?.selectedModel?.isEmpty != false || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
                 if model.session.canWrite && model.provider == nil {
                     if model.refreshing || model.historyPhase == .idle {
-                        ProgressView("Verbindung prüfen")
+                        // Quiet status while checking; no spinner competing with saved history.
+                        Text("Verbindung prüfen")
                             .font(.callout).foregroundStyle(.secondary)
-                            .accessibilityIdentifier("provider.loading")
                     } else {
                         Button("Verbindung prüfen") { Task { await model.refreshTranslator() } }
                     }
@@ -102,9 +102,10 @@ struct TranslatorView: View {
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .listRowSeparator(.hidden)
             Section {
-                if model.history.isEmpty && (model.historyPhase == .idle || model.historyPhase == .loading) {
-                    ProgressView().accessibilityIdentifier("history.loading")
-                } else if let error = model.historyLoadError {
+                // Initial/cache hydration and refresh are quiet. Only a completed load
+                // can claim emptiness; saved rows remain visible through refresh/error.
+                // No delayed task means no late spinner on navigation or owner changes.
+                if let error = model.historyLoadError {
                     Text(error).foregroundStyle(.secondary)
                     Button("podcast.retry") { Task { await model.refreshTranslator() } }
                 } else if model.history.isEmpty && model.historyPhase == .loaded { Text("Noch keine Übersetzungen.").foregroundStyle(.secondary) }
