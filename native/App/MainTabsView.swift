@@ -5,6 +5,7 @@ struct MainTabsView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var selected = "translator"
     @State private var showPodcastAdd = false
+    @State private var showCoachProfile = false
     var body: some View {
         TabView(selection: $selected) {
             TranslatorView()
@@ -13,7 +14,7 @@ struct MainTabsView: View {
                 .tabItem { Label("feature.dictation", systemImage: "waveform") }.tag("dictation")
             PodcastLibraryView(showAdd: $showPodcastAdd)
                 .tabItem { Label("feature.podcasts", systemImage: "headphones") }.tag("podcasts")
-            UnavailableFeatureView(title: "feature.coach", symbol: "bubble.left.and.bubble.right")
+            CoachView()
                 .tabItem { Label("feature.coach", systemImage: "bubble.left.and.bubble.right") }.tag("coach")
         }
         .task(id: "\(model.session.generation)-\(model.session.canWrite)") { await model.warmData() }
@@ -27,7 +28,14 @@ struct MainTabsView: View {
         }
         .navigationTitle(LocalizedStringKey("feature." + selected))
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showCoachProfile) { LearningProfileView() }
         .toolbar {
+            if selected == "coach" {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("coach.skills", systemImage: "graduationcap") { showCoachProfile = true }
+                        .accessibilityIdentifier("coach-profile")
+                }
+            }
             if selected == "podcasts" {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("podcast.add", systemImage: "plus") { showPodcastAdd = true }

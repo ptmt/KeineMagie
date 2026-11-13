@@ -2,6 +2,7 @@
 function episodeLocation(pathname,hash) { return hash ? null : /^\/podcasts\/episodes\/([a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{12})$/.exec(pathname)?.[1] || null; }
 async function episodePath(job) { return (await import('./episode.mjs')).episodePath(job); }
 import { mountTranslatorFollowup } from './translator-followup.mjs';
+import { mountCoach } from './coach.mjs';
 import { t, interfaceCatalog, getInterfaceLanguage, setInterfaceLanguage, bindInterfaceText, unbindInterfaceText, applyInterfaceLanguage, registerStaticInterface } from './i18n.mjs';
 import { copyText, reconcileDOM, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
@@ -177,6 +178,7 @@ $('profile-language').addEventListener('change',()=>{profileLanguage=$('profile-
 $('profile-cefr').addEventListener('change',()=>void loadLearningProfile({cefr:$('profile-cefr').value}));
 $('profile-retry').addEventListener('click',()=>void loadLearningProfile());
 const podcasts = mountPodcasts({api, account:openLearningProfile, unauthorized:handleUnauthorized});
+const coach = mountCoach({host:$('coach'),api,locale:getInterfaceLanguage,unauthorized:handleUnauthorized,account:openLearningProfile});
 const sectionLinks = [...document.querySelectorAll('.section-nav a')];
 let activeSection = 'translator';
 function renderRoute(focus = false) {
@@ -197,6 +199,7 @@ function renderRoute(focus = false) {
     if (!$('account-dialog').contains(document.activeElement)) $('close-account').focus({ preventScroll: true });
   } else if (focus && next !== activeSection) $(next).focus({ preventScroll: true });
   activeSection = next;
+  coach.route();focusCoachTranslation();
   if (session?.user?.id && !session.provider && next === 'translator') void loadProvider();
   if (!checking || session?.user?.id) podcasts.route(location.hash);
   else podcasts.pause();
@@ -223,6 +226,7 @@ function resetResult() {
   $('copy').disabled = true;
 }
 function clearPrivateData() {
+  coach.identity(null);
   cancelAppleLogin();
   resetLearningProfile();
   generation++;
@@ -266,6 +270,7 @@ function updateInput() {
   setText('translate', busy ? 'Wird übersetzt …' : 'Übersetzen');
 }
 function renderConnection() {
+  coach.identity(session);
   podcasts.identity(session, {checking,config,error:sessionError});
   const signedIn = !!session?.user?.id;
   const applePending = !!appleAttempt;
@@ -414,13 +419,19 @@ function validRecord(item) {
   const fields = { idioms: ['expression', 'meaning', 'example'], patterns: ['pattern', 'explanation'], vocabulary: ['word', 'meaning'] };
   return item && typeof item.id === 'string' && typeof item.text === 'string' && typeof item.translation === 'string' && item.translation.trim() && validDirection(item.source_language, item.target_language) && Object.entries(fields).every(([key, required]) => Array.isArray(item[key]) && item[key].every(entry => entry && required.every(field => typeof entry[field] === 'string')));
 }
+function focusCoachTranslation(){
+  if(location.hash!=='#translator'||!location.search||!session?.user?.id)return;
+  const id=new URL(location.href).searchParams.get('translation');if(!id)return;
+  const row=[...$('history-list').children].find(e=>e.dataset.translationID===id);
+  if(row){row.querySelector('button')?.focus({preventScroll:true});row.scrollIntoView?.({block:'center'});}
+}
 function renderHistory() {
   const owner = session?.user?.id;
   const run = generation;
   $('history-list').replaceChildren();
   setText('history-status', history.length ? 'Gespeicherte Übersetzungen öffnen und weiterlernen.' : 'Noch keine Übersetzungen. Dein erstes Ergebnis wird hier gespeichert.');
   for (const item of history) {
-    const li = document.createElement('li');
+    const li = document.createElement('li');li.dataset.translationID=item.id;
     const button = document.createElement('button'); button.type = 'button';
     const content = document.createElement('span');
     content.className = 'history-text';
@@ -443,7 +454,7 @@ async function loadHistory() {
     const value = await api.request('/v1/translations');
     if (run !== generation) return;
     if (!Array.isArray(value.items) || !value.items.every(validRecord)) throw new Error('Invalid history');
-    history = value.items; renderHistory();
+    history = value.items; renderHistory();focusCoachTranslation();
   } catch (error) {
     if (run !== generation) return;
     handleUnauthorized(error);
@@ -613,7 +624,7 @@ document.querySelectorAll('[data-interface-language]').forEach(select=>select.ad
   const appleArt=!checking&&!sessionError&&!session?.user?.id&&config?.apple_available===true;
   $('connection-action').classList.toggle('apple-button',appleArt);$('connection-action-art').hidden=!appleArt;$('connection-action-label').hidden=appleArt;
   document.querySelectorAll('[data-history-date]').forEach(el=>{const date=new Date(el.dataset.historyDate);el.textContent=el.dataset.direction+(Number.isNaN(date.valueOf())?'':` · ${date.toLocaleString(getInterfaceLanguage(),{dateStyle:'medium',timeStyle:'short'})}`);});
-  followup.localize(); podcasts.localize();renderLearningProfile();
+  followup.localize(); podcasts.localize();coach.localize();renderLearningProfile();
   document.title=`Keine Magie · ${document.querySelector('.section-nav [aria-current="page"]').textContent}`;
 }));
 
@@ -659,7 +670,7 @@ function mountPodcasts({api, account, unauthorized}) {
             const path=await episodePath(job);
             if(epoch!==ownerRun||routeKey!==key)return;
             resolvedPermalink={permalink:path.split('/').pop(),id:job.id};
-            window.history.replaceState(null,'',path);render();
+            window.history.replaceState(null,'',path+location.search);render();
           }
         }
       } catch(error){if(epoch===ownerRun&&error.name!=='AbortError'){resolving=null;library.state.error=podcastError(error);render();}}

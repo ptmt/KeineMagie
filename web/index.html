@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/episode.css">
   <link rel="stylesheet" href="/translator-followup.css">
+  <link rel="stylesheet" href="/coach.css">
   <script src="/app.mjs" type="module"></script>
 </head>
 <body>
@@ -24,7 +25,7 @@
       <a href="#translator" aria-current="page">Übersetzer</a>
       <a href="#dictation" aria-disabled="true"><span>Diktat</span><small>Noch nicht verfügbar</small></a>
       <a href="#podcasts">Podcasts</a>
-      <a href="#coach" aria-disabled="true"><span>Coach</span><small>Noch nicht verfügbar</small></a>
+      <a href="#coach">Coach</a>
     </nav>
     <div class="header-account"><label class="header-language" hidden><span aria-hidden="true">🌐</span><span class="sr-only">Sprache</span><select id="interface-language-header" data-interface-language aria-label="Sprache"><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label><button id="account" class="account-button" aria-haspopup="dialog"><span id="account-indicator" class="status-dot" aria-hidden="true"></span><span id="account-label">Anmelden</span></button></div>
   </header>
@@ -72,9 +73,8 @@
       <button id="podcast-signin" class="apple-button" hidden><img src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
       <div id="podcast-content"></div>
     </section>
-    <section id="coach" class="unavailable-page" aria-labelledby="coach-title" tabindex="-1" hidden>
+    <section id="coach" class="coach-page" aria-label="Coach" tabindex="-1" hidden>
       <h1 id="coach-title">Coach</h1>
-      <p class="muted">Noch nicht verfügbar</p>
     </section>
   </main>
   <dialog id="podcast-dialog" aria-labelledby="podcast-dialog-title">

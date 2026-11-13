@@ -193,6 +193,10 @@ func (cfg *serverConfig) handleLearning(w http.ResponseWriter, r *http.Request) 
 	if !ok {
 		return
 	}
+	if r.URL.Path == "/v1/learning/coach" {
+		cfg.coachHTTP(w, r, owner)
+		return
+	}
 	parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, "/v1/learning/"), "/"), "/")
 	store := cfg.learningStore(owner)
 	if len(parts) == 4 && parts[0] == "episodes" && parts[2] == "passages" {

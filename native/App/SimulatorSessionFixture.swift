@@ -5,6 +5,13 @@ import KeineMagieCore
 
 /// Test transport only. Device builds do not contain this fixture.
 actor SimulatorSessionFixture {
+    private var coachAnswered = false
+    private var coachAnswer = ""
+    private var coachOutcome = "correct"
+    private var coachPending = false
+    private var coachCanceled = false
+    private var coachClarified = false
+    private var coachRevealed = false
     private var validations = 0
     private var profileLevels: [String: String] = [:]
     private var podcastRefreshed = false
@@ -51,6 +58,26 @@ actor SimulatorSessionFixture {
             historyItems[index]["favorite"] = body?["favorite"] ?? false
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: historyItems[index]), status: 200)
         }
+        if request.url?.path == "/v1/learning/coach" {
+            if mode != "coach" { return AuthResponse(data: Data(#"{"turns":[],"observations":[],"model":"gpt-6.1-terra"}"#.utf8), status: 200) }
+            if request.httpMethod == "POST", let data = request.httpBody {
+                let action = try JSONDecoder().decode(CoachAction.self, from: data)
+                if action.action == "answer" || action.action == "skip" {
+                    coachAnswered = true; coachAnswer = action.text
+                    coachOutcome = action.action == "skip" ? "skipped" : action.text == "auf" ? "correct" : action.text == "für" ? "wrong" : "ambiguous"
+                }
+                if action.action == "cancel" { coachPending = false; coachCanceled = true }
+                if action.action == "reveal" { coachRevealed = true }
+                if action.action == "message" { if action.text == "pending" { coachPending = true } else { coachClarified = true } }
+            }
+            var turn: [String: Any] = ["id": "synthetic-coach", "text": "Practice · synthetic fixture", "state": "completed", "at": "2026-11-13T12:00:00Z", "assisted": coachRevealed, "language": "de", "message": "Synthetic exercise, not live AI.", "kind": "cloze", "prompt": "Ich warte ___ den Bus.", "target": "verb_government", "source_id": "translation:synthetic"]
+            if coachAnswered { turn["attempt"] = ["id": "synthetic-attempt", "answer": coachAnswer, "outcome": coachOutcome, "original_outcome": coachOutcome, "assisted": coachRevealed, "at": "2026-11-13T12:00:00Z", "excluded": false] }
+            if coachAnswered || coachRevealed { turn["quote"] = "Ich warte auf den Bus."; turn["explanation"] = "warten auf + Akkusativ" }
+            if coachPending || coachCanceled { turn["state"] = coachPending ? "pending" : "canceled"; turn.removeValue(forKey: "kind") }
+            var turns = [turn]
+            if coachClarified { turns.append(["id": "synthetic-clarification", "text": "Can you clarify this?", "state": "completed", "at": "2026-11-13T12:01:00Z", "assisted": false, "language": "de", "message": "Synthetic clarification, not live AI.", "kind": "clarification", "prompt": "", "target": "verb_government", "source_id": "translation:synthetic", "quote": "Ich warte auf den Bus.", "explanation": "warten auf + Akkusativ"]) }
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["turns": turns, "observations": [], "model": "gpt-6.1-terra"]), status: 200)
+        }
         if let path = request.url?.path, path.hasPrefix("/v1/learning/") {
             guard request.httpMethod == "GET" || (path.hasPrefix("/v1/learning/profiles/") && request.httpMethod == "PUT") else { return AuthResponse(data: Data(), status: 405) }
             let citation: [String: Any] = ["segment_id": 2012, "quote": "Synthetic segment 2012", "start": 20120, "end": 20128]
@@ -76,6 +103,7 @@ actor SimulatorSessionFixture {
             let user = mode == "account-change" && validations > 1 ? "synthetic-account-B" : (mode == "translation-controls" ? "synthetic-quiet-controls" : "synthetic-ui-fixture")
             return AuthResponse(data: Data("{\"user\":{\"id\":\"\(user)\"},\"expires_at\":\"2099-12-01T12:00:00Z\"}".utf8), status: 200)
         case "/v1/translations":
+            if mode == "coach" { return AuthResponse(data: Data(#"{"items":[{"id":"synthetic","created_at":"2026-11-13T00:00:00Z","text":"Synthetic original source","translation":"Synthetic original translation","source_language":"ru","target_language":"de","idioms":[],"patterns":[],"vocabulary":[]}]}"#.utf8), status: 200) }
             if mode.hasPrefix("translation-"), request.httpMethod == "POST" {
                 if mode == "translation-pending" { try await Task.sleep(for: .seconds(8)) }
                 let translation = mode == "translation-controls" ? "Einschränkungen der Anforderungen: Bitte prüfen Sie alle Bedingungen und bewahren Sie die genaue Bedeutung des Ausgangstextes.\n\nZusätzliche Zeile zur Prüfung des Eingabefelds. (Synthetic fixture)" : Self.copyTranslation

@@ -199,6 +199,29 @@ public struct PodcastAPI: Sendable {
     public func profile(language: String, assessment: String? = nil) async throws -> LearningProfile {
         try JSONDecoder().decode(LearningProfile.self, from: await send(learningRequest(resource: .profile(language), assessment: assessment)))
     }
+    public func coach(action: CoachAction? = nil) async throws -> CoachSnapshot {
+        var value = try request()
+        value.url = endpoint.url(path: "v1/learning/coach")
+        value.timeoutInterval = 75
+        value.cachePolicy = .reloadIgnoringLocalCacheData
+        value.setValue("no-store", forHTTPHeaderField: "Cache-Control")
+        if let action {
+            value.httpMethod = "POST"
+            value.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            value.httpBody = try JSONEncoder().encode(action)
+        }
+        let response = try await transport(value)
+        if response.status == 401 { throw APIError.http(401) }
+        guard response.status == 200 else {
+            struct Failure: Decodable { let code: String? }
+            let code = (try? JSONDecoder().decode(Failure.self, from: response.data).code) ?? ""
+            let allowed = ["storage", "session", "invalid", "quota", "canceled", "connection_required", "catalog_unavailable", "model_unavailable", "sources_unavailable", "sources_required", "conflict"]
+            let key = code.hasPrefix("coach_") ? String(code.dropFirst(6)) : ""
+            let safe = allowed.contains(key) ? key : (response.status == 403 ? "session" : response.status == 429 ? "quota" : "network")
+            throw CoachServiceError(status: response.status, message: "coach.error." + safe)
+        }
+        return try JSONDecoder().decode(CoachSnapshot.self, from: response.data)
+    }
     public func library() async throws -> PodcastLibrary {
         try JSONDecoder().decode(PodcastLibrary.self, from: await send(request()))
     }

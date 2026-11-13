@@ -44,6 +44,64 @@ final class AppModel {
         let revision = cacheRevision
         try? await contentCache.save(data, dataset: dataset, session: lease, revision: revision)
     }
+    private(set) var coach: CoachSnapshot?
+    private(set) var coachError: String?
+    private(set) var coachBusy = false
+    private(set) var coachPendingID: String?
+    var coachDraft = ""
+    private var coachEpoch = 0
+    private var coachReadID: UUID?
+    private var coachTask: Task<Void, Never>?
+    private var coachHydratedGeneration: Int?
+    func loadCoach() async {
+        guard session.phase == .signedIn, coachReadID == nil, !coachBusy else { return }
+        let version = session.generation, epoch = coachEpoch, id = UUID()
+        coachReadID = id
+        defer { if coachReadID == id { coachReadID = nil } }
+        func current() -> Bool { !Task.isCancelled && session.generation == version && coachEpoch == epoch && coachReadID == id && session.phase == .signedIn }
+        if coachHydratedGeneration != version, cacheEnabled, let owner = session.user?.id {
+            let data = try? await contentCache.load(dataset: "coach", server: session.serverURL, owner: owner)
+            guard current() else { return }
+            coachHydratedGeneration = version
+            if coach == nil, let data { coach = try? JSONDecoder().decode(CoachSnapshot.self, from: data) }
+        }
+        guard current(), session.canWrite else { return }
+        do {
+            let value = try await podcastAPI().coach()
+            guard current() else { return }
+            coach = value; coachError = nil
+            if let data = try? JSONEncoder().encode(value) { await persist(data, dataset: "coach") }
+        } catch {
+            guard current() else { return }
+            if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.network") }
+        }
+    }
+    func sendCoach(_ action: String, text: String = "", turnID: String = "") {
+        guard session.canWrite, !coachBusy || action == "cancel" else { return }
+        guard let client = try? podcastAPI() else { return }
+        let version = session.generation
+        coachEpoch += 1
+        let epoch = coachEpoch
+        coachReadID = nil
+        let locale = Locale.preferredLanguages.first?.split(separator: "-").first.map(String.init) ?? "en"
+        let input = CoachAction(action: action, text: text, turnID: turnID, locale: ["de", "en", "ru", "es", "fr"].contains(locale) ? locale : "en")
+        if action == "cancel" { coachTask?.cancel() }
+        coachBusy = true; coachError = nil
+        coachPendingID = action == "message" ? input.requestID : nil
+        coachTask = Task { [self] in
+            defer { if epoch == coachEpoch { coachBusy = false; coachPendingID = nil; coachTask = nil } }
+            do {
+                let value = try await client.coach(action: input)
+                guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }
+                coach = value
+                if action == "message", coachDraft == text { coachDraft = "" }
+                if let data = try? JSONEncoder().encode(value) { await persist(data, dataset: "coach") }
+            } catch {
+                guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }
+                if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.network") }
+            }
+        }
+    }
     private(set) var episodeLearning: [String: EpisodeLearning] = [:]
     private(set) var learningErrors: [String: String] = [:]
     private(set) var learningProfiles: [String: LearningProfile] = [:]
@@ -448,6 +506,8 @@ final class AppModel {
         #endif
     }
     func resetSessionContent() {
+        coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
+        coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil
         if let lease = cacheLease {
             lease.invalidate()
             Task { try? await contentCache.remove(session: lease) }

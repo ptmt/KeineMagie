@@ -10,6 +10,10 @@ struct EpisodeReaderView: View {
     @State private var timeline = 0.0
     private var timelineEnd: Double { job.segments.map(\.end).filter { $0.isFinite && $0 > 0 }.max() ?? 0 }
     @State private var selected: Int?
+    init(job: PodcastJob, initialSegment: Int? = nil) {
+        self.job = job
+        _selected = State(initialValue: initialSegment.flatMap { job.segments.indices.contains($0) ? $0 : nil })
+    }
     @State private var match = -1
     @State private var showProfile = false
     @State private var returnSection: String?
@@ -202,6 +206,7 @@ struct LearningProfileView: View {
                         LabeledContent(value.cefr, value: value.assessedAt)
                     }
                 }
+                CoachObservationsView()
             }
             .navigationTitle("episode.profile").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Fertig") { dismiss() } } }
