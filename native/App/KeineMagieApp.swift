@@ -39,12 +39,14 @@ struct RootView: View {
             started = true
             await model.session.restore()
         }
-        .onChange(of: model.session.generation) { _, _ in model.resetSessionContent(); model.loadShortcuts() }
+        .onChange(of: model.session.generation) { _, _ in model.resetSessionContent(); model.loadShortcuts(); model.loadTranslationOutbox() }
         .onChange(of: model.session.phase) { _, phase in
             if phase != .signedIn { model.resetSessionContent() }
             model.loadShortcuts()
+            model.loadTranslationOutbox()
         }
         .onChange(of: scenePhase) { _, phase in
+            model.translationForeground = phase == .active
             if phase == .background { enteredBackground = true }
             if phase == .active && enteredBackground {
                 enteredBackground = false
@@ -63,6 +65,11 @@ struct LoginGate: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
+                Text("outbox.local").font(.headline)
+                TextEditor(text: Binding(get: { model.draft }, set: { model.draft = $0 }))
+                    .frame(minHeight: 120).accessibilityIdentifier("translator-input")
+                if model.outboxStorageError { Text("outbox.storage").foregroundStyle(.red) }
+                Text("outbox.unassigned").font(.caption).foregroundStyle(.secondary)
                 FeatureRow("feature.translator", systemImage: "character.bubble")
                 FeatureRow("feature.dictation", systemImage: "waveform")
                 FeatureRow("feature.podcasts", systemImage: "headphones")
@@ -70,6 +77,7 @@ struct LoginGate: View {
             }.padding(.horizontal, 24).padding(.top, 32)
                 .frame(maxWidth: 600).frame(maxWidth: .infinity)
         }
+        .task { model.loadTranslationOutbox() }
         .safeAreaInset(edge: .bottom) {
             VStack(alignment: .leading, spacing: 16) {
                 if let message = session.message { ErrorNotice(text: message) }

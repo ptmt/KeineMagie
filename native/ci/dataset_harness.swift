@@ -185,10 +185,11 @@ import KeineMagieCore
     let count = gate.historyCalls
     model.toggleHistoryFavorite(try #require(model.history.first))
     model.deleteHistory(try #require(model.history.first))
+    #expect(gate.historyCalls == count)
     model.draft = "offline"
     await model.translate()
-    #expect(model.result == nil)
-    #expect(gate.historyCalls == count)
+    #expect(model.result == nil) // fixture returns a GET envelope, not a translation
+    #expect(gate.historyCalls == count + 1) // explicit POST bypasses advisory verification
     gate.authWaiting?.resume(); gate.authWaiting = nil
     await restore.value
     #expect(session.isOffline)

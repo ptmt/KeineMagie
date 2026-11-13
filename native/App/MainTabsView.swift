@@ -18,6 +18,14 @@ struct MainTabsView: View {
                 .tabItem { Label("feature.coach", systemImage: "bubble.left.and.bubble.right") }.tag("coach")
         }
         .task(id: "\(model.session.generation)-\(model.session.canWrite)") { await model.warmData() }
+        .task(id: "outbox-\(model.session.generation)-\(model.session.canWrite)-\(scenePhase)") {
+            guard scenePhase == .active else { return }
+            model.loadTranslationOutbox()
+            while !Task.isCancelled {
+                await model.resumeTranslations()
+                do { try await Task.sleep(for: .seconds(3)) } catch { return }
+            }
+        }
         .task(id: scenePhase) {
             guard scenePhase == .active else { return }
             while !Task.isCancelled {

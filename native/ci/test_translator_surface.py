@@ -47,7 +47,7 @@ class TranslatorSurfaceTests(unittest.TestCase):
         self.assertIn('model.history.isEmpty', history)
         self.assertNotIn('Task.sleep', view.split('private struct TranslationResultView')[0])
         # A provider spinner also appeared above cached rows, and waited for history.
-        provider = view.split('if model.session.canWrite && model.provider == nil {', 1)[1].split('if model.busy', 1)[0]
+        provider = view.split('if model.session.canWrite && model.provider == nil {', 1)[1].split('if model.outboxStorageError', 1)[0]
         self.assertNotIn('ProgressView', provider)
         self.assertIn('Verbindung prüfen', provider)
 

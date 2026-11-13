@@ -6,7 +6,7 @@ public enum Language: String, Codable, CaseIterable, Sendable {
     public var title: String { self == .german ? CoreL10n.text("language.german") : CoreL10n.text("language.russian") }
 }
 
-public enum TranslationDirection: String, CaseIterable, Sendable {
+public enum TranslationDirection: String, CaseIterable, Codable, Sendable {
     case germanToRussian, russianToGerman, germanPolishing
     public var source: Language { self == .russianToGerman ? .russian : .german }
     public var target: Language { self == .germanToRussian ? .russian : .german }

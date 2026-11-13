@@ -295,10 +295,67 @@ final class AppModel {
             }
         }
     }
-    var draft = ""
-    var direction: TranslationDirection = .russianToGerman
+    private(set) var outbox = TranslationOutbox()
+    private var outboxStore = TranslationOutboxStore()
+    private var outboxScope: (origin: String, owner: String?, generation: Int)?
+    // Purge target only; never used to load, authorize, or send content.
+    private var invalidatedOutboxOwner: (origin: String, owner: String)?
+    private var outboxLoadingFailed = false
+    private(set) var outboxStorageError = false
+    private var translationTask: Task<Void, Never>?
+    private var translationEpoch = 0
+    var translationForeground = true
+    private(set) var translationSending = false
+    var draft: String {
+        get { outbox.draft }
+        set { loadTranslationOutbox(); outbox.draft = newValue; _ = saveTranslationOutbox() }
+    }
+    var direction: TranslationDirection {
+        get { outbox.direction }
+        set { loadTranslationOutbox(); outbox.direction = newValue; _ = saveTranslationOutbox() }
+    }
+    func loadTranslationOutbox() {
+        let owner = session.phase == .signedIn ? session.user?.id : nil
+        if let scope = outboxScope, scope.origin == session.serverURL, scope.owner == owner, scope.generation == session.generation { return }
+        translationEpoch += 1; translationTask?.cancel(); translationTask = nil; translationSending = false
+        outboxScope = (session.serverURL, owner, session.generation)
+        outboxLoadingFailed = false
+        do { outbox = try outboxStore.load(origin: session.serverURL, owner: owner); outboxStorageError = false }
+        catch { outbox = TranslationOutbox(); outboxLoadingFailed = true; outboxStorageError = true }
+    }
+    @discardableResult private func saveTranslationOutbox() -> Bool {
+        guard !outboxLoadingFailed, let scope = outboxScope, scope.origin == session.serverURL, scope.generation == session.generation,
+              scope.owner == (session.phase == .signedIn ? session.user?.id : nil) else { outboxStorageError = true; return false }
+        do { try outboxStore.save(outbox, origin: scope.origin, owner: scope.owner); outboxStorageError = false; return true }
+        catch { outboxStorageError = true; return false }
+    }
+    func removeTranslation(_ id: UUID, delete: Bool = false) {
+        loadTranslationOutbox()
+        guard let i = outbox.items.firstIndex(where: { $0.id == id }) else { return }
+        if delete { outbox.items.remove(at: i) }
+        else { outbox.items[i].state = .cancelled; outbox.items[i].nextAttempt = nil }
+        _ = saveTranslationOutbox()
+        // An already sent server request cannot be recalled; late completion is
+        // ignored locally. No new key or inference is created by cancellation.
+    }
+    func retryTranslation(_ id: UUID) async {
+        loadTranslationOutbox()
+        guard let i = outbox.items.firstIndex(where: { $0.id == id }), outbox.items[i].state != .sending,
+              outbox.items[i].state != .completed, outbox.items[i].state != .cancelled else { return }
+        outbox.items[i].state = .queued; outbox.items[i].nextAttempt = nil; outbox.items[i].attempts = 0
+        guard saveTranslationOutbox() else { return }
+        await drainTranslations(explicit: true)
+    }
+    func resumeTranslations() async {
+        loadTranslationOutbox()
+        guard session.translationOwnerValidated else { return }
+        await drainTranslations(explicit: false)
+    }
     private(set) var shortcuts: [TranslationShortcut] = []
-    var selectedShortcutID: String?
+    var selectedShortcutID: String? {
+        get { outbox.selectedShortcutID }
+        set { loadTranslationOutbox(); outbox.selectedShortcutID = newValue; _ = saveTranslationOutbox() }
+    }
     private let shortcutStore = TranslationShortcutStore()
     var translationInstruction: String? {
         switch selectedShortcutID {
@@ -339,18 +396,21 @@ final class AppModel {
     private var refreshID: UUID?
     private var injectedClient: APIClient?
 
-    init(session: SessionController, client: APIClient, podcastClient: PodcastAPI? = nil, cache: ContentCache? = nil) {
+    init(session: SessionController, client: APIClient, podcastClient: PodcastAPI? = nil, cache: ContentCache? = nil, outboxStore: TranslationOutboxStore? = nil) {
         self.session = session
         self.injectedClient = client
         self.injectedPodcastClient = podcastClient
         if let cache { self.contentCache = cache }
+        if let outboxStore { self.outboxStore = outboxStore }
     }
 
     #if targetEnvironment(simulator)
     private var fixtureTransport: AuthClient.Transport?
     #endif
-    func api() throws -> APIClient {
-        guard session.canWrite else { throw APIError.http(401) }
+    func api(translation: Bool = false) throws -> APIClient {
+        // Only explicit translation may use the trusted local-owner credential
+        // during advisory verification. The server still authenticates every POST.
+        guard translation ? (session.phase == .signedIn && session.user != nil) : session.canWrite else { throw APIError.http(401) }
         if let injectedClient { return injectedClient }
         #if targetEnvironment(simulator)
         if let fixtureTransport {
@@ -463,16 +523,67 @@ final class AppModel {
         catch { if version == session.generation { translatorError = error.localizedDescription } }
     }
     func translate() async {
-        guard session.canWrite else { return }
-        let version = session.generation
-        busy = true; defer { busy = false }
-        do {
-            let item = try await api().translate(text: draft, direction: direction, instructions: translationInstruction)
-            guard version == session.generation, session.phase == .signedIn else { return }
-            result = item; historyState.insert(item); translatorError = nil
-            selectedShortcutID = nil
-            await persistHistory()
-        } catch { if version == session.generation { session.recordNetworkFailure(error); translatorError = error.localizedDescription } }
+        loadTranslationOutbox()
+        do { try outbox.enqueue(direction: direction, instructions: translationInstruction) }
+        catch { translatorError = error.localizedDescription; return }
+        guard saveTranslationOutbox() else { return }
+        guard session.phase == .signedIn, session.user != nil else { return }
+        await drainTranslations(explicit: true)
+    }
+    private func drainTranslations(explicit: Bool) async {
+        if translationTask != nil { return }
+        guard session.phase == .signedIn, let owner = session.user?.id else { return }
+        let version = session.generation, epoch = translationEpoch
+        translationSending = true
+        let task = Task { [self] in
+            defer { if epoch == translationEpoch { translationTask = nil; translationSending = false } }
+            while !Task.isCancelled, version == session.generation, epoch == translationEpoch,
+                  session.user?.id == owner, session.phase == .signedIn {
+                guard translationForeground, !outboxStorageError, explicit || session.translationOwnerValidated else { return }
+                guard let index = outbox.items.firstIndex(where: { $0.state == .queued }) else { return }
+                if let date = outbox.items[index].nextAttempt, date > Date() { return }
+                outbox.items[index].state = .sending
+                outbox.items[index].attempts += 1
+                let snapshot = outbox.items[index]
+                guard saveTranslationOutbox() else { outbox.items[index].state = .queued; return }
+                do {
+                    let item = try await api(translation: true).translate(text: snapshot.text, direction: snapshot.direction,
+                        instructions: snapshot.instructions, requestID: snapshot.id, owner: owner)
+                    guard version == session.generation, epoch == translationEpoch, session.user?.id == owner else { return }
+                    guard let i = outbox.items.firstIndex(where: { $0.id == snapshot.id }), outbox.items[i].state == .sending else { continue }
+                    outbox.items[i].result = item; outbox.items[i].state = .completed; outbox.items[i].failure = nil
+                    guard saveTranslationOutbox() else { return }
+                    result = item; historyState.insert(item); translatorError = nil
+                    if draft == snapshot.text && direction == snapshot.direction && translationInstruction == snapshot.instructions { selectedShortcutID = nil }
+                    await persistHistory()
+                } catch {
+                    guard version == session.generation, epoch == translationEpoch, session.user?.id == owner else { return }
+                    guard let i = outbox.items.firstIndex(where: { $0.id == snapshot.id }), outbox.items[i].state == .sending else { continue }
+                    outbox.items[i].state = .failed
+                    switch error {
+                    case APIError.http(401), APIError.http(403): outbox.items[i].failure = .authentication
+                    case APIError.http(409): outbox.items[i].failure = .uncertain; outbox.items[i].state = .needsDecision
+                    case APIError.http(424): outbox.items[i].failure = .provider
+                    case APIError.http(429): outbox.items[i].failure = .rateLimit
+                    case let network as URLError:
+                        // Only errors known to precede delivery are auto-retried.
+                        if [.notConnectedToInternet, .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed].contains(network.code) {
+                            outbox.items[i].failure = .network
+                            if snapshot.attempts < 3 {
+                                outbox.items[i].state = .queued
+                                outbox.items[i].nextAttempt = Date().addingTimeInterval(Double(snapshot.attempts * 5))
+                            }
+                        } else { outbox.items[i].failure = .uncertain; outbox.items[i].state = .needsDecision }
+                    default: outbox.items[i].failure = .server
+                    }
+                    _ = saveTranslationOutbox()
+                    if case APIError.http(401) = error { session.rejectUnauthorized(); resetSessionContent() }
+                    return
+                }
+            }
+        }
+        translationTask = task
+        await task.value
     }
 
     init() {
@@ -481,9 +592,11 @@ final class AppModel {
         // contacts a server, signs in with Apple, or claims a provider connection.
         if let mode = ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] {
             let fixture = SimulatorSessionFixture(mode: mode)
+            outboxStore = TranslationOutboxStore(root: URL.applicationSupportDirectory.appendingPathComponent("UITestOutbox").appendingPathComponent(UUID().uuidString))
             if let namespace = ProcessInfo.processInfo.environment["KM_SIMULATOR_CACHE_NAMESPACE"], UUID(uuidString: namespace) != nil {
                 let root = URL.applicationSupportDirectory.appendingPathComponent("UITestContentCache").appendingPathComponent(namespace)
                 contentCache = ContentCache(root: root)
+                outboxStore = TranslationOutboxStore(root: root.appendingPathComponent("outbox"))
                 fixtureTransport = { request in try await fixture.send(request) }
                 session = SessionController(serverURL: "https://fixture.invalid", readToken: { "synthetic-session-not-a-credential" }, saveToken: { _ in }, readIdentity: { try SimulatorIdentityStore.read(root) }, saveIdentity: { try SimulatorIdentityStore.save($0, root: root) }, transport: { request in try await fixture.send(request) })
                 return
@@ -506,6 +619,12 @@ final class AppModel {
         #endif
     }
     func resetSessionContent() {
+        if let scope = outboxScope, let owner = scope.owner, session.user == nil {
+            invalidatedOutboxOwner = (scope.origin, owner)
+        }
+        translationEpoch += 1; translationTask?.cancel(); translationTask = nil; translationSending = false
+        let previousDirection = outbox.direction
+        outbox = TranslationOutbox(); outbox.direction = previousDirection; outboxScope = nil
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
         coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil
         if let lease = cacheLease {
@@ -522,8 +641,8 @@ final class AppModel {
         result = nil
         for task in historyTasks.values { task.cancel() }
         historyTasks = [:]; historyErrors = [:]; historyState.reset()
-        shortcuts = []; selectedShortcutID = nil
-        draft = ""; provider = nil; bootstrap = nil; translatorError = nil; busy = false
+        shortcuts = []
+        provider = nil; bootstrap = nil; translatorError = nil; busy = false
         refreshID = nil; refreshing = false
     }
     func saveServer(url: String) async throws {
@@ -531,6 +650,7 @@ final class AppModel {
         guard endpoint.baseURL.absoluteString != session.serverURL else { return }
         cancelChatGPT()
         // Revoke against the OLD server before changing origin. Offline failure is reported, not hidden.
+        try outboxStore.remove(origin: session.serverURL, owner: session.user?.id)
         await session.logout()
         guard session.phase == .signedOut else { throw SettingsFailure.keychain }
         let warning = session.message
@@ -540,6 +660,12 @@ final class AppModel {
         if warning != nil { throw SettingsFailure.revocation }
     }
     func logout() async {
+        if let target = invalidatedOutboxOwner {
+            do { try outboxStore.remove(origin: target.origin, owner: target.owner); invalidatedOutboxOwner = nil }
+            catch { outboxStorageError = true }
+        }
+        do { try outboxStore.remove(origin: session.serverURL, owner: session.user?.id) }
+        catch { outboxStorageError = true }
         resetSessionContent()
         await session.logout()
     }

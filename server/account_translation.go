@@ -19,6 +19,10 @@ func (cfg *serverConfig) accountTranslations(w http.ResponseWriter, r *http.Requ
 	if !ok {
 		return
 	}
+	if expected := r.Header.Get("X-Translation-Owner"); expected != "" && expected != user {
+		writeError(w, 403, "translation owner changed")
+		return
+	}
 	history, err := openHistory(filepath.Join(filepath.Dir(cfg.historyPath), "users", sessionHash(user)+".json"))
 	if err != nil {
 		writeError(w, 503, "history unavailable")
@@ -45,8 +49,7 @@ func (cfg *serverConfig) accountTranslations(w http.ResponseWriter, r *http.Requ
 		writeError(w, 400, "invalid JSON body")
 		return
 	}
-	input.Text = strings.TrimSpace(input.Text)
-	if input.Text == "" || runeCount(input.Text) > 8000 {
+	if strings.TrimSpace(input.Text) == "" || runeCount(input.Text) > 8000 {
 		writeError(w, 400, "text must contain 1 to 8000 characters")
 		return
 	}
@@ -54,7 +57,17 @@ func (cfg *serverConfig) accountTranslations(w http.ResponseWriter, r *http.Requ
 		writeError(w, 400, "languages must be de to ru, ru to de, or de to de")
 		return
 	}
-	release, quotaErr := p.beginTranslation(user, p.cfg.auth.now())
+	claim, proceed := cfg.claimTranslation(w, r, user, input, history)
+	if !proceed {
+		return
+	}
+	providerStarted := false
+	defer func() {
+		if !providerStarted {
+			claim.abandon()
+		}
+	}()
+	consume, release, quotaErr := p.reserveTranslationPlan(user, p.cfg.auth.now(), 1)
 	if quotaErr != nil {
 		writeError(w, 429, "translation quota reached, already active, or unavailable")
 		return
@@ -72,15 +85,31 @@ func (cfg *serverConfig) accountTranslations(w http.ResponseWriter, r *http.Requ
 	}
 	c, err := p.access(r.Context(), user)
 	if err != nil {
-		writeError(w, 503, "provider connection pending or reauthorization required")
+		status := 503
+		if claim != nil {
+			status = 424
+		}
+		writeError(w, status, "provider connection pending or reauthorization required")
 		return
 	}
-	models, err := p.models(r.Context(), c.AccessToken)
-	if err != nil {
-		writeError(w, 502, "model catalog unavailable")
+	// Durable native submissions use the existing preferred personal model
+	// directly. Discovery is advisory, not an extra network preflight. Legacy
+	// clients keep their catalog-based model selection unchanged.
+	model := preferredTranslationModel
+	if claim == nil {
+		models, e := p.models(r.Context(), c.AccessToken)
+		if e != nil {
+			writeError(w, 502, "model catalog unavailable")
+			return
+		}
+		model = chooseModel(models)
+	}
+	if err = consume(p.cfg.auth.now()); err != nil {
+		writeError(w, 429, "translation quota unavailable")
 		return
 	}
-	text, err := p.translate(r.Context(), c.AccessToken, chooseModel(models), input)
+	providerStarted = true
+	text, err := p.translate(r.Context(), c.AccessToken, model, input)
 	if err != nil || r.Context().Err() != nil {
 		writeError(w, 502, "translation stream failed or incomplete")
 		return
@@ -91,8 +120,15 @@ func (cfg *serverConfig) accountTranslations(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	record := translationRecord{ID: randomAuthToken(), CreatedAt: time.Now().UTC(), translationInput: input, translationResult: translationResult{Translation: text, Idioms: []idiom{}, Patterns: []pattern{}, Vocabulary: []vocabularyItem{}}}
-	if err = history.append(record); err != nil {
+	if claim != nil {
+		record.ID = claim.recordID
+	}
+	if err = history.appendOnce(record); err != nil {
 		writeError(w, 503, "could not save translation")
+		return
+	}
+	if err = claim.complete(record); err != nil {
+		writeError(w, 503, "could not save translation receipt")
 		return
 	}
 	writeJSON(w, 201, record)

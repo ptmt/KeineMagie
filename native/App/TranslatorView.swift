@@ -11,13 +11,7 @@ struct TranslatorView: View {
     var body: some View {
         @Bindable var model = model
         List {
-            if model.session.isOffline || (!model.session.canWrite && !model.session.checking && model.session.message != nil) {
-                Label(model.session.isOffline ? AppL10n.text("Offline. Showing saved history") : (model.session.message ?? ""), systemImage: "wifi.slash")
-                    .font(.footnote).foregroundStyle(.secondary)
-                    .accessibilityIdentifier("offline.saved-history")
-                Button("Sitzung erneut prüfen") { Task { await model.session.restore() } }
-                    .disabled(model.session.checking)
-            }
+
             VStack(alignment: .leading, spacing: 12) {
                 Picker("Richtung", selection: $model.direction) {
                     ForEach(TranslationDirection.allCases, id: \.self) { direction in
@@ -61,7 +55,7 @@ struct TranslatorView: View {
                             .buttonStyle(.plain)
                             .accessibilityLabel("translation.clear")
                             .accessibilityIdentifier("translator-clear")
-                            .disabled(model.busy)
+
                             .padding(8)
                         }
                     }
@@ -77,7 +71,7 @@ struct TranslatorView: View {
                     Text("Übersetzen").frame(maxWidth: .infinity)
                 }.buttonStyle(.borderedProminent).controlSize(.large)
                     .accessibilityIdentifier("translator-submit")
-                    .disabled(!model.session.canWrite || model.busy || model.provider?.connected != true || model.provider?.selectedModel?.isEmpty != false || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.count > 8000)
+                    .disabled(model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.unicodeScalars.count > 8000)
                 if model.session.canWrite && model.provider == nil {
                     if model.refreshing || model.historyPhase == .idle {
                         // Quiet status while checking; no spinner competing with saved history.
@@ -92,7 +86,7 @@ struct TranslatorView: View {
                             .font(.callout)
                     }
                 }
-                if model.busy { ProgressView() }
+                if model.outboxStorageError { Text("outbox.storage").foregroundStyle(.red).accessibilityIdentifier("outbox-storage-error") }
                 if let error = model.translatorError { ErrorNotice(text: error) }
                 if let result = model.result {
                     TranslationResultView(text: result.translation)
@@ -101,6 +95,32 @@ struct TranslatorView: View {
                 .padding(.vertical, 8)
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .listRowSeparator(.hidden)
+            if !model.outbox.items.isEmpty {
+                Section("outbox.title") {
+                    Text("outbox.foreground").font(.caption).foregroundStyle(.secondary)
+                    ForEach(model.outbox.items) { item in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(verbatim: item.text).lineLimit(3).textSelection(.enabled)
+                            Text(LocalizedStringKey("outbox.state." + item.state.rawValue)).font(.caption)
+                            if let failure = item.failure {
+                                Text(LocalizedStringKey("outbox.error." + failure.rawValue)).font(.caption).foregroundStyle(.secondary)
+                            }
+                            HStack {
+                                if [.failed, .needsDecision, .queued].contains(item.state) {
+                                    Button("outbox.retry") { Task { await model.retryTranslation(item.id) } }.buttonStyle(.borderless)
+                                }
+                                if item.failure == .provider {
+                                    NavigationLink("chatgpt.connect") { ChatGPTConnectionView() }
+                                }
+                                if [.queued, .sending, .failed, .needsDecision].contains(item.state) {
+                                    Button("outbox.cancel") { model.removeTranslation(item.id) }.buttonStyle(.borderless)
+                                }
+                                Button("history.delete", role: .destructive) { model.removeTranslation(item.id, delete: true) }.buttonStyle(.borderless)
+                            }
+                        }.accessibilityIdentifier("outbox-item-" + item.id.uuidString)
+                    }
+                }
+            }
             Section {
                 // Initial/cache hydration and refresh are quiet. Only a completed load
                 // can claim emptiness; saved rows remain visible through refresh/error.
@@ -161,7 +181,7 @@ struct TranslatorView: View {
                 }.accessibilityLabel("Konto")
             }
         }
-        .task { model.loadShortcuts() }
+        .task { model.loadTranslationOutbox(); model.loadShortcuts() }
     }
 }
 

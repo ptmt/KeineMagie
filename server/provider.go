@@ -297,7 +297,12 @@ func (p *providerService) handle(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 408, "request canceled")
 		return
 	}
-	defer release()
+	locked := true
+	defer func() {
+		if locked {
+			release()
+		}
+	}()
 	if !p.allow(user+"provider", 30) {
 		writeError(w, 429, "provider rate limited")
 		return
@@ -315,12 +320,11 @@ func (p *providerService) handle(w http.ResponseWriter, r *http.Request) {
 			message = "Server administrator must configure PROVIDER_KEY_FILE (32 raw bytes, mode 0600), separate from provider data."
 		}
 		if stored, err := p.load(user); err == nil && stored.AccessToken != "" {
-			c, err := p.access(r.Context(), user)
-			if err != nil {
-				writeJSON(w, 200, map[string]any{"connected": false, "status": "reauthorization_required", "message": "Reconnect ChatGPT; refresh failed."})
-				return
-			}
-			models, err := p.models(r.Context(), c.AccessToken)
+			// Status is advisory: never refresh credentials or hold the owner's
+			// mutation lock across catalog I/O. Translation performs its own refresh.
+			release()
+			locked = false
+			models, err := p.models(r.Context(), stored.AccessToken)
 			if err != nil {
 				// Catalog availability is not credential persistence. Preserve the
 				// connection while withholding model readiness; never echo upstream bodies.
@@ -753,9 +757,12 @@ func (p *providerService) models(ctx context.Context, token string) ([]providerM
 	}
 	return models, nil
 }
+
+const preferredTranslationModel = "gpt-6-luna"
+
 func chooseModel(models []providerModel) string {
 	for _, m := range models {
-		if m.Slug == "gpt-6-luna" {
+		if m.Slug == preferredTranslationModel {
 			return m.Slug
 		}
 	}

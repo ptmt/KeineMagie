@@ -28,6 +28,11 @@ actor SimulatorSessionFixture {
     static let copyTranslation = "  Übersetzung 👩🏽‍💻 Привет e\u{0301}\n\n" + String(repeating: "Zeile 日本語\t  {\"nested\":{\"literal\":\"\\n\",\"items\":[1,2]}}\n", count: 1200) + "  Ende\n "
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
     func send(_ request: URLRequest) async throws -> AuthResponse {
+        if mode == "translation-outbox-status", request.url?.path == "/v1/provider" {
+            try await Task.sleep(for: .seconds(30)); throw URLError(.timedOut)
+        }
+        if mode == "translation-outbox-offline", request.url?.path == "/v1/translations", request.httpMethod == "POST" { throw URLError(.notConnectedToInternet) }
+        if mode == "translation-outbox-status", request.url?.path == "/v1/auth/session", validations > 0 { try await Task.sleep(for: .seconds(15)) }
         if mode == "cache-offline" || mode == "cache-blackhole" {
             let configuration = URLSessionConfiguration.ephemeral
             configuration.protocolClasses = [OfflineFixtureProtocol.self]

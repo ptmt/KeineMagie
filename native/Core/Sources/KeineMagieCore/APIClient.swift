@@ -69,8 +69,11 @@ public struct APIClient: Sendable {
     public func translationRequest(text: String, direction: TranslationDirection, instructions: String? = nil) throws -> URLRequest {
         try translationRequest(text: text, source: direction.source, target: direction.target, instructions: instructions)
     }
-    public func translate(text: String, direction: TranslationDirection, instructions: String? = nil) async throws -> TranslationRecord {
-        try APIJSON.decoder().decode(TranslationRecord.self, from: await send(translationRequest(text: text, direction: direction, instructions: instructions)))
+    public func translate(text: String, direction: TranslationDirection, instructions: String? = nil, requestID: UUID? = nil, owner: String? = nil) async throws -> TranslationRecord {
+        var request = try translationRequest(text: text, direction: direction, instructions: instructions)
+        if let requestID { request.setValue(requestID.uuidString, forHTTPHeaderField: "Idempotency-Key") }
+        if let owner { request.setValue(owner, forHTTPHeaderField: "X-Translation-Owner") }
+        return try APIJSON.decoder().decode(TranslationRecord.self, from: await send(request))
     }
     public func translationRequest(text: String, source: Language, target: Language? = nil, instructions: String? = nil) throws -> URLRequest {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw APIError.emptyText }

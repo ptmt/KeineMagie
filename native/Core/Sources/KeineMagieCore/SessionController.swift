@@ -37,6 +37,9 @@ public final class SessionController {
     public private(set) var isOffline = false
     public private(set) var checking = false
     private var verifiedOnline = false
+    /// Successful server identity validation grants automatic outbox work.
+    /// Advisory endpoint failures/checks do not revoke it; 401/logout do.
+    public private(set) var translationOwnerValidated = false
     public var canWrite: Bool { phase == .signedIn && verifiedOnline && !isOffline && !checking }
     public convenience init(serverURL: String, allowLocalHTTP: Bool = false, readToken: @escaping () throws -> String, saveToken: @escaping (String) throws -> Void, transport: @escaping AuthClient.Transport = AuthClient.network) {
         self.init(serverURL: serverURL, allowLocalHTTP: allowLocalHTTP, readToken: readToken, saveToken: saveToken, readIdentity: { nil }, saveIdentity: { _ in }, transport: transport)
@@ -72,6 +75,7 @@ public final class SessionController {
             guard session.expiresAt > Date(), !session.sessionToken.isEmpty, !session.user.id.isEmpty else { throw AuthError.invalidCredential }
             try saveToken(session.sessionToken)
             try saveIdentity(SavedNativeIdentity(server: serverURL, user: session.user, token: session.sessionToken))
+            translationOwnerValidated = true
             verifiedOnline = true; isOffline = false
             user = session.user; phase = .signedIn
         } catch {
@@ -105,9 +109,11 @@ public final class SessionController {
         try saveIdentity(nil)
         try saveToken("")
         generation += 1; user = nil; phase = .signedOut; message = nil
+        translationOwnerValidated = false
         serverURL = endpoint.baseURL.absoluteString
     }
     public func logout() async {
+        translationOwnerValidated = false
         generation += 1
         verifiedOnline = false; isOffline = false
         let tokenForRevocation = try? readToken()
@@ -130,6 +136,7 @@ public final class SessionController {
     }
     private func client() throws -> AuthClient { AuthClient(endpoint: try ServerEndpoint(serverURL, allowLocalHTTP: allowLocalHTTP), transport: transport) }
     private func invalidateCredential() {
+        translationOwnerValidated = false
         // Fail closed before touching Keychain: deletion can fail independently.
         generation += 1; user = nil
         verifiedOnline = false; isOffline = false
@@ -171,6 +178,7 @@ public final class SessionController {
                 throw error
             }
             if ownerChanged { generation += 1 }
+            translationOwnerValidated = true
             verifiedOnline = true; isOffline = false
             user = session.user; phase = .signedIn
         } catch APIError.http(401) {
