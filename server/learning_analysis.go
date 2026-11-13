@@ -441,7 +441,7 @@ func (cfg *serverConfig) learningAnalysisHTTP(w http.ResponseWriter, r *http.Req
 		writeJSON(w, code, view)
 	}
 	if e = lock.locked(read); e != nil {
-		writeError(w, 503, "analysis checkpoint unavailable")
+		writeJSON(w, 503, map[string]any{"error": "analysis checkpoint unavailable", "code": "analysis_checkpoint_unavailable"})
 		return
 	}
 	if r.Method == "GET" || len(checkpoint.Steps) == len(plan) {
@@ -452,13 +452,13 @@ func (cfg *serverConfig) learningAnalysisHTTP(w http.ResponseWriter, r *http.Req
 	defer cancel()
 	consume, release, e := cfg.provider.reserveTranslationPlan(owner, time.Now(), len(plan)-len(checkpoint.Steps))
 	if e != nil {
-		writeError(w, 429, "personal budget insufficient or account active; checkpoints retained")
+		writeJSON(w, 429, map[string]any{"error": "personal budget insufficient or account active; checkpoints retained", "code": "analysis_budget_unavailable"})
 		return
 	}
 	defer release()
 	// Re-read after admission: a concurrent explicit request may have completed a step.
 	if e = lock.locked(read); e != nil {
-		writeError(w, 503, "analysis checkpoint unavailable")
+		writeJSON(w, 503, map[string]any{"error": "analysis checkpoint unavailable", "code": "analysis_checkpoint_unavailable"})
 		return
 	}
 	if len(checkpoint.Steps) == len(plan) {
@@ -473,12 +473,12 @@ func (cfg *serverConfig) learningAnalysisHTTP(w http.ResponseWriter, r *http.Req
 	defer unlock()
 	c, e := cfg.provider.access(ctx, owner)
 	if e != nil {
-		writeError(w, 503, "connect your personal ChatGPT account first")
+		writeJSON(w, 503, map[string]any{"error": "connect your personal ChatGPT account first", "code": "analysis_connection_required"})
 		return
 	}
 	models, e := cfg.provider.models(ctx, c.AccessToken)
 	if e != nil || chooseModel(models) == "" {
-		writeError(w, 502, "personal model catalog unavailable")
+		writeJSON(w, 502, map[string]any{"error": "personal model catalog unavailable", "code": "analysis_model_unavailable"})
 		return
 	}
 	step := plan[len(checkpoint.Steps)]
@@ -504,12 +504,12 @@ func (cfg *serverConfig) learningAnalysisHTTP(w http.ResponseWriter, r *http.Req
 	input := map[string]any{"source_language": j.SourceLanguage, "target_language": j.TargetLanguage, "cefr": profile.CEFR, "actual_progress": actual, "segments": sources, "child_summaries": children, "coverage": fmt.Sprintf("step %d of %d; full transcript %d characters", len(checkpoint.Steps)+1, len(plan), characters)}
 	text, e := cfg.provider.learningGenerate(ctx, c.AccessToken, chooseModel(models), input, consume)
 	if e != nil {
-		writeError(w, 502, "personal analysis failed or incomplete; completed checkpoints retained")
+		writeJSON(w, 502, map[string]any{"error": "personal analysis failed or incomplete; completed checkpoints retained", "code": "analysis_provider_failed"})
 		return
 	}
 	result, e := learningDecodeResult(text, j, allowed, profile, vocabulary)
 	if e != nil {
-		writeError(w, 502, "personal analysis invalid or ungrounded; checkpoints retained")
+		writeJSON(w, 502, map[string]any{"error": "personal analysis invalid or ungrounded; checkpoints retained", "code": "analysis_invalid_output"})
 		return
 	}
 	// Authentication may have been revoked while inference was running.
@@ -525,7 +525,7 @@ func (cfg *serverConfig) learningAnalysisHTTP(w http.ResponseWriter, r *http.Req
 		return learningAtomicJSON(path, checkpoint)
 	})
 	if e != nil {
-		writeError(w, 503, "could not save analysis checkpoint")
+		writeJSON(w, 503, map[string]any{"error": "could not save analysis checkpoint", "code": "analysis_checkpoint_save_failed"})
 		return
 	}
 	respond()

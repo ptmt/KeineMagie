@@ -50,6 +50,7 @@ type learningVocabulary struct {
 	History     []learningAction `json:"history"`
 }
 type learningData struct {
+	Passages   []learningPassage          `json:"passages,omitempty"`
 	Profiles   map[string]learningProfile `json:"profiles"`
 	Vocabulary []learningVocabulary       `json:"vocabulary"`
 }
@@ -194,6 +195,10 @@ func (cfg *serverConfig) handleLearning(w http.ResponseWriter, r *http.Request) 
 	}
 	parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, "/v1/learning/"), "/"), "/")
 	store := cfg.learningStore(owner)
+	if len(parts) == 4 && parts[0] == "episodes" && parts[2] == "passages" {
+		cfg.learningPassageHTTP(w, r, owner, parts[1], parts[3])
+		return
+	}
 	if len(parts) == 3 && parts[0] == "episodes" && parts[2] == "analysis" {
 		cfg.learningAnalysisHTTP(w, r, owner, parts[1])
 		return

@@ -47,6 +47,8 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 				writeError(w, 503, "podcast store unavailable")
 				return
 			}
+			// Learning readiness must not hide an independent saved transcript.
+			_ = p.cfg.podcastCoverage(owner, jobs)
 			limits, e := configuredPodcastLimits()
 			if e != nil {
 				writeError(w, 503, "invalid podcast limits")
@@ -160,6 +162,8 @@ func (p *podcastService) handle(w http.ResponseWriter, r *http.Request) {
 			writeError(w, 503, "podcast store unavailable")
 			return
 		}
+		// Learning readiness must not hide an independent saved transcript.
+		_ = p.cfg.podcastCoverage(owner, jobs)
 		for _, j := range jobs {
 			if j.ID == id {
 				writeJSON(w, 200, j)

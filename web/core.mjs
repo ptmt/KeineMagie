@@ -189,7 +189,7 @@ export function createPodcasts({api, changed = () => {}, unauthorized = () => {}
     }
   }
   function pause() { active = false; stop(); }
-  function preparation(feed, episode) { return state.jobs.find(j => j.feed_id === feed.id && j.episode_id === episode.id) || episode.preparation || null; }
+  function preparation(feed, episode) { return state.jobs.find(j => j.feed_id === feed.id && j.episode_id === episode.id) || state.jobs.find(j => j.id === episode.preparation?.id) || episode.preparation || null; }
   function directJobs() {
     const linked = new Set(state.feeds.flatMap(f => (f.episodes || []).map(e => e.preparation?.id).filter(Boolean)));
     return state.jobs.filter(j => !j.feed_id && !j.episode_id && !linked.has(j.id));

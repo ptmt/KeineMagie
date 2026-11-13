@@ -17,6 +17,7 @@ type podcastSegment struct {
 	Translation string  `json:"translation,omitempty"`
 }
 type podcastJob struct {
+	Coverage       *podcastCoverage `json:"coverage,omitempty"`
 	ID             string           `json:"id"`
 	Owner          string           `json:"-"`
 	URL            string           `json:"url"`

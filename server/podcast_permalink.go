@@ -53,6 +53,8 @@ func (p *podcastService) handlePermalink(w http.ResponseWriter, r *http.Request,
 		writeError(w, 503, "podcast store unavailable")
 		return true
 	}
+	// Learning readiness must not hide an independent saved transcript.
+	_ = p.cfg.podcastCoverage(owner, jobs)
 	job, e := resolvePodcastPermalink(jobs, match[1])
 	if e != nil {
 		podcastHTTPError(w, e)

@@ -1,7 +1,9 @@
 // UI-only copy. Never pass user text, prompt instructions or server content here.
 export const interfaceLocales = Object.freeze({de:'Deutsch',en:'English',ru:'Русский',es:'Español',fr:'Français'});
 export const interfaceLanguageKey = 'keinemagie:interface-language:v1';
-const rows = `Profil|Profile|Профиль|Perfil|Profil
+const rows = `Übersetzt {translated} / {total} Segmente|Translated {translated} / {total} segments|Переведено {translated} / {total} фрагментов|Traducidos {translated} / {total} segmentos|Traduits {translated} / {total} segments
+Markierte Passagen {count} / {total}|Starred {count} / {total} passages|Отмечено {count} / {total} фрагментов|Marcados {count} / {total} pasajes|Favoris {count} / {total} passages
+Profil|Profile|Профиль|Perfil|Profil
 Lernprofil|Learning profile|Учебный профиль|Perfil de aprendizaje|Profil d’apprentissage
 Selbst eingeschätztes Sprachniveau|Self-assessed language level|Самооценка уровня языка|Nivel de idioma autoevaluado|Niveau de langue autoévalué
 Deine Auswahl ist keine automatische Einstufung. Vokabelaktivität verändert dein GER-Niveau nicht.|Your choice is not an automatic assessment. Vocabulary activity does not change your CEFR level.|Ваш выбор — не автоматическая оценка. Изучение слов не меняет ваш уровень CEFR.|Tu elección no es una evaluación automática. La actividad de vocabulario no cambia tu nivel MCER.|Votre choix n’est pas une évaluation automatique. L’activité de vocabulaire ne change pas votre niveau CECR.

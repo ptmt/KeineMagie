@@ -713,7 +713,7 @@ function mountPodcasts({api, account, unauthorized}) {
         const heading=node('strong',undefined,'podcast-episode-title');heading.append(job?link(episode.title||t('Folge'),podcastRoute('job',job.id)):document.createTextNode(episode.title||t('Folge')));title.append(heading);
         const metadata=node('div',undefined,'podcast-episode-meta');
         if(episode.published){const date=new Date(episode.published);if(!Number.isNaN(date.valueOf()))metadata.append(node('small',date.toLocaleDateString(getInterfaceLanguage()),'muted'));}
-        if(job)metadata.append(status(job));title.append(metadata);row.append(title);
+        if(job)metadata.append(status(job));if(job?.coverage){const c=job.coverage,coverage=node('small',undefined,'muted');coverage.dataset.coverage='';coverage.append(node('span',t('Übersetzt {translated} / {total} Segmente',{translated:c.translated_segments,total:c.recognized_segments})));if(c.recognized_segments>0)coverage.append(document.createTextNode(' · '),node('span',t('Markierte Passagen {count} / {total}',{count:c.favorite_passages,total:c.recognized_segments})));metadata.append(coverage);}title.append(metadata);row.append(title);
         const actions=node('div',undefined,'podcast-actions');
         if(job){controls(job,actions);}
         else actions.append(action('Vorbereiten',async()=>{const job=await library.prepare(feed.id,episode.id,source);await library.detail(job.id);},!s.worker||s.pending.has(`${session.user.id}:prepare:${feed.id}:${episode.id}`)));

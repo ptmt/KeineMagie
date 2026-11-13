@@ -36,6 +36,10 @@ test('direct imports exclude server-associated feed preparations without URL gue
  lib.state.jobs=[{id:'linked',feed_id:'f',episode_id:'e'},{id:'associated'},{id:'direct',title:'Import'}];
  assert.deepEqual(lib.directJobs().map(j=>j.id),['direct']); lib.dispose();
 });
+test('feed-associated direct imports use the enriched owner job, not the lightweight preparation',()=>{
+  const {lib}=harness();const job={id:'associated',coverage:{recognized_segments:2,translated_segments:1,favorite_passages:1}};
+  lib.state.jobs=[job];assert.equal(lib.preparation({id:'feed'},{id:'episode',preparation:{id:'associated'}}),job);lib.dispose();
+});
 test('hidden pages never schedule polling and visible polling is bounded',async()=>{
  let timer, count=0; const lib=createPodcasts({visible:()=>false,schedule:fn=>{timer=fn;count++;},api:{request:async p=>p.endsWith('subscriptions')?{items:[]}:{items:[{id:'a',state:'queued'}]}}});
  lib.identity({user:{id:'a'}}); await lib.activate('#podcasts'); assert.equal(count,0); assert.equal(timer,undefined); lib.dispose();
