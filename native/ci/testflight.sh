@@ -6,7 +6,9 @@ umask 077
 [[ "${GITHUB_ACTIONS:-}" == true && "${GITHUB_REF:-}" == refs/heads/main ]] || {
   printf '%s\n' 'Signing/upload is restricted to GitHub Actions main.' >&2; exit 1;
 }
-case "${GITHUB_EVENT_NAME:-}" in push|workflow_dispatch) ;; *) exit 1 ;; esac
+[[ "${GITHUB_EVENT_NAME:-}" == workflow_dispatch && "${KM_PUBLISH_CONFIRMATION:-}" == UPLOAD ]] || {
+  printf '%s\n' 'Explicit UPLOAD dispatch after backend verification is required.' >&2; exit 1;
+}
 : "${RUNNER_TEMP:?}" "${GITHUB_ENV:?}"
 : "${BUILD_CERTIFICATE_BASE64:?}" "${P12_PASSWORD:?}" "${BUILD_PROVISION_PROFILE_BASE64:?}"
 : "${ASC_PRIVATE_KEY_BASE64:?}" "${ASC_KEY_ID:?}" "${ASC_ISSUER_ID:?}"

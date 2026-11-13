@@ -88,9 +88,7 @@ struct TranslatorView: View {
                 }
                 if model.outboxStorageError { Text("outbox.storage").foregroundStyle(.red).accessibilityIdentifier("outbox-storage-error") }
                 if let error = model.translatorError { ErrorNotice(text: error) }
-                if let result = model.result {
-                    TranslationResultView(text: result.translation)
-                }
+
             }.frame(maxWidth: 700).frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
@@ -120,6 +118,10 @@ struct TranslatorView: View {
                         }.accessibilityIdentifier("outbox-item-" + item.id.uuidString)
                     }
                 }
+            }
+            if let result = model.result {
+                TranslationResultView(text: result.translation)
+                    .listRowSeparator(.hidden)
             }
             Section {
                 // Initial/cache hydration and refresh are quiet. Only a completed load

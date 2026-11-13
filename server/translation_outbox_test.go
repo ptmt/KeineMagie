@@ -82,8 +82,20 @@ func TestTranslationIdempotencyLostAckAndConflict(t *testing.T) {
 	if len(list.Items) != 1 {
 		t.Fatalf("history count %d", len(list.Items))
 	}
-	// Crash after history commit but before receipt completion must reconcile.
+	// Receipts must retain only a replay tombstone, not deleted private text.
 	receiptPath := filepath.Join(cfg.provider.dir, "translation-receipts", sessionHash(session.UserID), sessionHash(key)+".json")
+	receiptData, err := os.ReadFile(receiptPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var receiptFields map[string]json.RawMessage
+	if err := json.Unmarshal(receiptData, &receiptFields); err != nil {
+		t.Fatal(err)
+	}
+	if _, exists := receiptFields["result"]; exists {
+		t.Fatal("receipt retains private translation text indefinitely")
+	}
+	// Crash after history commit but before receipt completion must reconcile.
 	if err := learningAtomicJSON(receiptPath, translationReceipt{Digest: learningDigest(translationInput{Text: exact, SourceLanguage: "de", TargetLanguage: "ru"})}); err != nil {
 		t.Fatal(err)
 	}

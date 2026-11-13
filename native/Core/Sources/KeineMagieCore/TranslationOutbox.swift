@@ -22,8 +22,10 @@ public struct TranslationOutbox: Codable, Sendable {
     public init() {}
     @discardableResult public mutating func enqueue(direction: TranslationDirection, instructions: String?) throws -> UUID {
         guard !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, draft.unicodeScalars.count <= 8000 else { throw APIError.emptyText }
-        // Same immutable pending submission coalesces rapid repeated taps.
-        if let item = items.last, [.queued, .sending].contains(item.state), item.text == draft, item.direction == direction, item.instructions == instructions { return item.id }
+        // A repeated submit must not mint a fresh key for any unresolved item,
+        // including a timeout whose provider outcome is unknown. Use Retry/check
+        // for that same snapshot; cancel/delete is the explicit escape hatch.
+        if let item = items.last(where: { ![.completed, .cancelled].contains($0.state) && $0.text == draft && $0.direction == direction && $0.instructions == instructions }) { return item.id }
         guard items.count < 200 else { throw CocoaError(.fileWriteOutOfSpace) }
         let item = Item(id: UUID(), text: draft, direction: direction, instructions: instructions)
         items.append(item)

@@ -2,6 +2,17 @@ import Foundation
 import Testing
 @testable import KeineMagieCore
 
+@Test func outboxCoalescesNonAdjacentAndUncertainSnapshots() throws {
+    var value = TranslationOutbox(); value.draft = "one"
+    let first = try value.enqueue(direction: .russianToGerman, instructions: nil)
+    value.draft = "two"; try value.enqueue(direction: .russianToGerman, instructions: nil)
+    value.draft = "one"
+    #expect(try value.enqueue(direction: .russianToGerman, instructions: nil) == first)
+    value.items[0].state = .needsDecision
+    #expect(try value.enqueue(direction: .russianToGerman, instructions: nil) == first)
+    #expect(value.items.count == 2)
+}
+
 @Test func outboxLogoutDeniesRestoreOfResidualFile() throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }

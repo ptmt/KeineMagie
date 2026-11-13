@@ -40,8 +40,8 @@ archive or Apple upload after these changes remains unverified.
   key, or unrestricted environment/build-settings dump is printed.
 No credentials are included. The existing server workflow is independent.
 
-- Push to `main` changing `native/**` or this workflow: validate, then deploy.
-- Manual **Actions → iOS TestFlight → Run workflow**, choosing `main`: same path.
+- Push to `main` changing `native/**` or this workflow: validate only; never upload.
+- After backend deployment/readback succeeds, manual **Actions → iOS TestFlight → Run workflow**, choosing `main` and entering `UPLOAD` in `publish`: validate, sign and upload. Both workflow and script enforce this explicit gate.
 - Pull requests: Python tests, Swift core tests, XcodeGen, unsigned Release
   simulator build only. No signing secrets, environment, or upload on PRs.
 - Deployment requires the protected GitHub environment `testflight` and only

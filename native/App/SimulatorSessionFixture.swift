@@ -32,6 +32,8 @@ actor SimulatorSessionFixture {
             try await Task.sleep(for: .seconds(30)); throw URLError(.timedOut)
         }
         if mode == "translation-outbox-offline", request.url?.path == "/v1/translations", request.httpMethod == "POST" { throw URLError(.notConnectedToInternet) }
+        if mode == "translation-outbox-lostack", request.url?.path == "/v1/translations", request.httpMethod == "POST" { throw URLError(.networkConnectionLost) }
+        if mode == "translation-outbox-401", request.url?.path == "/v1/translations", request.httpMethod == "POST" { return AuthResponse(data: Data(), status: 401) }
         if mode == "translation-outbox-status", request.url?.path == "/v1/auth/session", validations > 0 { try await Task.sleep(for: .seconds(15)) }
         if mode == "cache-offline" || mode == "cache-blackhole" {
             let configuration = URLSessionConfiguration.ephemeral
