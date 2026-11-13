@@ -17,6 +17,9 @@ test('Apple web starts with same-origin CSRF POST, then navigates only to Apple'
   await assert.rejects(()=>core.startAppleLogin({request:async()=>({authorization_url:bad})},'csrf'));
  }
  const app=await readFile(new URL('../app.mjs',import.meta.url),'utf8');
- assert.match(app,/await startAppleLogin\(api, boot.csrf_token\)/);
+ assert.match(app,/await startAppleLogin\(api, boot.csrf_token, attempt.controller.signal\)/);
+ const controller=new AbortController();
+ await core.startAppleLogin(api,'bootstrap-csrf',controller.signal);
+ assert.equal(calls[1].options.signal,controller.signal);
  assert.doesNotMatch(app,/\/v1\/web\/auth\/apple\/start/);
 });

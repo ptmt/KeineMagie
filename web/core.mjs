@@ -94,8 +94,8 @@ export async function startBrowserPairing(api, csrf) {
  return value;
 }
 
-export async function startAppleLogin(api, csrf) {
-  const value = await api.request('/v1/auth/apple/start', { method: 'POST', body: {}, csrf });
+export async function startAppleLogin(api, csrf, signal) {
+  const value = await api.request('/v1/auth/apple/start', { method: 'POST', body: {}, csrf, ...(signal ? {signal} : {}) });
   const url = new URL(value?.authorization_url);
   if (url.origin !== 'https://appleid.apple.com' || url.pathname !== '/auth/authorize' || url.username || url.password || url.hash) throw new Error('Invalid Apple authorization response');
   return url.href;

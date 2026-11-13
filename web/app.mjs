@@ -27,6 +27,14 @@ let bootstrapTimer = null;
 let accountRun = 0;
 let pairingTimer = null;
 let pairingRun = 0;
+let appleAttempt = null;
+function cancelAppleLogin({leaving = false} = {}) {
+  if (!appleAttempt) return;
+  clearTimeout(appleAttempt.timer);
+  appleAttempt.controller.abort();
+  if (appleAttempt.navigating && !leaving) window.stop();
+  appleAttempt = null;
+}
 function clearPairing() { pairingRun++; clearTimeout(pairingTimer); pairingTimer = null; $('browser-pairing').hidden = true; setText('pairing-code', ''); }
 
 let stylesOwner = null;
@@ -215,6 +223,7 @@ function resetResult() {
   $('copy').disabled = true;
 }
 function clearPrivateData() {
+  cancelAppleLogin();
   resetLearningProfile();
   generation++;
   validatedAt = 0; providerFlight = null; providerError = '';
@@ -259,6 +268,8 @@ function updateInput() {
 function renderConnection() {
   podcasts.identity(session, {checking,config,error:sessionError});
   const signedIn = !!session?.user?.id;
+  const applePending = !!appleAttempt;
+  document.querySelectorAll('.header-language, .account-language').forEach(control => { control.hidden = !signedIn; });
   const phase = readiness(session);
   const modelUnavailable = phase === 'model-unavailable';
   const catalogWarning = 'Dein ChatGPT-Konto ist verbunden, aber der Modellkatalog ist gerade nicht verfügbar. Bitte die Verbindung erneut prüfen. Eine neue Verbindung ist dafür nicht erforderlich.';
@@ -272,9 +283,12 @@ function renderConnection() {
   $('provider-section').hidden = !signedIn;
   $('retry-session').hidden = !signedIn;
   $('apple-login').hidden = signedIn || config?.apple_available === false;
-  $('apple-login').disabled = checking || config?.apple_available !== true;
+  $('apple-login').disabled = applePending || checking || config?.apple_available !== true;
+  $('apple-login').setAttribute('aria-busy', String(applePending));
+  $('apple-login-progress').hidden = !applePending;
+  setText('apple-login-progress-label', applePending ? 'Apple-Anmeldung wird geöffnet …' : '');
   $('pair-browser').hidden = signedIn || config?.pairing_available !== true;
-  $('pair-browser').disabled = checking || config?.pairing_available !== true;
+  $('pair-browser').disabled = applePending || checking || config?.pairing_available !== true;
   $('logout').hidden = !signedIn;
   $('provider-connect').disabled = checking || !!providerFlight || !!providerError || !signedIn || !session?.provider || config?.chatgpt_connect_available !== true || session?.provider?.connected === true;
   $('refresh-history').disabled = checking || !signedIn;
@@ -364,6 +378,7 @@ function restore({force = true, refreshProvider = false} = {}) {
       if (priorUser && priorUser !== newSession?.user?.id) clearPrivateData();
       // Lean identity responses must not erase verified same-owner provider state.
       if (newSession && newSession.user.id === priorUser && !newSession.provider && session?.provider) newSession.provider = session.provider;
+      if (newSession?.user?.id) cancelAppleLogin();
       session = newSession;
       validatedAt = Date.now();
       checking = false; renderConnection();
@@ -486,8 +501,12 @@ $('copy').addEventListener('click', async () => {
 });
 $('refresh-history').addEventListener('click', loadHistory);
 $('account').addEventListener('click', () => openLearningProfile(profileLanguage));
-$('connection-action').addEventListener('click', () => { if (sessionError || providerError || readiness(session) === 'model-unavailable') return recheckConnection(); if (!config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); $('account-dialog').showModal(); if (session?.user?.id && !session.provider) void loadProvider(); });
-function resetAccountDialog() { accountRun++; clearBootstrap(); clearPairing(); setText('account-error', ''); }
+function openAppleSignIn() {
+  $('account-dialog').showModal();
+  if (!session?.user?.id && config?.apple_available === true) $('apple-login').click();
+}
+$('connection-action').addEventListener('click', () => { if (sessionError || providerError || readiness(session) === 'model-unavailable') return recheckConnection(); if (!config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); openAppleSignIn(); if (session?.user?.id && !session.provider) void loadProvider(); });
+function resetAccountDialog() { accountRun++; cancelAppleLogin(); clearBootstrap(); clearPairing(); setText('account-error', ''); renderConnection(); }
 $('close-account').addEventListener('click', () => { resetAccountDialog(); $('account-dialog').close(); });
 $('account-dialog').addEventListener('cancel', resetAccountDialog);
 $('account-dialog').addEventListener('close', resetAccountDialog);
@@ -522,17 +541,35 @@ $('pair-browser').addEventListener('click', async () => {
  finally { renderConnection(); }
 });
 $('apple-login').addEventListener('click', async () => {
-  if (checking || config?.apple_available !== true || session?.user?.id) return;
+  if (appleAttempt || checking || config?.apple_available !== true || session?.user?.id || !$('account-dialog').open) return;
   const run = generation;
-  $('apple-login').disabled = true;
+  const attempt = {controller:new AbortController(), timer:null};
+  appleAttempt = attempt;
+  const active = () => appleAttempt === attempt && run === generation && !session?.user?.id && $('account-dialog').open;
+  // Bound both requests AND a stalled/canceled redirect; never retry automatically.
+  attempt.timer = setTimeout(() => {
+    if (!active()) return;
+    cancelAppleLogin();
+    setText('account-error', 'Apple-Anmeldung konnte nicht geöffnet werden. Bitte erneut versuchen.');
+    renderConnection();
+  }, 15_000);
+  setText('account-error', '');
+  renderConnection();
   clearPairing();
   try {
-    const boot = await api.request('/v1/web/config');
-    const url = await startAppleLogin(api, boot.csrf_token);
-    if (run !== generation || !$('account-dialog').open) return;
+    const boot = await api.request('/v1/web/config', {signal:attempt.controller.signal});
+    if (!active()) return;
+    const url = await startAppleLogin(api, boot.csrf_token, attempt.controller.signal);
+    if (!active()) return;
+    attempt.navigating = true;
     location.assign(url);
-  } catch (error) { if (run === generation) setText('account-error', errorMessage(error)); }
-  finally { renderConnection(); }
+    // Keep progress until navigation actually leaves, rather than merely starts.
+  } catch (error) {
+    if (!active()) return;
+    cancelAppleLogin();
+    setText('account-error', errorMessage(error));
+    renderConnection();
+  }
 });
 $('provider-connect').addEventListener('click', async () => {
   if (!session?.user?.id || checking || providerFlight || providerError || !session.provider || session.provider.connected === true || config?.chatgpt_connect_available !== true) return;
@@ -563,7 +600,8 @@ $('logout').addEventListener('click', async () => {
     status('Abgemeldet.'); $('account-dialog').close();
   } catch { setText('account-error', 'Lokale Inhalte entfernt, aber der Server-Widerruf ist nicht bestätigt. Bitte Verbindung erneut prüfen und nochmals abmelden.'); }
 });
-window.addEventListener('pageshow', event => { if (event.persisted) { clearPrivateData(); restore(); } });
+window.addEventListener('pagehide', () => cancelAppleLogin({leaving:true}));
+window.addEventListener('pageshow', event => { cancelAppleLogin(); if (event.persisted) { clearPrivateData(); restore(); } else renderConnection(); });
 window.addEventListener('online', () => restore({force:false}));
 document.addEventListener('visibilitychange', () => { if (document.hidden) podcasts.pause(); else restore({force:false}); });
 updateInput(); restore();
@@ -739,7 +777,7 @@ function mountPodcasts({api, account, unauthorized}) {
   $('podcast-mode').onchange=()=>{const episode=$('podcast-mode').value==='episode';$('podcast-import-language').hidden=!episode;bindInterfaceText($('podcast-submit'),episode?'Vorbereiten':'Abonnieren');bindInterfaceText($('podcast-add-help'),episode?'Öffentliche Folge mit direktem Audio. Startet Transkription und Übersetzung über dein Konto.':'Ein RSS-/Atom-Feed oder eine öffentliche Podcast-Seite. Ein Abo startet keine KI-Verarbeitung.');};
   $('podcast-form').onsubmit=async event=>{event.preventDefault();if(checking||!session?.user?.id||$('podcast-submit').disabled)return;const run=ownerRun,dialog=dialogRun; $('podcast-submit').disabled=true;try{const episode=$('podcast-mode').value==='episode';const value=await (episode?library.importURL($('podcast-url').value,$('podcast-source').value):library.subscribe($('podcast-url').value));if(run!==ownerRun)return;if(episode)await library.detail(value.id);await library.load();if(run!==ownerRun||dialog!==dialogRun)return;close();location.hash=podcastRoute(episode?'job':'feed',value.id);}catch(error){if(run===ownerRun&&dialog===dialogRun)bindInterfaceText($('podcast-add-error'),podcastError(error));}finally{if(run===ownerRun&&dialog===dialogRun)$('podcast-submit').disabled=false;}};
   $('podcast-reload').onclick=async()=>{if(identityError)return restore();if(library.state.route.kind==='job'&&resolvedPermalink){await library.detail(library.state.route.id);return;}await openRoute(location.hash);};
-  $('podcast-signin').onclick=account;
+  $('podcast-signin').onclick=openAppleSignIn;
   return {library,
     identity(value,options={}) {if(session?.user?.id!==value?.user?.id){ownerRun++;close();source='de';resolvedPermalink=null;resolving=null;routeFlight=null;routeKey=null;}session=value;episodeView?.identity(value);checking=!!options.checking&&!value?.user?.id;identityError=options.error||(options.checking?'Sitzung wird im Hintergrund geprüft …':'');config=options.config;library.identity(value);if(checking)library.pause();render();},
     route:openRoute,

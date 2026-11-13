@@ -34,7 +34,7 @@ try:
    page.set_viewport_size({'width':width,'height':900});check('no horizontal overflow '+str(width),page.evaluate('document.documentElement.scrollWidth<=innerWidth'))
   check('all localized Apple artwork loads',all(page.request.get(origin+'/apple-sign-in-'+locale+'.png').ok for locale in ['de','en','ru','es','fr']))
   page.locator('#account').click();page.locator('#logout').click();page.wait_for_function("document.querySelector('#account-label').textContent==='Se connecter'")
-  page.select_option('#interface-language-header','ru');check('guest selector works without authentication',page.locator('#account-label').inner_text()=='Войти')
+  check('guest language settings hidden without resetting locale',page.locator('.header-language').is_hidden() and page.locator('.account-language').is_hidden() and page.locator('html').get_attribute('lang')=='fr')
   check('no page errors',not errors)
   print(json.dumps({'fixture_only':True,'checks_passed':len(checks),'checks':checks,'page_errors':errors},ensure_ascii=False))
   browser.close()

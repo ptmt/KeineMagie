@@ -43,6 +43,8 @@ Kopieren|Copy|Копировать|Copiar|Copier
 Kopiert|Copied|Скопировано|Copiado|Copié
 Kopieren fehlgeschlagen. Bitte erneut versuchen.|Copy failed. Please try again.|Не удалось скопировать. Попробуйте ещё раз.|No se pudo copiar. Inténtalo de nuevo.|Échec de la copie. Réessayez.
 Mit Apple anmelden|Sign in with Apple|Войти с Apple|Iniciar sesión con Apple|Se connecter avec Apple
+Apple-Anmeldung wird geöffnet …|Opening Apple sign-in …|Открываем вход через Apple …|Abriendo el inicio de sesión con Apple …|Ouverture de la connexion Apple …
+Apple-Anmeldung konnte nicht geöffnet werden. Bitte erneut versuchen.|Could not open Apple sign-in. Please try again.|Не удалось открыть вход через Apple. Попробуйте ещё раз.|No se pudo abrir el inicio de sesión con Apple. Inténtalo de nuevo.|Impossible d’ouvrir la connexion Apple. Réessayez.
 Sitzung wird geprüft …|Checking session …|Проверка сеанса …|Comprobando sesión …|Vérification de la session …
 Abbrechen|Cancel|Отмена|Cancelar|Annuler
 Übersetzen|Translate|Перевести|Traducir|Traduire

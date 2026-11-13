@@ -26,7 +26,7 @@
       <a href="#podcasts">Podcasts</a>
       <a href="#coach" aria-disabled="true"><span>Coach</span><small>Noch nicht verfügbar</small></a>
     </nav>
-    <div class="header-account"><label class="header-language"><span aria-hidden="true">🌐</span><span class="sr-only">Sprache</span><select id="interface-language-header" data-interface-language aria-label="Sprache"><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label><button id="account" class="account-button" aria-haspopup="dialog"><span id="account-indicator" class="status-dot" aria-hidden="true"></span><span id="account-label">Anmelden</span></button></div>
+    <div class="header-account"><label class="header-language" hidden><span aria-hidden="true">🌐</span><span class="sr-only">Sprache</span><select id="interface-language-header" data-interface-language aria-label="Sprache"><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label><button id="account" class="account-button" aria-haspopup="dialog"><span id="account-indicator" class="status-dot" aria-hidden="true"></span><span id="account-label">Anmelden</span></button></div>
   </header>
   <main id="main">
     <section id="translator" aria-label="Übersetzer" tabindex="-1">
@@ -99,9 +99,10 @@
   </dialog>
   <dialog id="account-dialog" aria-labelledby="account-title">
     <div class="dialog-heading"><h2 id="account-title">Anmelden</h2><button id="close-account" class="close-button" aria-label="Dialog schließen"><span aria-hidden="true">×</span></button></div>
-    <label class="account-language" for="interface-language-account"><span>Sprache</span><select id="interface-language-account" data-interface-language><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label>
+    <label class="account-language" for="interface-language-account" hidden><span>Sprache</span><select id="interface-language-account" data-interface-language><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label>
     <div id="sign-in-options" class="sign-in-options">
       <button id="apple-login" class="apple-button" aria-label="Mit Apple anmelden" disabled><img src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
+      <div id="apple-login-progress" class="apple-login-progress" role="status" aria-live="polite" hidden><span class="signin-spinner" aria-hidden="true"></span><span id="apple-login-progress-label"></span></div>
       <button id="pair-browser" class="pair-button" disabled>Mit iPhone anmelden</button>
       <div id="browser-pairing" hidden><p>Keine Magie auf deinem angemeldeten iPhone öffnen → Browser verbinden. Nur diesen eigenen Browser bestätigen. Der Code gilt fünf Minuten.</p><output id="pairing-code" aria-live="polite"></output><p id="pairing-status" role="status"></p></div>
     </div>
