@@ -152,7 +152,7 @@ try:
             check('BFCache restores retry', page.locator('#apple-login-progress').is_hidden())
             state['start_routes'].pop().fulfill(status=503, json={}); page.wait_for_timeout(100)
             check('BFCache late failure stays cleared', page.locator('#account-error').inner_text() == '')
-            page.locator('#apple-login').click(); page.wait_for_timeout(100)
+            page.locator('#apple-login').click(); wait_routes(page, state['start_routes'])
             state['start_routes'].pop().fulfill(json={'authorization_url': 'https://appleid.apple.com/auth/authorize?synthetic=redirect'})
             page.wait_for_url('https://appleid.apple.com/**')
             check('synthetic redirect reaches expected destination', page.title() == 'Synthetic Apple destination')

@@ -10,6 +10,7 @@ const $ = id => document.getElementById(id);
 const api = createAPI();
 registerStaticInterface();
 let session = null;
+let identityKnown = false;
 let config = null;
 let record = null;
 let history = [];
@@ -226,6 +227,7 @@ function resetResult() {
   $('copy').disabled = true;
 }
 function clearPrivateData() {
+  identityKnown = true; // Explicit logout/revocation, not a speculative guest.
   coach.identity(null);
   cancelAppleLogin();
   resetLearningProfile();
@@ -273,6 +275,7 @@ function renderConnection() {
   coach.identity(session);
   podcasts.identity(session, {checking,config,error:sessionError});
   const signedIn = !!session?.user?.id;
+  $('header-account').dataset.identityKnown = String(identityKnown || !!sessionError);
   const applePending = !!appleAttempt;
   document.querySelectorAll('.header-language, .account-language').forEach(control => { control.hidden = !signedIn; });
   const phase = readiness(session);
@@ -281,7 +284,7 @@ function renderConnection() {
   $('account-indicator').classList.toggle('connected', signedIn);
   if(profileOwner&&profileOwner!==session?.user?.id)resetLearningProfile();
   $('learning-profile').hidden=!signedIn;
-  setText('account-label', signedIn ? 'Profil' : 'Anmelden');
+  setText('account-label', signedIn ? 'Profil' : identityKnown ? 'Anmelden' : 'Konto öffnen');
   setText('account-title', signedIn ? 'Dein Konto' : 'Anmelden');
   $('sign-in-options').hidden = signedIn;
   $('signed-in-account').hidden = !signedIn;
@@ -385,6 +388,7 @@ function restore({force = true, refreshProvider = false} = {}) {
       if (newSession && newSession.user.id === priorUser && !newSession.provider && session?.provider) newSession.provider = session.provider;
       if (newSession?.user?.id) cancelAppleLogin();
       session = newSession;
+      identityKnown = true;
       validatedAt = Date.now();
       checking = false; renderConnection();
       // Neither history nor external model discovery is identity validation.
@@ -612,7 +616,7 @@ $('logout').addEventListener('click', async () => {
   } catch { setText('account-error', 'Lokale Inhalte entfernt, aber der Server-Widerruf ist nicht bestätigt. Bitte Verbindung erneut prüfen und nochmals abmelden.'); }
 });
 window.addEventListener('pagehide', () => cancelAppleLogin({leaving:true}));
-window.addEventListener('pageshow', event => { cancelAppleLogin(); if (event.persisted) { clearPrivateData(); restore(); } else renderConnection(); });
+window.addEventListener('pageshow', event => { cancelAppleLogin(); if (event.persisted) { clearPrivateData(); identityKnown = false; restore(); } else renderConnection(); });
 window.addEventListener('online', () => restore({force:false}));
 document.addEventListener('visibilitychange', () => { if (document.hidden) podcasts.pause(); else restore({force:false}); });
 updateInput(); restore();
