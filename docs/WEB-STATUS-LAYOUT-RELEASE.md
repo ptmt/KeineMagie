@@ -23,4 +23,12 @@ All private/authenticated browser evidence is synthetic, served from actual ship
 
 ## Release readback
 
-Pending source commit, CI, backend-only clean-archive deployment and public asset verification. No release is claimed by this section until those readbacks are recorded.
+Released source **`ec79d1cad3139e36d223cf83eb04fdccee223123`**; [server CI 43494570359](https://github.com/ptmt/KeineMagie/actions/runs/43494570359), build job `132124183918`, **success**. Final independent read-only Codex review passed with no security/logic blockers. No native upload.
+
+Existing documented backend-only local arm64 Compose workaround used a full clean committed archive, not dirty working files or the separately published CI registry image. Running backend **`sha256:c9be2581366812a0a951056ccf7825a068bc856fc305c7c37a336e470c97ea03`**, matching source revision. Backend executable byte-identical to prior image, SHA256 `a3ac9e86fc8d53f4b06bce032b01a10ddb642047c03e4a3d285de45cdaad7f96`. Worker remains `sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382`; worker/unrelated IDs, merged Compose configuration except backend image, resources, environment, mounts, routing and private network preserved.
+
+Locked pre/post readback: **8 nonruntime durable files byte-identical**, no active jobs, 1 completed job, 1 subscription, 2113 segments/translations. Private backup and preservation evidence: `deployment/release-geometry-20261113T194249Z/`. Rollback uses previous backend `sha256:44ec731086fc38dca2df69c8c836d030daf1ee7bfd01a0a549847be819f11b4c` and saved `compose.previous.yml`, never historical data restoration.
+
+Public HTTPS **health 200**, all **21 runtime assets exact committed bytes**, strict CSP/no-store, protected session/Coach/podcasts 401 and private/source paths 404. Guest translations with exact browser Origin 401; existing no-Origin legacy gate remains 503. Real guest Chromium five locales × 320/390/768/1440: no horizontal overflow or JS errors. Screenshots inspected. Public readback: `km-geometry-public-verified.json` in scratch.
+
+Initial public-edge readback failed and timed out for several minutes; backend direct and proxy Host probes were healthy, and public TLS recovered without changing routing or rolling back. The complete public verifier then passed. No inference, credential replay, protected-data mutation, worker/domain migration or Diktat publication. The original user's precise client exception remains unknown; this fixes the proven misleading error boundary and adds privacy-safe local diagnostics, not a claim that an unobserved underlying exception was identified.
