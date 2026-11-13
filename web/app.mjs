@@ -218,6 +218,7 @@ function status(message, error = false) {
 let copyTimer = null;
 function resetCopy() { clearTimeout(copyTimer); copyTimer = null; setText('copy', 'Kopieren'); }
 function resetResult() {
+  $('translation-recover').hidden = true;
   followup.select(null); appliedTranslation=null;showTranslationEditor(false);$('edit-translation').disabled=true;
   resetCopy();
   record = null;
@@ -250,13 +251,13 @@ function clearBootstrap() {
   $('provider-bootstrap').hidden = true;
 }
 function updateInput() {
-  followup.identity(session, !busy && !checking && !providerFlight && !providerError && readiness(session) === 'ready');
+  followup.identity(session, !busy && !!session?.user?.id && !!session?.csrf_token);
   renderStyles();
   localizeTranslationEditor();$('edit-translation').disabled=!record||!canEditDraft();
   const count = [...$('source-text').value].length;
   setText('input-count', `${count.toLocaleString(getInterfaceLanguage())} / ${(8000).toLocaleString(getInterfaceLanguage())}`);
   $('input-count').classList.toggle('error-state', count > 8000);
-  $('translate').disabled = busy || checking || !!providerFlight || !!providerError || readiness(session) !== 'ready' || !count || count > 8000;
+  $('translate').disabled = busy || !session?.user?.id || !session?.csrf_token || !count || count > 8000;
   const locked = !canEditDraft();
   $('clear').disabled = locked || count === 0;
   $('swap').disabled = locked;
@@ -294,7 +295,7 @@ function renderConnection() {
   $('apple-login').disabled = applePending || checking || config?.apple_available !== true;
   $('apple-login').setAttribute('aria-busy', String(applePending));
   $('apple-login-progress').hidden = !applePending;
-  setText('apple-login-progress-label', applePending ? 'Apple-Anmeldung wird geöffnet …' : '');
+  setText('apple-login-progress-label', 'Apple-Anmeldung wird geöffnet …');
   $('pair-browser').hidden = signedIn || config?.pairing_available !== true;
   $('pair-browser').disabled = applePending || checking || config?.pairing_available !== true;
   $('logout').hidden = !signedIn;
@@ -304,7 +305,8 @@ function renderConnection() {
   setText('provider-status', signedIn ? (providerError ? 'Verbindung konnte nicht geprüft werden' : providerFlight || !session.provider ? 'Verbindung wird geprüft …' : modelUnavailable ? 'Verbunden · Modell nicht verfügbar' : session?.provider?.connected === true ? 'Verbunden' : 'Nicht verbunden') : '');
   if (!signedIn || session?.provider?.connected === true) clearBootstrap();
   setText('provider-detail', !signedIn ? '' : providerError ? providerError : !session.provider ? 'Der Status deines persönlichen ChatGPT-Kontos wird geladen.' : modelUnavailable ? catalogWarning : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
-  $('connection-notice').hidden = !checking && !providerFlight && !providerError && !sessionError && phase === 'ready';
+  // Advisory only: background checks never insert a loading row or gate a POST.
+  $('connection-notice').hidden = !sessionError && !providerError && (checking || providerFlight || phase === 'provider-loading' || phase === 'ready');
   $('connection-action').hidden = checking;
   const appleSignIn = !checking && !sessionError && !signedIn && config?.apple_available === true;
   $('connection-action').classList.toggle('apple-button', appleSignIn);
@@ -450,14 +452,16 @@ function renderHistory() {
     button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id || run !== generation) return; renderRecord(item); status('Gespeicherte Übersetzung geöffnet.'); $('source-text').focus({ preventScroll: false }); });
   }
 }
+let acceptedRevision = 0;
 async function loadHistory() {
   if (!session?.user?.id) return;
-  const run = generation;
+  const run = generation, revision = acceptedRevision;
   setText('history-status', 'Verlauf wird geladen …');
   try {
     const value = await api.request('/v1/translations');
     if (run !== generation) return;
     if (!Array.isArray(value.items) || !value.items.every(validRecord)) throw new Error('Invalid history');
+    if (revision !== acceptedRevision) return; // A newer POST owns the current list, even after draft edits.
     history = value.items; renderHistory();focusCoachTranslation();
   } catch (error) {
     if (run !== generation) return;
@@ -465,29 +469,53 @@ async function loadHistory() {
     setText('history-status', error.status === 401 ? 'Bitte erneut anmelden, um deinen Verlauf zu laden.' : 'Verlauf konnte nicht geladen werden. Bitte erneut versuchen.');
   }
 }
+function displayAcceptedTranslation() {
+  renderRecord(record); renderHistory();
+  $('translation-recover').hidden = true; status('Übersetzung gespeichert.');
+}
+function translationDiagnostic(phase, error, metadata) {
+  // Fixed categories only: never log exception messages, records or identity.
+  const errorClass = ['TypeError','SyntaxError','RangeError','AbortError'].includes(error?.name) ? error.name : 'Error';
+  console.warn('translation-failure', {phase,errorClass,status:metadata.status,requestID:metadata.requestID});
+}
+$('translation-recover').addEventListener('click', () => {
+  if (!session?.user?.id || !record) return;
+  try { displayAcceptedTranslation(); }
+  catch { status('Gespeichert, aber nicht darstellbar. Öffne das Ergebnis im Verlauf.', true); $('history').scrollIntoView?.({block:'start'}); }
+});
 async function translate(event) {
   event.preventDefault();
-  if (busy || checking || providerFlight || providerError || readiness(session) !== 'ready') return;
+  if (busy || !session?.user?.id || !session?.csrf_token) return;
   let payload;
   const [source, target] = $('language-direction').value.split('-');
   try { payload = inputPayload($('source-text').value, source, selectedInstructions, target); }
   catch { status('Bitte 1 bis 8.000 Zeichen eingeben.', true); return; }
   busy = true; controller = new AbortController();
+  const attemptController = controller;
   const run = generation;
   resetResult(); updateInput(); status('Dein Text wird übersetzt und erklärt …');
+  let phase = 'request', metadata = {status:0,requestID:crypto.randomUUID()};
   try {
-    const item = await api.request('/v1/translations', { method: 'POST', body: payload, csrf: session.csrf_token, signal: controller.signal });
+    const item = await api.request('/v1/translations', { method: 'POST', body: payload, csrf: session.csrf_token, signal: attemptController.signal, onResponse:value => {metadata.status=value.status;} });
     if (run !== generation) return;
-    if (!validRecord(item)) throw new Error('Invalid result');
-    renderRecord(item);
-    history = [item, ...history.filter(existing => existing.id !== item.id)]; renderHistory();
-    status('Übersetzung gespeichert.');
+    phase = 'validation';
+    if (!validRecord(item)) { const error = new Error('Invalid result'); error.code = 'invalid_response'; throw error; }
+    // Commit the accepted owner-scoped result before any fallible DOM rendering.
+    acceptedRevision++; record = item; history = [item, ...history.filter(existing => existing.id !== item.id)];
+    phase = 'render';
+    displayAcceptedTranslation();
   } catch (error) {
     if (run !== generation) return;
-    handleUnauthorized(error);
-    if (error.code === 'provider_not_connected' && session) { session.provider = { connected: false }; renderConnection(); }
-    status(error.name === 'AbortError' ? 'Anfrage abgebrochen. Falls sie bereits abgeschlossen war, prüfe den Verlauf.' : errorMessage(error), error.name !== 'AbortError');
-  } finally { busy = false; controller = null; updateInput(); }
+    translationDiagnostic(phase, error, metadata);
+    if (phase === 'render') {
+      status('Gespeichert, aber nicht darstellbar. Öffne das Ergebnis im Verlauf.', true);
+      $('translation-recover').hidden = false;
+    } else {
+      handleUnauthorized(error);
+      if (error.code === 'provider_not_connected' && session) { session.provider = { connected: false }; renderConnection(); }
+      status(error.code === 'invalid_response' ? 'Ungültige Serverantwort. Prüfe den Verlauf, bevor du erneut übersetzt.' : error.name === 'AbortError' ? 'Anfrage abgebrochen. Falls sie bereits abgeschlossen war, prüfe den Verlauf.' : errorMessage(error), error.name !== 'AbortError');
+    }
+  } finally { if (controller === attemptController) { busy = false; controller = null; updateInput(); } }
 }
 function changeLanguage(source, target) {
   if (!canEditDraft()) return;

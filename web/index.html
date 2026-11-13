@@ -32,7 +32,6 @@
   <main id="main">
     <section id="translator" aria-label="Übersetzer" tabindex="-1">
       <form id="translation-form">
-        <div id="connection-notice"><span id="connection-title">Sitzung wird geprüft …</span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div>
         <div class="language-bar">
           <select id="language-direction" disabled aria-label="Sprachrichtung"><option value="de-ru" aria-label="Deutsch nach Russisch">de → ru</option><option value="ru-de" aria-label="Russisch nach Deutsch" selected>ru → de</option><option value="de-de" aria-label="Deutsch verbessern" title="Deutsch verbessern">de → de</option></select>
           <button id="swap" disabled type="button" class="swap-button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
@@ -57,9 +56,10 @@
           </div>
         </div>
         <div class="translate-toolbar">
-          <div class="inline-status"><p id="translation-status" role="status" aria-live="polite"></p></div>
+          <div class="inline-status"><p id="translation-status" role="status" aria-live="polite"></p><button id="translation-recover" type="button" class="quiet-button" hidden>Gespeichertes Ergebnis öffnen</button></div>
           <div class="translation-actions"><button id="cancel" type="button" class="quiet-button" hidden>Abbrechen</button><button id="translate" class="primary-button" type="submit" disabled>Übersetzen</button></div>
         </div>
+        <div id="connection-notice" hidden><span id="connection-title"></span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div>
       </form>
       <section id="history" class="history" aria-labelledby="history-title"><div class="section-heading"><h2 id="history-title">Verlauf</h2><button id="refresh-history" class="quiet-button" type="button" disabled>Aktualisieren</button></div><p id="history-status" class="muted">Melde dich an, um deinen persönlichen Verlauf zu laden.</p><ul id="history-list" class="history-list"></ul></section>
     </section>
@@ -102,8 +102,10 @@
     <label class="account-language" for="interface-language-account" hidden><span>Sprache</span><select id="interface-language-account" data-interface-language><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label>
     <div id="sign-in-options" class="sign-in-options">
       <button id="apple-login" class="apple-button" aria-label="Mit Apple anmelden" disabled><img src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
-      <div id="apple-login-progress" class="apple-login-progress" role="status" aria-live="polite" hidden><span class="signin-spinner" aria-hidden="true"></span><span id="apple-login-progress-label"></span></div>
-      <button id="pair-browser" class="pair-button" disabled>Mit iPhone anmelden</button>
+      <div class="signin-feedback">
+        <button id="pair-browser" class="pair-button" disabled>Mit iPhone anmelden</button>
+        <div id="apple-login-progress" class="apple-login-progress" role="status" aria-live="polite" hidden><span class="signin-spinner" aria-hidden="true"></span><span id="apple-login-progress-label">Apple-Anmeldung wird geöffnet …</span></div>
+      </div>
       <div id="browser-pairing" hidden><p>Keine Magie auf deinem angemeldeten iPhone öffnen → Browser verbinden. Nur diesen eigenen Browser bestätigen. Der Code gilt fünf Minuten.</p><output id="pairing-code" aria-live="polite"></output><p id="pairing-status" role="status"></p></div>
     </div>
     <section id="signed-in-account" class="account-section" hidden><p id="apple-status"></p><button id="logout" class="quiet-button" hidden>Abmelden</button></section>

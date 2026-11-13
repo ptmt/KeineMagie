@@ -103,13 +103,14 @@ export async function startAppleLogin(api, csrf, signal) {
 
 export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
   return {
-    async request(path, { method = 'GET', body, csrf, signal } = {}) {
+    async request(path, { method = 'GET', body, csrf, signal, onResponse } = {}) {
       const vocabularyQuery = /^\/v1\/learning\/vocabulary\?language=(?:de|ru)&job_id=[A-Za-z0-9_-]{1,200}$/.test(path);
       if ((!/^\/v1\/[A-Za-z0-9/_-]+$/.test(path) && !vocabularyQuery) || path.split('/').some(part => part === '.' || part === '..')) throw new Error('Only same-origin API paths are allowed');
       const headers = { Accept: 'application/json' };
       if (body !== undefined) headers['Content-Type'] = 'application/json';
       if (csrf) headers['X-CSRF-Token'] = csrf;
       const response = await fetcher(path, { method, headers, credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+      onResponse?.({status:response.status});
       if (response.status === 204) return null;
       const value = await response.json().catch(() => null);
       if (!response.ok) {
@@ -121,7 +122,7 @@ export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
         error.limits = value?.limits && typeof value.limits === 'object' ? value.limits : null;
         throw error;
       }
-      if (value === null) throw new Error('The server returned an invalid response.');
+      if (value === null) { const error = new Error('The server returned an invalid response.'); error.code = 'invalid_response'; error.status = response.status; throw error; }
       return value;
     }
   };

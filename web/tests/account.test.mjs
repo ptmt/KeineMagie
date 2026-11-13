@@ -9,7 +9,7 @@ import { createEpisodeView } from '../episode-view.mjs';
 import { mountTranslatorFollowup } from '../translator-followup.mjs';
 import { mountCoach } from '../coach.mjs';
 
-export async function harness({deferSession, deferHistory, deferProvider, config: configOverride, leanSession = false} = {}) {
+export async function harness({deferSession, deferHistory, deferProvider, config: configOverride, leanSession = false, deferTranslation} = {}) {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const nodes = new Map();
   for (const tag of html.matchAll(/<[^>]+id="([^"]+)"[^>]*>/g)) {
@@ -39,6 +39,7 @@ export async function harness({deferSession, deferHistory, deferProvider, config
     if (path === '/v1/web/session') { await deferSession?.(); if (signedIn) body = {user:{id:userID},csrf_token:'session-csrf',...(leanSession ? {} : {provider})}; else status = 401; }
     if (path === '/v1/web/logout') { signedIn = false; status = 204; }
     if (path === '/v1/translations') { await deferHistory?.(); body = {items}; }
+    if (path === '/v1/translations' && options.method === 'POST' && deferTranslation) body = await deferTranslation();
     if (path === '/v1/provider') { await deferProvider?.(); body = provider; status = providerHTTPStatus; }
     if (path === '/v1/podcasts/subscriptions') body = {items:[{id:'Feed_A',title:'Private podcast',episodes:[]}]};
     if (path === '/v1/podcasts') body = {items:[],worker_available:true};
@@ -155,7 +156,7 @@ test('rechecking preserves only same-account drafts, blocks stale handlers and l
  const oldChip=el('style-chips').children[1];await oldChip.click();
  await el('add-prompt').click();el('prompt-name').value='Unsaved';
  wait=true;const pending=el('retry-session').click();await h.settle();
- assert.equal(el('source-text').disabled,false);assert.equal(el('translate').disabled,true);assert.equal(el('prompt-dialog').open,true);
+ assert.equal(el('source-text').disabled,false);assert.equal(el('translate').disabled,false);assert.equal(el('prompt-dialog').open,true);
  assert.equal(el('prompt-name').value,'Unsaved');
  wait=false;release();await pending;
  assert.equal(el('source-text').value,'Private draft');assert.equal(el('source-text').disabled,false);assert.equal(el('translate').disabled,false);
@@ -164,6 +165,29 @@ test('rechecking preserves only same-account drafts, blocks stale handlers and l
  el('source-text').value='Account B private';await el('source-text').dispatch('input');await el('logout').click();
  assert.equal(el('source-text').value,'');assert.equal(el('source-text').disabled,true);assert.equal(el('history-list').children.length,0);
  h.signIn(true,'owner-B');await el('retry-session').click();assert.equal(el('source-text').value,'');
+});
+
+test('late history cannot erase accepted results after the draft is edited', async () => {
+  let hold=false,release;const h=await harness({deferHistory:()=>hold?new Promise(resolve=>{release=resolve;}):undefined,deferTranslation:()=>({id:'accepted',text:'saved',translation:'result',source_language:'ru',target_language:'de',idioms:[],patterns:[],vocabulary:[]})});const el=id=>h.nodes.get(id);
+  h.signIn(true);await el('retry-session').click();hold=true;const pending=el('refresh-history').click();await h.settle();hold=false;
+  el('language-direction').value='ru-de';el('source-text').value='saved';await el('translation-form').dispatch('submit');
+  el('source-text').value='new draft';await el('source-text').dispatch('input');
+  release();await pending;assert.equal(el('history-list').children.length,1);assert.equal(el('source-text').value,'new draft');
+});
+
+test('late old-owner POST cannot unlock or cancel the new owner attempt', async () => {
+  const held=[];const h=await harness({deferTranslation:()=>new Promise(resolve=>held.push(resolve))});const el=id=>h.nodes.get(id);
+  const result=text=>({id:text,text,translation:text,source_language:'ru',target_language:'de',idioms:[],patterns:[],vocabulary:[]});
+  h.signIn(true,'owner-A');await el('retry-session').click();el('language-direction').value='ru-de';el('source-text').value='A';
+  const first=el('translation-form').dispatch('submit');await h.settle();
+  await el('logout').click();h.signIn(true,'owner-B');await el('retry-session').click();el('source-text').value='B';
+  const second=el('translation-form').dispatch('submit');await h.settle();
+  held[0](result('A'));await first;
+  assert.equal(el('translate').disabled,true);assert.equal(el('cancel').hidden,false);assert.equal(el('source-text').value,'B');
+  await el('translation-form').dispatch('submit');assert.equal(held.length,2);
+  const call=h.calls.filter(c=>c.path==='/v1/translations'&&c.options.method==='POST').at(-1);
+  await el('cancel').click();assert.equal(call.options.signal.aborted,true);
+  held[1](result('B'));await second;assert.equal(el('result').textContent,'B');
 });
 
 test('detached history handlers cannot restore another account’s private text', async () => {
@@ -239,16 +263,17 @@ test('late provider bootstrap cannot repopulate a closed and reopened dialog', a
   assert.equal(el('provider-bootstrap').hidden, true);
 });
 
-test('catalog unavailable stays linked, blocks submits, preserves history and retries without reconnecting', async () => {
+test('catalog unavailable stays advisory, permits server-authorized submits and preserves history', async () => {
   const h = await harness(); const el = id => h.nodes.get(id);
   const provider = { connected: true, status: 'catalog_unavailable', message: 'ChatGPT connection saved; model catalog unavailable. Check the connection again.', models: [], selected_model: '' };
   const saved = { id: 'saved-fixture', created_at: '2026-01-01T12:00:00Z', text: 'Hallo', source_language: 'de', target_language: 'ru', translation: 'Test-only saved translation', idioms: [], patterns: [], vocabulary: [] };
   h.signIn(true); h.provider(provider); h.history([saved]);
   await el('retry-session').click();
+  el('language-direction').value = 'ru-de';
   el('source-text').value = 'New draft'; await el('source-text').dispatch('input');
-  assert.equal(el('translate').disabled, true);
+  assert.equal(el('translate').disabled, false);
   await el('translation-form').dispatch('submit');
-  assert.equal(h.calls.some(c => c.path === '/v1/translations' && c.options.method === 'POST'), false);
+  assert.equal(h.calls.some(c => c.path === '/v1/translations' && c.options.method === 'POST'), true);
   assert.equal(el('provider-status').textContent, 'Verbunden · Modell nicht verfügbar');
   assert.match(el('provider-detail').textContent, /verbunden.*Modellkatalog.*nicht verfügbar/s);
   assert.equal(el('connection-notice').hidden, false);
@@ -263,7 +288,7 @@ test('catalog unavailable stays linked, blocks submits, preserves history and re
   await el('history-list').children[0].children[0].click();
   assert.equal(el('result').textContent, saved.translation);
   assert.equal(el('copy').disabled, false);
-  assert.equal(el('translate').disabled, true);
+  assert.equal(el('translate').disabled, false);
   await el('refresh-history').click();
   assert.equal(el('history-list').children.length, 1);
   h.provider({ connected: true, status: 'connected', message: 'ChatGPT connected', models: [{ slug: 'offered-model', display_name: 'Offered model' }], selected_model: 'offered-model' });
