@@ -76,4 +76,12 @@ Evidence under `/Users/tinyserve/.hermes/cache/scratch/` (ephemeral): `coach-rev
 
 ## Release execution
 
-Pending exact commit, CI, deployment and Apple-upload readback. Do not infer delivery from the local verification above.
+Released source **`e0456d12a9e04a0a7243279b6cfbcaf83909e19d`** (includes prior sign-in feedback and fixed 30-day new-session changes).
+
+- Server publication [43426909526](https://github.com/ptmt/KeineMagie/actions/runs/43426909526), job `131890450794`: **success**. Existing host uses the documented local arm64 Compose workaround, not that separate registry artifact. Built only from a clean `git archive` of the combined source with network-disabled build steps.
+- Running backend **`sha256:031c5cec14b0cb632fef24d5fee97b0f6d36eb106bbfd0cb1feeead290c320cc`**; exact OCI revision above. Worker unchanged **`sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382`**. Full merged config changed only backend image; worker/unrelated container IDs, environment, resources, canonical mounts, routing labels and private network unchanged.
+- Locked preflight: **0 active jobs, 1 completed job, 1 subscription, 2113 saved segments and translations**. All **8 non-runtime durable files byte-identical** after replacement. Private backups and before/after evidence: `/Users/tinyserve/Library/Application Support/tinyserve/services/keinemagie/deployment/release-coach-20261113T123910Z/`. No owner retries/reset/inference. Rollback retains prior backend `sha256:ebf21a142a082a4f266f1d83ad91268ba4cf4f265338791b808d712583e4da9e`; restore only its image pin using saved `compose.previous.yml`, never historical data.
+- Public certificate-validating HTTPS health **200**; guest session/Coach/podcasts/subscriptions **401**; server source and isolated spike routes **404**. All **21 public runtime assets** exact bytes/SHA256 against the clean committed archive. Strict CSP and no-store preserved. Actual public guest Coach renders real signed-out UI, zero private exercises and disabled composer; 390px mobile has no horizontal overflow. No account login or provider request used.
+- iOS [43426909482](https://github.com/ptmt/KeineMagie/actions/runs/43426909482): **success** for exact source. Validate job `131890450681`; upload job `131892233178`. Signed archive/export succeeded, build **`2735.81.58`**, explicit Apple **`UPLOAD SUCCEEDED with no errors` at 2026-11-13 12:48:21Z**; signing cleanup succeeded. Apple processing/tester availability/physical installation remain unverified.
+
+No domain/worker/signing workflow migration. `spikes/`, `docs/DOMAIN-MIGRATION-PLAN.md` and Python caches were excluded from the scoped source commit.
