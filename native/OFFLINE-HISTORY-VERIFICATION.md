@@ -1,6 +1,12 @@
 # Native offline saved history
 
-## Quiet translator history follow-up (13 November 2026, not released)
+## Quiet translator history follow-up (13 November 2026, Apple upload verified)
+
+- Source / exact CI head: `01d73d785ecae1f37cd0e97fad8f3edc334d2d2a`.
+- Existing push-triggered [iOS TestFlight run 43412876271](https://github.com/ptmt/KeineMagie/actions/runs/43412876271): **success**. Validate job `131843384092`; upload job `131844885213`; signing-material cleanup also succeeded.
+- Build **2735.19.43**, confirmed by archive output and effective `CURRENT_PROJECT_VERSION`.
+- Apple: `VERIFY SUCCEEDED with no errors` at **11:03:27Z**, **`UPLOAD SUCCEEDED with no errors` at 2026-11-13 11:04:30Z**. Delivery UUID `7fce0f32-f477-4ff4-a2a6-160dac9f5c26`.
+- Processing, tester availability and physical iPhone installation remain unverified. No backend/web deployment; unrelated `spikes/` and Python caches preserved.
 
 History **already is cached** on disk, scoped to exact server + verified owner + dataset. `warmData()` hydrates once per session generation before requesting fresh data. Successful history GETs, translations and acknowledged favorite/delete changes persist the reconciled rows. Protected JSON lives in Application Support/ContentCache with hashed filenames, owner-only permissions, iOS file protection and backup exclusion. Offline access still requires the device-secure owner provenance below; no owner is inferred from cache files. Cache writes are best-effort (`try?`), so this is not a guarantee against disk failures.
 
