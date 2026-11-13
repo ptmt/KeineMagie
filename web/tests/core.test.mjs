@@ -52,6 +52,16 @@ test('transport preserves status for expired sessions and never exposes raw upst
   await assert.rejects(api.request('/v1/web/session'), error => error.status === 401 && error.code === 'provider_not_connected' && !error.message.includes('private'));
 });
 
+test('response metadata is bounded and invalid JSON retains its HTTP status', async () => {
+  const { createAPI } = await import('../core.mjs');
+  for (const requestID of ['synthetic-request-123', 'private value /not-an-id']) {
+    let metadata;
+    const api = createAPI(async () => new Response('{', {status:201,headers:{'X-Request-ID':requestID}}));
+    await assert.rejects(api.request('/v1/translations', {onResponse:value=>{metadata=value;}}), error=>error.code==='invalid_response' && error.status===201);
+    assert.deepEqual(metadata,{status:201});
+  }
+});
+
 test('provider bootstrap is a CSRF-protected POST, not a guessed remote OAuth redirect', async () => {
   const { startProviderConnection } = await import('../core.mjs');
   const calls = [];
