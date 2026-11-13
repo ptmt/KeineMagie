@@ -216,7 +216,7 @@ func (b *browserAuth) handle(w http.ResponseWriter, r *http.Request) {
 			writeError(w, 401, "pairing unavailable")
 			return
 		}
-		browserSetCookie(w, browserCookie, token, 86400)
+		browserSetCookie(w, browserCookie, token, int(browserSessionLifetime/time.Second))
 		browserSetCookie(w, pairingCookie, "", -1)
 		writeJSON(w, 200, map[string]string{"status": "approved"})
 	default:
@@ -335,7 +335,7 @@ func (s *authStore) createBrowser(native, user string, now time.Time) (string, e
 		if parent.UserID != user || parent.Kind == "browser" || !now.Before(parent.Expires) {
 			return io.ErrUnexpectedEOF
 		}
-		d.Sessions[sessionHash(token)] = authSession{UserID: user, Kind: "browser", Expires: now.Add(24 * time.Hour)}
+		d.Sessions[sessionHash(token)] = authSession{UserID: user, Kind: "browser", Expires: now.Add(browserSessionLifetime)}
 		return s.write(d)
 	})
 	return token, err

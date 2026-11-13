@@ -94,7 +94,7 @@ func TestSignedAppleBrowserProviderSharesNativeOwner(t *testing.T) {
 	if w = authCall(h, "GET", "/v1/provider", "", browserToken); w.Code != 401 {
 		t.Fatal("browser bearer bypass")
 	}
-	expired := time.Now().Add(-48 * time.Hour)
+	expired := time.Now().Add(-31 * 24 * time.Hour)
 	expiredToken, err := cfg.auth.store.createBrowser(otherToken, other.UserID, expired)
 	if err != nil {
 		t.Fatal(err)

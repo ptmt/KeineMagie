@@ -249,7 +249,7 @@ func (a *appleWeb) callback(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 503, "authentication unavailable")
 		return
 	}
-	browserSetCookie(w, browserCookie, token, 86400)
+	browserSetCookie(w, browserCookie, token, int(browserSessionLifetime/time.Second))
 	browserSetCookie(w, pairingCookie, "", -1)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

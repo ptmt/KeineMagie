@@ -379,6 +379,8 @@ func startWebApple(t *testing.T, h http.Handler) (url.Values, []*http.Cookie) {
 }
 func TestAppleWebSignedCodeLogin(t *testing.T) {
 	h, cfg, transport := webAppleFixture(t)
+	issued := time.Now().UTC()
+	cfg.auth.now = func() time.Time { return issued }
 	_, native, err := cfg.auth.store.create("apple-subject", time.Now())
 	if err != nil {
 		t.Fatal(err)
@@ -400,7 +402,7 @@ func TestAppleWebSignedCodeLogin(t *testing.T) {
 		t.Fatalf("unsafe session: %v", sessionCookie)
 	}
 	session, err := cfg.auth.store.lookup(sessionCookie.Value, time.Now())
-	if err != nil || session.Kind != "browser" || session.UserID != native.UserID || time.Until(session.Expires) > 24*time.Hour {
+	if err != nil || session.Kind != "browser" || session.UserID != native.UserID {
 		t.Fatalf("not linked to native: %+v %v", session, err)
 	}
 	if transport.calls != 1 || strings.Contains(w.Body.String(), sessionCookie.Value) || strings.Contains(w.Header().Get("Location"), "token") {
@@ -410,4 +412,5 @@ func TestAppleWebSignedCodeLogin(t *testing.T) {
 	if w.Code != 401 || transport.calls != 1 {
 		t.Fatalf("replayed: %d calls=%d", w.Code, transport.calls)
 	}
+	assertBrowserLifetime(t, h, cfg, sessionCookie, issued, appleWebOrigin)
 }

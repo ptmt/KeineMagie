@@ -10,6 +10,9 @@ import (
 	"time"
 )
 
+// Fixed lifetime for newly issued browser sessions; persisted expiries are never extended.
+const browserSessionLifetime = 30 * 24 * time.Hour
+
 type authSession struct {
 	Kind    string    `json:"kind,omitempty"`
 	UserID  string    `json:"user_id"`
@@ -106,7 +109,7 @@ func (s *authStore) createKind(subject string, now time.Time, kind string) (stri
 		session = authSession{UserID: id, Expires: now.Add(30 * 24 * time.Hour)}
 		if kind == "browser" {
 			session.Kind = kind
-			session.Expires = now.Add(24 * time.Hour)
+			session.Expires = now.Add(browserSessionLifetime)
 		}
 		d.Sessions[sessionHash(token)] = session
 		return s.write(d)

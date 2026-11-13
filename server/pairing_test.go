@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestBrowserPairingTracer(t *testing.T) {
@@ -17,6 +18,8 @@ func TestBrowserPairingTracer(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	issued := time.Now().UTC()
+	cfg.auth.now = func() time.Time { return issued }
 	native, owner, err := cfg.auth.store.create("alice", cfg.auth.now())
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +52,7 @@ func TestBrowserPairingTracer(t *testing.T) {
 		t.Fatalf("pairing unavailable: %s", w.Body.String())
 	}
 	cookies := w.Result().Cookies()
-	if len(cookies) != 1 || !cookies[0].Secure || !cookies[0].HttpOnly || cookies[0].SameSite != http.SameSiteStrictMode || cookies[0].Path != "/" || !strings.HasPrefix(cookies[0].Name, "__Host-") {
+	if len(cookies) != 1 || cookies[0].MaxAge != 300 || !cookies[0].Secure || !cookies[0].HttpOnly || cookies[0].SameSite != http.SameSiteStrictMode || cookies[0].Path != "/" || !strings.HasPrefix(cookies[0].Name, "__Host-") {
 		t.Fatalf("unsafe cookies: %v", cookies)
 	}
 	w = call("/v1/web/pairing/start", "{}", "", config.CSRF, cookies)
@@ -100,4 +103,11 @@ func TestBrowserPairingTracer(t *testing.T) {
 	if w = call("/v1/web/pairing/poll", "{}", "", config.CSRF, cookies); w.Code != 404 {
 		t.Fatalf("replay %d", w.Code)
 	}
+	var sessionCookie *http.Cookie
+	for _, c := range sessions {
+		if c.Name == browserCookie {
+			sessionCookie = c
+		}
+	}
+	assertBrowserLifetime(t, h, cfg, sessionCookie, issued, "https://example.com")
 }
