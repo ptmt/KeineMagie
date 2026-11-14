@@ -28,6 +28,12 @@ actor SimulatorSessionFixture {
     static let copyTranslation = "  Übersetzung 👩🏽‍💻 Привет e\u{0301}\n\n" + String(repeating: "Zeile 日本語\t  {\"nested\":{\"literal\":\"\\n\",\"items\":[1,2]}}\n", count: 1200) + "  Ende\n "
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
     func send(_ request: URLRequest) async throws -> AuthResponse {
+        if mode.hasPrefix("translation-catalog-"), request.url?.path == "/v1/provider" {
+            try await Task.sleep(for: .seconds(3))
+            if mode == "translation-catalog-timeout" { throw URLError(.timedOut) }
+            return AuthResponse(data: Data(#"{"connected":true,"status":"catalog_unavailable","message":"ChatGPT connection saved; model catalog unavailable. Check the connection again.","models":[],"selected_model":""}"#.utf8), status: 200)
+        }
+        if mode == "translation-catalog-failure", request.url?.path == "/v1/translations", request.httpMethod == "POST" { return AuthResponse(data: Data(), status: 424) }
         if mode == "translation-outbox-status", request.url?.path == "/v1/provider" {
             try await Task.sleep(for: .seconds(30)); throw URLError(.timedOut)
         }

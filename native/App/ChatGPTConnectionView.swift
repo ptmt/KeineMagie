@@ -22,6 +22,10 @@ struct ChatGPTConnectionView: View {
                     Text("chatgpt.native.notice").font(.callout)
                 }
                 if let status = model.provider, status.status == "setup_required" { Text(verbatim: status.message).font(.caption).foregroundStyle(.secondary) }
+                if let diagnostic = model.providerDiagnostic {
+                    Text(verbatim: diagnostic).font(.callout).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("provider-diagnostic")
+                }
                 Button("Verbindung prüfen") { Task { await model.refreshTranslator() } }.disabled(model.busy || model.refreshing)
                 if model.refreshing { ProgressView() }
             }

@@ -385,6 +385,7 @@ final class AppModel {
         if selectedShortcutID == id.uuidString { selectedShortcutID = nil }
     }
     private(set) var provider: ProviderStatus?
+    private(set) var providerDiagnostic: String?
     private(set) var bootstrap: ProviderBootstrap?
     var chatGPTBrowser: ChatGPTBrowser?
     private var loopback: OAuthLoopback?
@@ -448,11 +449,17 @@ final class AppModel {
                   refreshID == refresh, connection == nil || connectionID == connection else { return }
             provider = status
             if status.connected { bootstrap = nil }
-            if status.status == "catalog_unavailable" { translatorError = status.message }
+            // Catalog discovery is advisory; it is not a failed translation.
+            // Keep its diagnostic on the ChatGPT settings screen only.
+            providerDiagnostic = status.connected && status.status == "catalog_unavailable"
+                ? AppL10n.text("chatgpt.catalog.unavailable") : nil
         } catch {
             if !Task.isCancelled, session.phase == .signedIn, version == session.generation,
                refreshID == refresh, connection == nil || connectionID == connection {
-                translatorError = Self.connectionError(error)
+                if case APIError.http(401) = error {
+                    session.rejectUnauthorized(); resetSessionContent(); return
+                }
+                providerDiagnostic = AppL10n.text("chatgpt.status.unavailable")
                 if historyPhase == .loading { historyPhase = .error; historyLoadError = Self.connectionError(error) }
             }
         }
@@ -642,7 +649,7 @@ final class AppModel {
         for task in historyTasks.values { task.cancel() }
         historyTasks = [:]; historyErrors = [:]; historyState.reset()
         shortcuts = []
-        provider = nil; bootstrap = nil; translatorError = nil; busy = false
+        provider = nil; providerDiagnostic = nil; bootstrap = nil; translatorError = nil; busy = false
         refreshID = nil; refreshing = false
     }
     func saveServer(url: String) async throws {

@@ -14,6 +14,11 @@ struct SettingsView: View {
                     Text(verbatim: "\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"))")
                         .accessibilityIdentifier("app-version-build")
                 }
+                if model.session.phase == .signedIn {
+                    Section("Konto") {
+                        NavigationLink("ChatGPT") { ChatGPTConnectionView() }
+                    }
+                }
                 Section("Server") {
                     TextField(text: $url) { Text(verbatim: ProductIdentity.defaultServerURL) }
                         .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()

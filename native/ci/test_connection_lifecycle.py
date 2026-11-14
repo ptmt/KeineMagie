@@ -16,6 +16,9 @@ import KeineMagieCore
     var release: CheckedContinuation<Void, Never>?
     var callbackTask: Task<Void, Never>?
     var failCatalog = false
+    var catalogError: URLError?
+    var providerHTTP = 200
+    var disconnected = false
     var failHistory = false
     var failComplete = false
     var statusCalls = 0
@@ -53,6 +56,9 @@ import KeineMagieCore
         case "/v1/provider":
             statusCalls += 1
             if holdStatus { await withCheckedContinuation { statusRelease = $0 } }
+            if let catalogError { throw catalogError }
+            if providerHTTP != 200 { return AuthResponse(data: Data(), status: providerHTTP) }
+            if disconnected { return AuthResponse(data: Data(#"{"connected":false,"status":"not_connected","message":"Connect ChatGPT"}"#.utf8), status: 200) }
             if failCatalog { return AuthResponse(data:Data("{}".utf8),status:502) }
             if degradedCatalog { return AuthResponse(data:Data(#"{"connected":true,"status":"catalog_unavailable","message":"Catalog unavailable; check again.","models":[],"selected_model":""}"#.utf8),status:200) }
             body = #"{"connected":true,"status":"connected","message":"synthetic","models":[{"slug":"synthetic","display_name":"Synthetic"}],"selected_model":"synthetic"}"#
@@ -275,7 +281,46 @@ import KeineMagieCore
     gate.statusRelease?.resume(); gate.statusRelease = nil
     await check.value
     #expect(!model.refreshing)
-    #expect(model.translatorError == APIError.http(502).localizedDescription)
+    #expect(model.translatorError == nil)
+    #expect(model.providerDiagnostic == "chatgpt.status.unavailable")
+}
+@Test @MainActor func catalogTransportFailureIsAdvisoryAndTranslationFailureStaysVisible() async {
+    let gate = Gate(); let model = await fixture(gate)
+    await model.refreshTranslator()
+    gate.catalogError = URLError(.timedOut)
+    await model.refreshTranslator()
+    #expect(model.provider?.connected == true)
+    #expect(model.translatorError == nil)
+    model.draft = "Typed during timeout"
+    #expect(gate.translationRequests.isEmpty)
+    gate.translationStatus = 424
+    await model.translate()
+    #expect(gate.translationRequests.count == 1)
+    #expect(model.outbox.items.first?.state == .failed)
+    #expect(model.outbox.items.first?.failure == .provider)
+    await model.refreshTranslator()
+    #expect(model.outbox.items.first?.failure == .provider)
+    #expect(model.draft == "Typed during timeout")
+    #expect(model.translatorError == nil)
+}
+@Test @MainActor func provider401IsIdentityFailureNotCatalogAdvisory() async {
+    let gate = Gate(); let model = await fixture(gate)
+    model.draft = "Private synthetic draft"
+    await model.refreshTranslator()
+    gate.providerHTTP = 401
+    await model.refreshTranslator()
+    #expect(model.session.user == nil)
+    #expect(model.provider == nil)
+    #expect(model.draft.isEmpty)
+    #expect(gate.translationRequests.isEmpty)
+}
+@Test @MainActor func disconnectedProviderRemainsDistinctFromCatalogFailure() async {
+    let gate = Gate(); gate.disconnected = true
+    let model = await fixture(gate)
+    await model.refreshTranslator()
+    #expect(model.provider?.connected == false)
+    #expect(model.provider?.status == "not_connected")
+    #expect(model.translatorError == nil)
 }
 @Test @MainActor func unavailableCatalogKeepsConnectionButNoModel() async {
     let gate = Gate(); gate.degradedCatalog = true
@@ -283,7 +328,16 @@ import KeineMagieCore
     await model.refreshTranslator()
     #expect(model.provider?.connected == true)
     #expect(model.provider?.selectedModel == "")
-    #expect(model.translatorError == "Catalog unavailable; check again.")
+    #expect(model.translatorError == nil, "Auxiliary catalog failure must not become a red translation error")
+    #expect(gate.translationRequests.isEmpty)
+    model.draft = "Synthetic typed draft"
+    #expect(gate.translationRequests.isEmpty, "Typing never authorizes inference")
+    await model.translate()
+    #expect(gate.translationRequests.count == 1)
+    #expect(model.outbox.items.first?.state == .completed)
+    #expect(model.draft == "Synthetic typed draft")
+    await model.refreshTranslator()
+    #expect(model.translatorError == nil, "Passive checks must not restore the red banner after success")
 }
 @Test @MainActor func customStyleReachesActualAppModelRequestAndNeverCrossesAccounts() async throws {
     let gate = Gate(); gate.owner = "style-owner-\(UUID())"

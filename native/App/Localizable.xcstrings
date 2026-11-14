@@ -1,6 +1,76 @@
 {
   "sourceLanguage": "de",
   "strings": {
+    "chatgpt.catalog.unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindung gespeichert. Modellliste derzeit nicht verfügbar. Du kannst eine Übersetzung versuchen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection saved. Model list is currently unavailable. You can try a translation."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключение сохранено. Список моделей сейчас недоступен. Можно попробовать перевод."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexión guardada. La lista de modelos no está disponible ahora. Puedes intentar traducir."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion enregistrée. La liste des modèles est indisponible pour le moment. Tu peux essayer une traduction."
+          }
+        }
+      }
+    },
+    "chatgpt.status.unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindungsstatus derzeit nicht verfügbar. Du kannst eine Übersetzung versuchen oder später erneut prüfen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection status is currently unavailable. You can try a translation or check again later."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Статус подключения сейчас недоступен. Можно попробовать перевод или проверить позже."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El estado de la conexión no está disponible ahora. Puedes intentar traducir o comprobarlo más tarde."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’état de la connexion est indisponible pour le moment. Tu peux essayer une traduction ou vérifier plus tard."
+          }
+        }
+      }
+    },
   "outbox.local": {
     "extractionState": "manual",
     "localizations": {
