@@ -1,5 +1,5 @@
 // No persistent browser cache, inference polling, or hidden retry. Server owns receipts.
-const errorKey=e=>['storage','session','invalid','quota','canceled','connection_required','catalog_unavailable','model_unavailable','sources_unavailable','sources_required','conflict'].includes(e.code?.replace(/^coach_/,''))?e.code.replace(/^coach_/,''):({401:'session',403:'session',429:'quota'}[e.status]||'network');
+const errorKey=e=>['storage','session','invalid','quota','canceled','connection_required','catalog_unavailable','model_unavailable','sources_unavailable','sources_required','conflict'].includes(e.code?.replace(/^coach_/,''))?e.code.replace(/^coach_/,''):({401:'session',403:'session',429:'quota'}[e.status]||(e.code==='invalid_response'||e instanceof SyntaxError?'response':e.status?'server':e.name==='TimeoutError'?'timeout':e instanceof TypeError?'network':'unknown'));
 export function createCoachState(api,changed,unauthorized,locale){
  let owner=null,session=null,epoch=0,read=null,controller=null;
  const state={value:null,error:'',busy:false,pendingID:null,

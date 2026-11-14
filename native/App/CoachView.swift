@@ -73,7 +73,7 @@ private struct CoachTurnView: View {
     private var writable: Bool { model.session.canWrite && !model.coachBusy }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let message = turn.message { Text(message).textSelection(.enabled) }
+            if let message = turn.message, turn.showsInstruction { Text(message).textSelection(.enabled) }
             if turn.state == "pending" {
                 Text("coach.pending").font(.footnote)
                 Button("coach.cancel") { model.sendCoach("cancel", turnID: turn.id) }.disabled(!model.session.canWrite)
@@ -82,18 +82,13 @@ private struct CoachTurnView: View {
             }
             if let kind = turn.kind, kind != "clarification", let prompt = turn.prompt {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text(LocalizedStringKey("coach.target." + (turn.target ?? "grammar"))).font(.caption).foregroundStyle(.secondary)
                     Text(prompt).font(.title3).textSelection(.enabled)
                     if let attempt = turn.attempt {
                         Text(attempt.answer).italic()
-                        Text(LocalizedStringKey("coach." + (attempt.excluded ? "excluded" : attempt.outcome))).font(.headline)
+                        Text(LocalizedStringKey("coach." + (attempt.excluded ? "excluded" : attempt.outcome))).font(attempt.outcome == "ambiguous" ? .callout : .headline)
                             .accessibilityIdentifier("coach-feedback")
                         if attempt.assisted { Text("coach.assisted").font(.caption).foregroundStyle(.secondary) }
-                        Menu("coach.review") {
-                            Button("coach.count.correct") { model.sendCoach("review", text: "correct", turnID: turn.id) }
-                            Button("coach.count.wrong") { model.sendCoach("review", text: "wrong", turnID: turn.id) }
-                            Button("coach.exclude") { model.sendCoach("review", text: "excluded", turnID: turn.id) }
-                        }.disabled(!writable)
+
                     } else {
                         TextField("coach.answer", text: $answer, axis: .vertical).lineLimit(1...4).textFieldStyle(.roundedBorder)
                             .accessibilityIdentifier("coach-answer-" + turn.id)
@@ -105,19 +100,23 @@ private struct CoachTurnView: View {
                 }.padding(14).background(Color(uiColor: .systemBackground), in: RoundedRectangle(cornerRadius: 12))
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(.quaternary))
             }
+            if let explanation = turn.explanation, turn.attempt != nil {
+                Text(explanation).font(.callout).textSelection(.enabled)
+                    .accessibilityIdentifier("coach-explanation")
+            }
             if let quote = turn.quote {
                 DisclosureGroup(isExpanded: $sourceOpen) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(quote).textSelection(.enabled)
-                        if let explanation = turn.explanation { Text(explanation).font(.callout) }
+                        if let explanation = turn.explanation, turn.attempt == nil { Text(explanation).font(.callout) }
                         if let source = turn.sourceID, let target = CoachSourceTarget(source) {
-                            NavigationLink { CoachSourceView(target: target, generation: model.session.generation) } label: { Text("coach.openSource") }
+                            NavigationLink { CoachSourceView(target: target, generation: model.session.generation) } label: { Text(LocalizedStringKey(source.hasPrefix("translation:") ? "coach.savedTranslation" : "coach.savedPassage")) }
                                 .accessibilityIdentifier("coach-source-" + turn.id)
                         }
                     }.padding(.vertical, 8)
-                } label: { Text("coach.source") }
+                } label: { Text(LocalizedStringKey(turn.attempt == nil ? "coach.hint" : "coach.source")) }
             } else if turn.sourceID != nil {
-                Button("coach.source") { model.sendCoach("reveal", turnID: turn.id); sourceOpen = true }.disabled(!writable)
+                Button("coach.hint") { model.sendCoach("reveal", turnID: turn.id); sourceOpen = true }.disabled(!writable)
             }
         }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
             .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
@@ -173,6 +172,17 @@ struct CoachObservationsView: View {
                     Text(verbatim: "\(AppL10n.text("coach.answers")): \(item.count) · \(AppL10n.text("coach.examples")): \(item.distinctExamples)")
                     Text(verbatim: "\(AppL10n.text("coach.correct")): \(item.correct) · \(AppL10n.text("coach.wrong")): \(item.needsPractice)")
                     Text(verbatim: "\(AppL10n.text("coach.assisted")): \(item.assisted) · \(AppL10n.text("coach.limited"))").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            ForEach((model.coach?.turns ?? []).filter { $0.attempt != nil }) { turn in
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(turn.prompt ?? "").font(.callout)
+                    Text(turn.attempt?.answer ?? "").italic()
+                    Menu("coach.review") {
+                        Button("coach.count.correct") { model.sendCoach("review", text: "correct", turnID: turn.id) }
+                        Button("coach.count.wrong") { model.sendCoach("review", text: "wrong", turnID: turn.id) }
+                        Button("coach.exclude") { model.sendCoach("review", text: "excluded", turnID: turn.id) }
+                    }.disabled(!model.session.canWrite || model.coachBusy)
                 }
             }
             Button("coach.reset") { confirmReset = true }.disabled(!model.session.canWrite || model.coachBusy)

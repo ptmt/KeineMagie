@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {coachSourceLink} from '../coach.mjs';
+import {coachSourceLink,coachShowsInstruction} from '../coach.mjs';
+test('obvious cloze omits only redundant instructions, not useful context',()=>{
+ for(const message of ['Fill in the missing preposition.','Ergänze die fehlende Präposition.','Вставьте пропущенный предлог.','Completa la preposición que falta.','Complète la préposition manquante.'])
+  assert.equal(coachShowsInstruction({kind:'cloze',prompt:'Ich war einmal ___ diesem Kurs dabei.',message}),false);
+ assert.equal(coachShowsInstruction({kind:'cloze',prompt:'___',message:'Use the formal register.'}),true);
+ assert.equal(coachShowsInstruction({kind:'short_rephrase',prompt:'Rewrite this',message:'Use the formal register.'}),true);
+});
 test('source links are local, exact, and reject malformed identifiers',()=>{
  assert.equal(coachSourceLink('translation:original'),'/?translation=original#translator');
  assert.equal(coachSourceLink('passage:job_A:12'),'/?section=transcript&segment=12#podcasts/job/job_A');
@@ -30,6 +36,11 @@ test('cancel owns mutation slot until durable acknowledgement and fences late se
 test('errors use localizable codes, never provider text',async()=>{
  const state=createCoachState({request:async()=>{throw Object.assign(new Error('private upstream detail'),{code:'coach_model_unavailable',status:503})}},()=>{},()=>{},()=> 'fr');
  state.identity({user:{id:'a'}});await state.load();assert.equal(state.error,'model_unavailable');
+});
+test('failures distinguish server response, decoding, timeout and transport without provider blame',async()=>{
+ for(const [error,expected] of [[Object.assign(new Error(),{status:502}),'server'],[Object.assign(new Error(),{status:200,code:'invalid_response'}),'response'],[Object.assign(new Error(),{name:'TimeoutError'}),'timeout'],[new TypeError('Failed to fetch'),'network'],[new Error('unexpected'),'unknown']]){
+  const state=createCoachState({request:async()=>{throw error}},()=>{},()=>{},()=> 'en');state.identity({user:{id:'a'}});await state.load();assert.equal(state.error,expected);
+ }
 });
 test('explicit send uses stable id; failures do not silently retry',async()=>{
  let count=0;const api={request:async()=>{count++;throw new Error('offline')}};const state=createCoachState(api,()=>{},()=>{},()=> 'en');state.identity({user:{id:'a'},csrf_token:'x'});await state.act('message','hello');assert.equal(count,1);assert.ok(state.error);assert.equal(state.busy,false);

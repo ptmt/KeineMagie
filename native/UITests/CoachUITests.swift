@@ -24,6 +24,8 @@ final class CoachUITests: XCTestCase {
         if !check.isHittable { app.scrollViews.firstMatch.swipeUp() }
         check.tap()
         XCTAssertTrue(app.staticTexts["Correct"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["coach-explanation"].exists)
+        XCTAssertFalse(app.buttons["Review observation"].exists)
         shot(app, "coach-release-synthetic-feedback")
         let composer = app.textFields["coach-composer"]
         composer.tap(); composer.typeText("Can you clarify this?")
@@ -35,7 +37,7 @@ final class CoachUITests: XCTestCase {
         shot(app, "coach-release-clarification")
     }
     @MainActor func testWrongAmbiguousSkipAndCancel() {
-        for (answer, feedback) in [("für", "Needs practice"), ("perhaps", "Not assessed"), ("", "Skipped")] {
+        for (answer, feedback) in [("für", "Needs practice"), ("perhaps", "I can’t check this confidently"), ("", "Skipped")] {
             let app = launch()
             if answer.isEmpty { app.buttons["Skip"].tap() }
             else {
@@ -56,7 +58,7 @@ final class CoachUITests: XCTestCase {
     }
     @MainActor func testCitationOpensOriginalAndReturns() {
         let app = launch()
-        let source = app.buttons["Show source / hint"]
+        let source = app.buttons["Hint"]
         XCTAssertTrue(source.waitForExistence(timeout: 8)); source.tap()
         let original = app.buttons["coach-source-synthetic-coach"]
         if !original.isHittable { app.scrollViews.firstMatch.swipeUp() }
@@ -65,6 +67,40 @@ final class CoachUITests: XCTestCase {
         shot(app, "coach-original-source")
         app.navigationBars.buttons.firstMatch.tap()
         XCTAssertTrue(app.buttons["coach-source-synthetic-coach"].waitForExistence(timeout: 8))
+    }
+    @MainActor func testFiveLocaleCompactFeedback() {
+        let samples = [("de", "Richtig"), ("en", "Correct"), ("ru", "Верно"), ("es", "Correcto"), ("fr", "Correct")]
+        for (locale, feedback) in samples {
+            let app = XCUIApplication()
+            app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach"
+            app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]
+            app.launch()
+            let tab = app.tabBars.buttons[locale == "ru" ? "Тренер" : locale == "es" ? "Entrenador" : "Coach"]
+            XCTAssertTrue(tab.waitForExistence(timeout: 10))
+            tab.tap()
+            let field = app.textFields["coach-answer-synthetic-coach"]
+            XCTAssertTrue(field.waitForExistence(timeout: 8)); field.tap(); field.typeText("auf")
+            app.buttons["coach-check-synthetic-coach"].tap()
+            XCTAssertTrue(app.staticTexts[feedback].waitForExistence(timeout: 8))
+            XCTAssertTrue(app.staticTexts["coach-explanation"].exists)
+            shot(app, "coach-compact-\(locale)")
+            app.terminate()
+        }
+    }
+    @MainActor func testProfileCorrectionAndExclusionReachable() {
+        let app = launch()
+        let answer = app.textFields["coach-answer-synthetic-coach"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 8)); answer.tap(); answer.typeText("beim")
+        app.buttons["coach-check-synthetic-coach"].tap()
+        XCTAssertTrue(app.staticTexts["I can’t check this confidently"].waitForExistence(timeout: 8))
+        app.buttons["coach-profile"].tap()
+        let review = app.buttons["Review observation"]
+        for _ in 0..<5 { if review.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(review.isHittable); review.tap()
+        XCTAssertTrue(app.buttons["Count as correct"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Count as needs practice"].exists)
+        XCTAssertTrue(app.buttons["Exclude"].exists)
+        shot(app, "coach-profile-correction-exclusion")
     }
     @MainActor func testDarkAccessibilityChatAndProfile() {
         let app = launch(large: true)

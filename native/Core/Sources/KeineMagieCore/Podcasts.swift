@@ -210,17 +210,25 @@ public struct PodcastAPI: Sendable {
             value.setValue("application/json", forHTTPHeaderField: "Content-Type")
             value.httpBody = try JSONEncoder().encode(action)
         }
-        let response = try await transport(value)
+        let response: AuthResponse
+        do { response = try await transport(value) }
+        catch let error as URLError {
+            let key = error.code == .timedOut ? "timeout" : error.code == .cancelled ? "canceled" : "network"
+            throw CoachServiceError(status: 0, message: "coach.error." + key)
+        }
+        catch is CancellationError { throw CoachServiceError(status: 0, message: "coach.error.canceled") }
+        catch { throw CoachServiceError(status: 0, message: "coach.error.unknown") }
         if response.status == 401 { throw APIError.http(401) }
         guard response.status == 200 else {
             struct Failure: Decodable { let code: String? }
             let code = (try? JSONDecoder().decode(Failure.self, from: response.data).code) ?? ""
             let allowed = ["storage", "session", "invalid", "quota", "canceled", "connection_required", "catalog_unavailable", "model_unavailable", "sources_unavailable", "sources_required", "conflict"]
             let key = code.hasPrefix("coach_") ? String(code.dropFirst(6)) : ""
-            let safe = allowed.contains(key) ? key : (response.status == 403 ? "session" : response.status == 429 ? "quota" : "network")
+            let safe = allowed.contains(key) ? key : (response.status == 403 ? "session" : response.status == 429 ? "quota" : "server")
             throw CoachServiceError(status: response.status, message: "coach.error." + safe)
         }
-        return try JSONDecoder().decode(CoachSnapshot.self, from: response.data)
+        do { return try JSONDecoder().decode(CoachSnapshot.self, from: response.data) }
+        catch { throw CoachServiceError(status: response.status, message: "coach.error.response") }
     }
     public func library() async throws -> PodcastLibrary {
         try JSONDecoder().decode(PodcastLibrary.self, from: await send(request()))

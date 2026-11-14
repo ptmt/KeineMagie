@@ -73,7 +73,7 @@ final class AppModel {
             if let data = try? JSONEncoder().encode(value) { await persist(data, dataset: "coach") }
         } catch {
             guard current() else { return }
-            if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.network") }
+            if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.unknown") }
         }
     }
     func sendCoach(_ action: String, text: String = "", turnID: String = "") {
@@ -98,7 +98,7 @@ final class AppModel {
                 if let data = try? JSONEncoder().encode(value) { await persist(data, dataset: "coach") }
             } catch {
                 guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }
-                if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.network") }
+                if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.unknown") }
             }
         }
     }

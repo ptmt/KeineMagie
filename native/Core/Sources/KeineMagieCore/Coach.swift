@@ -23,6 +23,14 @@ public struct CoachTurn: Codable, Sendable, Identifiable {
     public let sourceID: String?; public let quote: String?; public let explanation: String?; public let attempt: CoachAttempt?
     enum CodingKeys: String, CodingKey { case id, text, state, at, assisted, language, message, kind, prompt, target, sourceID = "source_id", quote, explanation, attempt }
 }
+extension CoachTurn {
+    public var showsInstruction: Bool {
+        guard let message, !message.isEmpty else { return false }
+        guard ["cloze", "preposition_case"].contains(kind ?? ""), prompt?.contains("___") == true else { return true }
+        let generic = #"^(fill in (the )?missing (preposition|word)|ergänze (die fehlende präposition|den satz)|вставьте пропущенн(ый предлог|ое слово)|completa la preposición que falta|complète la préposition manquante)[.!]?$"#
+        return message.trimmingCharacters(in: .whitespacesAndNewlines).range(of: generic, options: [.regularExpression, .caseInsensitive]) == nil
+    }
+}
 public struct CoachObservation: Codable, Sendable, Identifiable {
     public var id: String { language + ":" + target }
     public let target: String; public let language: String; public let count: Int; public let distinctExamples: Int

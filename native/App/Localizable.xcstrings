@@ -1,6 +1,251 @@
 {
   "sourceLanguage": "de",
   "strings": {
+    "coach.error.unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach konnte die Anfrage nicht abschließen. Chat vor dem erneuten Senden aktualisieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach couldn’t complete the request. Refresh the chat before sending again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тренер не смог завершить запрос. Обновите чат перед повторной отправкой."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El entrenador no pudo completar la solicitud. Actualiza el chat antes de volver a enviar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach n’a pas pu terminer la demande. Actualise le chat avant de renvoyer."
+          }
+        }
+      }
+    },
+    "coach.error.timeout": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine rechtzeitige Serverantwort. Chat vor dem erneuten Senden aktualisieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server didn’t respond in time. Refresh the chat before sending again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сервер не ответил вовремя. Обновите чат перед повторной отправкой."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El servidor no respondió a tiempo. Actualiza el chat antes de volver a enviar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le serveur n’a pas répondu à temps. Actualise le chat avant de renvoyer."
+          }
+        }
+      }
+    },
+    "coach.error.response": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Serverantwort konnte nicht gelesen werden. Chat aktualisieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the server response. Refresh the chat."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать ответ сервера. Обновите чат."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo leer la respuesta del servidor. Actualiza el chat."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de lire la réponse du serveur. Actualise le chat."
+          }
+        }
+      }
+    },
+    "coach.error.server": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Keine-Magie-Server hat einen Fehler gemeldet. Chat vor dem erneuten Senden aktualisieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Keine Magie server returned an error. Refresh the chat before sending again."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сервер Keine Magie вернул ошибку. Обновите чат перед повторной отправкой."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El servidor de Keine Magie devolvió un error. Actualiza el chat antes de volver a enviar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le serveur Keine Magie a renvoyé une erreur. Actualise le chat avant de renvoyer."
+          }
+        }
+      }
+    },
+    "coach.savedPassage": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Podcaststelle"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved podcast passage"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранённый фрагмент подкаста"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasaje de podcast guardado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passage de podcast enregistré"
+          }
+        }
+      }
+    },
+    "coach.savedTranslation": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Übersetzung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved translation"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранённый перевод"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traducción guardada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduction enregistrée"
+          }
+        }
+      }
+    },
+    "coach.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinweis"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hint"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подсказка"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pista"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indice"
+          }
+        }
+      }
+    },
     "chatgpt.catalog.unavailable": {
       "extractionState": "manual",
       "localizations": {
@@ -847,31 +1092,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbindung prüfen, dann aktualisieren. Nicht automatisch wiederholt."
+            "value": "Keine Verbindung zum Keine-Magie-Server. Verbindung prüfen und Chat aktualisieren."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check your connection, then refresh. Nothing was retried automatically."
+            "value": "Can’t reach the Keine Magie server. Check your connection and refresh the chat."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Проверьте соединение и обновите. Автоповтора не было."
+            "value": "Нет связи с сервером Keine Magie. Проверьте соединение и обновите чат."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Revisa la conexión y actualiza. No hubo reintento automático."
+            "value": "No se puede conectar con el servidor de Keine Magie. Revisa la conexión y actualiza el chat."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vérifie la connexion puis actualise. Aucun nouvel essai automatique."
+            "value": "Connexion au serveur Keine Magie impossible. Vérifie la connexion et actualise le chat."
           }
         }
       }
@@ -1862,31 +2107,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quelle / Hinweis"
+            "value": "Quelle"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Show source / hint"
+            "value": "Source"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Источник / подсказка"
+            "value": "Источник"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fuente / pista"
+            "value": "Fuente"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Source / indice"
+            "value": "Source"
           }
         }
       }
@@ -2212,31 +2457,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nicht bewertet"
+            "value": "Das kann ich nicht sicher beurteilen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not assessed"
+            "value": "I can’t check this confidently"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Без оценки"
+            "value": "Не могу уверенно проверить"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sin evaluar"
+            "value": "No puedo evaluarlo con seguridad"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non évalué"
+            "value": "Je ne peux pas vérifier avec certitude"
           }
         }
       }

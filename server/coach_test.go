@@ -117,6 +117,30 @@ func TestCoachOwnerChat(t *testing.T) {
 	if w = call("POST", answer, browser, true); w.Code != 200 || calls != 1 {
 		t.Fatal("answer retry inferred")
 	}
+	// Reproduce the screenshot without regrading an unrecognized attempt or changing it.
+	for _, sample := range []struct{ answer, outcome string }{{"bei", "correct"}, {"beim", "ambiguous"}} {
+		id := "course-" + sample.answer
+		if err := cfg.coachStore(s.UserID).transaction(true, func(d *coachData) error {
+			d.Turns = append(d.Turns, coachTurn{ID: id, State: "completed", Language: "de", Result: &coachResult{Kind: "preposition_case", Prompt: "Ich war einmal ___ diesem Kurs dabei.", Answers: []string{"bei"}, SourceID: "translation:original", Quote: "Ich war einmal bei diesem Kurs dabei.", Explanation: "Bei takes the dative. Beim means bei dem; diesem is already present."}})
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+		payload, _ := json.Marshal(coachInput{RequestID: "answer-" + id, Action: "answer", TurnID: id, Text: sample.answer, Locale: "en"})
+		w = call("POST", string(payload), browser, true)
+		if w.Code != 200 {
+			t.Fatal(w.Code)
+		}
+		if err := cfg.coachStore(s.UserID).transaction(false, func(d *coachData) error {
+			a := coachFind(d, id).Attempt
+			if a.Answer != sample.answer || a.Outcome != sample.outcome {
+				t.Fatalf("attempt changed: %#v", a)
+			}
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
 	other, otherSession, _ := cfg.auth.store.create("another-owner", time.Now())
 	otherBrowser, _ := cfg.auth.store.createBrowser(other, otherSession.UserID, time.Now())
 	if w = call("GET", "", otherBrowser, false); w.Code != 200 || strings.Contains(w.Body.String(), "Ich warte") {

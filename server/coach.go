@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -262,6 +264,11 @@ func (cfg *serverConfig) coachRead(w http.ResponseWriter, owner string) {
 	}
 }
 func coachFailure(w http.ResponseWriter, status int, code, message string) {
+	phase := map[string]string{"catalog_unavailable": "catalog", "model_unavailable": "catalog", "connection_required": "provider_auth", "storage": "storage", "sources_required": "sources", "sources_unavailable": "sources", "session": "session", "invalid": "request", "quota": "admission", "conflict": "storage", "canceled": "canceled"}[code]
+	if phase != "" {
+		w.Header().Set("X-Coach-Phase", phase)
+	}
+
 	writeJSON(w, status, map[string]string{"error": message, "code": "coach_" + code})
 }
 func coachError(w http.ResponseWriter, e error) {
@@ -273,8 +280,33 @@ func coachError(w http.ResponseWriter, e error) {
 		coachFailure(w, 503, "storage", "coach storage unavailable")
 	}
 }
+
+// Only fixed phases, numeric status/timing, and random references are logged.
+// Never log owner, request text, source IDs, upstream messages, or credentials.
+type coachResponseWriter struct {
+	http.ResponseWriter
+	status int
+}
+
+func (w *coachResponseWriter) WriteHeader(status int) {
+	w.status = status
+	w.ResponseWriter.WriteHeader(status)
+}
 func (cfg *serverConfig) coachHTTP(w http.ResponseWriter, r *http.Request, owner string) {
+	raw := make([]byte, 16)
+	if _, e := rand.Read(raw); e == nil {
+		w.Header().Set("X-Coach-Request-ID", hex.EncodeToString(raw))
+	}
+	w.Header().Set("X-Coach-Phase", "request")
+	tracked := &coachResponseWriter{ResponseWriter: w, status: 200}
+	w = tracked
+	start := time.Now()
+	defer func() {
+		fmt.Printf("coach_request request_id=%s phase=%s status=%d duration_ms=%d\n", w.Header().Get("X-Coach-Request-ID"), w.Header().Get("X-Coach-Phase"), tracked.status, time.Since(start).Milliseconds())
+	}()
+
 	if r.Method == "GET" {
+		w.Header().Set("X-Coach-Phase", "storage")
 		cfg.coachRead(w, owner)
 		return
 	}
@@ -418,11 +450,13 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 		return
 	}
 	defer unlock()
+	w.Header().Set("X-Coach-Phase", "provider_auth")
 	credential, e := p.access(ctx, owner)
 	if e != nil {
 		coachFailure(w, 503, "connection_required", "connect your personal provider before using Coach")
 		return
 	}
+	w.Header().Set("X-Coach-Phase", "catalog")
 	models, e := p.models(ctx, credential.AccessToken)
 	if e != nil {
 		coachFailure(w, 503, "catalog_unavailable", "personal model catalog unavailable; no inference sent")
@@ -438,6 +472,7 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 		coachFailure(w, 503, "model_unavailable", "gpt-6.1-terra is unavailable in your personal model catalog; no fallback used")
 		return
 	}
+	w.Header().Set("X-Coach-Phase", "sources")
 	sources, e := cfg.coachSources(owner)
 	if e != nil {
 		coachFailure(w, 503, "sources_unavailable", "saved sources unavailable")
@@ -537,8 +572,18 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 		coachError(w, e)
 		return
 	}
+	w.Header().Set("X-Coach-Phase", "inference")
 	result, e := p.coachGenerate(ctx, credential.AccessToken, sources, prior, in)
 	if e != nil || ctx.Err() != nil {
+		code := "inference_failed"
+		if errors.Is(e, errCoachResult) {
+			code = "invalid_model_response"
+			w.Header().Set("X-Coach-Phase", "model_response")
+		}
+		if ctx.Err() != nil {
+			code = "deadline_or_canceled"
+		}
+		fmt.Printf("coach_failure request_id=%s phase=%s code=%s\n", w.Header().Get("X-Coach-Request-ID"), w.Header().Get("X-Coach-Phase"), code)
 		state := "failed"
 		if ctx.Err() != nil {
 			state = "canceled"
@@ -563,9 +608,12 @@ func coachSchema() map[string]any {
 	enum := func(values ...string) map[string]any { return map[string]any{"type": "string", "enum": values} }
 	return learningObject(map[string]any{"message": learningString(1200), "kind": enum("cloze", "preposition_case", "short_rephrase", "clarification"), "prompt": map[string]any{"type": "string", "maxLength": 500}, "target": enum(coachSkills...), "source_id": learningString(180), "quote": learningString(1800), "answers": learningArray(learningString(300), 0, 5), "incorrect_answers": learningArray(learningString(300), 0, 5), "explanation": learningString(1200)})
 }
+
+var errCoachResult = errors.New("invalid grounded coach result")
+
 func decodeCoach(text string, sources []coachSource) (coachResult, error) {
 	var result coachResult
-	invalid := errors.New("invalid grounded coach result")
+	invalid := errCoachResult
 	dec := json.NewDecoder(strings.NewReader(text))
 	value, e := learningJSONValue(dec)
 	if e != nil || dec.Decode(new(any)) != io.EOF {
