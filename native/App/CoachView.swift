@@ -26,7 +26,7 @@ struct CoachView: View {
                         CoachTurnView(turn: turn)
                             .transition(reduceMotion ? .identity : .opacity.combined(with: .move(edge: .bottom)))
                     }
-                    if model.coachBusy {
+                    if model.coachBusy && !(model.coach?.turns.contains { $0.attempt?.assessmentState == "pending" } ?? false) {
                         HStack {
                             ProgressView().accessibilityLabel("coach.pending")
                             if let id = model.coachPendingID { Button("coach.cancel") { model.sendCoach("cancel", turnID: id) } }
@@ -70,6 +70,7 @@ private struct CoachTurnView: View {
     let turn: CoachTurn
     @State private var answer = ""
     @State private var sourceOpen = false
+    @State private var confirmRecheck = false
     private var writable: Bool { model.session.canWrite && !model.coachBusy }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -85,8 +86,17 @@ private struct CoachTurnView: View {
                     Text(prompt).font(.title3).textSelection(.enabled)
                     if let attempt = turn.attempt {
                         Text(attempt.answer).italic()
-                        Text(LocalizedStringKey("coach." + (attempt.excluded ? "excluded" : attempt.outcome))).font(attempt.outcome == "ambiguous" ? .callout : .headline)
+                        Text(LocalizedStringKey(attempt.feedbackKey)).font(attempt.outcome == "ambiguous" ? .callout : .headline)
                             .accessibilityIdentifier("coach-feedback")
+                        if attempt.assessmentState == "pending" {
+                            Button("coach.cancel") { model.sendCoach("cancel", turnID: attempt.id) }.disabled(!model.session.canWrite)
+                        }
+                        if attempt.canRecheck {
+                            Button("coach.assessment.recheck") { confirmRecheck = true }.disabled(!writable)
+                        }
+                        if let assessment = attempt.assessment, assessment.verdict != "correct", !assessment.correctedAnswer.isEmpty {
+                            Text(assessment.correctedAnswer).textSelection(.enabled)
+                        }
                         if attempt.assisted { Text("coach.assisted").font(.caption).foregroundStyle(.secondary) }
 
                     } else {
@@ -100,7 +110,7 @@ private struct CoachTurnView: View {
                 }.padding(14).background(Color(uiColor: .systemBackground), in: RoundedRectangle(cornerRadius: 12))
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(.quaternary))
             }
-            if let explanation = turn.explanation, turn.attempt != nil {
+            if let explanation = turn.explanation, turn.attempt != nil, turn.attempt?.assessmentState == nil || turn.attempt?.assessmentState == "completed" {
                 Text(explanation).font(.callout).textSelection(.enabled)
                     .accessibilityIdentifier("coach-explanation")
             }
@@ -123,6 +133,9 @@ private struct CoachTurnView: View {
             .padding(.trailing, 24)
             .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: sourceOpen)
             .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: turn.attempt?.outcome)
+            .confirmationDialog("coach.assessment.confirm", isPresented: $confirmRecheck, titleVisibility: .visible) {
+                Button("coach.assessment.recheck") { model.sendCoach("recheck", turnID: turn.id) }
+            }
     }
     @ViewBuilder private var answerButtons: some View {
         Button("coach.check") { model.sendCoach("answer", text: answer, turnID: turn.id) }
@@ -182,7 +195,7 @@ struct CoachObservationsView: View {
                         Button("coach.count.correct") { model.sendCoach("review", text: "correct", turnID: turn.id) }
                         Button("coach.count.wrong") { model.sendCoach("review", text: "wrong", turnID: turn.id) }
                         Button("coach.exclude") { model.sendCoach("review", text: "excluded", turnID: turn.id) }
-                    }.disabled(!model.session.canWrite || model.coachBusy)
+                    }.disabled(!model.session.canWrite || model.coachBusy || (turn.attempt?.assessmentState != nil && turn.attempt?.assessmentState != "completed"))
                 }
             }
             Button("coach.reset") { confirmReset = true }.disabled(!model.session.canWrite || model.coachBusy)

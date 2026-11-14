@@ -42,6 +42,17 @@ test('failures distinguish server response, decoding, timeout and transport with
   const state=createCoachState({request:async()=>{throw error}},()=>{},()=>{},()=> 'en');state.identity({user:{id:'a'}});await state.load();assert.equal(state.error,expected);
  }
 });
+test('answer immediately shows verbatim pending attempt and cancels by assessment ID',async()=>{
+ let resolve;const api={request:()=>new Promise(r=>resolve=r)};
+ const state=createCoachState(api,()=>{},()=>{},()=> 'en');state.identity({user:{id:'a'},csrf_token:'x'});
+ state.value={turns:[{id:'exercise',assisted:true}],observations:[]};
+ const work=state.act('answer','  beim  ','exercise');
+ assert.equal(state.value.turns[0].attempt.answer,'  beim  ');
+ assert.equal(state.value.turns[0].attempt.assessment_state,'pending');
+ assert.equal(state.value.turns[0].attempt.assisted,true);
+ assert.ok(state.pendingID);assert.equal(state.value.turns[0].attempt.id,state.pendingID);
+ resolve({turns:[],observations:[]});await work;
+});
 test('explicit send uses stable id; failures do not silently retry',async()=>{
  let count=0;const api={request:async()=>{count++;throw new Error('offline')}};const state=createCoachState(api,()=>{},()=>{},()=> 'en');state.identity({user:{id:'a'},csrf_token:'x'});await state.act('message','hello');assert.equal(count,1);assert.ok(state.error);assert.equal(state.busy,false);
 });

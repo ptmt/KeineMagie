@@ -14,6 +14,23 @@ final class CoachUITests: XCTestCase {
     @MainActor private func shot(_ app: XCUIApplication, _ name: String) {
         let a = XCTAttachment(screenshot: app.screenshot()); a.name = name; a.lifetime = .keepAlways; add(a)
     }
+    @MainActor func testContextualAIAssessmentPendingAndCorrection() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-assessment"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        let answer = app.textFields["coach-answer-synthetic-coach"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 8)); answer.tap(); answer.typeText("beim")
+        app.buttons["coach-check-synthetic-coach"].tap()
+        XCTAssertTrue(app.staticTexts["AI check pending…"].waitForExistence(timeout: 2))
+        shot(app, "coach-assessment-pending-synthetic")
+        XCTAssertTrue(app.staticTexts["Incorrect"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["beim"].exists)
+        XCTAssertTrue(app.staticTexts["bei"].exists)
+        XCTAssertTrue(app.staticTexts["coach-explanation"].exists)
+        shot(app, "coach-assessment-corrected-synthetic")
+    }
     @MainActor func testPopulatedChatExerciseAndKeyboard() {
         let app = launch()
         let answer = app.textFields["coach-answer-synthetic-coach"]

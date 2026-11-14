@@ -35,6 +35,17 @@ final class ContentCacheTests: XCTestCase {
         let attributes = try FileManager.default.attributesOfItem(atPath: files[0].path)
         XCTAssertEqual((attributes[.posixPermissions] as? NSNumber)?.intValue, 0o600)
     }
+    func testLogoutRemovesCoachAnswerSnapshot() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cache = ContentCache(root: root)
+        let lease = cache.openSession(server: "https://one.example", owner: "A")
+        try await cache.save(Data("private literal answer".utf8), dataset: "coach", session: lease, revision: 1)
+        lease.invalidate()
+        try await cache.remove(session: lease)
+        let cleared = try await cache.load(dataset: "coach", server: "https://one.example", owner: "A")
+        XCTAssertNil(cleared)
+    }
     func testLogoutRemovesLearningSnapshot() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

@@ -88,13 +88,31 @@ final class AppModel {
         let epoch = coachEpoch
         coachReadID = nil
         let locale = Locale.preferredLanguages.first?.split(separator: "-").first.map(String.init) ?? "en"
-        let input = CoachAction(action: action, text: text, turnID: turnID, locale: ["de", "en", "ru", "es", "fr"].contains(locale) ? locale : "en")
+        let input = CoachAction(action: action, text: text, turnID: turnID, locale: ["de", "en", "ru", "es", "fr"].contains(locale) ? locale : "en", ownerID: session.user?.id)
         if action == "cancel" { coachTask?.cancel() }
         coachBusy = true; coachError = nil
-        coachPendingID = action == "message" ? input.requestID : nil
+        coachPendingID = ["message", "answer", "recheck"].contains(action) ? input.requestID : nil
+        if ["answer", "recheck"].contains(action) { coach = coach?.pendingAssessment(input) }
         coachTask = Task { [self] in
             defer { if epoch == coachEpoch { coachBusy = false; coachPendingID = nil; coachTask = nil } }
             do {
+                if ["answer", "recheck"].contains(action), cacheEnabled {
+                    guard let snapshot = coach, let lease = cacheSession() else {
+                        coachError = AppL10n.text("coach.error.storage")
+                        return
+                    }
+                    do {
+                        let data = try JSONEncoder().encode(snapshot)
+                        cacheRevision += 1
+                        let revision = cacheRevision
+                        try await contentCache.save(data, dataset: "coach", session: lease, revision: revision)
+                    } catch {
+                        guard !Task.isCancelled, version == session.generation, epoch == coachEpoch else { return }
+                        coachError = AppL10n.text("coach.error.storage")
+                        return
+                    }
+                }
+                guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.canWrite else { return }
                 let value = try await client.coach(action: input)
                 guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }
                 coach = value

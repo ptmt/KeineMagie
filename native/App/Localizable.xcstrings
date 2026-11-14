@@ -1,6 +1,7 @@
 {
   "sourceLanguage": "de",
   "strings" : {
+
   "podcast.load.library": {
     "localizations": {
       "de": {
@@ -273,6 +274,287 @@
       }
     }
   },
+
+    "coach.uncertain" : {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I can’t check this confidently"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das kann ich nicht sicher beurteilen"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не могу уверенно проверить"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No puedo evaluarlo con seguridad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je ne peux pas vérifier avec certitude"
+          }
+        }
+      }
+    },
+
+    "coach.incorrect" : {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht richtig"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неверно"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrecto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect"
+          }
+        }
+      }
+    },
+
+    "coach.partially_correct" : {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partially correct"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teilweise richtig"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Частично верно"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parcialmente correcto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partiellement correct"
+          }
+        }
+      }
+    },
+
+    "coach.assessment.confirm" : {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make a new personal gpt-6.1-terra call? An earlier call may already have used quota. The saved answer stays unchanged."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuen persönlichen gpt-6.1-terra-Aufruf senden? Ein früherer Aufruf kann bereits Kontingent verbraucht haben. Die gespeicherte Antwort bleibt unverändert."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отправить новый личный запрос gpt-6.1-terra? Предыдущий запрос уже мог потратить лимит. Сохранённый ответ не изменится."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Hacer otra llamada personal a gpt-6.1-terra? La anterior puede haber consumido cuota. La respuesta guardada no cambia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faire un nouvel appel personnel à gpt-6.1-terra ? Le précédent peut avoir utilisé du quota. La réponse enregistrée ne change pas."
+          }
+        }
+      }
+    },
+
+    "coach.assessment.recheck" : {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check again with AI"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut mit KI prüfen"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверить заново с AI"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a evaluar con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier à nouveau avec l’IA"
+          }
+        }
+      }
+    },
+
+    "coach.assessment.canceled" : {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assessment canceled. Your answer is saved."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfung abgebrochen. Antwort gespeichert."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка отменена. Ответ сохранён."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evaluación cancelada. Respuesta guardada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Évaluation annulée. Réponse enregistrée."
+          }
+        }
+      }
+    },
+
+    "coach.assessment.failed" : {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assessment unavailable. Your answer is saved; no skill evidence added."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfung nicht verfügbar. Antwort gespeichert; keine neue Beobachtung."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверка недоступна. Ответ сохранён; данные о навыке не изменены."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evaluación no disponible. Respuesta guardada; sin nuevas observaciones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Évaluation indisponible. Réponse enregistrée ; aucune observation ajoutée."
+          }
+        }
+      }
+    },
+
+    "coach.assessment.pending" : {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI check pending…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Prüfung ausstehend…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI проверяет…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evaluación de IA pendiente…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérification IA en cours…"
+          }
+        }
+      }
+    },
+
 
     "coach.error.unknown": {
       "extractionState": "manual",
@@ -3150,31 +3432,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nur gespeicherte Übersetzungen und Podcaststellen. Ein persönlicher gpt-6.1-terra-Aufruf pro Nachricht; gemeinsames Tageslimit 100."
+            "value": "Nur gespeicherte Übersetzungen und Textstellen. Jede Nachricht und Prüfung sendet einen persönlichen gpt-6.1-terra-Aufruf; gemeinsames Tageslimit 100."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saved translations and saved podcast passages only. One personal gpt-6.1-terra call per message; shared daily limit 100."
+            "value": "Saved translations and passages only. Each message and Check makes one personal gpt-6.1-terra call; shared daily limit 100."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Только сохранённые переводы и отмеченные фрагменты подкастов. Один личный запрос gpt-6.1-terra на сообщение; общий лимит — 100 в день."
+            "value": "Только сохранённые переводы и фрагменты. Каждое сообщение и «Проверить» — один личный запрос gpt-6.1-terra; общий лимит 100 в день."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solo traducciones y pasajes guardados. Una llamada personal a gpt-6.1-terra por mensaje; límite diario compartido de 100."
+            "value": "Solo traducciones y pasajes guardados. Cada mensaje y comprobación usa una llamada personal a gpt-6.1-terra; límite diario compartido de 100."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uniquement les traductions et passages enregistrés. Un appel personnel gpt-6.1-terra par message ; limite commune de 100 par jour."
+            "value": "Uniquement les traductions et passages enregistrés. Chaque message et vérification utilise un appel personnel gpt-6.1-terra ; limite commune de 100 par jour."
           }
         }
       }

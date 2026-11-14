@@ -67,7 +67,7 @@ func TestCoachRejectsMalformedGroundingAndAnswerLeak(t *testing.T) {
 		})
 	}
 }
-func TestCoachAttemptEvidenceAndRecovery(t *testing.T) {
+func TestCoachLegacyAttemptEvidenceAndRecovery(t *testing.T) {
 	dir := t.TempDir()
 	cfg := &serverConfig{authPath: filepath.Join(dir, "auth.json"), historyPath: filepath.Join(dir, "history.json")}
 	h, e := newHandler(cfg)
@@ -89,6 +89,11 @@ func TestCoachAttemptEvidenceAndRecovery(t *testing.T) {
 			}
 			d.Turns = append(d.Turns, coachTurn{ID: id, Text: "Practice", State: state, Result: r, Example: "same-source-quote", Language: "de", At: time.Now()})
 		}
+		// Historical list grades stay readable and correctable, never auto-regraded.
+		for _, id := range []string{"wrong", "ambiguous", "assisted"} {
+			outcome := map[string]string{"wrong": "wrong", "ambiguous": "ambiguous", "assisted": "correct"}[id]
+			coachFind(d, id).Attempt = &coachAttempt{ID: id, Answer: id, Outcome: outcome, OriginalOutcome: outcome, Assisted: id == "assisted", At: time.Now()}
+		}
 		return nil
 	})
 	if e != nil {
@@ -107,11 +112,8 @@ func TestCoachAttemptEvidenceAndRecovery(t *testing.T) {
 		json.Unmarshal(w.Body.Bytes(), &v)
 		return v
 	}
-	call("answer", "wrong", "für")
-	call("answer", "ambiguous", "maybe")
 	call("skip", "skip", "")
-	call("reveal", "assisted", "")
-	value := call("answer", "assisted", "auf")
+	value := call("reveal", "assisted", "")
 	obs := value["observations"].([]any)
 	if len(obs) != 1 {
 		t.Fatal(value)

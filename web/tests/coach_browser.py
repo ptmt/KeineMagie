@@ -28,6 +28,13 @@ class CoachHandler(Handler):
     outcome='skipped' if action=='skip' else {'auf':'correct','für':'wrong'}.get(body['text'],'ambiguous')
     turn['attempt']={'id':body['request_id'],'answer':body['text'],'outcome':outcome,'original_outcome':outcome,'assisted':turn['assisted'],'at':'2026-11-13T00:00:00Z','excluded':False}
     turn['quote']='Ich warte auf den Bus.';turn['explanation']='warten auf + Akkusativ'
+    if action=='answer':
+     verdict={'correct':'correct','wrong':'incorrect','ambiguous':'uncertain'}[outcome]
+     corrected='auf'
+     if 'diesem Kurs' in turn['prompt']:
+      verdict='incorrect';corrected='bei';turn['attempt']['outcome']=turn['attempt']['original_outcome']='wrong'
+      turn['explanation']='Beim means bei dem; diesem already supplies the determiner. Use bei.'
+     turn['attempt'].update(assessment_state='completed',assessment={'verdict':verdict,'corrected_answer':corrected,'explanation':turn['explanation'],'uncertainty_reason':'ambiguous_exercise' if verdict=='uncertain' else ''})
    elif action=='reveal':turn.update(assisted=True,quote='Ich warte auf den Bus.',explanation='warten auf + Akkusativ')
    elif action=='review':
     turn['attempt']['excluded']=body['text']=='excluded'
@@ -46,7 +53,7 @@ try:
   page.wait_for_function("!document.querySelector('.coach-actions button').disabled")
   assert not CALLS
   assert page.locator('.coach-page > .coach-profile').count()==0, 'observations belong in Profile'
-  for text,expected in [('für','Needs practice'),('auf','Correct'),('perhaps','I can’t check this confidently')]:
+  for text,expected in [('für','Incorrect'),('auf','Correct'),('perhaps','I can’t check this confidently')]:
    # Compact bubbles retain evidence in Profile, not technical exercise chrome.
    page.get_by_role('button',name='Practice · ~30 sec',exact=True).click()
    card=page.locator('.coach-exercise').last;card.get_by_role('textbox',name='Answer',exact=True).fill(text)
@@ -72,7 +79,7 @@ try:
   page.wait_for_function("() => document.activeElement.id==='episode-segment-2012'")
   page.go_back();page.wait_for_function("!!document.activeElement.dataset.coachSource")
   page.screenshot(path=str(evidence/'citation-return.png'))
-  # Exact reported sentence: keep the literal attempt, abstain, show the rule.
+  # Synthetic assessment of the reported sentence: preserve answer, show actual correction.
   page.get_by_role('button',name='Practice · ~30 sec',exact=True).click()
   turn=DATA['turns'][-1]
   turn.update(message='Fill in the missing preposition.',prompt='Ich war einmal ___ diesem Kurs dabei.')
@@ -85,7 +92,8 @@ try:
   assert turn['assisted']
   assert card.get_by_role('textbox',name='Answer',exact=True).input_value()=='beim'
   card.get_by_role('button',name='Check',exact=True).click()
-  card.get_by_text('I can’t check this confidently',exact=True).wait_for()
+  card.get_by_text('Incorrect',exact=True).wait_for()
+  card.get_by_text('bei',exact=True).wait_for()
   turn.update(quote='Ich war einmal bei diesem Kurs dabei.',explanation='Bei takes the dative. Beim means bei dem; diesem already supplies the determiner.')
   page.get_by_role('button',name='Refresh',exact=True).click()
   page.locator('.coach-explanation').last.get_by_text(turn['explanation'],exact=True).wait_for()
@@ -125,7 +133,7 @@ try:
   assert CALLS[-1]['action']=='review' and CALLS[-1]['text']=='correct'
   review.locator('summary').click();review.get_by_role('button',name='Exclude',exact=True).click()
   assert CALLS[-1]['action']=='review' and CALLS[-1]['text']=='excluded'
-  assert turn['attempt']['answer']=='beim' and turn['attempt']['original_outcome']=='ambiguous'
+  assert turn['attempt']['answer']=='beim' and turn['attempt']['original_outcome']=='wrong'
   page.locator('#logout').click()
   page.wait_for_function("document.querySelector('#coach-input').disabled")
   assert page.locator('.coach-exercise').count()==0 and composer.input_value()==''

@@ -2,6 +2,25 @@ import XCTest
 @testable import KeineMagieCore
 
 final class CoachTests: XCTestCase {
+    func testAssessmentPreservesVerbatimAndLegacyCompatibility() throws {
+        let legacy = #"{"id":"old","answer":"  beim  ","outcome":"ambiguous","original_outcome":"ambiguous","assisted":false,"at":"now","excluded":false}"#
+        let old = try JSONDecoder().decode(CoachAttempt.self, from: Data(legacy.utf8))
+        XCTAssertNil(old.assessment)
+        XCTAssertNil(old.assessmentState)
+        let raw = legacy.dropLast() + #", "assessment_state":"completed", "assessment":{"verdict":"incorrect","corrected_answer":"bei","explanation":"Beim = bei dem; diesem is already present.","uncertainty_reason":""}}"#
+        let assessed = try JSONDecoder().decode(CoachAttempt.self, from: Data(raw.utf8))
+        XCTAssertEqual(assessed.answer, "  beim  ")
+        XCTAssertEqual(assessed.assessment?.verdict, "incorrect")
+        XCTAssertEqual(assessed.assessment?.correctedAnswer, "bei")
+        XCTAssertEqual(assessed.assessmentState, "completed")
+        let data = Data(#"{"turns":[{"id":"one","text":"Practice","state":"completed","at":"now","assisted":true,"language":"de"}],"observations":[],"model":"gpt-6.1-terra"}"#.utf8)
+        let snapshot = try JSONDecoder().decode(CoachSnapshot.self, from: data)
+        let pending = snapshot.pendingAssessment(CoachAction(requestID: "check", action: "answer", text: "  beim  ", turnID: "one", locale: "en"))
+        XCTAssertEqual(pending.turns[0].attempt?.answer, "  beim  ")
+        XCTAssertEqual(pending.turns[0].attempt?.assessmentState, "pending")
+        XCTAssertEqual(pending.turns[0].attempt?.assisted, true)
+        XCTAssertTrue(pending.observations.isEmpty)
+    }
     func testCompactInstructionRetainsUsefulContext() throws {
         func turn(_ message: String, kind: String = "cloze") throws -> CoachTurn {
             let data = try JSONSerialization.data(withJSONObject: ["id":"one", "text":"Practice", "state":"completed", "at":"now", "assisted":false, "language":"de", "message":message, "kind":kind, "prompt":"Ich war einmal ___ diesem Kurs dabei."])

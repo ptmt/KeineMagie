@@ -37,7 +37,7 @@ func TestCoachOwnerChat(t *testing.T) {
 			if payload["model"] != "gpt-6.1-terra" {
 				t.Error("wrong model")
 			}
-			if payload["store"] != false || payload["stream"] != true || payload["max_output_tokens"] != float64(2400) || r.URL.String() != "https://api.openai.com/v1/responses" {
+			if payload["store"] != false || payload["stream"] != true || (payload["max_output_tokens"] != float64(2400) && payload["max_output_tokens"] != float64(1600)) || r.URL.String() != "https://api.openai.com/v1/responses" {
 				t.Error("Responses wire contract violated")
 			}
 			format := payload["text"].(map[string]any)["format"].(map[string]any)
@@ -49,6 +49,18 @@ func TestCoachOwnerChat(t *testing.T) {
 				t.Error("unexpected tools")
 			}
 			text = accountTranslationSSE(`{"message":"Ergänze den Satz.","kind":"cloze","prompt":"Ich warte ___ den Bus.","target":"verb_government.preposition_case","source_id":"translation:original","quote":"Ich warte auf den Bus.","answers":["auf"],"incorrect_answers":["für"],"explanation":"warten auf + Akkusativ"}`, true, "response.completed")
+			if format["name"] == "coach_assessment" {
+				content := payload["input"].([]any)[0].(map[string]any)["content"].(string)
+				verdict, corrected := "correct", "auf"
+				if strings.Contains(content, "diesem Kurs") {
+					corrected = "bei"
+				}
+				if strings.Contains(content, `"learner_answer":"beim"`) {
+					verdict = "incorrect"
+				}
+				result, _ := json.Marshal(coachAssessment{Verdict: verdict, CorrectedAnswer: corrected, Explanation: "Synthetic contextual feedback: beim = bei dem; use bei before diesem."})
+				text = accountTranslationSSE(string(result), true, "response.completed")
+			}
 		}
 		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(text))}, nil
 	})}
@@ -114,14 +126,17 @@ func TestCoachOwnerChat(t *testing.T) {
 	if w.Code != 200 || !strings.Contains(w.Body.String(), `"outcome":"correct"`) {
 		t.Fatalf("answer %d %s", w.Code, w.Body.String())
 	}
-	if w = call("POST", answer, browser, true); w.Code != 200 || calls != 1 {
+	if w = call("POST", answer, browser, true); w.Code != 200 || calls != 2 {
 		t.Fatal("answer retry inferred")
 	}
-	// Reproduce the screenshot without regrading an unrecognized attempt or changing it.
-	for _, sample := range []struct{ answer, outcome string }{{"bei", "correct"}, {"beim", "ambiguous"}} {
+	// Synthetic contextual assessment regression, not live model quality evidence.
+	if e = history.append(translationRecord{ID: "course", translationInput: translationInput{TargetLanguage: "de"}, translationResult: translationResult{Translation: "Ich war einmal bei diesem Kurs dabei."}}); e != nil {
+		t.Fatal(e)
+	}
+	for _, sample := range []struct{ answer, outcome string }{{"bei", "correct"}, {"beim", "wrong"}} {
 		id := "course-" + sample.answer
 		if err := cfg.coachStore(s.UserID).transaction(true, func(d *coachData) error {
-			d.Turns = append(d.Turns, coachTurn{ID: id, State: "completed", Language: "de", Result: &coachResult{Kind: "preposition_case", Prompt: "Ich war einmal ___ diesem Kurs dabei.", Answers: []string{"bei"}, SourceID: "translation:original", Quote: "Ich war einmal bei diesem Kurs dabei.", Explanation: "Bei takes the dative. Beim means bei dem; diesem is already present."}})
+			d.Turns = append(d.Turns, coachTurn{ID: id, State: "completed", Language: "de", Result: &coachResult{Kind: "preposition_case", Prompt: "Ich war einmal ___ diesem Kurs dabei.", Answers: []string{"bei"}, Target: "verb_government.preposition_case", SourceID: "translation:course", Quote: "Ich war einmal bei diesem Kurs dabei.", Explanation: "Bei takes the dative. Beim means bei dem; diesem is already present."}})
 			return nil
 		}); err != nil {
 			t.Fatal(err)
@@ -147,7 +162,7 @@ func TestCoachOwnerChat(t *testing.T) {
 		t.Fatal("owner leak")
 	}
 	w = call("GET", "", browser, false)
-	if !strings.Contains(w.Body.String(), `"distinct_examples":1`) {
+	if !strings.Contains(w.Body.String(), `"distinct_examples":2`) {
 		t.Fatalf("missing evidence %s", w.Body.String())
 	}
 	// Reopen through a new handler: no automatic request/retry and durable answer.
@@ -156,7 +171,7 @@ func TestCoachOwnerChat(t *testing.T) {
 		t.Fatal(e)
 	}
 	w = call("GET", "", browser, false)
-	if w.Code != 200 || !strings.Contains(w.Body.String(), `"outcome":"correct"`) || calls != 1 {
+	if w.Code != 200 || !strings.Contains(w.Body.String(), `"outcome":"correct"`) || calls != 4 {
 		t.Fatalf("not durable %s", w.Body.String())
 	}
 }

@@ -57,6 +57,42 @@ import KeineMagieCore
     #expect(!model.session.canWrite)
     #expect(model.coach == nil)
 }
+@Test @MainActor func coachAssessmentIsImmediateDurableAndFenced() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    await model.loadCoach()
+    gate.hold = true
+    model.sendCoach("answer", text: "  beim  ", turnID: "saved")
+    #expect(model.coach?.turns.first?.attempt?.answer == "  beim  ")
+    #expect(model.coach?.turns.first?.attempt?.assessmentState == "pending")
+    model.sendCoach("answer", text: "duplicate", turnID: "saved")
+    while gate.replies.isEmpty { await Task.yield() }
+    #expect(gate.calls == ["GET", "POST"])
+    let cache = ContentCache(root: root)
+    let data = try await cache.load(dataset: "coach", server: model.session.serverURL, owner: "coach-fixture")
+    #expect(data != nil)
+    let saved = try JSONDecoder().decode(CoachSnapshot.self, from: data!)
+    #expect(saved.turns.first?.attempt?.answer == "  beim  ")
+    #expect(saved.turns.first?.attempt?.assessmentState == "pending")
+    model.resetSessionContent()
+    gate.replies.removeFirst().resume()
+    for _ in 0..<100 { await Task.yield() }
+    #expect(model.coach == nil)
+}
+@Test @MainActor func coachAssessmentStorageFailureNeverSends() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    await model.loadCoach()
+    try FileManager.default.removeItem(at: root)
+    try Data("blocked".utf8).write(to: root)
+    model.sendCoach("answer", text: "  beim  ", turnID: "saved")
+    while model.coachBusy { await Task.yield() }
+    #expect(gate.calls == ["GET"])
+    #expect(model.coach?.turns.first?.attempt?.answer == "  beim  ")
+    #expect(model.coachError == "coach.error.storage")
+}
 @Test @MainActor func coachReadOnlyCacheAndLateReset() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }
