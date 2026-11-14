@@ -6,7 +6,17 @@ Independent source/security review found no blocking regression: provider applic
 
 Fresh reviewer execution passed 48 native Python checks (one existing skip; includes 42 actual AppModel tests), 68 Core tests, four targeted Go race tests (catalog 401/403/500, native/browser owner contract, idempotency and receipt admission), and all five ad-hoc signed Release simulator catalog/outbox UI tests. Actual xcresult, strict codesign, compiled five-language strings and screenshots were inspected, not just prior reports. All 20 existing outbox keys and every other pre-existing catalog entry are unchanged; compiled values match the source for all 22 advisory/outbox keys in all five locales. Backend, web and flame assets have no diff from the reviewed baseline.
 
-Independent artifacts: scratch `catalog-independent-python.log`, `catalog-independent-core.log`, `catalog-independent-ui.log`, `catalog-independent-ui.xcresult`. Existing upstream catalog failure class remains **unknown**. Apple upload evidence will be recorded after the explicit existing workflow completes; upload alone does not establish processing or device availability.
+Independent artifacts: scratch `catalog-independent-python.log`, `catalog-independent-core.log`, `catalog-independent-ui.log`, `catalog-independent-ui.xcresult`. Existing upstream catalog failure class remains **unknown**.
+
+## Published evidence
+
+- Reviewed release source: `8d22633c193640e4f6e2bec63f956263be39afbc`, normal fast-forward push to `main`, remote ref read back.
+- Push validation [43572640488](https://github.com/ptmt/KeineMagie/actions/runs/43572640488): success; validate job `132380124105`; publication correctly skipped.
+- Exactly one explicit `publish=UPLOAD` dispatch: [43572645820](https://github.com/ptmt/KeineMagie/actions/runs/43572645820), completed **success**, exact release `headSha` above. Validate job `132380673140`; TestFlight job `132381362860`; signing-material cleanup success.
+- Apple build **2742.71.14**; upload job reports `CURRENT_PROJECT_VERSION = 2742.71.14`, successful archive/export and **`UPLOAD SUCCEEDED with no errors` at 2026-11-14T07:55:22Z**.
+- No backend deployment was needed or triggered: backend/web/asset trees are unchanged. Original worktrees and pending Diktat remain untouched; no domain migration, credential replay or paid inference.
+- Upload proves Apple acceptance only: processing, tester availability, physical-device installation and real personal-provider translation remain unverified. This is a native advisory/error-classification fix, not a proven repair of the unknown upstream catalog failure.
+- GitHub emitted existing checkout Node runtime deprecation and macOS runner-capacity notices. A local watcher timed out; watching the same run resumed without a second dispatch.
 
 ## Original candidate scope / baseline (before release review)
 
