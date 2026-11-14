@@ -6,9 +6,10 @@ struct MainTabsView: View {
     @State private var selected = "translator"
     @State private var showPodcastAdd = false
     @State private var showCoachProfile = false
+    @State private var showPending = false
     var body: some View {
         TabView(selection: $selected) {
-            TranslatorView()
+            TranslatorView(showPending: $showPending)
                 .tabItem { Label("feature.translator", systemImage: "character.bubble") }.tag("translator")
             UnavailableFeatureView(title: "feature.dictation", symbol: "waveform")
                 .tabItem { Label("feature.dictation", systemImage: "waveform") }.tag("dictation")
@@ -37,6 +38,7 @@ struct MainTabsView: View {
         .navigationTitle(LocalizedStringKey("feature." + selected))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showCoachProfile) { LearningProfileView() }
+        .sheet(isPresented: $showPending) { PendingTranslationsView() }
         .toolbar {
             if selected == "coach" {
                 ToolbarItem(placement: .topBarTrailing) {

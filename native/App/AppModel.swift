@@ -1,4 +1,5 @@
 import SwiftUI
+import CryptoKit
 import KeineMagieCore
 
 @MainActor @Observable
@@ -340,6 +341,7 @@ final class AppModel {
         let owner = session.phase == .signedIn ? session.user?.id : nil
         if let scope = outboxScope, scope.origin == session.serverURL, scope.owner == owner, scope.generation == session.generation { return }
         translationEpoch += 1; translationTask?.cancel(); translationTask = nil; translationSending = false
+        checkingTranslations.removeAll(); translationCheckNotices.removeAll()
         outboxScope = (session.serverURL, owner, session.generation)
         outboxLoadingFailed = false
         do { outbox = try outboxStore.load(origin: session.serverURL, owner: owner); outboxStorageError = false }
@@ -364,9 +366,44 @@ final class AppModel {
         loadTranslationOutbox()
         guard let i = outbox.items.firstIndex(where: { $0.id == id }), outbox.items[i].state != .sending,
               outbox.items[i].state != .completed, outbox.items[i].state != .cancelled else { return }
+        if outbox.items[i].state == .needsDecision || outbox.items[i].failure == .server {
+            await checkTranslation(id)
+            return
+        }
         outbox.items[i].state = .queued; outbox.items[i].nextAttempt = nil; outbox.items[i].attempts = 0
         guard saveTranslationOutbox() else { return }
         await drainTranslations(explicit: true)
+    }
+    private(set) var checkingTranslations: Set<UUID> = []
+    private(set) var translationCheckNotices: [UUID: String] = [:]
+    // GET history is lookup-only on deployed servers. Match the documented
+    // receipt-derived record ID, never source text: identical requests differ.
+    func checkTranslation(_ id: UUID) async {
+        loadTranslationOutbox()
+        guard session.phase == .signedIn, let owner = session.user?.id,
+              outbox.items.contains(where: { $0.id == id && [.needsDecision, .failed].contains($0.state) }),
+              checkingTranslations.insert(id).inserted else { return }
+        let version = session.generation, epoch = translationEpoch
+        defer { if epoch == translationEpoch { checkingTranslations.remove(id) } }
+        do {
+            let records = try await api(translation: true).history()
+            guard version == session.generation, epoch == translationEpoch, session.user?.id == owner,
+                  let i = outbox.items.firstIndex(where: { $0.id == id && [.needsDecision, .failed].contains($0.state) }) else { return }
+            let recordID = "outbox-" + SHA256.hash(data: Data((owner + "\u{0}" + id.uuidString).utf8)).map { String(format: "%02x", $0) }.joined()
+            guard let record = records.first(where: { $0.id == recordID }) else {
+                translationCheckNotices[id] = "outbox.notFound"
+                return
+            }
+            outbox.items[i].result = record; outbox.items[i].state = .completed; outbox.items[i].failure = nil
+            guard saveTranslationOutbox() else { return }
+            translationCheckNotices[id] = nil
+            result = record; historyState.insert(record)
+            await persistHistory()
+        } catch {
+            guard version == session.generation, epoch == translationEpoch, session.user?.id == owner else { return }
+            translationCheckNotices[id] = "outbox.checkFailed"
+            if case APIError.http(401) = error { session.rejectUnauthorized(); resetSessionContent() }
+        }
     }
     func resumeTranslations() async {
         loadTranslationOutbox()
@@ -652,6 +689,7 @@ final class AppModel {
             invalidatedOutboxOwner = (scope.origin, owner)
         }
         translationEpoch += 1; translationTask?.cancel(); translationTask = nil; translationSending = false
+        checkingTranslations.removeAll(); translationCheckNotices.removeAll()
         let previousDirection = outbox.direction
         outbox = TranslationOutbox(); outbox.direction = previousDirection; outboxScope = nil
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil

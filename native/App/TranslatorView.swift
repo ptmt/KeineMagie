@@ -6,7 +6,16 @@ import KeineMagieCore
 struct TranslatorView: View {
     @Environment(AppModel.self) private var model
     @FocusState private var inputFocused: Bool
+    @Binding var showPending: Bool
     @ScaledMetric(relativeTo: .body) private var editorHeight = 112
+    private var pendingItems: [TranslationOutbox.Item] {
+        model.outbox.items.filter { ![.completed, .cancelled].contains($0.state) }
+    }
+    private var pendingLabel: LocalizedStringKey {
+        if pendingItems.contains(where: { [.failed, .needsDecision].contains($0.state) }) { return "outbox.quiet.failed" }
+        if pendingItems.contains(where: { $0.state == .sending }) { return "outbox.quiet.sending" }
+        return "outbox.quiet.saved"
+    }
 
     var body: some View {
         @Bindable var model = model
@@ -93,31 +102,21 @@ struct TranslatorView: View {
                 .padding(.vertical, 8)
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .listRowSeparator(.hidden)
-            if !model.outbox.items.isEmpty {
-                Section("outbox.title") {
-                    Text("outbox.foreground").font(.caption).foregroundStyle(.secondary)
-                    ForEach(model.outbox.items) { item in
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(verbatim: item.text).lineLimit(3).textSelection(.enabled)
-                            Text(LocalizedStringKey("outbox.state." + item.state.rawValue)).font(.caption)
-                            if let failure = item.failure {
-                                Text(LocalizedStringKey("outbox.error." + failure.rawValue)).font(.caption).foregroundStyle(.secondary)
-                            }
-                            HStack {
-                                if [.failed, .needsDecision, .queued].contains(item.state) {
-                                    Button("outbox.retry") { Task { await model.retryTranslation(item.id) } }.buttonStyle(.borderless)
-                                }
-                                if item.failure == .provider {
-                                    NavigationLink("chatgpt.connect") { ChatGPTConnectionView() }
-                                }
-                                if [.queued, .sending, .failed, .needsDecision].contains(item.state) {
-                                    Button("outbox.cancel") { model.removeTranslation(item.id) }.buttonStyle(.borderless)
-                                }
-                                Button("history.delete", role: .destructive) { model.removeTranslation(item.id, delete: true) }.buttonStyle(.borderless)
-                            }
-                        }.accessibilityIdentifier("outbox-item-" + item.id.uuidString)
-                    }
-                }
+            if !pendingItems.isEmpty {
+                Button {
+                    inputFocused = false
+                    showPending = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Text(pendingLabel)
+                        if pendingItems.count > 1 { Text(verbatim: "· \(pendingItems.count)") }
+                        Spacer(minLength: 4)
+                        Image(systemName: "chevron.right").font(.caption)
+                    }.font(.subheadline).foregroundStyle(.secondary)
+                        .frame(minHeight: 44).contentShape(Rectangle())
+                }.buttonStyle(.plain)
+                    .accessibilityIdentifier("translation-pending")
+                    .listRowSeparator(.hidden)
             }
             if let result = model.result {
                 TranslationResultView(text: result.translation)
@@ -174,6 +173,8 @@ struct TranslatorView: View {
         }
 
         .listStyle(.plain)
+        // Let the final result/history controls scroll clear of floating tabs.
+        .safeAreaPadding(.bottom, 24)
         .environment(\.layoutDirection, .leftToRight)
         .scrollDismissesKeyboard(.interactively)
         .toolbar {
@@ -184,6 +185,61 @@ struct TranslatorView: View {
             }
         }
         .task { model.loadTranslationOutbox(); model.loadShortcuts() }
+    }
+}
+
+struct PendingTranslationsView: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.dismiss) private var dismiss
+    private var items: [TranslationOutbox.Item] {
+        model.outbox.items.filter { ![.completed, .cancelled].contains($0.state) }
+    }
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(items) { item in
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .top) {
+                            Text(verbatim: item.text).lineLimit(3).textSelection(.enabled)
+                            Spacer(minLength: 8)
+                            Menu {
+                                Button("outbox.cancel", role: .destructive) { model.removeTranslation(item.id) }
+                                Button("history.delete", role: .destructive) { model.removeTranslation(item.id, delete: true) }
+                            } label: {
+                                Image(systemName: "ellipsis").frame(width: 44, height: 44).contentShape(Rectangle())
+                            }.accessibilityLabel("outbox.actions")
+                                .accessibilityIdentifier("translation-actions")
+                        }
+                        Text(LocalizedStringKey(item.state == .sending ? "outbox.quiet.sending" : item.state == .queued ? "outbox.quiet.saved" : "outbox.quiet.failed"))
+                            .font(.subheadline).foregroundStyle(.secondary)
+                        if let notice = model.translationCheckNotices[item.id] {
+                            Text(LocalizedStringKey(notice)).font(.footnote).foregroundStyle(.secondary)
+                        }
+                        if item.state == .needsDecision || item.failure == .server {
+                            Button("outbox.check") { Task { await model.checkTranslation(item.id) } }
+                                .disabled(model.checkingTranslations.contains(item.id))
+                                .accessibilityIdentifier("translation-check")
+                        } else if item.failure == .provider {
+                            NavigationLink("chatgpt.connect") { ChatGPTConnectionView() }
+                        } else if item.state != .sending {
+                            Button("outbox.send") { Task { await model.retryTranslation(item.id) } }
+                                .accessibilityIdentifier("translation-send")
+                        }
+                    }.padding(.vertical, 4)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("pending-item-" + item.id.uuidString)
+                }
+                if items.isEmpty { Text("outbox.allSaved").foregroundStyle(.secondary) }
+            }
+            .navigationTitle("outbox.pending")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("outbox.done") { dismiss() }.accessibilityIdentifier("pending-done")
+                }
+            }
+        }.presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.medium, .large])
     }
 }
 

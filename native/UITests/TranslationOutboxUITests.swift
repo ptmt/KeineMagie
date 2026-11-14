@@ -22,7 +22,7 @@ final class TranslationOutboxUITests: XCTestCase {
         XCTAssertTrue(submit.isEnabled)
         submit.tap()
         XCTAssertTrue(app.buttons["translation-copy"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["Translation queue"].isHittable, "Long result must not push queue behind output")
+        XCTAssertFalse(app.buttons["translation-pending"].exists, "Completed receipts are not pending work")
         XCTAssertEqual(editor.value as? String, "Synthetic draft during verification")
         let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = "outbox-held-checks-completed"; shot.lifetime = .keepAlways; add(shot)
     }
@@ -34,7 +34,7 @@ final class TranslationOutboxUITests: XCTestCase {
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         editor.tap(); editor.typeText("Saved offline draft")
         offline.buttons["translator-submit"].tap()
-        XCTAssertTrue(offline.staticTexts["Queued"].waitForExistence(timeout: 5))
+        XCTAssertTrue(offline.buttons["translation-pending"].waitForExistence(timeout: 5))
         editor.tap(); editor.typeText(" still editing")
         let edited = editor.value as? String
         XCTAssertTrue(edited?.contains("still editing") == true)
@@ -42,10 +42,12 @@ final class TranslationOutboxUITests: XCTestCase {
         offline.launch()
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         XCTAssertEqual(editor.value as? String, edited)
-        XCTAssertTrue(offline.staticTexts["Saved offline draft"].exists)
-        let retry = offline.buttons["Retry / check result"].firstMatch
-        XCTAssertTrue(retry.isHittable)
-        XCTAssertLessThan(retry.frame.maxY, offline.tabBars.firstMatch.frame.minY)
+        let pending = offline.buttons["translation-pending"]
+        XCTAssertTrue(pending.isHittable)
+        XCTAssertLessThan(pending.frame.maxY, offline.tabBars.firstMatch.frame.minY)
+        pending.tap()
+        XCTAssertTrue(offline.staticTexts["Saved offline draft"].waitForExistence(timeout: 5))
+        XCTAssertTrue(offline.buttons["translation-send"].firstMatch.isHittable)
         let shot = XCTAttachment(screenshot: offline.screenshot()); shot.name = "outbox-offline-relaunch"; shot.lifetime = .keepAlways; add(shot)
         offline.terminate()
         let online = app("translation-controls", namespace: namespace)
@@ -57,7 +59,11 @@ final class TranslationOutboxUITests: XCTestCase {
         let restored = app("translation-outbox-status", namespace: namespace)
         restored.launch()
         XCTAssertTrue(restored.textViews["translator-input"].waitForExistence(timeout: 10))
-        if restored.buttons["Retry / check result"].firstMatch.exists { restored.buttons["Retry / check result"].firstMatch.tap() }
+        if restored.buttons["translation-pending"].exists {
+            restored.buttons["translation-pending"].tap()
+            if restored.buttons["translation-send"].firstMatch.exists { restored.buttons["translation-send"].firstMatch.tap() }
+            restored.buttons["pending-done"].tap()
+        }
         XCTAssertTrue(restored.buttons["translation-copy"].waitForExistence(timeout: 15))
         XCTAssertEqual(restored.textViews["translator-input"].value as? String, edited)
     }
@@ -69,13 +75,16 @@ final class TranslationOutboxUITests: XCTestCase {
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         editor.tap(); editor.typeText("Synthetic lost acknowledgement")
         lost.buttons["translator-submit"].tap()
-        XCTAssertTrue(lost.buttons["Retry / check result"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(lost.buttons["translation-pending"].waitForExistence(timeout: 5))
         lost.terminate()
         let recover = app("translation-outbox-status", namespace: namespace)
         recover.launch()
-        let retry = recover.buttons["Retry / check result"].firstMatch
-        XCTAssertTrue(retry.waitForExistence(timeout: 10)); retry.tap()
-        XCTAssertTrue(recover.buttons["translation-copy"].waitForExistence(timeout: 10))
+        let pending = recover.buttons["translation-pending"]
+        XCTAssertTrue(pending.waitForExistence(timeout: 10)); pending.tap()
+        recover.buttons["translation-check"].tap()
+        // No server history fixture is stored by the lost-ack transport. Checking
+        // must retain the unknown request, not manufacture success via a POST.
+        XCTAssertTrue(recover.staticTexts["No saved answer yet. Check again later."].waitForExistence(timeout: 10))
         recover.terminate()
         let denied = app("translation-outbox-401", namespace: UUID().uuidString)
         denied.launch()

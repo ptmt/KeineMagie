@@ -57,7 +57,7 @@ final class CatalogAdvisoryUITests: XCTestCase {
         XCTAssertTrue(failure.textViews["translator-input"].waitForExistence(timeout: 10))
         failure.textViews["translator-input"].tap(); failure.textViews["translator-input"].typeText("Synthetic failed translation")
         failure.buttons["translator-submit"].tap()
-        XCTAssertTrue(failure.buttons["Retry / check result"].firstMatch.waitForExistence(timeout: 8))
+        XCTAssertTrue(failure.buttons["translation-pending"].waitForExistence(timeout: 8))
         XCTAssertFalse(failure.buttons["translation-copy"].exists)
         XCTAssertEqual(failure.textViews["translator-input"].value as? String, "Synthetic failed translation")
         XCTAssertFalse(failure.staticTexts[oldWarning].exists)

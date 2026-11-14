@@ -82,6 +82,22 @@ func TestTranslationIdempotencyLostAckAndConflict(t *testing.T) {
 	if len(list.Items) != 1 {
 		t.Fatalf("history count %d", len(list.Items))
 	}
+	// Native lookup-only recovery relies on this stable receipt-derived ID,
+	// not source-text equality. GET never enters provider/catalog admission.
+	if list.Items[0].ID != "outbox-"+sessionHash(session.UserID+"\x00"+key) || calls != 1 {
+		t.Fatal("GET recovery identity or lookup-only contract changed")
+	}
+	if w := authCall(h, "GET", "/v1/translations", "", strings.Repeat("x", 43)); w.Code != 401 || calls != 1 {
+		t.Fatalf("unauthenticated recovery: %d, provider calls %d", w.Code, calls)
+	}
+	otherToken, _, err := cfg.auth.store.create("bob", time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	otherHistory := authCall(h, "GET", "/v1/translations", "", otherToken)
+	if otherHistory.Code != 200 || strings.Contains(otherHistory.Body.String(), record.ID) || calls != 1 {
+		t.Fatal("GET recovery leaked another owner's record or invoked provider")
+	}
 	// Receipts must retain only a replay tombstone, not deleted private text.
 	receiptPath := filepath.Join(cfg.provider.dir, "translation-receipts", sessionHash(session.UserID), sessionHash(key)+".json")
 	receiptData, err := os.ReadFile(receiptPath)

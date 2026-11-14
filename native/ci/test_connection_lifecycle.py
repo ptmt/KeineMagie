@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HARNESS = r'''
 import Foundation
 import Testing
+import CryptoKit
 import KeineMagieCore
 @testable import Lifecycle
 
@@ -34,6 +35,10 @@ import KeineMagieCore
     var sessionRelease: CheckedContinuation<Void, Never>?
     var owner = "synthetic"
     var translationRequests: [URLRequest] = []
+    var recoveredHistory = "{\"items\":[]}"
+    var historyCalls = 0
+    var holdHistory = false
+    var historyRelease: CheckedContinuation<Void, Never>?
     func send(_ r: URLRequest) async throws -> AuthResponse {
         var body = "{}"
         if r.url!.path == "/v1/auth/session", holdSession { await withCheckedContinuation { sessionRelease = $0 } }
@@ -71,8 +76,10 @@ import KeineMagieCore
                 body = #"{"id":"translated","created_at":"2026-11-09T12:00:00Z","text":"Hallo","source_language":"de","target_language":"ru","translation":"Привет","idioms":[],"patterns":[],"vocabulary":[]}"#
                 break
             }
+            historyCalls += 1
+            if holdHistory { await withCheckedContinuation { historyRelease = $0 } }
             if failHistory { return AuthResponse(data:Data("{}".utf8),status:503) }
-            body = #"{"items":[]}"#
+            body = recoveredHistory
         default: throw APIError.invalidResponse
         }
         return AuthResponse(data:Data(body.utf8),status:200)
@@ -157,6 +164,62 @@ import KeineMagieCore
     #expect(next.outbox.items.last?.state == .needsDecision)
     await next.resumeTranslations()
     #expect(gate.translationRequests.count == 3)
+}
+@Test @MainActor func uncertainRecoveryOnlyReadsHistoryAndKeepsOriginalIdentity() async throws {
+    let gate = Gate(); gate.translationError = URLError(.timedOut)
+    let model = await fixture(gate); model.draft = "same text"
+    await model.translate()
+    let id = try #require(model.outbox.items.first?.id)
+    gate.translationError = nil
+    await model.retryTranslation(id)
+    #expect(gate.translationRequests.count == 1, "Checking an unknown outcome must never POST")
+    #expect(gate.historyCalls == 1)
+    #expect(model.outbox.items.first?.id == id)
+    #expect(model.outbox.items.first?.state == .needsDecision)
+    #expect(model.draft == "same text")
+}
+@Test @MainActor func recoveryMatchesIdentityNotTextAndRetainsCompletedReceipts() async throws {
+    let gate = Gate(); gate.translationError = URLError(.timedOut)
+    let model = await fixture(gate); model.draft = "same text"; await model.translate()
+    let original = try #require(model.outbox.items.first?.id)
+    model.removeTranslation(original)
+    await model.translate()
+    let other = try #require(model.outbox.items.last?.id)
+    #expect(original != other)
+    // Preserve two same-text requests in storage. The recovery must select by ID.
+    let recordID = "outbox-" + SHA256.hash(data: Data((gate.owner + "\u{0}" + other.uuidString).utf8)).map { String(format: "%02x", $0) }.joined()
+    gate.recoveredHistory = "{\"items\":[{\"id\":\"\(recordID)\",\"created_at\":\"2026-11-09T12:00:00Z\",\"text\":\"same text\",\"source_language\":\"ru\",\"target_language\":\"de\",\"translation\":\"Recovered answer\",\"idioms\":[],\"patterns\":[],\"vocabulary\":[]}]}"
+    model.draft = "still editing"
+    await model.checkTranslation(other)
+    #expect(gate.translationRequests.count == 2)
+    #expect(model.outbox.items.map(\.id) == [original, other])
+    #expect(model.outbox.items.map(\.state) == [.cancelled, .completed])
+    #expect(model.history.map(\.id) == [recordID])
+    #expect(model.result?.id == recordID)
+    #expect(model.draft == "still editing")
+    let restored = await fixture(gate); restored.loadTranslationOutbox()
+    #expect(restored.outbox.items.map(\.id) == [original, other])
+    #expect(restored.outbox.items.last?.result?.id == recordID)
+}
+@Test @MainActor func recoveryReadCoalescesAndOwnerResetFencesLateAnswer() async throws {
+    let gate = Gate(); gate.translationError = URLError(.timedOut)
+    let model = await fixture(gate); model.draft = "private"; await model.translate()
+    let id = try #require(model.outbox.items.first?.id)
+    await model.checkTranslation(id)
+    #expect(model.translationCheckNotices[id] != nil)
+    gate.holdHistory = true
+    let task = Task { await model.checkTranslation(id) }
+    while gate.historyRelease == nil { await Task.yield() }
+    await model.checkTranslation(id)
+    #expect(gate.historyCalls == 2)
+    gate.owner = "replacement"; await model.session.restore()
+    model.resetSessionContent(); model.loadTranslationOutbox(); model.draft = "new owner"
+    #expect(model.checkingTranslations.isEmpty)
+    #expect(model.translationCheckNotices.isEmpty)
+    gate.historyRelease?.resume(); gate.historyRelease = nil; await task.value
+    #expect(model.outbox.items.isEmpty)
+    #expect(model.result == nil)
+    #expect(model.draft == "new owner")
 }
 @Test @MainActor func outboxStorageFailureNeverSends() async throws {
     let gate = Gate(); let model = await fixture(gate)
