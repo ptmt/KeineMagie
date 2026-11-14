@@ -77,9 +77,10 @@ import KeineMagieCore
                 break
             }
             historyCalls += 1
+            let response = recoveredHistory
             if holdHistory { await withCheckedContinuation { historyRelease = $0 } }
             if failHistory { return AuthResponse(data:Data("{}".utf8),status:503) }
-            body = recoveredHistory
+            body = response
         default: throw APIError.invalidResponse
         }
         return AuthResponse(data:Data(body.utf8),status:200)
@@ -90,7 +91,7 @@ import KeineMagieCore
     let transport: AuthClient.Transport = { request in try await gate.send(request) }
     let session = SessionController(serverURL:"https://synthetic.invalid",readToken:{"synthetic"},saveToken:{_ in},transport:transport)
     await session.restore()
-    return AppModel(session:session, client:APIClient(endpoint:try! ServerEndpoint("https://synthetic.invalid"),token:"synthetic",transport:transport), outboxStore: TranslationOutboxStore(root: gate.outboxRoot))
+    return AppModel(session:session, client:APIClient(endpoint:try! ServerEndpoint("https://synthetic.invalid"),token:"synthetic",transport:transport), cache: ContentCache(root: gate.outboxRoot.appendingPathComponent("cache")), outboxStore: TranslationOutboxStore(root: gate.outboxRoot))
 }
 @Test @MainActor func translatorDoesNotWaitForSessionCheckOrStaleOffline() async throws {
     let gate = Gate(); gate.owner = "outbox-repro-\(UUID())"
@@ -127,7 +128,7 @@ import KeineMagieCore
     #expect(request.value(forHTTPHeaderField: "X-Translation-Owner") == gate.owner)
     model.resetSessionContent()
 }
-@Test @MainActor func outboxDoubleTapTypingCancelAndLateCompletion() async throws {
+@Test @MainActor func outboxDoubleTapTypingAndLateCompletionPreserveDraft() async throws {
     let gate = Gate(); gate.holdTranslation = true
     let model = await fixture(gate); model.draft = "first"
     let first = Task { await model.translate() }
@@ -142,8 +143,24 @@ import KeineMagieCore
     gate.translationRelease?.resume(); gate.translationRelease = nil
     await first.value; await duplicate.value
     #expect(model.draft == "typing continues")
-    #expect(model.result == nil)
-    #expect(model.outbox.items.first?.state == .cancelled)
+    #expect(model.result?.id == "translated")
+    #expect(model.outbox.items.first?.state == .completed)
+}
+@Test @MainActor func inFlightRequestCannotBeHiddenAndResubmitted() async throws {
+    let gate = Gate(); gate.holdTranslation = true
+    let model = await fixture(gate); model.draft = "one paid request"
+    let task = Task { await model.translate() }
+    while gate.translationRelease == nil { await Task.yield() }
+    let id = try #require(model.outbox.items.first?.id)
+    model.removeTranslation(id)
+    model.removeTranslation(id, delete: true)
+    await model.translate()
+    #expect(model.outbox.items.map(\.id) == [id])
+    #expect(model.outbox.items.first?.state == .sending)
+    gate.holdTranslation = false
+    gate.translationRelease?.resume(); gate.translationRelease = nil; await task.value
+    #expect(gate.translationRequests.count == 1)
+    #expect(model.outbox.items.first?.state == .completed)
 }
 @Test @MainActor func outboxOfflineRestoreRetryAndAmbiguousResponse() async throws {
     let gate = Gate(); gate.translationError = URLError(.notConnectedToInternet)
@@ -207,6 +224,7 @@ import KeineMagieCore
     let id = try #require(model.outbox.items.first?.id)
     await model.checkTranslation(id)
     #expect(model.translationCheckNotices[id] != nil)
+    gate.recoveredHistory = recoveredJSON(id, owner: gate.owner)
     gate.holdHistory = true
     let task = Task { await model.checkTranslation(id) }
     while gate.historyRelease == nil { await Task.yield() }
@@ -220,6 +238,123 @@ import KeineMagieCore
     #expect(model.outbox.items.isEmpty)
     #expect(model.result == nil)
     #expect(model.draft == "new owner")
+}
+@MainActor func recoveredJSON(_ id: UUID, owner: String, text: String = "same text") -> String {
+    let key = "outbox-" + SHA256.hash(data: Data((owner + "\u{0}" + id.uuidString).utf8)).map { String(format: "%02x", $0) }.joined()
+    return "{\"items\":[{\"id\":\"\(key)\",\"created_at\":\"2026-11-09T12:00:00Z\",\"text\":\"\(text)\",\"source_language\":\"ru\",\"target_language\":\"de\",\"translation\":\"Recovered answer\",\"idioms\":[],\"patterns\":[],\"vocabulary\":[]}]}"
+}
+@Test @MainActor func recoveryRejectsSameTextWrongReceiptAndOwnerThenPersistsExactMatch() async throws {
+    let gate = Gate(); gate.translationError = URLError(.timedOut)
+    let model = await fixture(gate); model.draft = "same text"; await model.translate()
+    let id = try #require(model.outbox.items.first?.id)
+    for response in [recoveredJSON(UUID(), owner: gate.owner), recoveredJSON(id, owner: "other-owner")] {
+        gate.recoveredHistory = response
+        await model.checkTranslation(id)
+        #expect(model.outbox.items.first?.state == .needsDecision)
+        #expect(model.result == nil)
+        #expect(model.history.isEmpty)
+    }
+    gate.recoveredHistory = recoveredJSON(id, owner: gate.owner)
+    await model.checkTranslation(id)
+    #expect(gate.translationRequests.count == 1)
+    #expect(gate.historyCalls == 3)
+    #expect(model.outbox.items.first?.id == id)
+    #expect(model.outbox.items.first?.state == .completed)
+    let cache = ContentCache(root: gate.outboxRoot.appendingPathComponent("cache"))
+    let data = try #require(try await cache.load(dataset: "history", server: model.session.serverURL, owner: gate.owner))
+    let rows = try JSONDecoder().decode([TranslationRecord].self, from: data)
+    #expect(rows.map(\.id) == model.history.map(\.id))
+    #expect(rows.count == 1)
+}
+@Test @MainActor func recoveredAnswerSurvivesAnOlderEmptyRefreshAndCacheWrite() async throws {
+    let gate = Gate(); gate.translationError = URLError(.timedOut)
+    let model = await fixture(gate); model.draft = "same text"; await model.translate()
+    let id = try #require(model.outbox.items.first?.id)
+    gate.holdHistory = true
+    let refresh = Task { await model.refreshTranslator() }
+    while gate.historyRelease == nil { await Task.yield() }
+    gate.holdHistory = false; gate.recoveredHistory = recoveredJSON(id, owner: gate.owner)
+    await model.checkTranslation(id)
+    let recovered = try #require(model.result?.id)
+    gate.historyRelease?.resume(); gate.historyRelease = nil; await refresh.value
+    #expect(model.history.map(\.id) == [recovered])
+    #expect(gate.translationRequests.count == 1)
+    #expect(gate.historyCalls == 2)
+    let cache = ContentCache(root: gate.outboxRoot.appendingPathComponent("cache"))
+    let data = try #require(try await cache.load(dataset: "history", server: model.session.serverURL, owner: gate.owner))
+    #expect(try JSONDecoder().decode([TranslationRecord].self, from: data).map(\.id) == [recovered])
+}
+@Test @MainActor func cancelledRecoveryRejectsLateAnswerAndLateFailureNotice() async throws {
+    for fail in [false, true] {
+        let gate = Gate(); gate.translationError = URLError(.timedOut)
+        let model = await fixture(gate); model.draft = "same text"; await model.translate()
+        let id = try #require(model.outbox.items.first?.id)
+        gate.recoveredHistory = recoveredJSON(id, owner: gate.owner)
+        gate.holdHistory = true; gate.failHistory = fail
+        let check = Task { await model.checkTranslation(id) }
+        while gate.historyRelease == nil { await Task.yield() }
+        model.removeTranslation(id)
+        gate.historyRelease?.resume(); gate.historyRelease = nil; await check.value
+        #expect(model.outbox.items.first?.state == .cancelled)
+        #expect(model.translationCheckNotices.isEmpty)
+        #expect(model.checkingTranslations.isEmpty)
+        #expect(model.history.isEmpty)
+        #expect(model.result == nil)
+        #expect(gate.translationRequests.count == 1)
+    }
+}
+@Test @MainActor func hiddenCompletedReceiptsDoNotBlockNewSubmission() async throws {
+    let gate = Gate(); let model = await fixture(gate)
+    var saved = TranslationOutbox()
+    for index in 0..<200 {
+        saved.draft = "completed \(index)"
+        try saved.enqueue(direction: .russianToGerman, instructions: nil)
+        saved.items[index].state = .completed
+    }
+    try TranslationOutboxStore(root: gate.outboxRoot).save(saved, origin: model.session.serverURL, owner: gate.owner)
+    model.loadTranslationOutbox(); model.draft = "new authorized request"
+    await model.translate()
+    #expect(gate.translationRequests.count == 1)
+    #expect(model.outbox.items.count == 201, "Keep hidden completed receipts, not a permanent submission limit")
+    var full = TranslationOutbox()
+    for index in 0..<200 {
+        full.draft = "pending \(index)"
+        try full.enqueue(direction: .russianToGerman, instructions: nil)
+    }
+    full.draft = "pending 199"
+    #expect(try full.enqueue(direction: .russianToGerman, instructions: nil) == full.items.last?.id)
+    full.draft = "over capacity"
+    #expect(throws: CocoaError.self) { try full.enqueue(direction: .russianToGerman, instructions: nil) }
+}
+@Test @MainActor func cancelledLookupTaskDoesNotAcceptAnUncancellableResponse() async throws {
+    let gate = Gate(); gate.translationError = URLError(.timedOut)
+    let model = await fixture(gate); model.draft = "same text"; await model.translate()
+    let id = try #require(model.outbox.items.first?.id)
+    gate.recoveredHistory = recoveredJSON(id, owner: gate.owner); gate.holdHistory = true
+    let task = Task { await model.checkTranslation(id) }
+    while gate.historyRelease == nil { await Task.yield() }
+    task.cancel()
+    gate.historyRelease?.resume(); gate.historyRelease = nil; await task.value
+    #expect(model.outbox.items.first?.state == .needsDecision)
+    #expect(model.history.isEmpty)
+    #expect(model.result == nil)
+    #expect(model.checkingTranslations.isEmpty)
+    #expect(gate.translationRequests.count == 1)
+}
+@Test @MainActor func recoveryRoutesServerErrorsToGETAndProviderRetryReusesKey() async throws {
+    for status in [424, 503] {
+        let gate = Gate(); gate.translationStatus = status
+        let model = await fixture(gate); model.draft = "retry original"; await model.translate()
+        let id = try #require(model.outbox.items.first?.id)
+        gate.translationStatus = 200
+        await model.retryTranslation(id)
+        #expect(model.outbox.items.count == 1)
+        #expect(model.outbox.items.first?.id == id)
+        #expect(gate.translationRequests.count == (status == 424 ? 2 : 1))
+        #expect(gate.historyCalls == (status == 424 ? 0 : 1))
+        #expect(gate.translationRequests.allSatisfy { $0.value(forHTTPHeaderField: "Idempotency-Key") == id.uuidString })
+        #expect(model.outbox.items.first?.state == (status == 424 ? .completed : .failed))
+    }
 }
 @Test @MainActor func outboxStorageFailureNeverSends() async throws {
     let gate = Gate(); let model = await fixture(gate)

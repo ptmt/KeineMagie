@@ -355,12 +355,13 @@ final class AppModel {
     }
     func removeTranslation(_ id: UUID, delete: Bool = false) {
         loadTranslationOutbox()
-        guard let i = outbox.items.firstIndex(where: { $0.id == id }) else { return }
+        guard let i = outbox.items.firstIndex(where: { $0.id == id }), outbox.items[i].state != .sending else { return }
+        translationCheckNotices[id] = nil
         if delete { outbox.items.remove(at: i) }
         else { outbox.items[i].state = .cancelled; outbox.items[i].nextAttempt = nil }
         _ = saveTranslationOutbox()
-        // An already sent server request cannot be recalled; late completion is
-        // ignored locally. No new key or inference is created by cancellation.
+        // In-flight writes stay visible: local removal cannot recall the server
+        // and must not make a duplicate submit appear safe.
     }
     func retryTranslation(_ id: UUID) async {
         loadTranslationOutbox()
@@ -387,7 +388,7 @@ final class AppModel {
         defer { if epoch == translationEpoch { checkingTranslations.remove(id) } }
         do {
             let records = try await api(translation: true).history()
-            guard version == session.generation, epoch == translationEpoch, session.user?.id == owner,
+            guard !Task.isCancelled, session.phase == .signedIn, version == session.generation, epoch == translationEpoch, session.user?.id == owner,
                   let i = outbox.items.firstIndex(where: { $0.id == id && [.needsDecision, .failed].contains($0.state) }) else { return }
             let recordID = "outbox-" + SHA256.hash(data: Data((owner + "\u{0}" + id.uuidString).utf8)).map { String(format: "%02x", $0) }.joined()
             guard let record = records.first(where: { $0.id == recordID }) else {
@@ -400,9 +401,11 @@ final class AppModel {
             result = record; historyState.insert(record)
             await persistHistory()
         } catch {
-            guard version == session.generation, epoch == translationEpoch, session.user?.id == owner else { return }
-            translationCheckNotices[id] = "outbox.checkFailed"
+            guard !Task.isCancelled, session.phase == .signedIn, version == session.generation, epoch == translationEpoch, session.user?.id == owner else { return }
             if case APIError.http(401) = error { session.rejectUnauthorized(); resetSessionContent() }
+            else if outbox.items.contains(where: { $0.id == id && [.needsDecision, .failed].contains($0.state) }) {
+                translationCheckNotices[id] = "outbox.checkFailed"
+            }
         }
     }
     func resumeTranslations() async {

@@ -98,6 +98,51 @@ final class QuietTranslatorUITests: XCTestCase {
         XCTAssertLessThan(app.buttons["translation-check"].frame.maxY, app.frame.maxY - 20)
         shot(app, "dynamic-type-sheet")
     }
+    func testSheetReturnsToEditingDraftAndLocalMenuIsTruthful() {
+        let app = launch("translation-outbox-lostack")
+        let editor = app.textViews["translator-input"]
+        editor.tap(); editor.typeText("Saved request")
+        app.buttons["translator-submit"].tap()
+        XCTAssertTrue(app.buttons["translation-pending"].waitForExistence(timeout: 5))
+        editor.tap(); editor.typeText(" still editing")
+        let beforeSheet = editor.value as? String
+        app.buttons["translation-pending"].tap()
+        XCTAssertTrue(app.buttons["pending-done"].waitForExistence(timeout: 5))
+        app.buttons["pending-done"].tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(editor.value as? String, beforeSheet)
+        editor.typeText(" after sheet")
+        XCTAssertEqual((editor.value as? String)?.replacingOccurrences(of: " after sheet", with: ""), beforeSheet)
+        shot(app, "draft-focus-restored")
+        app.buttons["translation-pending"].tap()
+        app.buttons["translation-actions"].tap()
+        XCTAssertTrue(app.buttons["Delete from device"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Cancel"].exists)
+        app.buttons["Delete from device"].tap()
+        XCTAssertTrue(app.staticTexts["No pending translations."].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["Answers are in history."].exists)
+        shot(app, "local-removal-empty")
+    }
+    func testSendingSheetHasNoCancelOrDelete() {
+        let app = launch("translation-pending")
+        let editor = app.textViews["translator-input"]
+        editor.tap(); editor.typeText("One in flight")
+        app.buttons["translator-submit"].tap()
+        XCTAssertTrue(app.buttons["translation-pending"].waitForExistence(timeout: 3))
+        app.buttons["translation-pending"].tap()
+        XCTAssertTrue(app.buttons["pending-done"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["translation-actions"].exists)
+        XCTAssertFalse(app.buttons["translation-send"].exists)
+    }
+    func testProviderFailureStillOffersOriginalRequestRetry() {
+        let app = launch("translation-catalog-failure")
+        let editor = app.textViews["translator-input"]
+        editor.tap(); editor.typeText("Provider retry")
+        app.buttons["translator-submit"].tap()
+        XCTAssertTrue(app.buttons["translation-pending"].waitForExistence(timeout: 5))
+        app.buttons["translation-pending"].tap()
+        XCTAssertTrue(app.buttons["translation-send"].waitForExistence(timeout: 5))
+    }
     func testUnknownIsCompactAndRecoveryIsInSheet() {
         let app = launch("translation-outbox-lostack")
         XCTAssertFalse(app.buttons["translation-pending"].exists)

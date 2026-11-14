@@ -6,6 +6,7 @@ import KeineMagieCore
 struct TranslatorView: View {
     @Environment(AppModel.self) private var model
     @FocusState private var inputFocused: Bool
+    @State private var restoreInputFocus = false
     @Binding var showPending: Bool
     @ScaledMetric(relativeTo: .body) private var editorHeight = 112
     private var pendingItems: [TranslationOutbox.Item] {
@@ -104,6 +105,7 @@ struct TranslatorView: View {
                 .listRowSeparator(.hidden)
             if !pendingItems.isEmpty {
                 Button {
+                    restoreInputFocus = inputFocused
                     inputFocused = false
                     showPending = true
                 } label: {
@@ -173,6 +175,9 @@ struct TranslatorView: View {
         }
 
         .listStyle(.plain)
+        .onChange(of: showPending) { _, presented in
+            if !presented, restoreInputFocus { inputFocused = true; restoreInputFocus = false }
+        }
         // Let the final result/history controls scroll clear of floating tabs.
         .safeAreaPadding(.bottom, 24)
         .environment(\.layoutDirection, .leftToRight)
@@ -203,13 +208,17 @@ struct PendingTranslationsView: View {
                         HStack(alignment: .top) {
                             Text(verbatim: item.text).lineLimit(3).textSelection(.enabled)
                             Spacer(minLength: 8)
-                            Menu {
-                                Button("outbox.cancel", role: .destructive) { model.removeTranslation(item.id) }
-                                Button("history.delete", role: .destructive) { model.removeTranslation(item.id, delete: true) }
-                            } label: {
-                                Image(systemName: "ellipsis").frame(width: 44, height: 44).contentShape(Rectangle())
-                            }.accessibilityLabel("outbox.actions")
-                                .accessibilityIdentifier("translation-actions")
+                            if item.state != .sending {
+                                Menu {
+                                    if item.state == .queued {
+                                        Button("outbox.stopWaiting", role: .destructive) { model.removeTranslation(item.id) }
+                                    }
+                                    Button("outbox.deleteLocal", role: .destructive) { model.removeTranslation(item.id, delete: true) }
+                                } label: {
+                                    Image(systemName: "ellipsis").frame(width: 44, height: 44).contentShape(Rectangle())
+                                }.accessibilityLabel("outbox.actions")
+                                    .accessibilityIdentifier("translation-actions")
+                            }
                         }
                         Text(LocalizedStringKey(item.state == .sending ? "outbox.quiet.sending" : item.state == .queued ? "outbox.quiet.saved" : "outbox.quiet.failed"))
                             .font(.subheadline).foregroundStyle(.secondary)
@@ -220,9 +229,10 @@ struct PendingTranslationsView: View {
                             Button("outbox.check") { Task { await model.checkTranslation(item.id) } }
                                 .disabled(model.checkingTranslations.contains(item.id))
                                 .accessibilityIdentifier("translation-check")
-                        } else if item.failure == .provider {
-                            NavigationLink("chatgpt.connect") { ChatGPTConnectionView() }
                         } else if item.state != .sending {
+                            if item.failure == .provider {
+                                NavigationLink("chatgpt.connect") { ChatGPTConnectionView() }
+                            }
                             Button("outbox.send") { Task { await model.retryTranslation(item.id) } }
                                 .accessibilityIdentifier("translation-send")
                         }
@@ -230,7 +240,7 @@ struct PendingTranslationsView: View {
                         .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("pending-item-" + item.id.uuidString)
                 }
-                if items.isEmpty { Text("outbox.allSaved").foregroundStyle(.secondary) }
+                if items.isEmpty { Text("outbox.nonePending").foregroundStyle(.secondary) }
             }
             .navigationTitle("outbox.pending")
             .navigationBarTitleDisplayMode(.inline)

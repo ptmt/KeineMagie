@@ -26,7 +26,9 @@ public struct TranslationOutbox: Codable, Sendable {
         // including a timeout whose provider outcome is unknown. Use Retry/check
         // for that same snapshot; cancel/delete is the explicit escape hatch.
         if let item = items.last(where: { ![.completed, .cancelled].contains($0.state) && $0.text == draft && $0.direction == direction && $0.instructions == instructions }) { return item.id }
-        guard items.count < 200 else { throw CocoaError(.fileWriteOutOfSpace) }
+        // Completed receipts are retained but no longer have removal controls.
+        // Bound outstanding work, not the lifetime number of successful writes.
+        guard items.filter({ ![.completed, .cancelled].contains($0.state) }).count < 200 else { throw CocoaError(.fileWriteOutOfSpace) }
         let item = Item(id: UUID(), text: draft, direction: direction, instructions: instructions)
         items.append(item)
         return item.id
