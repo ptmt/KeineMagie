@@ -65,4 +65,12 @@ Verification after review:
 - First review UI build failed type-checking a complex fixture dictionary expression; split into explicitly typed statements and reran successfully. No production workaround.
 - Added-line security review and `git diff --check` clean. Scope is native podcast code/tests/docs only. Flame, outbox, catalog advisory and compact Coach remain inherited unchanged. Original dirty Diktat and parallel candidates were not touched. Backend deploy is neither needed nor performed.
 
-Apple publication evidence will be recorded after the existing explicit `publish=UPLOAD` workflow completes; simulator success does not establish processing or device availability.
+## Apple publication — verified
+
+- Released source: **`d3f2261499a5317b89055343fef61ff9297fe564`**, normal fast-forward push to main after fresh remote inspection; no force push.
+- Existing workflow explicitly dispatched once with `publish=UPLOAD`: [run 43590037837](https://github.com/ptmt/KeineMagie/actions/runs/43590037837), **success**, exact `headSha` above.
+- Validation job **132433256394** success; upload job **132433967379** success; cleanup success.
+- Uploaded build **1.0 (2744.3.52)**. Upload-job log: `CURRENT_PROJECT_VERSION = 2744.3.52`, `ARCHIVE SUCCEEDED`, `EXPORT SUCCEEDED`, and **`UPLOAD SUCCEEDED with no errors` at 2026-11-14T11:36:07.1730010Z**.
+- Push-only validation [43590033565](https://github.com/ptmt/KeineMagie/actions/runs/43590033565) also succeeded. No backend deployment or provider inference occurred.
+- Local evidence: `/Users/tinyserve/.hermes/cache/scratch/podcast-review-upload.log`. Initial watcher tool timed out; resumed watching the same run, never duplicated publication.
+- Apple processing, tester availability and physical-device behavior are not verified. Documentation follow-up is `[skip ci]` and not a second app build.
