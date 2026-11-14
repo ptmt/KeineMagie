@@ -27,7 +27,11 @@ final class AppModel {
         guard session.canWrite else { return }
         let version = session.generation
         guard let client = try? podcastAPI() else { return }
-        await podcasts.refresh(client: client) { !Task.isCancelled && self.session.phase == .signedIn && self.session.generation == version }
+        await podcasts.refresh(client: client, current: {
+            !Task.isCancelled && self.session.phase == .signedIn && self.session.generation == version
+        }, unauthorized: {
+            self.session.rejectUnauthorized(); self.resetSessionContent()
+        })
         if !Task.isCancelled, version == session.generation { await persistPodcasts() }
     }
     private func persistPodcasts() async {

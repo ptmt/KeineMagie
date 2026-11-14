@@ -17,6 +17,23 @@ actor SimulatorSessionFixture {
     private var podcastRefreshed = false
     private var preparedJob: [String: Any]?
     private var prepareRequests = 0
+    private var wireLibraryReads = 0
+    private func wireJob(summary: Bool) -> [String: Any] {
+        var job = Self.job(1)
+        job["title"] = "Synthetic saved episode title"
+        job["feed_id"] = "synthetic-feed-000000001"
+        job["episode_id"] = "episode-one"
+        if summary {
+            job["segments"] = NSNull()
+        } else {
+            let segments: [[String: Any]] = (0..<2113).map { index in
+                let text = index == 0 ? "Synthetic transcript" : "Synthetic segment \(index)"
+                return ["start": Double(index), "end": Double(index + 1), "text": text, "translation": "Synthetic translation"]
+            }
+            job["segments"] = segments
+        }
+        return job
+    }
     private let mode: String
     private func podcastFeed() -> [String: Any] {
         ["id": "synthetic-feed-000000001", "url": "https://audio.example/feed.xml", "title": "Synthetic language podcast", "artwork_url": "https://audio.example/cover.png?v=5", "latest_episode_title": "Synthetic latest episode", "episodes": [["id": "episode-one", "title": podcastRefreshed ? "Synthetic refreshed episode" : "Synthetic episode one", "url": "https://audio.example/episode.mp3", "published": "2026-11-10"]]]
@@ -28,6 +45,23 @@ actor SimulatorSessionFixture {
     static let copyTranslation = "  Übersetzung 👩🏽‍💻 Привет e\u{0301}\n\n" + String(repeating: "Zeile 日本語\t  {\"nested\":{\"literal\":\"\\n\",\"items\":[1,2]}}\n", count: 1200) + "  Ende\n "
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
     func send(_ request: URLRequest) async throws -> AuthResponse {
+        if mode.hasPrefix("podcast-wire") {
+            if request.url?.path == "/v1/podcasts" {
+                guard request.httpMethod == "GET" else { return AuthResponse(data: Data(), status: 405) }
+                wireLibraryReads += 1
+                if mode == "podcast-wire-partial", wireLibraryReads == 1 {
+                    try await Task.sleep(for: .seconds(60))
+                    return AuthResponse(data: Data(), status: 503)
+                }
+                return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": [wireJob(summary: false)], "worker_available": false]), status: 200)
+            }
+            if request.url?.path == "/v1/podcasts/subscriptions" {
+                guard request.httpMethod == "GET" else { return AuthResponse(data: Data(), status: 405) }
+                var feed = podcastFeed()
+                feed["episodes"] = [["id": "episode-one", "title": "Synthetic saved episode title", "url": "https://audio.example/episode-1.mp3", "preparation": wireJob(summary: true)]]
+                return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": [feed]]), status: 200)
+            }
+        }
         if mode.hasPrefix("translation-catalog-"), request.url?.path == "/v1/provider" {
             try await Task.sleep(for: .seconds(3))
             if mode == "translation-catalog-timeout" { throw URLError(.timedOut) }

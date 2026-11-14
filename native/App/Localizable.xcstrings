@@ -1,6 +1,279 @@
 {
   "sourceLanguage": "de",
-  "strings": {
+  "strings" : {
+  "podcast.load.library": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Die Bibliothek konnte nicht geladen werden."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Could not load the library."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Не удалось загрузить библиотеку."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "No se pudo cargar la biblioteca."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Impossible de charger la bibliothèque."
+        }
+      }
+    }
+  },
+  "podcast.load.subscriptions": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Die abonnierten Podcasts konnten nicht geladen werden."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Could not load subscribed podcasts."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Не удалось загрузить подписки на подкасты."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "No se pudieron cargar las suscripciones."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Impossible de charger les abonnements."
+        }
+      }
+    }
+  },
+  "podcast.load.response": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Die Serverantwort ist nicht kompatibel. Aktualisiere die App und versuche es erneut."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "The server response is incompatible. Update the app and try again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Ответ сервера несовместим. Обновите приложение и повторите попытку."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "La respuesta del servidor es incompatible. Actualiza la app y vuelve a intentarlo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "La réponse du serveur est incompatible. Mettez l’app à jour et réessayez."
+        }
+      }
+    }
+  },
+  "podcast.load.session": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Melde dich erneut an."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Sign in again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Войдите снова."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Vuelve a iniciar sesión."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Reconnectez-vous."
+        }
+      }
+    }
+  },
+  "podcast.load.server": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Der Server konnte die Anfrage nicht abschließen. Versuche es erneut."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "The server could not complete the request. Try again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сервер не смог выполнить запрос. Повторите попытку."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "El servidor no pudo completar la solicitud. Vuelve a intentarlo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Le serveur n’a pas pu terminer la requête. Réessayez."
+        }
+      }
+    }
+  },
+  "podcast.load.timeout": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Der Server hat nicht rechtzeitig geantwortet. Versuche es erneut."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "The server did not respond in time. Try again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сервер не ответил вовремя. Повторите попытку."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "El servidor no respondió a tiempo. Vuelve a intentarlo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Le serveur n’a pas répondu à temps. Réessayez."
+        }
+      }
+    }
+  },
+  "podcast.load.network": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Die Verbindung zum Server wurde unterbrochen. Prüfe die Verbindung und versuche es erneut."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Could not reach the server. Check the connection and try again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Не удалось связаться с сервером. Проверьте соединение и повторите попытку."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "No se pudo conectar con el servidor. Comprueba la conexión y vuelve a intentarlo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Impossible de joindre le serveur. Vérifiez la connexion et réessayez."
+        }
+      }
+    }
+  },
+  "podcast.load.unknown": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Die Anfrage ist fehlgeschlagen. Versuche es erneut."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "The request failed. Try again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Запрос не выполнен. Повторите попытку."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "La solicitud falló. Vuelve a intentarlo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "La requête a échoué. Réessayez."
+        }
+      }
+    }
+  },
+
     "coach.error.unknown": {
       "extractionState": "manual",
       "localizations": {

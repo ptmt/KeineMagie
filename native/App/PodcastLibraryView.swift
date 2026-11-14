@@ -73,7 +73,7 @@ struct PodcastLibraryView: View {
                     ForEach(jobs.filter { job in !subscriptions.contains { feed in feed.episodes.contains { job.belongs(to: $0, feedID: feed.id) } } }) { job in
                         NavigationLink { jobDetail(job) } label: {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(job.episodeTitle ?? URL(string: job.url)?.lastPathComponent ?? AppL10n.text("podcast.episode")).lineLimit(2)
+                                Text(model.podcasts.title(for: job)).lineLimit(2)
                                 Text(verbatim: stateLabel(job.state)).font(.caption).foregroundStyle(.secondary)
                                 if job.active { if let progress = job.displayProgress { ProgressView(value: progress) } else { ProgressView() } }
                             }.padding(.vertical, 4)
@@ -191,7 +191,7 @@ struct PodcastLibraryView: View {
         let job = jobs.first { $0.id == original.id } ?? original
         return VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(job.episodeTitle ?? URL(string: job.url)?.lastPathComponent ?? AppL10n.text("podcast.episode"))
+                Text(model.podcasts.title(for: job))
                     .font(.headline).accessibilityIdentifier("podcast-detail-title")
                 if job.active { ProgressView(value: job.displayProgress).accessibilityIdentifier("podcast-detail-progress") }
                 if job.state != "completed" { Text(verbatim: stateLabel(job.state)).font(.caption).foregroundStyle(.secondary) }

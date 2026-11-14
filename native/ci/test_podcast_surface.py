@@ -6,6 +6,11 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 class PodcastSurfaceTests(unittest.TestCase):
+    def test_read_failure_stages_and_reasons_have_five_locales(self):
+        strings = json.loads((ROOT / 'App/Localizable.xcstrings').read_text())['strings']
+        for suffix in ['library', 'subscriptions', 'response', 'session', 'server', 'timeout', 'network', 'unknown']:
+            self.assertEqual(set(strings['podcast.load.' + suffix]['localizations']), {'de','en','ru','es','fr'})
+
     def test_library_is_list_not_import_form_or_nested_navigation(self):
         source = (ROOT / 'App/PodcastLibraryView.swift').read_text()
         library = source.split('private func addSheet')[0]

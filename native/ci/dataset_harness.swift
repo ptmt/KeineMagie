@@ -107,6 +107,146 @@ import KeineMagieCore
     #expect(store.phase == .error)
 }
 
+// Production-shaped reads, independently suspended endpoints, no real network.
+@MainActor final class PodcastReadGate {
+    var libraryStatus = 200
+    var feedStatus = 200
+    var feedError: URLError?
+    var malformedFeeds = false
+    var holdLibrary = false
+    var holdOther = false
+    var libraryWait: CheckedContinuation<Void, Never>?
+    var otherWaits: [CheckedContinuation<Void, Never>] = []
+    var requests: [URLRequest] = []
+    let owner = "podcast-read-\(UUID())"
+    static let job = #"{"id":"synthetic-job-000000001","url":"https://audio.example/raw.mp3","feed_id":"synthetic-feed-00000001","episode_id":"episode","title":"Saved episode title","source_language":"de","target_language":"ru","state":"completed","progress":100,"segments":null}"#
+    static var libraryJob: String {
+        let segments = (0..<2113).map { "{\"start\":\($0),\"end\":\($0 + 1),\"text\":\"Synthetic transcript\"}" }.joined(separator: ",")
+        return job.replacingOccurrences(of: "\"segments\":null", with: "\"segments\":[" + segments + "]")
+    }
+    static let feeds = #"{"items":[{"id":"synthetic-feed-00000001","url":"https://audio.example/feed.xml","title":"Saved feed","episodes":[{"id":"episode","title":"Saved episode title","url":"https://audio.example/raw.mp3","preparation":JOB}]}]}"#.replacingOccurrences(of: "JOB", with: job)
+    func send(_ r: URLRequest) async throws -> AuthResponse {
+        requests.append(r)
+        switch r.url!.path {
+        case "/v1/auth/session": return AuthResponse(data: Data("{\"user\":{\"id\":\"\(owner)\"},\"expires_at\":\"2099-01-01T00:00:00Z\"}".utf8), status: 200)
+        case "/v1/podcasts":
+            if holdLibrary { await withCheckedContinuation { libraryWait = $0 } }
+            return AuthResponse(data: Data("{\"items\":[\(Self.libraryJob)],\"worker_available\":false}".utf8), status: libraryStatus)
+        case "/v1/podcasts/subscriptions":
+            if let feedError { throw feedError }
+            let body = malformedFeeds ? Self.feeds.replacingOccurrences(of: "\"segments\":null", with: "\"segments\":{}") : Self.feeds
+            return AuthResponse(data: Data(body.utf8), status: feedStatus)
+        case "/v1/provider", "/v1/translations":
+            if holdOther { await withCheckedContinuation { otherWaits.append($0) } }
+            return AuthResponse(data: Data(), status: 503)
+        default: throw APIError.invalidResponse
+        }
+    }
+    func model(cache: ContentCache? = nil) async throws -> AppModel {
+        let transport: AuthClient.Transport = { try await self.send($0) }
+        let session = SessionController(serverURL: "https://synthetic.invalid", readToken: { "synthetic" }, saveToken: { _ in }, transport: transport)
+        await session.restore()
+        let endpoint = try ServerEndpoint("https://synthetic.invalid")
+        return AppModel(session: session, client: APIClient(endpoint: endpoint, token: "synthetic", transport: transport), podcastClient: PodcastAPI(endpoint: endpoint, token: "synthetic", transport: transport), cache: cache)
+    }
+}
+@Test @MainActor func podcastLegacyCacheRemainsOwnerAndOriginScopedDuringFailedReads() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let cache = ContentCache(root: root)
+    let gate = PodcastReadGate(); gate.feedStatus = 503; gate.libraryStatus = 503
+    let oldJob = PodcastReadGate.libraryJob.replacingOccurrences(of: "\"title\":", with: "\"episode_title\":")
+    let old = Data("{\"jobs\":[\(oldJob)],\"subscriptions\":[]}".utf8)
+    try await cache.save(old, dataset: "podcasts", server: "https://synthetic.invalid", owner: gate.owner)
+    let model = try await gate.model(cache: cache)
+    await model.warmData()
+    #expect(model.podcasts.jobs.first?.episodeTitle == "Saved episode title")
+    #expect(model.podcasts.jobs.first?.segments.count == 2113)
+    #expect(model.podcasts.phase == .error)
+    let foreign = PodcastReadGate(); foreign.feedStatus = 503; foreign.libraryStatus = 503
+    let other = try await foreign.model(cache: cache)
+    await other.warmData()
+    #expect(other.podcasts.jobs.isEmpty)
+    #expect(try await cache.load(dataset: "podcasts", server: "https://other.invalid", owner: gate.owner) == nil)
+    gate.holdLibrary = true; gate.feedStatus = 401
+    let refresh = Task { await model.refreshPodcasts() }
+    while gate.libraryWait == nil { await Task.yield() }
+    for _ in 0..<10000 { if model.session.user == nil { break }; await Task.yield() }
+    #expect(model.session.user == nil)
+    #expect(model.podcasts.jobs.isEmpty)
+    gate.libraryStatus = 200; gate.libraryWait?.resume(); gate.libraryWait = nil
+    await refresh.value
+    #expect(model.podcasts.jobs.isEmpty, "Late sibling must not restore revoked owner content")
+    for _ in 0..<10000 {
+        if try await cache.load(dataset: "podcasts", server: "https://synthetic.invalid", owner: gate.owner) == nil { break }
+        await Task.yield()
+    }
+    #expect(try await cache.load(dataset: "podcasts", server: "https://synthetic.invalid", owner: gate.owner) == nil)
+}
+@Test @MainActor func podcastTitleUsesAssociatedFeedMetadataBeforeFilename() async throws {
+    let gate = PodcastReadGate(); let model = try await gate.model()
+    await model.refreshPodcasts()
+    let old = PodcastReadGate.job.replacingOccurrences(of: "\"title\":\"Saved episode title\",", with: "")
+    let job = try JSONDecoder().decode(PodcastJob.self, from: Data(old.utf8))
+    #expect(model.podcasts.title(for: job) == "Saved episode title")
+}
+@Test @MainActor func podcastReadsApplyBeforeSiblingLibraryFinishes() async throws {
+    let gate = PodcastReadGate(); gate.holdLibrary = true
+    let model = try await gate.model()
+    let task = Task { await model.refreshPodcasts() }
+    while gate.libraryWait == nil { await Task.yield() }
+    for _ in 0..<100 { await Task.yield() }
+    #expect(model.podcasts.subscriptions.first?.title == "Saved feed")
+    gate.libraryWait?.resume(); gate.libraryWait = nil
+    await task.value
+    #expect(model.podcasts.jobs.first?.episodeTitle == "Saved episode title")
+    #expect(!model.podcasts.workerAvailable)
+    #expect(model.podcasts.message == nil)
+    #expect(gate.requests.allSatisfy { $0.httpMethod == "GET" })
+}
+@Test @MainActor func podcastStageErrorsRetainCachedFeedRetryOnlyReadsAndRecover() async throws {
+    let gate = PodcastReadGate(); let model = try await gate.model()
+    await model.refreshPodcasts()
+    gate.feedStatus = 503
+    await model.refreshPodcasts()
+    #expect(model.podcasts.message == "podcast.load.subscriptions\npodcast.load.server")
+    #expect(model.podcasts.subscriptions.count == 1)
+    #expect(model.podcasts.jobs.first?.episodeTitle == "Saved episode title")
+    gate.feedStatus = 200; gate.feedError = URLError(.timedOut)
+    await model.refreshPodcasts()
+    #expect(model.podcasts.message == "podcast.load.subscriptions\npodcast.load.timeout")
+    gate.feedError = nil; gate.malformedFeeds = true
+    await model.refreshPodcasts()
+    #expect(model.podcasts.message == "podcast.load.subscriptions\npodcast.load.response")
+    #expect(model.podcasts.subscriptions.count == 1)
+    #expect(!model.session.isOffline)
+    gate.malformedFeeds = false
+    await model.refreshPodcasts()
+    #expect(model.podcasts.message == nil)
+    #expect(gate.requests.allSatisfy { $0.httpMethod == "GET" })
+}
+@Test @MainActor func podcastUnauthorizedRevokesOwnerAndClearsContent() async throws {
+    let gate = PodcastReadGate(); let model = try await gate.model()
+    await model.refreshPodcasts()
+    gate.feedStatus = 401
+    await model.refreshPodcasts()
+    #expect(model.session.user == nil)
+    #expect(model.podcasts.jobs.isEmpty)
+    #expect(model.podcasts.subscriptions.isEmpty)
+}
+@Test @MainActor func podcastsIndependentOfBlockedProviderAndHistory() async throws {
+    let gate = PodcastReadGate(); gate.holdOther = true
+    let model = try await gate.model()
+    let warm = Task { await model.warmData() }
+    while gate.otherWaits.count < 2 { await Task.yield() }
+    for _ in 0..<100 { await Task.yield() }
+    #expect(model.podcasts.subscriptions.first?.title == "Saved feed")
+    #expect(model.podcasts.jobs.first?.episodeTitle == "Saved episode title")
+    gate.otherWaits.forEach { $0.resume() }; gate.otherWaits = []
+    await warm.value
+    #expect(gate.requests.allSatisfy { $0.httpMethod == "GET" })
+}
+
 @MainActor final class CacheGate {
     var fail = false
     var hold = false

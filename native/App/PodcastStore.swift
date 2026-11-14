@@ -17,6 +17,14 @@ import KeineMagieCore
     private var refreshing = false
     private var refreshID: UUID?
     func isPending(feedID: String, episodeID: String) -> Bool { preparations[EpisodeKey(feedID: feedID, episodeID: episodeID)] != nil }
+    func title(for job: PodcastJob) -> String {
+        if let title = job.episodeTitle, !title.isEmpty { return title }
+        for feed in subscriptions {
+            if let episode = feed.episodes.first(where: { job.belongs(to: $0, feedID: feed.id) }), !episode.title.isEmpty { return episode.title }
+        }
+        let filename = URL(string: job.url)?.lastPathComponent ?? ""
+        return filename.isEmpty ? AppL10n.text("podcast.episode") : filename
+    }
     func reset() {
         epoch = UUID()
         for task in preparations.values { task.cancel() }
@@ -45,33 +53,60 @@ import KeineMagieCore
         preparations[key] = task
         return task
     }
-    private func result<T: Sendable>(_ operation: @Sendable () async throws -> T) async -> Result<T, Error> {
-        do { return .success(try await operation()) } catch { return .failure(error) }
+    private enum ReadResult: Sendable {
+        case library(Result<PodcastLibrary, Error>)
+        case subscriptions(Result<[PodcastSubscription], Error>)
     }
-    func refresh(client: PodcastAPI, current: @MainActor () -> Bool) async {
+    private func readMessage(_ error: Error, stage: String) -> String {
+        let reason: String
+        switch error {
+        case is DecodingError, APIError.invalidResponse: reason = "response"
+        case APIError.http(401): reason = "session"
+        case APIError.http: reason = "server"
+        case let value as URLError where value.code == .timedOut: reason = "timeout"
+        case is URLError: reason = "network"
+        default: reason = "unknown"
+        }
+        let stageKey = "podcast.load." + stage
+        let reasonKey = "podcast.load." + reason
+        return AppL10n.text(stageKey) + "\n" + AppL10n.text(reasonKey)
+    }
+    func refresh(client: PodcastAPI, current: @MainActor () -> Bool,
+                 unauthorized: @MainActor () -> Void = {}) async {
         guard !refreshing else { return }
         let id = UUID(); refreshID = id
         let startRevision = revision
         refreshing = true; phase = .loading
         defer { if refreshID == id { refreshing = false; refreshID = nil } }
-        async let library = result { try await client.library() }
-        async let feeds = result { try await client.subscriptions() }
-        let (value, list) = await (library, feeds)
+        var errors: [String: String] = [:]
+        await withTaskGroup(of: ReadResult.self) { group in
+            group.addTask { do { return .library(.success(try await client.library())) } catch { return .library(.failure(error)) } }
+            group.addTask { do { return .subscriptions(.success(try await client.subscriptions())) } catch { return .subscriptions(.failure(error)) } }
+            for await response in group {
+                guard current(), refreshID == id else { group.cancelAll(); continue }
+                let failure: Error?
+                let stage: String
+                switch response {
+                case .library(.success(let library)):
+                    // A new preparation must survive an older GET snapshot.
+                    jobs = revision == startRevision ? library.items : jobs + library.items.filter { item in !jobs.contains { $0.id == item.id } }
+                    workerAvailable = library.workerAvailable
+                    stage = "library"; failure = nil
+                case .subscriptions(.success(let feeds)):
+                    subscriptions = feeds
+                    stage = "subscriptions"; failure = nil
+                case .library(.failure(let error)): stage = "library"; failure = error
+                case .subscriptions(.failure(let error)): stage = "subscriptions"; failure = error
+                }
+                if let failure {
+                    if case APIError.http(401) = failure { unauthorized(); group.cancelAll(); continue }
+                    errors[stage] = readMessage(failure, stage: stage)
+                }
+                message = errors.isEmpty ? nil : errors.keys.sorted().compactMap { errors[$0] }.joined(separator: "\n")
+            }
+        }
         guard current(), refreshID == id else { return }
-        var failed = false
-        switch value {
-        case .success(let library):
-            // An enqueue accepted after this GET started must not disappear behind its older snapshot.
-            jobs = revision == startRevision ? library.items : jobs + library.items.filter { item in !jobs.contains { $0.id == item.id } }
-            workerAvailable = library.workerAvailable
-        case .failure: failed = true
-        }
-        switch list {
-        case .success(let feeds): subscriptions = feeds
-        case .failure: failed = true
-        }
-        phase = failed ? .error : .loaded
-        message = failed ? AppL10n.text("podcast.failed") : nil
+        phase = errors.isEmpty ? .loaded : .error
     }
 }
 

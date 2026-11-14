@@ -57,8 +57,27 @@ public struct PodcastJob: Codable, Sendable, Identifiable {
     public var active: Bool { ["queued", "fetching", "downloading", "transcribing", "translating"].contains(state) }
     enum CodingKeys: String, CodingKey {
         case id, url, state, progress, error, segments
-        case feedID = "feed_id", episodeID = "episode_id", sourceURL = "source_url", episodeTitle = "episode_title"
+        case feedID = "feed_id", episodeID = "episode_id", sourceURL = "source_url", episodeTitle = "title"
         case sourceLanguage = "source_language", targetLanguage = "target_language"
+    }
+    private enum LegacyKeys: String, CodingKey { case episodeTitle = "episode_title" }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        url = try c.decode(String.self, forKey: .url)
+        sourceLanguage = try c.decode(String.self, forKey: .sourceLanguage)
+        targetLanguage = try c.decode(String.self, forKey: .targetLanguage)
+        state = try c.decode(String.self, forKey: .state)
+        progress = try c.decode(Int.self, forKey: .progress)
+        error = try c.decodeIfPresent(String.self, forKey: .error)
+        // Subscription preparation summaries deliberately omit transcript bytes.
+        segments = try c.decodeIfPresent([PodcastSegment].self, forKey: .segments) ?? []
+        feedID = try c.decodeIfPresent(String.self, forKey: .feedID)
+        episodeID = try c.decodeIfPresent(String.self, forKey: .episodeID)
+        sourceURL = try c.decodeIfPresent(String.self, forKey: .sourceURL)
+        let legacy = try decoder.container(keyedBy: LegacyKeys.self)
+        episodeTitle = try c.decodeIfPresent(String.self, forKey: .episodeTitle)
+            ?? legacy.decodeIfPresent(String.self, forKey: .episodeTitle)
     }
 }
 public struct PodcastEpisode: Codable, Sendable, Identifiable {
@@ -79,6 +98,15 @@ public struct PodcastSubscription: Codable, Sendable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case id, url, title, episodes
         case artworkURL = "artwork_url", latestEpisodeTitle = "latest_episode_title"
+    }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        url = try c.decode(String.self, forKey: .url)
+        title = try c.decode(String.self, forKey: .title)
+        episodes = try c.decodeIfPresent([PodcastEpisode].self, forKey: .episodes) ?? []
+        artworkURL = try c.decodeIfPresent(String.self, forKey: .artworkURL)
+        latestEpisodeTitle = try c.decodeIfPresent(String.self, forKey: .latestEpisodeTitle)
     }
 }
 public struct PodcastSubscriptions: Codable, Sendable {

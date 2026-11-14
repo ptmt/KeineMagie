@@ -23,6 +23,38 @@ final class PodcastUITests: XCTestCase {
         }
         XCTAssertTrue(button.isHittable); button.tap()
     }
+    @MainActor func testProductionWireShapeShowsFeedAndPreparedTitle() {
+        let app = launch("podcast-wire")
+        let feed = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Synthetic language podcast")).firstMatch
+        XCTAssertTrue(feed.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["podcast.error"].exists)
+        screenshot(app, "podcast-wire-feed")
+        feed.tap()
+        XCTAssertTrue(app.staticTexts["Synthetic saved episode title"].waitForExistence(timeout: 3))
+        app.buttons["Ready"].tap()
+        XCTAssertEqual(app.staticTexts["podcast-detail-title"].label, "Synthetic saved episode title")
+        XCTAssertTrue(app.staticTexts["Synthetic transcript"].exists)
+        screenshot(app, "podcast-wire-prepared-title")
+    }
+    @MainActor func testProductionWirePartialDelayErrorAndReadOnlyRecovery() {
+        let app = launch("podcast-wire-partial")
+        let feed = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Synthetic language podcast")).firstMatch
+        XCTAssertTrue(feed.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.staticTexts["podcast.error"].exists)
+        screenshot(app, "podcast-wire-independent-feed")
+        XCTAssertTrue(app.staticTexts["podcast.error"].waitForExistence(timeout: 75))
+        XCTAssertTrue(app.staticTexts["podcast.error"].label.contains("Could not load the library."))
+        XCTAssertTrue(feed.exists)
+        screenshot(app, "podcast-wire-partial-error")
+        app.buttons["Retry"].tap()
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.staticTexts["podcast.error"])
+        waitForExpectations(timeout: 5)
+        feed.tap()
+        app.buttons["Ready"].tap()
+        XCTAssertEqual(app.staticTexts["podcast-detail-title"].label, "Synthetic saved episode title")
+        XCTAssertTrue(app.staticTexts["Synthetic transcript"].exists)
+        screenshot(app, "podcast-wire-recovered")
+    }
     @MainActor func testTimelineSearchSummaryCitationAndProfile() {
         let app = launch("podcast-timeline")
         let episode = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "episode-1.mp3")).firstMatch
