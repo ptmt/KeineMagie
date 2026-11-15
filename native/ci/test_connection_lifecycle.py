@@ -93,6 +93,60 @@ import KeineMagieCore
     await session.restore()
     return AppModel(session:session, client:APIClient(endpoint:try! ServerEndpoint("https://synthetic.invalid"),token:"synthetic",transport:transport), cache: ContentCache(root: gate.outboxRoot.appendingPathComponent("cache")), outboxStore: TranslationOutboxStore(root: gate.outboxRoot))
 }
+@Test @MainActor func translationJournalRunsOffMain() async throws {
+    let gate = Gate()
+    let disk = JournalProbe()
+    let transport: AuthClient.Transport = { request in try await gate.send(request) }
+    let session = SessionController(serverURL:"https://synthetic.invalid",readToken:{"synthetic"},saveToken:{_ in},transport:transport)
+    await session.restore()
+    let store = TranslationOutboxStore(root: gate.outboxRoot, beforeSave: { _ in disk.record() })
+    let model = AppModel(session:session, client:APIClient(endpoint:try ServerEndpoint("https://synthetic.invalid"),token:"synthetic",transport:transport), outboxStore:store)
+    model.draft = "private"
+    await model.translate()
+    #expect(!disk.sawMainThread, "JSON encoding and filesystem writes must not run on MainActor")
+    #expect(gate.translationRequests.count == 1)
+}
+@Test @MainActor func delayedJournalKeepsInputResponsiveAndLogoutCannotResurrectIt() async throws {
+    let gate = Gate(); let disk = SuspendedJournal()
+    let transport: AuthClient.Transport = { request in try await gate.send(request) }
+    let session = SessionController(serverURL:"https://synthetic.invalid",readToken:{"synthetic"},saveToken:{_ in},transport:transport)
+    await session.restore()
+    let store = TranslationOutboxStore(root:gate.outboxRoot, beforeSave: { value in
+        if !value.items.isEmpty { disk.pause() }
+    })
+    let model = AppModel(session:session, client:APIClient(endpoint:try ServerEndpoint("https://synthetic.invalid"),token:"synthetic",transport:transport), outboxStore:store)
+    model.draft = "accepted snapshot"
+    #expect(await model.flushTranslationPersistence())
+    let accepted = try #require(model.beginTranslation())
+    while !disk.entered { await Task.yield() }
+    await model.resumeTranslations()
+    #expect(gate.translationRequests.isEmpty, "Automatic drain must not bypass an acceptance awaiting disk")
+    #expect(model.translationPending)
+    #expect(gate.translationRequests.isEmpty, "Persist before POST")
+    model.draft = "responsive new input"
+    #expect(model.draft == "responsive new input")
+    await model.logout()
+    #expect(!model.translationPending)
+    disk.release()
+    await accepted.value
+    #expect(gate.translationRequests.isEmpty)
+    #expect(model.result == nil)
+    #expect(try store.load(origin:"https://synthetic.invalid",owner:gate.owner).items.isEmpty)
+}
+final class SuspendedJournal: @unchecked Sendable {
+    private let condition = NSCondition()
+    private var started = false
+    private var finished = false
+    var entered: Bool { condition.withLock { started } }
+    func pause() { condition.lock(); started = true; while !finished { condition.wait() }; condition.unlock() }
+    func release() { condition.lock(); finished = true; condition.broadcast(); condition.unlock() }
+}
+final class JournalProbe: @unchecked Sendable {
+    private let lock = NSLock()
+    private var mainThread = false
+    var sawMainThread: Bool { lock.withLock { mainThread } }
+    func record() { lock.withLock { mainThread = mainThread || Thread.isMainThread } }
+}
 @Test @MainActor func explicitTranslationFeedbackStartsSynchronouslyAndStopsWhenQueued() async throws {
     let gate = Gate(); gate.holdTranslation = true
     let model = await fixture(gate); model.draft = "first"
@@ -126,6 +180,7 @@ import KeineMagieCore
 @Test @MainActor func feedbackStorageFailureAndChangedOwnerNeverSend() async throws {
     let gate = Gate(); let model = await fixture(gate); model.draft = "disk failure"
     // Replace this synthetic journal directory with a file to force a real write failure.
+    #expect(await model.flushTranslationPersistence())
     try FileManager.default.removeItem(at: gate.outboxRoot)
     try Data().write(to: gate.outboxRoot)
     let accepted = try #require(model.beginTranslation())
@@ -430,6 +485,7 @@ import KeineMagieCore
 @Test @MainActor func outboxStorageFailureNeverSends() async throws {
     let gate = Gate(); let model = await fixture(gate)
     model.loadTranslationOutbox(); model.draft = "safe"
+    #expect(await model.flushTranslationPersistence())
     try FileManager.default.removeItem(at: gate.outboxRoot)
     try Data("blocked".utf8).write(to: gate.outboxRoot)
     await model.translate()

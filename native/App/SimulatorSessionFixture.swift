@@ -4,6 +4,25 @@ import UIKit
 import AVFAudio
 import KeineMagieCore
 
+/// Simulator-only filesystem latency, not a UI delay or frame guarantee.
+final class SimulatorTranslationJournalProbe: @unchecked Sendable {
+    let root = URL.applicationSupportDirectory.appendingPathComponent("UITestOutbox").appendingPathComponent(UUID().uuidString)
+    private let lock = NSLock()
+    private var entered = false
+    private let fail: Bool
+    init(fail: Bool) { self.fail = fail }
+    func beforeSave(_ value: TranslationOutbox) {
+        guard !value.items.isEmpty else { return }
+        let first = lock.withLock { if entered { return false }; entered = true; return true }
+        guard first else { return }
+        // Deliberately blocks the actual storage executor while the UI remains free.
+        print("TRANSLATE_STORE_BEGIN main=\(Thread.isMainThread) time=\(Date().timeIntervalSince1970)")
+        Thread.sleep(forTimeInterval: 8)
+        if fail { try? FileManager.default.removeItem(at: root); try? Data().write(to: root) }
+        print("TRANSLATE_STORE_END time=\(Date().timeIntervalSince1970)")
+    }
+}
+
 /// Test transport only. Device builds do not contain this fixture.
 actor SimulatorSessionFixture {
     private var coachAnswered = false

@@ -373,6 +373,8 @@ final class AppModel {
     }
     private(set) var outbox = TranslationOutbox()
     private var outboxStore = TranslationOutboxStore()
+    private var outboxLease = TranslationOutboxLease()
+    private var outboxRevision = 0
     private var outboxScope: (origin: String, owner: String?, generation: Int)?
     // Purge target only; never used to load, authorize, or send content.
     private var invalidatedOutboxOwner: (origin: String, owner: String)?
@@ -402,16 +404,38 @@ final class AppModel {
         if let scope = outboxScope, scope.origin == session.serverURL, scope.owner == owner, scope.generation == session.generation { return }
         translationEpoch += 1; translationTask?.cancel(); translationTask = nil; translationSending = false
         checkingTranslations.removeAll(); translationCheckNotices.removeAll()
+        outboxLease.invalidate(); outboxLease = TranslationOutboxLease(); outboxRevision = 0
         outboxScope = (session.serverURL, owner, session.generation)
         outboxLoadingFailed = false
         do { outbox = try outboxStore.load(origin: session.serverURL, owner: owner); outboxStorageError = false }
         catch { outbox = TranslationOutbox(); outboxLoadingFailed = true; outboxStorageError = true }
     }
     @discardableResult private func saveTranslationOutbox() -> Bool {
+        // Editing remains synchronous in memory; encoding and disk writes are not.
+        let task = persistTranslationOutbox()
+        Task { _ = await task.value }
+        return !outboxLoadingFailed
+    }
+    func flushTranslationPersistence() async -> Bool { await persistTranslationOutbox().value }
+    private func persistTranslationOutbox() -> Task<Bool, Never> {
         guard !outboxLoadingFailed, let scope = outboxScope, scope.origin == session.serverURL, scope.generation == session.generation,
-              scope.owner == (session.phase == .signedIn ? session.user?.id : nil) else { outboxStorageError = true; return false }
-        do { try outboxStore.save(outbox, origin: scope.origin, owner: scope.owner); outboxStorageError = false; return true }
-        catch { outboxStorageError = true; return false }
+              scope.owner == (session.phase == .signedIn ? session.user?.id : nil) else {
+            outboxStorageError = true
+            return Task { false }
+        }
+        outboxRevision += 1
+        let revision = outboxRevision, snapshot = outbox, store = outboxStore, lease = outboxLease
+        let write = Task.detached(priority: .userInitiated) {
+            do { try store.save(snapshot, origin: scope.origin, owner: scope.owner, lease: lease, revision: revision); return true }
+            catch { return false }
+        }
+        return Task { [self] in
+            let saved = await write.value
+            guard outboxLease === lease, session.generation == scope.generation,
+                  session.serverURL == scope.origin, outboxScope?.owner == scope.owner else { return false }
+            if outboxRevision == revision { outboxStorageError = !saved }
+            return saved
+        }
     }
     func removeTranslation(_ id: UUID, delete: Bool = false) {
         loadTranslationOutbox()
@@ -432,7 +456,7 @@ final class AppModel {
             return
         }
         outbox.items[i].state = .queued; outbox.items[i].nextAttempt = nil; outbox.items[i].attempts = 0
-        guard saveTranslationOutbox() else { return }
+        guard await persistTranslationOutbox().value else { return }
         await drainTranslations(explicit: true)
     }
     private(set) var checkingTranslations: Set<UUID> = []
@@ -456,7 +480,9 @@ final class AppModel {
                 return
             }
             outbox.items[i].result = record; outbox.items[i].state = .completed; outbox.items[i].failure = nil
-            guard saveTranslationOutbox() else { return }
+            guard await persistTranslationOutbox().value else { return }
+            guard version == session.generation, epoch == translationEpoch, session.user?.id == owner,
+                  outbox.items.contains(where: { $0.id == id && $0.state == .completed }) else { return }
             translationCheckNotices[id] = nil
             result = record; historyState.insert(record)
             await persistHistory()
@@ -669,7 +695,6 @@ final class AppModel {
         translationAcceptance = id
         return Task { [self] in
             defer { if translationAcceptance == id { translationAcceptance = nil } }
-            await Task.yield()
             guard translationAcceptance == id, version == session.generation, owner == session.user?.id else { return }
             loadTranslationOutbox()
             let currentDraft = outbox.draft
@@ -677,7 +702,8 @@ final class AppModel {
             do { try outbox.enqueue(direction: capturedDirection, instructions: instructions) }
             catch { outbox.draft = currentDraft; translatorError = error.localizedDescription; return }
             outbox.draft = currentDraft
-            guard saveTranslationOutbox() else { return }
+            guard await persistTranslationOutbox().value else { return }
+            guard translationAcceptance == id, version == session.generation, owner == session.user?.id else { return }
             translationAcceptance = nil
             guard session.phase == .signedIn, session.user != nil else { return }
             await drainTranslations(explicit: true)
@@ -685,7 +711,7 @@ final class AppModel {
     }
     private func drainTranslations(explicit: Bool) async {
         if translationTask != nil { return }
-        guard session.phase == .signedIn, let owner = session.user?.id else { return }
+        guard translationAcceptance == nil, session.phase == .signedIn, let owner = session.user?.id else { return }
         let version = session.generation, epoch = translationEpoch
         translationSending = true
         let task = Task { [self] in
@@ -698,14 +724,20 @@ final class AppModel {
                 outbox.items[index].state = .sending
                 outbox.items[index].attempts += 1
                 let snapshot = outbox.items[index]
-                guard saveTranslationOutbox() else { outbox.items[index].state = .queued; return }
+                guard await persistTranslationOutbox().value else {
+                    if epoch == translationEpoch, let i = outbox.items.firstIndex(where: { $0.id == snapshot.id }) { outbox.items[i].state = .queued }
+                    return
+                }
+                guard version == session.generation, epoch == translationEpoch, session.user?.id == owner,
+                      outbox.items.contains(where: { $0.id == snapshot.id && $0.state == .sending }) else { return }
                 do {
                     let item = try await api(translation: true).translate(text: snapshot.text, direction: snapshot.direction,
                         instructions: snapshot.instructions, requestID: snapshot.id, owner: owner)
                     guard version == session.generation, epoch == translationEpoch, session.user?.id == owner else { return }
                     guard let i = outbox.items.firstIndex(where: { $0.id == snapshot.id }), outbox.items[i].state == .sending else { continue }
                     outbox.items[i].result = item; outbox.items[i].state = .completed; outbox.items[i].failure = nil
-                    guard saveTranslationOutbox() else { return }
+                    guard await persistTranslationOutbox().value else { return }
+                    guard version == session.generation, epoch == translationEpoch, session.user?.id == owner else { return }
                     result = item; historyState.insert(item); translatorError = nil
                     if draft == snapshot.text && direction == snapshot.direction && translationInstruction == snapshot.instructions { selectedShortcutID = nil }
                     await persistHistory()
@@ -746,6 +778,10 @@ final class AppModel {
         if let mode = ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] {
             let fixture = SimulatorSessionFixture(mode: mode)
             outboxStore = TranslationOutboxStore(root: URL.applicationSupportDirectory.appendingPathComponent("UITestOutbox").appendingPathComponent(UUID().uuidString))
+            if mode == "translation-delayed-store" || mode == "translation-delayed-store-failure" {
+                let probe = SimulatorTranslationJournalProbe(fail: mode.hasSuffix("failure"))
+                outboxStore = TranslationOutboxStore(root: probe.root, beforeSave: { value in probe.beforeSave(value) })
+            }
             if let namespace = ProcessInfo.processInfo.environment["KM_SIMULATOR_CACHE_NAMESPACE"], UUID(uuidString: namespace) != nil {
                 let root = URL.applicationSupportDirectory.appendingPathComponent("UITestContentCache").appendingPathComponent(namespace)
                 contentCache = ContentCache(root: root)
@@ -772,6 +808,7 @@ final class AppModel {
         #endif
     }
     func resetSessionContent() {
+        outboxLease.invalidate()
         translationAcceptance = nil
         if let scope = outboxScope, let owner = scope.owner, session.user == nil {
             invalidatedOutboxOwner = (scope.origin, owner)
@@ -806,6 +843,7 @@ final class AppModel {
         guard endpoint.baseURL.absoluteString != session.serverURL else { return }
         cancelChatGPT()
         // Revoke against the OLD server before changing origin. Offline failure is reported, not hidden.
+        outboxLease.invalidate()
         try outboxStore.remove(origin: session.serverURL, owner: session.user?.id)
         await session.logout()
         guard session.phase == .signedOut else { throw SettingsFailure.keychain }
@@ -820,6 +858,7 @@ final class AppModel {
             do { try outboxStore.remove(origin: target.origin, owner: target.owner); invalidatedOutboxOwner = nil }
             catch { outboxStorageError = true }
         }
+        outboxLease.invalidate()
         do { try outboxStore.remove(origin: session.serverURL, owner: session.user?.id) }
         catch { outboxStorageError = true }
         resetSessionContent()

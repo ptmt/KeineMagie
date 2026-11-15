@@ -35,12 +35,22 @@ public struct TranslationOutbox: Codable, Sendable {
     }
 }
 
-/// Synchronous atomic local journal: callers serialize on MainActor and never
-/// suspend between validating the trusted owner lease and saving a snapshot.
+/// A synchronously revocable owner lease. Validation and atomic replacement share
+/// the lock; delayed/queued writes cannot recreate files after logout.
+public final class TranslationOutboxLease: @unchecked Sendable {
+    fileprivate let lock = NSLock()
+    fileprivate var active = true
+    fileprivate var revision = 0
+    public init() {}
+    public func invalidate() { lock.withLock { active = false } }
+}
+
+/// Atomic owner-scoped local journal.
 /// An unassigned draft has a distinct namespace; it is never adopted on login.
 public struct TranslationOutboxStore: Sendable {
     private let root: URL
-    public init(root: URL = URL.applicationSupportDirectory.appendingPathComponent("TranslationOutbox", isDirectory: true)) { self.root = root }
+    private let beforeSave: @Sendable (TranslationOutbox) -> Void
+    public init(root: URL = URL.applicationSupportDirectory.appendingPathComponent("TranslationOutbox", isDirectory: true), beforeSave: @escaping @Sendable (TranslationOutbox) -> Void = { _ in }) { self.root = root; self.beforeSave = beforeSave }
     private func path(origin: String, owner: String?) -> URL {
         let scope = origin + "\u{0}" + (owner.map { "owner:" + $0 } ?? "unassigned")
         return root.appendingPathComponent(SHA256.hash(data: Data(scope.utf8)).map { String(format: "%02x", $0) }.joined() + ".json")
@@ -56,12 +66,25 @@ public struct TranslationOutboxStore: Sendable {
         }
         return value
     }
+    public func save(_ value: TranslationOutbox, origin: String, owner: String?, lease: TranslationOutboxLease, revision: Int) throws {
+        beforeSave(value)
+        let data = try JSONEncoder().encode(value)
+        try lease.lock.withLock {
+            guard lease.active else { throw CancellationError() }
+            guard revision > lease.revision else { return }
+            try write(data, origin: origin, owner: owner)
+            lease.revision = revision
+        }
+    }
     public func save(_ value: TranslationOutbox, origin: String, owner: String?) throws {
+        beforeSave(value)
+        try write(JSONEncoder().encode(value), origin: origin, owner: owner)
+    }
+    private func write(_ data: Data, origin: String, owner: String?) throws {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         var directory = root
         var values = URLResourceValues(); values.isExcludedFromBackup = true
         try directory.setResourceValues(values)
-        let data = try JSONEncoder().encode(value)
         let file = path(origin: origin, owner: owner)
         #if os(iOS)
         try data.write(to: file, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])

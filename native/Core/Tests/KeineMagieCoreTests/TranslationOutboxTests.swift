@@ -2,6 +2,21 @@ import Foundation
 import Testing
 @testable import KeineMagieCore
 
+@Test func outboxLeaseRejectsInvalidatedAndOlderSnapshots() throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let store = TranslationOutboxStore(root:root), lease = TranslationOutboxLease()
+    var newest = TranslationOutbox(); newest.draft = "newest"
+    try store.save(newest,origin:"https://lease.invalid",owner:"owner",lease:lease,revision:2)
+    var older = TranslationOutbox(); older.draft = "old"
+    try store.save(older,origin:"https://lease.invalid",owner:"owner",lease:lease,revision:1)
+    #expect(try store.load(origin:"https://lease.invalid",owner:"owner").draft == "newest")
+    lease.invalidate()
+    try store.remove(origin:"https://lease.invalid",owner:"owner")
+    #expect(throws:CancellationError.self) { try store.save(older,origin:"https://lease.invalid",owner:"owner",lease:lease,revision:3) }
+    #expect(try store.load(origin:"https://lease.invalid",owner:"owner").draft.isEmpty)
+}
+
 @Test func outboxCoalescesNonAdjacentAndUncertainSnapshots() throws {
     var value = TranslationOutbox(); value.draft = "one"
     let first = try value.enqueue(direction: .russianToGerman, instructions: nil)

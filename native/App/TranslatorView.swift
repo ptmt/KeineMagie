@@ -253,6 +253,13 @@ private struct TranslationPendingPanel: View {
                 }.clipped()
             }
         }.clipShape(RoundedRectangle(cornerRadius: 14))
+        .onAppear {
+            #if targetEnvironment(simulator)
+            if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] != nil {
+                print("TRANSLATE_MOTION reduce=\(reduceMotion) system=\(UIAccessibility.isReduceMotionEnabled)")
+            }
+            #endif
+        }
     }
 }
 
