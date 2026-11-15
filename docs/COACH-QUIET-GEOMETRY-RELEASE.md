@@ -62,8 +62,11 @@ and 29 XCTest cases, one opt-in wire skip subsequently executed by the six-test
 actual-Go-wire run. Seven Coach wire snapshots pass. Sandbox-only loopback
 failures from the independent fix agent were not weakened; normal local runs pass.
 Independent re-review returned PASS with no actionable findings (82 Node and
-17 native source checks). The final rebuilt combined Release matrix remains a
-publication gate. Publication evidence follows after exact readback.
+17 native source checks). Final combined Release matrix passed geometry 4, quiet 9,
+Podcast wire UI 2, outbox 3 and catalog 2; the single Coach fixture failure in the
+27-test combined run was repaired as documented below, then the entire seven-test
+Coach suite passed. Final dark/reduced-motion subset: 3 passed. No skips or xcresult
+runtime warnings. All original 13 geometry deltas remained exactly zero.
 
 The rebuilt UI matrix exposed a simulator contract bug: its hardcoded attempt ID
 was not the submitted request ID, so correct receipt reconciliation retained both
@@ -87,3 +90,52 @@ After deployment/readback, dispatch exactly one main iOS workflow with
 `publish=UPLOAD`; bind run/jobs/build number and Apple upload result to its full SHA.
 Apple upload success is distinct from processing, tester availability and device
 installation. No real provider grading-quality claim is made.
+
+## Backend publication readback
+
+- Published source: `1bf7be2a8e6ee220c5d3e08cfeb698d6da1920d7`.
+  Backend image `sha256:e3f948148768c4938682e48ecee29397226398864f117e8054e9212adfe9de57`.
+- Server CI: https://github.com/ptmt/KeineMagie/actions/runs/43714092957 — success.
+  Local pinned arm64 image uses the established Compose lifecycle; GHCR build
+  publication is separate from this host deployment.
+- Worker unchanged: `sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382`.
+  Worker and all unrelated container IDs unchanged; full merged Compose changed
+  only backend image. Resource/mount/routing/private-network checks passed,
+  including the reboot Traefik `tinyserve_edge` provider-network fix.
+- Actual locked snapshot: **11** non-runtime durable files, all byte-identical;
+  **1 completed job, 0 active, 1 subscription, 2113 segments and 2113 translations**;
+  **1 user, 3 sessions**. These supersede earlier nine-file/partial-job assumptions.
+- Private six-volume backup:
+  `deployment/release-coach-quiet-geometry-20261115T122924Z/`, mode 0700/0600.
+  Backup values and credentials were not printed. Rollback uses its prior image
+  and current data, never historical data restoration.
+- Public certificate-valid HTTPS health **200**; session/Podcast/Coach **401**.
+  Legacy no-bearer translations intentionally **503** with shared TTS disabled;
+  correctly shaped invalid native bearer **401**. All responses no-store.
+- Seven public assets matched committed bytes/SHA256; real production Chromium
+  verified five locales, guest locks, empty private history, stable navigation,
+  and zero mutations. Worker authenticated readiness **200**, unauthenticated **401**;
+  final private membership exactly backend and worker.
+- Initial post-replacement inspector rejected Docker DNS `[]` versus `null` and
+  reordered binds; exact diff inspection and canonical comparison passed without
+  redeployment. No configuration value changed.
+
+## iOS publication
+
+Initial push validation and first explicit-upload validation lacked Go on the
+hosted macOS runner; both failed before signing/upload. Workflow-only follow-up
+`2969bcb5137a13846ada5992bed28e8962d3e8d2` pins setup-go and installs Go 1.27.4
+before actual server-to-Swift tests. Native/backend/web sources are byte-identical
+to the deployed release. Apple run:
+https://github.com/ptmt/KeineMagie/actions/runs/43714338763 — **success** at exact
+SHA `2969bcb5137a13846ada5992bed28e8962d3e8d2`. Validation job `132813575609`,
+upload job `132814478263`; signed archive and export succeeded. Version **1.0**,
+build **2753.8.10**, Apple **`UPLOAD SUCCEEDED with no errors`** at
+**2026-11-15T12:44:13.8846370Z**. Signing cleanup succeeded. No duplicate accepted
+package was dispatched: the earlier explicit run failed before signing.
+App Store processing, tester assignment and physical iPhone installation remain
+unverified. CI-only follow-up does not require another backend replacement.
+
+Obsidian initially returned empty reads/resource-deadlock for its iCloud placeholder.
+A targeted `brctl download` hydrated the existing note; the current release and
+nearest device checks were updated minimally without overwriting unseen content.
