@@ -32,13 +32,16 @@ public struct CoachAttempt: Codable, Sendable {
     enum CodingKeys: String, CodingKey { case id, answer, outcome, originalOutcome = "original_outcome", assisted, at, reviewedAt = "reviewed_at", excluded, assessmentState = "assessment_state", assessment, assessmentError = "assessment_error", sent, localRequest, localPriorAttemptID, localRetryAllowed }
 }
 public struct CoachTurn: Codable, Sendable, Identifiable {
+    public var isOffer: Bool?; public var sourceReveals: Int?; public var answerReveals: Int?; public var messageVersion: String?; public var seenVersion: String?
     public var id: String; public let text: String; public let state: String; public let at: String
     public let assisted: Bool; public let language: String
     public let message: String?; public let kind: String?; public let prompt: String?; public let target: String?
     public let sourceID: String?; public let quote: String?; public let explanation: String?; public var attempt: CoachAttempt?
-    enum CodingKeys: String, CodingKey { case id, text, state, at, assisted, language, message, kind, prompt, target, sourceID = "source_id", quote, explanation, attempt }
+    enum CodingKeys: String, CodingKey { case isOffer = "is_offer", sourceReveals = "source_reveals", answerReveals = "answer_reveals", messageVersion = "message_version", seenVersion = "seen_version", id, text, state, at, assisted, language, message, kind, prompt, target, sourceID = "source_id", quote, explanation, attempt }
 }
 extension CoachTurn {
+    public var isUnread: Bool { state == "completed" && messageVersion != nil && messageVersion != seenVersion }
+    public func masksAnswer(latestID: String?) -> Bool { attempt != nil && id != latestID && (answerReveals ?? 0) == 0 }
     public var showsInstruction: Bool {
         guard let message, !message.isEmpty else { return false }
         guard ["cloze", "preposition_case"].contains(kind ?? ""), prompt?.contains("___") == true else { return true }

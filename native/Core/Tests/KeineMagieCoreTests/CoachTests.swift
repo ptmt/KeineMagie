@@ -2,6 +2,13 @@ import XCTest
 @testable import KeineMagieCore
 
 final class CoachTests: XCTestCase {
+    func testChatReceiptContract() throws {
+        let raw = #"{"id":"one","text":"","state":"completed","at":"now","assisted":false,"language":"","kind":"nudge","message_version":"one:completed","seen_version":"","source_reveals":0,"answer_reveals":1}"#
+        let turn = try JSONDecoder().decode(CoachTurn.self, from: Data(raw.utf8))
+        XCTAssertTrue(turn.isUnread)
+        XCTAssertEqual(turn.answerReveals, 1)
+        XCTAssertFalse(turn.masksAnswer(latestID: "two"))
+    }
     func testAssessmentPreservesVerbatimAndLegacyCompatibility() throws {
         let legacy = #"{"id":"old","answer":"  beim  ","outcome":"ambiguous","original_outcome":"ambiguous","assisted":false,"at":"now","excluded":false}"#
         let old = try JSONDecoder().decode(CoachAttempt.self, from: Data(legacy.utf8))

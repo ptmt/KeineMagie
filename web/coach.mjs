@@ -1,5 +1,6 @@
 import {createCoachState} from './coach-state.mjs';
 import {reconcileDOM} from './core.mjs';
+import {coachMasksAnswer,coachUnread,coachPracticeText,coachChatLabel} from './coach-chat.mjs';
 const words={
  en:['A short exercise from your saved phrases, or a question?','Message','Send','Practice · ~30 sec','Skip','Show source / hint','Check','Cancel','Skills','No observations yet. Your self-assessed CEFR stays separate.','Answer','Refresh','Reset observations','Correct','Needs practice','I can’t check this confidently','Skipped','Excluded','Pending · reload never retries. Cancel to continue.','Failed · send a new message to try again.','Canceled','With help','Examples','Answers','Limited evidence','Self-assessment','Sign in to use Coach.','Saved translations and saved podcast passages only. One personal gpt-6.1-terra call per message; shared daily limit 100.','Exclude','Count as correct','Count as needs practice','Reset observations? Your chat and self-assessed CEFR stay unchanged.'],
  de:['Eine kurze Übung mit deinen gespeicherten Sätzen – oder eine Frage?','Nachricht','Senden','Üben · ~30 Sek.','Überspringen','Quelle / Hinweis','Prüfen','Abbrechen','Fähigkeiten','Noch keine Beobachtungen. Deine CEFR-Selbsteinschätzung bleibt getrennt.','Antwort','Aktualisieren','Beobachtungen zurücksetzen','Richtig','Weiter üben','Das kann ich nicht sicher beurteilen','Übersprungen','Ausgeschlossen','Ausstehend · Neuladen wiederholt nichts. Zum Fortfahren abbrechen.','Fehlgeschlagen · zum Wiederholen eine neue Nachricht senden.','Abgebrochen','Mit Hilfe','Beispiele','Antworten','Begrenzte Evidenz','Selbsteinschätzung','Melde dich für Coach an.','Nur gespeicherte Übersetzungen und Podcaststellen. Ein persönlicher gpt-6.1-terra-Aufruf pro Nachricht; gemeinsames Tageslimit 100.','Ausschließen','Als richtig werten','Zum Üben markieren','Beobachtungen zurücksetzen? Chat und CEFR-Selbsteinschätzung bleiben erhalten.'],
@@ -40,39 +41,62 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  const send=el('button');send.type='submit';form.append(input,send);host.append(header,messages,status,form);
  const state=createCoachState(api,render,unauthorized,locale);
  doc.getElementById('learning-profile')?.append(profile);
- const refresh=button('',()=>state.load()),practice=button('',()=>state.act('message',l(3)));actions.append(practice,refresh);
+ const refresh=button('',()=>state.load()),practice=button('',()=>state.act('message',l(3)));form.prepend(practice);actions.append(button(coachChatLabel('profile',locale()),()=>account('de')));
+ const jump=button('',()=>{messages.scrollTop=messages.scrollHeight;checkSeen();});jump.className='coach-jump';host.insertBefore(jump,status);
+ let hydrated=false,known=new Set(),entered=false;const seeing=new Set(),arriving=new Set();
+ messages.addEventListener('animationend',e=>{if(e.animationName==='coach-enter'&&e.target.dataset.turn){arriving.delete(e.target.dataset.turn);e.target.classList.remove('coach-arrival');}});
+ let checkingSeen=false;
+ async function checkSeen(){
+  if(checkingSeen)return;
+  checkingSeen=true;
+  try {
+  if(host.hidden||doc.visibilityState!=='visible'||state.busy||messages.scrollHeight-messages.clientHeight-messages.scrollTop>80)return;
+  const bounds=messages.getBoundingClientRect();
+  for(const row of messages.querySelectorAll('[data-turn]')){if(host.hidden||doc.visibilityState!=='visible'||state.busy||messages.scrollHeight-messages.clientHeight-messages.scrollTop>80)return;const r=row.getBoundingClientRect(),t=state.value?.turns.find(t=>t.id===row.dataset.turn);if(!t||!coachUnread(t)||seeing.has(t.message_version)||r.top>=bounds.bottom||r.bottom<=bounds.top||Math.min(r.bottom,bounds.bottom)-Math.max(r.top,bounds.top)<Math.min(r.height, bounds.height)*.6)continue;seeing.add(t.message_version);await state.seen(t);seeing.delete(t.message_version);}
+  } finally {checkingSeen=false;}
+ }
+ messages.addEventListener('scroll',checkSeen);doc.addEventListener('visibilitychange',checkSeen);
+ const observer=globalThis.IntersectionObserver?new IntersectionObserver(checkSeen,{root:messages,threshold:[0,.6,1]}):null;
+ messages.addEventListener('touchstart',e=>{messages.dataset.touch=String(e.touches[0].clientY);},{passive:true});
+ messages.addEventListener('touchend',e=>{if(messages.scrollTop===0&&e.changedTouches[0].clientY-Number(messages.dataset.touch)>70)void state.load();},{passive:true});
  form.onsubmit=async e=>{e.preventDefault();const draft=input.value;if(!draft.trim())return;const success=await state.act('message',draft);if(success&&input.value===draft){input.value='';grow();}input.focus();};
  const grow=()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';};input.oninput=grow;
  function render(){
-  summary.textContent=l(8);refresh.textContent=l(11);practice.textContent=l(3);input.placeholder=l(1);input.setAttribute('aria-label',l(1));send.textContent=l(2);
+  summary.textContent=l(8);refresh.textContent=l(11);practice.textContent=coachPracticeText(locale());input.placeholder=l(1);input.setAttribute('aria-label',l(1));send.textContent=l(2);
   input.disabled=!state.signedIn;send.disabled=practice.disabled=!state.signedIn||state.busy;refresh.disabled=!state.signedIn||state.busy;
   status.textContent=state.error?ct('coach.error.'+state.error,locale()):'';
   const next=JSON.stringify([state.value,state.busy,state.pendingID,state.signedIn,locale()]);if(next===signature)return;signature=next;
   const active=doc.activeElement, focusedTurn=active?.closest?.('[data-turn]')?.dataset.turn, selection=focusedTurn&&active.tagName==='INPUT'?[active.selectionStart,active.selectionEnd]:null;
   const expanded=[...messages.querySelectorAll?.('details[open]')||[]].map(e=>e.closest('[data-turn]')?.dataset.turn);
-  const scroll=messages.scrollTop;
+  const scroll=messages.scrollTop,nearBottom=messages.scrollHeight-messages.clientHeight-scroll<80;
   const nextMessages=el('div');
   if(!state.value?.turns?.length){const bubble=el('div',undefined,'coach-bubble');bubble.append(el('p',state.signedIn?l(0):l(26)),el('small',ct('coach.scope',locale())));nextMessages.append(bubble);}
   for(const turn of state.value?.turns||[]){
-   const user=el('div',turn.text,'coach-bubble coach-user');user.dataset.key='user:'+turn.id;nextMessages.append(user);
+   if(turn.text){const user=el('div',turn.text,'coach-bubble coach-user');user.dataset.key='user:'+turn.id;nextMessages.append(user);}
    const bubble=el('div',undefined,'coach-bubble');bubble.dataset.turn=turn.id;bubble.dataset.key='coach:'+turn.id;
+   if(coachUnread(turn))bubble.classList.add('coach-unread');
+   if(hydrated&&!known.has(turn.id)&&!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches)arriving.add(turn.id);
+   if(arriving.has(turn.id))bubble.classList.add('coach-arrival');
    if(coachShowsInstruction(turn))bubble.append(el('p',turn.message));
    if(turn.state==='pending'){bubble.append(el('p',l(18)),button(l(7),()=>state.act('cancel','',turn.id)));}
    if(turn.state==='failed'||turn.state==='canceled')bubble.append(el('p',l(turn.state==='failed'?19:20)));
-   if(turn.kind&&turn.kind!=='clarification'){
+   if(turn.is_offer){const offer=button(coachPracticeText(locale()),()=>state.act('message',l(3)));offer.disabled=state.busy;bubble.append(offer);}
+   if(turn.kind&&!['clarification','nudge'].includes(turn.kind)){
     const card=el('section',undefined,'coach-exercise');card.setAttribute('aria-label',target(turn.target));card.append(el('p',turn.prompt,'coach-prompt'));
     if(!turn.attempt){
      const answer=el('input');answer.value=answerDrafts.get(turn.id)||'';answer.maxLength=300;answer.setAttribute('aria-label',l(10));answer.placeholder=l(10);answer.disabled=state.busy;answer.oninput=e=>answerDrafts.set(turn.id,e.currentTarget.value);
      const check=button(l(6),()=>{const value=answerDrafts.get(turn.id)||'';if(value.trim())state.act('answer',value,turn.id);});check.disabled=state.busy;
      answer.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();check.click();}};
      const skip=button(l(4),()=>state.act('skip','',turn.id));skip.disabled=state.busy;card.append(answer,check,skip);
+    }else if(coachMasksAnswer(turn,state.value.turns)){
+     const reveal=button(coachChatLabel('answer',locale()),()=>state.act('reveal','answer',turn.id));reveal.disabled=state.busy;card.append(reveal);
     }else{
      const a=turn.attempt, pending=a.assessment_state&&a.assessment_state!=='completed';
      const feedback=pending?ct('coach.assessment.'+a.assessment_state,locale()):a.assessment&&!a.excluded&&!a.reviewed_at?(a.assessment.verdict==='correct'?l(13):ct('coach.'+a.assessment.verdict,locale())):l(a.excluded?17:({correct:13,wrong:14,ambiguous:15,skipped:16}[a.outcome]||15));
      card.append(el('p',a.answer,'coach-answer'),el(pending||a.outcome==='ambiguous'?'p':'strong',feedback));
      if(a.assessment_state==='pending')card.append(button(l(7),()=>state.act('cancel','',a.id)));
      if(a.outcome!=='skipped'&&!['pending','completed'].includes(a.assessment_state)){
-      const recheck=button(ct('coach.assessment.recheck',locale()),()=>{if(window.confirm(ct('coach.assessment.confirm',locale())))state.act('recheck','',turn.id);});recheck.disabled=state.busy;card.append(recheck);
+      const recheck=button(ct('coach.assessment.recheck',locale()),()=>{if(window.confirm(ct('coach.assessment.confirm',locale())))state.act('recheck','',turn.id);});recheck.disabled=state.busy;const menu=el('details',undefined,'coach-secondary');menu.append(el('summary','•••'),recheck);card.append(menu);
      }
      if(a.assessment?.corrected_answer&&a.assessment.verdict!=='correct')card.append(el('p',a.assessment.corrected_answer));
      if(a.assisted)card.append(el('small',l(21)));
@@ -81,9 +105,9 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
     bubble.append(card);
    }
    if(turn.source_id){
-    if(turn.quote){const details=el('details'),label=el('summary',ct(turn.attempt?'coach.source':'coach.hint',locale()));details.append(label,el('blockquote',turn.quote));if(!turn.attempt&&turn.explanation)details.append(el('p',turn.explanation));
+    if(turn.quote&&turn.source_reveals){const details=el('details'),label=el('summary',ct(turn.attempt?'coach.source':'coach.hint',locale()));label.onclick=e=>{if(!e.currentTarget.parentElement.open)void state.act('reveal','source',turn.id);};details.append(label,el('blockquote',turn.quote));if(!turn.attempt&&turn.explanation)details.append(el('p',turn.explanation));
      const href=coachSourceLink(turn.source_id);if(href){const link=el('a',ct(turn.source_id.startsWith('translation:')?'coach.savedTranslation':'coach.savedPassage',locale()));link.href=href;link.dataset.coachSource=turn.id;link.onclick=e=>{if(e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();returnSource=turn.id;globalThis.history.pushState({},'',href);globalThis.dispatchEvent(new PopStateEvent('popstate'));};details.append(link);}bubble.append(details);}
-    else{const reveal=button(ct('coach.hint',locale()),()=>state.act('reveal','',turn.id));reveal.disabled=state.busy;bubble.append(reveal);}
+    else{const reveal=button(ct(turn.attempt?'coach.source':'coach.hint',locale()),async()=>{if(await state.act('reveal','source',turn.id)){const row=[...messages.querySelectorAll('[data-turn]')].find(r=>r.dataset.turn===turn.id);row?.querySelector('details:not(.coach-secondary)')?.setAttribute('open','');}});reveal.disabled=state.busy;bubble.append(reveal);}
    }
    nextMessages.append(bubble);
   }
@@ -96,7 +120,12 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
   [...messages.querySelectorAll('input')].forEach((e,i)=>{e.oninput=handlers[i]?.oninput;e.onkeydown=handlers[i]?.onkeydown;});
   for(const row of messages.children){if(expanded.includes(row.dataset?.turn))for(const d of row.querySelectorAll?.('details')||[])d.open=true;if(selection&&row.dataset?.turn===focusedTurn){const field=row.querySelector('input');if(field&&!field.disabled){field.focus({preventScroll:true});field.setSelectionRange(...selection);}}}
   messages.scrollTop=scroll;
-  if((state.value?.turns?.length||0)!==turnCount){turnCount=state.value?.turns?.length||0;messages.scrollTop=messages.scrollHeight;}
+  if(nearBottom&&hydrated)messages.scrollTop=messages.scrollHeight;
+  turnCount=state.value?.turns?.length||0;
+  if(state.value){hydrated=true;known=new Set(state.value.turns.map(t=>t.id));}
+  const unread=state.value?.turns.filter(coachUnread).length||0;jump.hidden=!unread;jump.textContent=coachChatLabel('new',locale())+' · '+unread;
+  observer?.disconnect();for(const row of messages.querySelectorAll('[data-turn]'))observer?.observe(row);
+  (globalThis.requestAnimationFrame||setTimeout)(checkSeen);
   resize();
   profileContent.replaceChildren();
   for(const o of state.value?.observations||[]){const row=el('div',undefined,'coach-observation');row.append(el('strong',target(o.target)+' · '+o.language),el('p',`${l(23)}: ${o.count} · ${l(22)}: ${o.distinct_examples}`),el('small',`${l(13)}: ${o.correct} · ${l(14)}: ${o.needs_practice} · ${l(21)}: ${o.assisted} · ${l(24)}`));profileContent.append(row);}
@@ -108,6 +137,8 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
   profileContent.append(button(l(25),()=>account('de')));
   const reset=button(l(12),()=>{if(window.confirm(l(31)))state.act('reset');});reset.disabled=!state.signedIn||state.busy;profileContent.append(reset);
  }
+ doc.addEventListener('visibilitychange',()=>{if(doc.visibilityState==='visible')enter();else entered=false;});
  render();
- return {identity(session){const id=session?.user?.id||null;if(id!==owner){owner=id;input.value='';answerDrafts.clear();signature='';returnSource=null;}state.identity(session);if(!host.hidden&&id&&!state.value)void state.load();},route(){resize();if(!host.hidden&&state.signedIn){if(returnSource){const link=[...messages.querySelectorAll('[data-coach-source]')].find(e=>e.dataset.coachSource===returnSource);link?.closest('details')?.setAttribute('open','');link?.focus();}void state.load();}},localize(){signature='';render();grow();}};
+ function enter(){if(host.hidden||!state.signedIn){entered=false;return;}if(doc.visibilityState==='hidden')return;if(!entered){entered=true;void state.act('entry');}else void state.load();}
+ return {identity(session){const id=session?.user?.id||null;if(id!==owner){owner=id;input.value='';answerDrafts.clear();signature='';returnSource=null;hydrated=false;known.clear();seeing.clear();entered=false;}state.identity(session);enter();},route(){resize();enter();if(!host.hidden&&returnSource){const link=[...messages.querySelectorAll('[data-coach-source]')].find(e=>e.dataset.coachSource===returnSource);link?.closest('details')?.setAttribute('open','');link?.focus({preventScroll:true});}},localize(){signature='';render();grow();}};
 }

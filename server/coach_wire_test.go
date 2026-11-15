@@ -42,6 +42,10 @@ func TestCoachWireExport(t *testing.T) {
 		}
 	}
 	save("initial")
+	if w := f.call(coachInput{Action: "entry", RequestID: "offer", Locale: "ru"}); w.Code != 200 {
+		t.Fatal(w.Code)
+	}
+	save("offer")
 	if e := f.cfg.coachStore(f.owner).transaction(true, func(d *coachData) error { *d = original; return nil }); e != nil {
 		t.Fatal(e)
 	}

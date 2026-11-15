@@ -119,6 +119,47 @@ final class CoachUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Exclude"].exists)
         shot(app, "coach-profile-correction-exclusion")
     }
+    @MainActor func testOldAnswerCollapsesAndExplicitRevealRestores() {
+        let app = launch()
+        let answer = app.textFields["coach-answer-synthetic-coach"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 8)); answer.tap(); answer.typeText("auf")
+        app.buttons["coach-check-synthetic-coach"].tap()
+        XCTAssertTrue(app.staticTexts["Correct"].waitForExistence(timeout: 8))
+        let composer = app.textFields["coach-composer"]; composer.tap(); composer.typeText("question")
+        app.buttons["coach-send"].tap()
+        let reveal = app.buttons["Show answer & feedback"]
+        XCTAssertTrue(reveal.waitForExistence(timeout: 8))
+        XCTAssertFalse(app.staticTexts["Correct"].exists)
+        if !reveal.isHittable { app.scrollViews.firstMatch.swipeDown() }; reveal.tap()
+        XCTAssertTrue(app.staticTexts["Correct"].waitForExistence(timeout: 8))
+        shot(app, "coach-old-answer-revealed")
+    }
+    @MainActor func testOffscreenUnreadSurvivesBackgroundAndJumpAcknowledges() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-scroll"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch(); XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        let jump = app.buttons["New messages"]
+        XCTAssertTrue(jump.waitForExistence(timeout: 8))
+        XCUIDevice.shared.press(.home); sleep(1); app.activate()
+        XCTAssertTrue(jump.waitForExistence(timeout: 8))
+        shot(app, "coach-scrolled-up-unread")
+        jump.tap()
+        XCTAssertTrue(jump.waitForNonExistence(timeout: 8))
+        shot(app, "coach-jump-seen")
+    }
+    @MainActor func testBackgroundReturnConsultsServerAdmissionAndKeepsDraft() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-entry-lifecycle"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch(); XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic entry count: 1"].waitForExistence(timeout: 8))
+        let composer = app.textFields["coach-composer"]; composer.tap(); composer.typeText("keep this draft")
+        XCUIDevice.shared.press(.home); sleep(1); app.activate()
+        XCTAssertTrue(app.staticTexts["Synthetic entry count: 2"].waitForExistence(timeout: 8))
+        XCTAssertEqual(composer.value as? String, "keep this draft")
+        shot(app, "coach-background-draft")
+    }
     @MainActor func testDarkAccessibilityChatAndProfile() {
         let app = launch(large: true)
         XCTAssertTrue(app.staticTexts["Synthetic exercise, not live AI."].waitForExistence(timeout: 8))

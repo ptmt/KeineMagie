@@ -15,7 +15,7 @@ export async function harness({deferSession, deferHistory, deferProvider, config
   for (const tag of html.matchAll(/<[^>]+id="([^"]+)"[^>]*>/g)) {
     const listeners = {};
     nodes.set(tag[1], { dataset:{}, hidden: /\shidden(?:\s|>)/.test(tag[0]), value: '', textContent: '', disabled: false, open: false, children: [],
-      classList: { toggle() {} }, getAttribute(){return null;}, setAttribute() {}, removeAttribute() {}, replaceChildren() { this.children = []; }, append(...children) { this.children.push(...children); }, focus() {},
+      insertBefore(child){this.children.push(child);}, getBoundingClientRect(){return {top:0,bottom:800,height:800};}, classList: { toggle() {} }, getAttribute(){return null;}, setAttribute() {}, removeAttribute() {}, replaceChildren() { this.children = []; }, append(...children) { this.children.push(...children); }, focus() {},
       addEventListener(type, fn) { listeners[type] = fn; },
       async dispatch(type) { await listeners[type]?.({ preventDefault() {} }); },
       async click() { await listeners.click?.({ preventDefault() {} }); },
@@ -50,7 +50,7 @@ export async function harness({deferSession, deferHistory, deferProvider, config
   const links = [...html.matchAll(/<a href="#(translator|dictation|podcasts|coach)"[^>]*>([^<]+)<\/a>/g)].map(([,id,textContent]) => ({hash:`#${id}`,textContent,setAttribute(){},removeAttribute(){},addEventListener(){}}));
   const createElement = () => {
     const listeners = {};
-    return { querySelectorAll(){return [];}, hasAttribute(){return false;}, classList:{toggle(){}}, dataset:{}, attributes:[], childNodes:[], children: [], replaceChildren(){this.children=[];},getAttribute(){return null;},removeAttribute(){},append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
+    return { prepend(...children){this.children.unshift(...children);}, insertBefore(child,before){this.children.splice(Math.max(0,this.children.indexOf(before)),0,child);}, getBoundingClientRect(){return {top:0,bottom:800,height:800};}, querySelectorAll(){return [];}, hasAttribute(){return false;}, classList:{toggle(){},add(){}}, dataset:{}, attributes:[], childNodes:[], children: [], replaceChildren(){this.children=[];},getAttribute(){return null;},removeAttribute(){},append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
   };
   const events = {}, location = {hash:'#podcasts'};
   const document = {hidden:false, addEventListener(type,fn){events[type]=fn;}, getElementById:id=>nodes.get(id), querySelector:()=>({addEventListener(){}}), querySelectorAll:selector=>selector==='.section-nav a'?links:[], createElement};

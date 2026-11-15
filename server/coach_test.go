@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -99,6 +100,12 @@ func TestCoachOwnerChat(t *testing.T) {
 	}
 	if w := call("GET", "", browser, false); w.Code != 200 || calls != 0 {
 		t.Fatalf("GET must load without inference: %d %s", w.Code, w.Body.String())
+	}
+	for _, action := range []string{"entry", "seen", "reveal"} {
+		body := fmt.Sprintf(`{"request_id":"csrf-%s","action":"%s","locale":"en"}`, action, action)
+		if w := call("POST", body, browser, false); w.Code != 403 {
+			t.Fatalf("%s CSRF: %d", action, w.Code)
+		}
 	}
 	body := `{"request_id":"turn-1","action":"message","text":"Practice","locale":"en"}`
 	if w := call("POST", body, browser, false); w.Code != 403 {

@@ -10,6 +10,13 @@ export function createCoachState(api,changed,unauthorized,locale){
   catch(error){if(version===epoch){state.error=errorKey(error);if(error.status===401)unauthorized(error);}}
   finally{if(version===epoch&&read===id){read=null;changed();}}
  },
+ async seen(turn){
+  if(!owner||state.busy||!turn.message_version||turn.seen_version===turn.message_version)return;
+  const version=epoch,captured=owner;
+  try{await api.request('/v1/learning/coach',{method:'POST',csrf:session.csrf_token,body:{action:'seen',text:turn.message_version,turn_id:turn.id,request_id:crypto.randomUUID(),locale:locale(),owner_id:captured}});
+   if(version===epoch&&owner===captured){const current=state.value?.turns.find(t=>t.id===turn.id);if(current?.message_version===turn.message_version){current.seen_version=turn.message_version;changed();}}
+  }catch(error){if(version===epoch&&owner===captured&&error.status===401)unauthorized(error);} // Other failed receipts stay unread.
+ },
  async act(action,text='',turn_id=''){
   if(!owner||(state.busy&&action!=='cancel'))return false;
   const version=++epoch,request_id=crypto.randomUUID(),cancel=action==='cancel';read=null;

@@ -267,3 +267,68 @@ extension CoachGate {
     #expect(relaunched.coach?.turns.isEmpty == true)
     #expect(gate.actions.map(\.action) == ["answer", "reset"])
 }
+
+@Test @MainActor func coachQuickSendKeepsDraftAndCoalesces() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    await model.loadCoach(); model.coachDraft = "30 seconds"; gate.hold = true
+    model.sendCoach("message", text: "30 seconds", preserveDraft: true)
+    model.sendCoach("message", text: "30 seconds", preserveDraft: true)
+    #expect(model.coachBusy)
+    while gate.replies.isEmpty { await Task.yield() }
+    #expect(gate.actions.count == 1)
+    gate.hold = false; gate.replies.removeFirst().resume()
+    while model.coachBusy { await Task.yield() }
+    #expect(model.coachDraft == "30 seconds")
+}
+
+@Test @MainActor func coachCancelledViewportCallbackNeverPosts() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    gate.bodyOverride = gate.body.replacingOccurrences(of: "\"language\":\"de\"", with: "\"language\":\"de\",\"message_version\":\"saved:completed\"")
+    await model.loadCoach(); let turn = try #require(model.coach?.turns.first)
+    let callback = Task { await model.seeCoach(turn) }; callback.cancel(); await callback.value
+    #expect(gate.actions.isEmpty)
+}
+
+@Test @MainActor func coachStaleViewportTurnCannotSendAfterOwnerReplacement() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    gate.bodyOverride = gate.body.replacingOccurrences(of: "\"language\":\"de\"", with: "\"language\":\"de\",\"message_version\":\"saved:completed\"")
+    await model.loadCoach(); let old = try #require(model.coach?.turns.first)
+    gate.owner = "replacement"; await model.session.restore()
+    await model.seeCoach(old)
+    #expect(gate.actions.isEmpty)
+    #expect(model.coach == nil)
+}
+
+@Test @MainActor func coachSeenRevocationClearsOwnerAndCachedConversation() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    gate.bodyOverride = gate.body.replacingOccurrences(of: "\"language\":\"de\"", with: "\"language\":\"de\",\"message_version\":\"saved:completed\"")
+    await model.loadCoach()
+    let turn = try #require(model.coach?.turns.first)
+    gate.status = 401
+    await model.seeCoach(turn)
+    #expect(!model.session.canWrite)
+    #expect(model.coach == nil)
+}
+
+@Test @MainActor func coachSeenReceiptFencesLogoutAndDoesNotReplaceConversation() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    gate.bodyOverride = gate.body.replacingOccurrences(of: "\"language\":\"de\"", with: "\"language\":\"de\",\"message_version\":\"saved:completed\",\"seen_version\":\"\"")
+    await model.loadCoach(); let turn = model.coach!.turns[0]
+    gate.hold = true
+    let seen = Task { await model.seeCoach(turn) }
+    while gate.replies.isEmpty { await Task.yield() }
+    await model.seeCoach(turn)
+    #expect(gate.actions.map(\.action) == ["seen"])
+    model.resetSessionContent(); gate.replies.removeFirst().resume(); await seen.value
+    #expect(model.coach == nil)
+}

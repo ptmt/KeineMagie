@@ -59,6 +59,9 @@ type coachAttempt struct {
 }
 
 type coachTurn struct {
+	SourceReveals int            `json:"source_reveals,omitempty"`
+	AnswerReveals int            `json:"answer_reveals,omitempty"`
+	SeenVersion   string         `json:"seen_version,omitempty"`
 	ID            string         `json:"id"`
 	Text          string         `json:"text"`
 	Locale        string         `json:"locale"`
@@ -76,9 +79,12 @@ type coachReceipt struct {
 	Digest string `json:"digest"`
 }
 type coachData struct {
-	Turns    []coachTurn    `json:"turns"`
-	Receipts []coachReceipt `json:"receipts"`
-	ResetAt  *time.Time     `json:"reset_at,omitempty"`
+	LastVisit *time.Time       `json:"last_visit,omitempty"`
+	LastNudge *time.Time       `json:"last_nudge,omitempty"`
+	Events    []coachChatEvent `json:"events,omitempty"`
+	Turns     []coachTurn      `json:"turns"`
+	Receipts  []coachReceipt   `json:"receipts"`
+	ResetAt   *time.Time       `json:"reset_at,omitempty"`
 }
 type coachStore struct{ lock *historyStore }
 
@@ -212,14 +218,20 @@ func coachView(d *coachData) map[string]any {
 	groups := map[string]*coachObservation{}
 	seen := map[string]map[string]bool{}
 	for _, v := range d.Turns {
-		t := map[string]any{"id": v.ID, "text": v.Text, "state": v.State, "at": v.At, "assisted": v.Assisted, "language": v.Language}
+		t := map[string]any{"id": v.ID, "text": v.Text, "state": v.State, "at": v.At, "assisted": v.Assisted, "language": v.Language, "source_reveals": v.SourceReveals, "answer_reveals": v.AnswerReveals, "seen_version": v.SeenVersion, "message_version": coachMessageVersion(&v)}
 		if v.Result != nil {
 			x := v.Result
 			t["message"] = x.Message
 			t["kind"] = x.Kind
+			if x.Kind == "nudge" {
+				t["kind"] = "clarification"
+				t["is_offer"] = true
+			}
 			t["prompt"] = x.Prompt
 			t["target"] = x.Target
-			t["source_id"] = x.SourceID
+			if x.SourceID != "" {
+				t["source_id"] = x.SourceID
+			}
 			if v.Assisted || v.Attempt != nil || x.Kind == "clarification" {
 				t["quote"] = x.Quote
 				t["explanation"] = x.Explanation
@@ -359,7 +371,7 @@ func (cfg *serverConfig) coachHTTP(w http.ResponseWriter, r *http.Request, owner
 		return
 	}
 	switch in.Action {
-	case "message", "answer", "recheck", "skip", "reveal", "review", "reset", "cancel":
+	case "message", "answer", "recheck", "skip", "reveal", "review", "reset", "cancel", "entry", "seen":
 	default:
 		coachFailure(w, 400, "invalid", "invalid coach action")
 		return
@@ -370,6 +382,15 @@ func (cfg *serverConfig) coachHTTP(w http.ResponseWriter, r *http.Request, owner
 	}
 	if in.Action == "message" {
 		cfg.coachMessage(w, r, owner, in)
+		return
+	}
+	if in.Action == "entry" || in.Action == "seen" || in.Action == "reveal" {
+		e := cfg.coachWrite(r, owner, func(d *coachData) error { return coachChatMutation(d, in, cfg.auth.now().UTC()) })
+		if e != nil {
+			coachError(w, e)
+			return
+		}
+		cfg.coachRead(w, owner)
 		return
 	}
 	if in.Action == "answer" || in.Action == "recheck" {
@@ -534,7 +555,7 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 			if v.State == "pending" {
 				return errCoachConflict
 			}
-			if v.Result != nil && v.Attempt == nil && v.Result.Kind != "clarification" {
+			if v.Result != nil && v.Attempt == nil && v.Result.Kind != "clarification" && v.Result.Kind != "nudge" {
 				v.Assisted = true
 			}
 			if v.Result != nil {

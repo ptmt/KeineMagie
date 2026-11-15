@@ -1,0 +1,4 @@
+export const coachPracticeText=locale=>({en:'30 seconds',ru:'30 секунд',de:'30 Sekunden',es:'30 segundos',fr:'30 secondes'}[locale]||'30 seconds');
+export const coachMasksAnswer=(turn,turns)=>!!turn.attempt&&turn.id!==turns.at(-1)?.id&&!turn.answer_reveals;
+export const coachUnread=turn=>turn.state==='completed'&&!!turn.message_version&&turn.message_version!==turn.seen_version;
+export const coachChatLabel=(key,locale)=>({answer:{en:'Show answer & feedback',ru:'Показать ответ и разбор',de:'Antwort und Feedback zeigen',es:'Mostrar respuesta y evaluación',fr:'Afficher la réponse et le retour'},new:{en:'New messages',ru:'Новые сообщения',de:'Neue Nachrichten',es:'Mensajes nuevos',fr:'Nouveaux messages'},profile:{en:'Profile',ru:'Профиль',de:'Profil',es:'Perfil',fr:'Profil'}}[key]?.[locale]||key);

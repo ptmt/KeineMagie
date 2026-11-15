@@ -106,7 +106,24 @@ final class AppModel {
             if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.unknown") }
         }
     }
-    func sendCoach(_ action: String, text: String = "", turnID: String = "") {
+    private var coachSeenRequests: Set<String> = []
+    func seeCoach(_ turn: CoachTurn) async {
+        scopeCoach()
+        guard !Task.isCancelled, session.canWrite, !coachBusy, turn.isUnread, let revision = turn.messageVersion, coach?.turns.contains(where: { $0.id == turn.id && $0.messageVersion == revision }) == true, !coachSeenRequests.contains(revision), let client = try? podcastAPI() else { return }
+        let generation = session.generation, epoch = coachEpoch, owner = session.user?.id
+        coachSeenRequests.insert(revision)
+        defer { coachSeenRequests.remove(revision) }
+        do {
+            _ = try await client.coach(action: CoachAction(action: "seen", text: revision, turnID: turn.id, locale: "en", ownerID: owner))
+            guard !Task.isCancelled, generation == session.generation, epoch == coachEpoch, owner == session.user?.id, let index = coach?.turns.firstIndex(where: { $0.id == turn.id && $0.messageVersion == revision }) else { return }
+            coach?.turns[index].seenVersion = revision
+            if let data = try? JSONEncoder().encode(coach) { await persist(data, dataset: "coach") }
+        } catch {
+            guard !Task.isCancelled, generation == session.generation, epoch == coachEpoch, owner == session.user?.id else { return }
+            _ = learningFailure(error) // Revoked sessions must fail closed even on quiet receipts.
+        }
+    }
+    func sendCoach(_ action: String, text: String = "", turnID: String = "", preserveDraft: Bool = false) {
         guard session.canWrite else { return }
         scopeCoach()
         guard session.canWrite, !coachBusy || action == "cancel" else { return }
@@ -153,7 +170,7 @@ final class AppModel {
                 let value = try await client.coach(action: input)
                 guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }
                 coach = action == "reset" ? value : value.preservingUnacknowledged(from: coach, removing: action == "cancel" ? turnID : nil)
-                if action == "message", coachDraft == text { coachDraft = "" }
+                if action == "message", !preserveDraft, coachDraft == text { coachDraft = "" }
                 if let data = try? JSONEncoder().encode(coach) { await persist(data, dataset: "coach") }
             } catch {
                 guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }

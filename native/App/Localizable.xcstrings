@@ -2311,6 +2311,10 @@
     }
   }
 },
+  "coach.quickPractice": {"localizations": {"en": {"stringUnit": {"state": "translated", "value": "30 seconds"}}, "de": {"stringUnit": {"state": "translated", "value": "30 Sekunden"}}, "ru": {"stringUnit": {"state": "translated", "value": "30 секунд"}}, "es": {"stringUnit": {"state": "translated", "value": "30 segundos"}}, "fr": {"stringUnit": {"state": "translated", "value": "30 secondes"}}}},
+  "coach.showAnswer": {"localizations": {"en": {"stringUnit": {"state": "translated", "value": "Show answer & feedback"}}, "de": {"stringUnit": {"state": "translated", "value": "Antwort und Feedback zeigen"}}, "ru": {"stringUnit": {"state": "translated", "value": "Показать ответ и разбор"}}, "es": {"stringUnit": {"state": "translated", "value": "Mostrar respuesta y evaluación"}}, "fr": {"stringUnit": {"state": "translated", "value": "Afficher la réponse et le retour"}}}},
+  "coach.newMessages": {"localizations": {"en": {"stringUnit": {"state": "translated", "value": "New messages"}}, "de": {"stringUnit": {"state": "translated", "value": "Neue Nachrichten"}}, "ru": {"stringUnit": {"state": "translated", "value": "Новые сообщения"}}, "es": {"stringUnit": {"state": "translated", "value": "Mensajes nuevos"}}, "fr": {"stringUnit": {"state": "translated", "value": "Nouveaux messages"}}}},
+
   "coach.uncertain": {
     "localizations": {
       "en": {

@@ -14,6 +14,9 @@ actor SimulatorSessionFixture {
     private var coachCanceled = false
     private var coachClarified = false
     private var coachRevealed = false
+    private var coachAnswerReveals = 0
+    private var coachSeenVersion = ""
+    private var coachEntryCount = 0
     private var validations = 0
     private var profileLevels: [String: String] = [:]
     private var podcastRefreshed = false
@@ -136,6 +139,7 @@ actor SimulatorSessionFixture {
             if !mode.hasPrefix("coach") { return AuthResponse(data: Data(#"{"turns":[],"observations":[],"model":"gpt-6.1-terra"}"#.utf8), status: 200) }
             if request.httpMethod == "POST", let data = request.httpBody {
                 let action = try JSONDecoder().decode(CoachAction.self, from: data)
+                if action.action == "entry" { coachEntryCount += 1 }
                 if action.action == "answer" && mode == "coach-assessment" {
                     try await Task.sleep(for: .seconds(2))
                 }
@@ -145,10 +149,13 @@ actor SimulatorSessionFixture {
                     coachOutcome = action.action == "skip" ? "skipped" : action.text == "auf" ? "correct" : action.text == "für" ? "wrong" : "ambiguous"
                 }
                 if action.action == "cancel" { coachPending = false; coachCanceled = true }
-                if action.action == "reveal" { coachRevealed = true }
+                if action.action == "reveal" { if action.text == "answer" { coachAnswerReveals += 1 } else { coachRevealed = true } }
+                if action.action == "seen" { coachSeenVersion = action.text }
                 if action.action == "message" { if action.text == "pending" { coachPending = true } else { coachClarified = true } }
             }
             var turn: [String: Any] = ["id": "synthetic-coach", "text": "Practice · synthetic fixture", "state": "completed", "at": "2026-11-13T12:00:00Z", "assisted": coachRevealed, "language": "de", "message": "Synthetic exercise, not live AI.", "kind": "cloze", "prompt": "Ich warte ___ den Bus.", "target": "verb_government", "source_id": "translation:synthetic"]
+            turn["source_reveals"] = coachRevealed ? 1 : 0; turn["answer_reveals"] = coachAnswerReveals
+            turn["message_version"] = "synthetic-coach:" + (coachAnswered ? coachAttemptID : "completed"); turn["seen_version"] = coachSeenVersion
             if coachAnswered { turn["attempt"] = ["id": coachAttemptID, "answer": coachAnswer, "outcome": coachOutcome, "original_outcome": coachOutcome, "assisted": coachRevealed, "at": "2026-11-13T12:00:00Z", "excluded": false] }
             if coachAnswered || coachRevealed { turn["quote"] = "Ich warte auf den Bus."; turn["explanation"] = "warten auf + Akkusativ" }
             if mode == "coach-assessment" {
@@ -159,9 +166,15 @@ actor SimulatorSessionFixture {
                     turn["quote"] = "Ich war einmal bei diesem Kurs dabei."
                 }
             }
+            if mode == "coach-entry-lifecycle" { turn["message"] = "Synthetic entry count: \(coachEntryCount)" }
             if coachPending || coachCanceled { turn["state"] = coachPending ? "pending" : "canceled"; turn.removeValue(forKey: "kind") }
             var turns = [turn]
             if coachClarified { turns.append(["id": "synthetic-clarification", "text": "Can you clarify this?", "state": "completed", "at": "2026-11-13T12:01:00Z", "assisted": false, "language": "de", "message": "Synthetic clarification, not live AI.", "kind": "clarification", "prompt": "", "target": "verb_government", "source_id": "translation:synthetic", "quote": "Ich warte auf den Bus.", "explanation": "warten auf + Akkusativ"]) }
+            if mode == "coach-scroll" {
+                turns = (0..<24).map { index in
+                    ["id": "synthetic-row-\(index)", "text": "", "state": "completed", "at": "now", "assisted": false, "language": "de", "kind": "clarification", "message": "Synthetic saved message \(index).\n" + String(repeating: "Saved practice context. ", count: 6), "message_version": "row-\(index)", "seen_version": index == 23 ? coachSeenVersion : "row-\(index)"] as [String: Any]
+                }
+            }
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["turns": turns, "observations": [], "model": "gpt-6.1-terra"]), status: 200)
         }
         if let path = request.url?.path, path.hasPrefix("/v1/learning/") {

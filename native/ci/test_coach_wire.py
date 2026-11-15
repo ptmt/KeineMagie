@@ -21,5 +21,5 @@ with tempfile.TemporaryDirectory(prefix='coach-wire-', dir=os.environ.get('TMPDI
 ''')
     subprocess.run(['swiftc', '-parse-as-library', str(ROOT/'native/Core/Sources/KeineMagieCore/Coach.swift'), str(folder/'main.swift'), '-o', str(folder/'decode')], check=True)
     paths = sorted(folder.glob('*.json'))
-    assert len(paths) == 7
+    assert len(paths) == 8
     subprocess.run([str(folder/'decode'), *map(str, paths)], check=True)
