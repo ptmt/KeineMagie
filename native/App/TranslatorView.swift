@@ -67,13 +67,18 @@ struct TranslatorView: View {
                     .accessibilityIdentifier("translator-input-container")
                 TranslationShortcutsView()
                 Button {
-                    inputFocused = false
-                    Task { await model.translate() }
+                    model.beginTranslation()
                 } label: {
-                    Text("Übersetzen").frame(maxWidth: .infinity)
+                    ZStack {
+                        Text("outbox.quiet.sending").hidden().accessibilityHidden(true)
+                        HStack(spacing: 8) {
+                            if model.translationSubmitPending { TranslationPendingGlyph() }
+                            Text(LocalizedStringKey(model.translationSubmitPending ? "outbox.quiet.sending" : "Übersetzen"))
+                        }
+                    }.frame(maxWidth: .infinity)
                 }.buttonStyle(.borderedProminent).controlSize(.large)
                     .accessibilityIdentifier("translator-submit")
-                    .disabled(model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.unicodeScalars.count > 8000)
+                    .disabled(model.translationSubmitPending || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.unicodeScalars.count > 8000)
                 if model.outboxStorageError { Text("outbox.storage").foregroundStyle(.red).accessibilityIdentifier("outbox-storage-error") }
                 if let error = model.translatorError { ErrorNotice(text: error) }
 
@@ -81,10 +86,9 @@ struct TranslatorView: View {
                 .padding(.vertical, 8)
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .listRowSeparator(.hidden)
-            if let result = model.result {
-                TranslationResultView(text: result.translation)
-                    .listRowSeparator(.hidden)
-            }
+            // One stable output footprint; retain the last result throughout submission.
+            TranslationResultView(text: model.result?.translation ?? "", pending: model.translationPending)
+                .listRowSeparator(.hidden)
             Section {
                 // Initial/cache hydration and refresh are quiet. Only a completed load
                 // can claim emptiness; saved rows remain visible through refresh/error.
@@ -140,6 +144,9 @@ struct TranslatorView: View {
         }
 
         .listStyle(.plain)
+        .onChange(of: model.translationPending) { _, pending in
+            if pending { UIAccessibility.post(notification: .announcement, argument: AppL10n.text("outbox.quiet.sending")) }
+        }
         .onChange(of: showPending) { _, presented in
             if presented { restoreInputFocus = inputFocused; inputFocused = false }
             else if restoreInputFocus { inputFocused = true; restoreInputFocus = false }
@@ -212,8 +219,46 @@ struct PendingTranslationsView: View {
     }
 }
 
+private struct TranslationPendingGlyph: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var body: some View {
+        Group {
+            if reduceMotion { Image(systemName: "hourglass") }
+            else { ProgressView().controlSize(.small) }
+        }.accessibilityHidden(true)
+    }
+}
+
+private struct TranslationPendingPanel: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let empty: Bool
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: reduceMotion)) { context in
+            GeometryReader { geometry in
+                ZStack(alignment: .topLeading) {
+                    if empty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            ForEach(0..<3) { index in
+                                RoundedRectangle(cornerRadius: 4).fill(.quaternary)
+                                    .frame(width: max(0, geometry.size.width - 32) * [1.0, 0.85, 0.62][index], height: 12)
+                            }
+                        }.padding(16).padding(.top, 44)
+                    }
+                    if !reduceMotion {
+                        let phase = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.6) / 1.6
+                        LinearGradient(colors: [.clear, .primary.opacity(0.07), .clear], startPoint: .leading, endPoint: .trailing)
+                            .frame(width: geometry.size.width)
+                            .offset(x: geometry.size.width * (phase * 2 - 1))
+                    }
+                }.clipped()
+            }
+        }.clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+}
+
 private struct TranslationResultView: View {
     let text: String
+    var pending = false
     @State private var copied = false
     @State private var confirmationID = UUID()
     @State private var pasteboardCheck = ""
@@ -237,15 +282,22 @@ private struct TranslationResultView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.borderless)
-                .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(pending || text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 .accessibilityIdentifier("translation-copy")
                 .accessibilityValue(Text(verbatim: pasteboardCheck))
             }
             Text(verbatim: text).font(.title3).textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(minHeight: 70, alignment: .topLeading)
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .overlay {
+            if pending { TranslationPendingPanel(empty: text.isEmpty).allowsHitTesting(false).accessibilityHidden(true) }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("translation-output")
+        .accessibilityValue(Text(verbatim: pending ? AppL10n.text("outbox.quiet.sending") : ""))
         .task(id: confirmationID) {
             guard copied else { return }
             try? await Task.sleep(for: .milliseconds(1800))

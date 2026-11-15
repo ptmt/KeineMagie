@@ -256,6 +256,7 @@ function clearPrivateData() {
   accountRun++;
   clearPairing();
   controller?.abort();
+  controller = null; busy = false;
   clearBootstrap();
   session = null; podcasts.identity(null, {checking,config,error:sessionError}); history = []; renderStyles();
   resetResult();
@@ -289,7 +290,12 @@ function updateInput() {
   updatePromptCount();
   $('cancel').hidden = !busy;
   $('translation-form').setAttribute('aria-busy', String(busy));
-  setText('translate', busy ? 'Wird übersetzt …' : 'Übersetzen');
+  $('translation-form').classList.toggle('translation-pending', busy);
+  $('result').setAttribute('aria-busy', String(busy));
+  $('result-skeleton').hidden = !busy || !!currentOutput();
+  $('copy').disabled = busy || !currentOutput();
+  $('translate').dataset.pendingLabel = t('Wird übersetzt …');
+  setText('translate-label', busy ? 'Wird übersetzt …' : 'Übersetzen');
 }
 function renderConnection() {
   coach.identity(session);
@@ -513,7 +519,8 @@ async function translate(event) {
   busy = true; controller = new AbortController();
   const attemptController = controller;
   const run = generation;
-  resetResult(); updateInput(); status('Dein Text wird übersetzt und erklärt …');
+  // Keep the previous result readable, but never copy/edit it as the new result.
+  showTranslationEditor(false); updateInput(); status('Dein Text wird übersetzt und erklärt …');
   let phase = 'request', metadata = {status:0,requestID:crypto.randomUUID()};
   try {
     const item = await api.request('/v1/translations', { method: 'POST', body: payload, csrf: session.csrf_token, signal: attemptController.signal, onResponse:value => {metadata.status=value.status;} });

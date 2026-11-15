@@ -93,6 +93,65 @@ import KeineMagieCore
     await session.restore()
     return AppModel(session:session, client:APIClient(endpoint:try! ServerEndpoint("https://synthetic.invalid"),token:"synthetic",transport:transport), cache: ContentCache(root: gate.outboxRoot.appendingPathComponent("cache")), outboxStore: TranslationOutboxStore(root: gate.outboxRoot))
 }
+@Test @MainActor func explicitTranslationFeedbackStartsSynchronouslyAndStopsWhenQueued() async throws {
+    let gate = Gate(); gate.holdTranslation = true
+    let model = await fixture(gate); model.draft = "first"
+    let accepted = try #require(model.beginTranslation())
+    #expect(model.translationPending, "Tap must publish before persistence or transport")
+    #expect(gate.translationRequests.isEmpty)
+    #expect(model.beginTranslation() == nil, "Duplicate accepted tap coalesces synchronously")
+    while gate.translationRelease == nil { await Task.yield() }
+    #expect(model.translationPending)
+    gate.translationError = URLError(.notConnectedToInternet)
+    gate.translationRelease?.resume(); gate.translationRelease = nil
+    await accepted.value
+    #expect(!model.translationPending, "Saved waiting must not animate as active work")
+    #expect(model.outbox.items.first?.state == .queued)
+    #expect(gate.translationRequests.count == 1)
+}
+@Test @MainActor func explicitFeedbackKeepsOldResultAndResetFencesLateCompletion() async throws {
+    let gate = Gate(); let model = await fixture(gate); model.draft = "first"
+    await model.translate(); let previous = model.result
+    gate.holdTranslation = true; model.draft = "second"
+    let accepted = try #require(model.beginTranslation())
+    #expect(model.result?.translation == previous?.translation)
+    while gate.translationRelease == nil { await Task.yield() }
+    model.resetSessionContent()
+    #expect(!model.translationPending)
+    gate.translationRelease?.resume(); gate.translationRelease = nil
+    await accepted.value
+    #expect(!model.translationPending)
+    #expect(model.result == nil)
+}
+@Test @MainActor func feedbackStorageFailureAndChangedOwnerNeverSend() async throws {
+    let gate = Gate(); let model = await fixture(gate); model.draft = "disk failure"
+    // Replace this synthetic journal directory with a file to force a real write failure.
+    try FileManager.default.removeItem(at: gate.outboxRoot)
+    try Data().write(to: gate.outboxRoot)
+    let accepted = try #require(model.beginTranslation())
+    #expect(model.translationPending)
+    await accepted.value
+    #expect(!model.translationPending)
+    #expect(model.outboxStorageError)
+    #expect(gate.translationRequests.isEmpty)
+}
+@Test @MainActor func feedbackAllowsNewSnapshotWhileExistingRequestIsPending() async throws {
+    let gate = Gate(); gate.holdTranslation = true
+    let model = await fixture(gate); model.draft = "first"
+    let accepted = try #require(model.beginTranslation())
+    while gate.translationRelease == nil { await Task.yield() }
+    model.draft = "different draft"
+    #expect(!model.translationSubmitPending)
+    let second = try #require(model.beginTranslation())
+    await second.value
+    #expect(model.outbox.items.count == 2)
+    #expect(gate.translationRequests.count == 1)
+    gate.translationError = URLError(.notConnectedToInternet)
+    gate.translationRelease?.resume(); gate.translationRelease = nil
+    await accepted.value
+    #expect(!model.translationPending)
+    #expect(model.draft == "different draft")
+}
 @Test @MainActor func historyFailureStaysInHistoryAndProviderSettlesIndependently() async throws {
     let gate = Gate(); gate.holdHistory = true; gate.failHistory = true
     let model = await fixture(gate)

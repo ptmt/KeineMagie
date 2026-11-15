@@ -382,6 +382,13 @@ final class AppModel {
     private var translationEpoch = 0
     var translationForeground = true
     private(set) var translationSending = false
+    private var translationAcceptance: UUID?
+    var translationPending: Bool { translationAcceptance != nil || translationSending }
+    var translationSubmitPending: Bool {
+        translationAcceptance != nil || outbox.items.contains {
+            $0.state == .sending && $0.text == draft && $0.direction == direction && $0.instructions == translationInstruction
+        }
+    }
     var draft: String {
         get { outbox.draft }
         set { loadTranslationOutbox(); outbox.draft = newValue; _ = saveTranslationOutbox() }
@@ -651,12 +658,30 @@ final class AppModel {
         catch { if version == session.generation { translatorError = error.localizedDescription } }
     }
     func translate() async {
-        loadTranslationOutbox()
-        do { try outbox.enqueue(direction: direction, instructions: translationInstruction) }
-        catch { translatorError = error.localizedDescription; return }
-        guard saveTranslationOutbox() else { return }
-        guard session.phase == .signedIn, session.user != nil else { return }
-        await drainTranslations(explicit: true)
+        await beginTranslation()?.value
+    }
+    /// Publish acceptance directly from the button before disk work or a Task hop.
+    @discardableResult func beginTranslation() -> Task<Void, Never>? {
+        guard !translationSubmitPending, !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              draft.unicodeScalars.count <= 8000 else { return nil }
+        let id = UUID(), version = session.generation, owner = session.user?.id
+        let text = draft, capturedDirection = direction, instructions = translationInstruction
+        translationAcceptance = id
+        return Task { [self] in
+            defer { if translationAcceptance == id { translationAcceptance = nil } }
+            await Task.yield()
+            guard translationAcceptance == id, version == session.generation, owner == session.user?.id else { return }
+            loadTranslationOutbox()
+            let currentDraft = outbox.draft
+            outbox.draft = text
+            do { try outbox.enqueue(direction: capturedDirection, instructions: instructions) }
+            catch { outbox.draft = currentDraft; translatorError = error.localizedDescription; return }
+            outbox.draft = currentDraft
+            guard saveTranslationOutbox() else { return }
+            translationAcceptance = nil
+            guard session.phase == .signedIn, session.user != nil else { return }
+            await drainTranslations(explicit: true)
+        }
     }
     private func drainTranslations(explicit: Bool) async {
         if translationTask != nil { return }
@@ -747,6 +772,7 @@ final class AppModel {
         #endif
     }
     func resetSessionContent() {
+        translationAcceptance = nil
         if let scope = outboxScope, let owner = scope.owner, session.user == nil {
             invalidatedOutboxOwner = (scope.origin, owner)
         }
