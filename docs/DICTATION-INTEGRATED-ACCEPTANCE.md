@@ -1,4 +1,6 @@
-# Diktat integrated acceptance — unreleased
+# Diktat integrated acceptance — historical candidate
+
+**Superseded by [verified production and Apple upload release](DICTATION-RELEASE.md), source `66136702239e98e61ed828e517cb0f7a54b76aca`.** Statements below describe the pre-release boundary, not current deployment status.
 
 Base fetched from `origin/main`: `1c917c9e1ef2af116fd6b561acb649054846d3e1`.
 Integration worktree: `/Users/tinyserve/Projects/KeineMagie-dictation-integrated`.
