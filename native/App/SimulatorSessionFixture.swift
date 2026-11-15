@@ -45,6 +45,10 @@ actor SimulatorSessionFixture {
     static let copyTranslation = "  Übersetzung 👩🏽‍💻 Привет e\u{0301}\n\n" + String(repeating: "Zeile 日本語\t  {\"nested\":{\"literal\":\"\\n\",\"items\":[1,2]}}\n", count: 1200) + "  Ende\n "
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
     func send(_ request: URLRequest) async throws -> AuthResponse {
+        if mode.hasPrefix("translation-geometry"), request.url?.path == "/v1/provider" {
+            try await Task.sleep(for: .seconds(12))
+            if mode == "translation-geometry-error" { return AuthResponse(data: Data(), status: 503) }
+        }
         if mode.hasPrefix("podcast-wire") {
             if request.url?.path == "/v1/podcasts" {
                 guard request.httpMethod == "GET" else { return AuthResponse(data: Data(), status: 405) }

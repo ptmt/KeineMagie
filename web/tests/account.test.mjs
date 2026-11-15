@@ -47,15 +47,15 @@ export async function harness({deferSession, deferHistory, deferProvider, config
     return {ok:status===200,status,json:async()=>body};
   };
   const app = (await readFile(new URL('../app.mjs', import.meta.url), 'utf8')).replace(/^import .*?;\n/gm, '');
-  const links = [...html.matchAll(/<a href="#(translator|dictation|podcasts|coach)"[^>]*>([^<]+)<\/a>/g)].map(([,id,textContent]) => ({hash:`#${id}`,textContent,setAttribute(){},removeAttribute(){}}));
+  const links = [...html.matchAll(/<a href="#(translator|dictation|podcasts|coach)"[^>]*>([^<]+)<\/a>/g)].map(([,id,textContent]) => ({hash:`#${id}`,textContent,setAttribute(){},removeAttribute(){},addEventListener(){}}));
   const createElement = () => {
     const listeners = {};
     return { querySelectorAll(){return [];}, hasAttribute(){return false;}, classList:{toggle(){}}, dataset:{}, attributes:[], childNodes:[], children: [], replaceChildren(){this.children=[];},getAttribute(){return null;},removeAttribute(){},append(...children) { this.children.push(...children); }, setAttribute() {}, addEventListener(type, fn) { listeners[type] = fn; }, async click() { await listeners.click?.(); } };
   };
   const events = {}, location = {hash:'#podcasts'};
-  const document = {hidden:false, addEventListener(type,fn){events[type]=fn;}, getElementById:id=>nodes.get(id), querySelectorAll:selector=>selector==='.section-nav a'?links:[], createElement};
+  const document = {hidden:false, addEventListener(type,fn){events[type]=fn;}, getElementById:id=>nodes.get(id), querySelector:()=>({addEventListener(){}}), querySelectorAll:selector=>selector==='.section-nav a'?links:[], createElement};
   i18n.setInterfaceLanguage('de');
-  vm.runInNewContext(app, {...core, ...episode, ...i18n, reconcileDOM(target,next){target.children=next.children;}, registerStaticInterface(){}, createEpisodeView:options=>createEpisodeView({...options,document}), mountCoach:options=>mountCoach({...options,document}), mountTranslatorFollowup:options=>mountTranslatorFollowup({...options,document}), createAPI:()=>core.createAPI(fetch), document, window:{addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
+  vm.runInNewContext(app, {...core, ...episode, ...i18n, reconcileDOM(target,next){target.children=next.children;}, registerStaticInterface(){}, createEpisodeView:options=>createEpisodeView({...options,document}), mountCoach:options=>mountCoach({...options,document}), mountTranslatorFollowup:options=>mountTranslatorFollowup({...options,document}), createAPI:()=>core.createAPI(fetch), document, window:{scrollTo(){},addEventListener(type,fn){events[type]=fn;}, localStorage:storage}, crypto:{randomUUID:()=> 'fixture-id'}, location, setTimeout:()=>1, clearTimeout(){}, AbortController, AbortSignal, console});
   const settle = () => new Promise(resolve=>setImmediate(resolve));
   await settle();
   return {nodes, calls, settle, storage, events, document, location, signIn(value, id=userID){signedIn=value;userID=id;}, provider(value, status=200){provider=value;providerHTTPStatus=status;}, history(value){items=value;}, defer(fn){deferConnect=fn;}};
@@ -276,7 +276,7 @@ test('catalog unavailable stays advisory, permits server-authorized submits and 
   assert.equal(h.calls.some(c => c.path === '/v1/translations' && c.options.method === 'POST'), true);
   assert.equal(el('provider-status').textContent, 'Verbunden · Modell nicht verfügbar');
   assert.match(el('provider-detail').textContent, /verbunden.*Modellkatalog.*nicht verfügbar/s);
-  assert.equal(el('connection-notice').hidden, false);
+  assert.equal(el('connection-notice').hidden, true); // auxiliary diagnostics stay in account settings
   assert.equal(el('connection-title').textContent, 'ChatGPT verbunden · Modell nicht verfügbar.');
   assert.match(el('connection-detail').textContent, /erneut prüfen/i);
   assert.doesNotMatch(el('connection-title').textContent + el('connection-detail').textContent, /neu verbinden|trennen/i);

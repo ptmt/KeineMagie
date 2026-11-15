@@ -53,7 +53,7 @@ final class QuietTranslatorUITests: XCTestCase {
         XCTAssertTrue(app.buttons["translation-pending"].waitForExistence(timeout: 5))
         app.buttons["translator-clear"].tap(); editor.typeText("Second saved request")
         app.buttons["translator-submit"].tap()
-        XCTAssertTrue(app.buttons["translation-pending"].label.contains("2"))
+        XCTAssertTrue((app.buttons["translation-pending"].value as? String) == "2")
         shot(app, "two-pending-main")
         app.buttons["translation-pending"].tap()
         XCTAssertTrue(app.staticTexts["First saved request"].waitForExistence(timeout: 5))
@@ -66,7 +66,7 @@ final class QuietTranslatorUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(editor.waitForExistence(timeout: 12))
         XCTAssertEqual(editor.value as? String, "Second saved request")
-        XCTAssertTrue(app.buttons["translation-pending"].label.contains("2"))
+        XCTAssertTrue((app.buttons["translation-pending"].value as? String) == "2")
         shot(app, "relaunch")
     }
     func testFiveLocalesFailureCopy() {

@@ -230,10 +230,12 @@ The reviewed distributed native app uses only Apple's system security APIs:
   provider consent. `OAuthLoopback.swift` uses system Network plain TCP bound
   only to `127.0.0.1` for the ephemeral HTTP callback, not a custom encrypted
   protocol. OAuth state comparisons and UUID attempt IDs are not encryption.
-- Searches found **no CryptoKit import, SHA256 implementation/call,
-  CommonCrypto, bundled OpenSSL, custom cipher, key agreement, signing, or
-  encryption/decryption implementation in native App/Core sources**. Do not
-  assume native nonce hashing merely because other Apple-login examples use it.
+- Quiet receipt recovery now imports Apple's **CryptoKit** and uses system
+  `SHA256.hash` solely to reconstruct the documented owner/request receipt ID for
+  a read-only history lookup. It adds no bundled cryptographic implementation.
+  No CommonCrypto, bundled OpenSSL, custom cipher, key agreement, signing, or
+  encryption/decryption implementation is shipped in native App/Core sources.
+  Apple-login nonce handling remains unchanged.
 - The separate Go backend **does** use cryptography: e.g. `server/provider.go`
   AES-GCM credential storage and SHA-256 PKCE, `auth_store.go` session hashes,
   and `apple_verify.go` RSA verification. This code runs on the server and is

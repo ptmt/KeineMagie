@@ -11,6 +11,7 @@
   if(el.matches('img[src^="/apple-sign-in-"]'))if(el.getAttribute('src')!=='/apple-sign-in-'+locale+'.png')el.src='/apple-sign-in-'+locale+'.png';
   if(el.matches('[data-interface-language]'))el.value=locale;
  }}
+ Object.assign(copy, {Standard:['Standard','Default','Обычный','Predeterminado','Par défaut'],Freundlich:['Freundlich','Friendly','Дружелюбный','Amable','Amical'],Formell:['Formell','Formal','Официальный','Formal','Formel']});
  const observer=new MutationObserver(()=>apply(document));observer.observe(document.documentElement,{childList:true,subtree:true});
  document.addEventListener('DOMContentLoaded',()=>{apply(document);observer.disconnect();},{once:true});
 })();

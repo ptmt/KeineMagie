@@ -58,7 +58,17 @@ final class AppModel {
     private var coachReadID: UUID?
     private var coachTask: Task<Void, Never>?
     private var coachHydratedGeneration: Int?
+    private var coachOwnerScope: String?
+    private func scopeCoach() {
+        let scope = session.serverURL + "\u{0}" + (session.user?.id ?? "")
+        guard coachOwnerScope != scope else { return }
+        coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
+        coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil
+        coachOwnerScope = scope
+    }
     func loadCoach() async {
+        guard session.phase == .signedIn else { return }
+        scopeCoach()
         guard session.phase == .signedIn, coachReadID == nil, !coachBusy else { return }
         let version = session.generation, epoch = coachEpoch, id = UUID()
         coachReadID = id
@@ -74,14 +84,16 @@ final class AppModel {
         do {
             let value = try await podcastAPI().coach()
             guard current() else { return }
-            coach = value; coachError = nil
-            if let data = try? JSONEncoder().encode(value) { await persist(data, dataset: "coach") }
+            coach = value.preservingUnacknowledged(from: coach); coachError = nil
+            if let data = try? JSONEncoder().encode(coach) { await persist(data, dataset: "coach") }
         } catch {
             guard current() else { return }
             if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.unknown") }
         }
     }
     func sendCoach(_ action: String, text: String = "", turnID: String = "") {
+        guard session.canWrite else { return }
+        scopeCoach()
         guard session.canWrite, !coachBusy || action == "cancel" else { return }
         guard let client = try? podcastAPI() else { return }
         let version = session.generation
@@ -89,7 +101,16 @@ final class AppModel {
         let epoch = coachEpoch
         coachReadID = nil
         let locale = Locale.preferredLanguages.first?.split(separator: "-").first.map(String.init) ?? "en"
-        let input = CoachAction(action: action, text: text, turnID: turnID, locale: ["de", "en", "ru", "es", "fr"].contains(locale) ? locale : "en", ownerID: session.user?.id)
+        let input: CoachAction
+        if action == "recheck", let attempt = coach?.turns.first(where: { $0.id == turnID })?.attempt, let saved = attempt.localRequest {
+            guard attempt.localRetryAllowed != false, saved.ownerID == nil || saved.ownerID == session.user?.id else {
+                coachError = AppL10n.text("coach.error.conflict")
+                return
+            }
+            input = saved
+        } else {
+            input = CoachAction(action: action, text: text, turnID: turnID, locale: ["de", "en", "ru", "es", "fr"].contains(locale) ? locale : "en", ownerID: session.user?.id)
+        }
         if action == "cancel" { coachTask?.cancel() }
         coachBusy = true; coachError = nil
         coachPendingID = ["message", "answer", "recheck"].contains(action) ? input.requestID : nil
@@ -116,9 +137,9 @@ final class AppModel {
                 guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.canWrite else { return }
                 let value = try await client.coach(action: input)
                 guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }
-                coach = value
+                coach = action == "reset" ? value : value.preservingUnacknowledged(from: coach, removing: action == "cancel" ? turnID : nil)
                 if action == "message", coachDraft == text { coachDraft = "" }
-                if let data = try? JSONEncoder().encode(value) { await persist(data, dataset: "coach") }
+                if let data = try? JSONEncoder().encode(coach) { await persist(data, dataset: "coach") }
             } catch {
                 guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }
                 if !learningFailure(error) { coachError = AppL10n.text((error as? CoachServiceError)?.message ?? "coach.error.unknown") }
@@ -491,7 +512,7 @@ final class AppModel {
         defer { if refreshID == refresh { refreshing = false; refreshID = nil } }
         do {
             let client = try api()
-            async let providerResponse = captured { try await client.provider() }
+            async let providerRefresh: Void = refreshTranslatorProvider(client, version: version, refresh: refresh, connection: connection)
             let snapshot = historyState.snapshot()
             let historyResponse = await captured { try await client.history() }
             guard !Task.isCancelled, session.phase == .signedIn, version == session.generation, refreshID == refresh else { return }
@@ -504,17 +525,8 @@ final class AppModel {
                 session.recordNetworkFailure(error)
                 if case APIError.http(401) = error { session.rejectUnauthorized(); return }
                 historyPhase = .error; historyLoadError = Self.connectionError(error)
-                translatorError = Self.connectionError(error)
             }
-            let status = try await providerResponse.get()
-            guard !Task.isCancelled, version == session.generation, session.phase == .signedIn,
-                  refreshID == refresh, connection == nil || connectionID == connection else { return }
-            provider = status
-            if status.connected { bootstrap = nil }
-            // Catalog discovery is advisory; it is not a failed translation.
-            // Keep its diagnostic on the ChatGPT settings screen only.
-            providerDiagnostic = status.connected && status.status == "catalog_unavailable"
-                ? AppL10n.text("chatgpt.catalog.unavailable") : nil
+            await providerRefresh
         } catch {
             if !Task.isCancelled, session.phase == .signedIn, version == session.generation,
                refreshID == refresh, connection == nil || connectionID == connection {
@@ -524,6 +536,21 @@ final class AppModel {
                 providerDiagnostic = AppL10n.text("chatgpt.status.unavailable")
                 if historyPhase == .loading { historyPhase = .error; historyLoadError = Self.connectionError(error) }
             }
+        }
+    }
+    private func refreshTranslatorProvider(_ client: APIClient, version: Int, refresh: UUID, connection: UUID?) async {
+        let response = await captured { try await client.provider() }
+        guard !Task.isCancelled, version == session.generation, session.phase == .signedIn,
+              refreshID == refresh, connection == nil || connectionID == connection else { return }
+        switch response {
+        case .success(let status):
+            provider = status
+            if status.connected { bootstrap = nil }
+            providerDiagnostic = status.connected && status.status == "catalog_unavailable"
+                ? AppL10n.text("chatgpt.catalog.unavailable") : nil
+        case .failure(let error):
+            if case APIError.http(401) = error { session.rejectUnauthorized(); resetSessionContent(); return }
+            providerDiagnostic = AppL10n.text("chatgpt.status.unavailable")
         }
     }
     private func captured<T: Sendable>(_ operation: @Sendable () async throws -> T) async -> Result<T, Error> {
@@ -696,7 +723,7 @@ final class AppModel {
         let previousDirection = outbox.direction
         outbox = TranslationOutbox(); outbox.direction = previousDirection; outboxScope = nil
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
-        coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil
+        coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil; coachOwnerScope = nil
         if let lease = cacheLease {
             lease.invalidate()
             Task { try? await contentCache.remove(session: lease) }

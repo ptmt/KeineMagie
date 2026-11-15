@@ -93,6 +93,18 @@ import KeineMagieCore
     await session.restore()
     return AppModel(session:session, client:APIClient(endpoint:try! ServerEndpoint("https://synthetic.invalid"),token:"synthetic",transport:transport), cache: ContentCache(root: gate.outboxRoot.appendingPathComponent("cache")), outboxStore: TranslationOutboxStore(root: gate.outboxRoot))
 }
+@Test @MainActor func historyFailureStaysInHistoryAndProviderSettlesIndependently() async throws {
+    let gate = Gate(); gate.holdHistory = true; gate.failHistory = true
+    let model = await fixture(gate)
+    let task = Task { await model.refreshTranslator() }
+    while gate.historyRelease == nil { await Task.yield() }
+    for _ in 0..<100 { await Task.yield() }
+    #expect(model.provider?.connected == true, "Provider readiness must not await history")
+    gate.historyRelease?.resume(); gate.historyRelease = nil
+    await task.value
+    #expect(model.historyLoadError != nil)
+    #expect(model.translatorError == nil, "A history read is not a failed translation")
+}
 @Test @MainActor func translatorDoesNotWaitForSessionCheckOrStaleOffline() async throws {
     let gate = Gate(); gate.owner = "outbox-repro-\(UUID())"
     let model = await fixture(gate)
@@ -467,7 +479,8 @@ import KeineMagieCore
     await model.refreshTranslator()
     #expect(gate.statusCalls == 1)
     #expect(model.provider?.connected == true)
-    #expect(model.translatorError == APIError.http(503).localizedDescription)
+    #expect(model.historyLoadError == APIError.http(503).localizedDescription)
+    #expect(model.translatorError == nil)
     #expect(!model.refreshing)
 }
 @Test @MainActor func checkConnectionShowsBusyAndSafeHTTPFailure() async {

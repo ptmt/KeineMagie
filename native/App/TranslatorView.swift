@@ -9,14 +9,6 @@ struct TranslatorView: View {
     @State private var restoreInputFocus = false
     @Binding var showPending: Bool
     @ScaledMetric(relativeTo: .body) private var editorHeight = 112
-    private var pendingItems: [TranslationOutbox.Item] {
-        model.outbox.items.filter { ![.completed, .cancelled].contains($0.state) }
-    }
-    private var pendingLabel: LocalizedStringKey {
-        if pendingItems.contains(where: { [.failed, .needsDecision].contains($0.state) }) { return "outbox.quiet.failed" }
-        if pendingItems.contains(where: { $0.state == .sending }) { return "outbox.quiet.sending" }
-        return "outbox.quiet.saved"
-    }
 
     var body: some View {
         @Bindable var model = model
@@ -82,20 +74,6 @@ struct TranslatorView: View {
                 }.buttonStyle(.borderedProminent).controlSize(.large)
                     .accessibilityIdentifier("translator-submit")
                     .disabled(model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.unicodeScalars.count > 8000)
-                if model.session.canWrite && model.provider == nil {
-                    if model.refreshing || model.historyPhase == .idle {
-                        // Quiet status while checking; no spinner competing with saved history.
-                        Text("Verbindung prüfen")
-                            .font(.callout).foregroundStyle(.secondary)
-                    } else {
-                        Button("Verbindung prüfen") { Task { await model.refreshTranslator() } }
-                    }
-                } else if model.session.canWrite && model.provider?.connected != true {
-                    NavigationLink { ChatGPTConnectionView() } label: {
-                        Label("chatgpt.connect", systemImage: "link.badge.plus")
-                            .font(.callout)
-                    }
-                }
                 if model.outboxStorageError { Text("outbox.storage").foregroundStyle(.red).accessibilityIdentifier("outbox-storage-error") }
                 if let error = model.translatorError { ErrorNotice(text: error) }
 
@@ -103,23 +81,6 @@ struct TranslatorView: View {
                 .padding(.vertical, 8)
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .listRowSeparator(.hidden)
-            if !pendingItems.isEmpty {
-                Button {
-                    restoreInputFocus = inputFocused
-                    inputFocused = false
-                    showPending = true
-                } label: {
-                    HStack(spacing: 8) {
-                        Text(pendingLabel)
-                        if pendingItems.count > 1 { Text(verbatim: "· \(pendingItems.count)") }
-                        Spacer(minLength: 4)
-                        Image(systemName: "chevron.right").font(.caption)
-                    }.font(.subheadline).foregroundStyle(.secondary)
-                        .frame(minHeight: 44).contentShape(Rectangle())
-                }.buttonStyle(.plain)
-                    .accessibilityIdentifier("translation-pending")
-                    .listRowSeparator(.hidden)
-            }
             if let result = model.result {
                 TranslationResultView(text: result.translation)
                     .listRowSeparator(.hidden)
@@ -128,10 +89,7 @@ struct TranslatorView: View {
                 // Initial/cache hydration and refresh are quiet. Only a completed load
                 // can claim emptiness; saved rows remain visible through refresh/error.
                 // No delayed task means no late spinner on navigation or owner changes.
-                if let error = model.historyLoadError {
-                    Text(error).foregroundStyle(.secondary)
-                    Button("podcast.retry") { Task { await model.refreshTranslator() } }
-                } else if model.history.isEmpty && model.historyPhase == .loaded { Text("Noch keine Übersetzungen.").foregroundStyle(.secondary) }
+                if model.historyLoadError == nil && model.history.isEmpty && model.historyPhase == .loaded { Text("Noch keine Übersetzungen.").foregroundStyle(.secondary) }
                 ForEach(model.history) { item in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .top) {
@@ -171,24 +129,25 @@ struct TranslatorView: View {
                                 .disabled(!model.session.canWrite || model.historyBusy(item.id))
                         }
                 }
+                // Dataset failure belongs after existing rows, never above them
+                // or duplicated in the translation form. Retry remains available.
+                if let error = model.historyLoadError {
+                    Text(error).foregroundStyle(.secondary).accessibilityIdentifier("history-load-error")
+                    Button("podcast.retry") { Task { await model.refreshTranslator() } }
+                        .accessibilityIdentifier("history-retry")
+                }
             } header: { Text("Dein Verlauf").font(.headline).textCase(nil) }
         }
 
         .listStyle(.plain)
         .onChange(of: showPending) { _, presented in
-            if !presented, restoreInputFocus { inputFocused = true; restoreInputFocus = false }
+            if presented { restoreInputFocus = inputFocused; inputFocused = false }
+            else if restoreInputFocus { inputFocused = true; restoreInputFocus = false }
         }
         // Let the final result/history controls scroll clear of floating tabs.
         .safeAreaPadding(.bottom, 24)
         .environment(\.layoutDirection, .leftToRight)
         .scrollDismissesKeyboard(.interactively)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink { ChatGPTConnectionView() } label: {
-                    Image(systemName: "person.crop.circle")
-                }.accessibilityLabel("Konto")
-            }
-        }
         .task { model.loadTranslationOutbox(); model.loadShortcuts() }
     }
 }

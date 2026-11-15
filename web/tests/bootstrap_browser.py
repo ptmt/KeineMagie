@@ -11,7 +11,9 @@ try:
   page.route('**/app.mjs',lambda route:route.abort())
   page.goto(ns['origin']);page.wait_for_timeout(200)
   assert page.locator('html').get_attribute('lang')=='ru'
-  assert page.locator('#account-label').inner_text()=='Войти'
+  # The responsive header intentionally hides this span on mobile; inspect
+  # its actual localized content, not layout-dependent innerText.
+  assert page.locator('#account-label').text_content()=='Войти'
   assert page.locator('.section-nav a').first.inner_text()=='Переводчик'
   assert page.locator('#source-text').get_attribute('placeholder')=='Введите текст …'
   assert page.locator('#translate').inner_text()=='Перевести'

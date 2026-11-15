@@ -20,15 +20,19 @@ public struct CoachAttempt: Codable, Sendable {
     public let id: String; public let answer: String; public let outcome: String; public let originalOutcome: String
     public let assisted: Bool; public let at: String; public let reviewedAt: String?; public let excluded: Bool
     public let assessmentState: String?; public let assessment: CoachAssessment?; public let assessmentError: String?; public let sent: Bool?
+    // Cache-only receipt recovery. Never sent as part of an API snapshot.
+    public var localRequest: CoachAction? = nil
+    public var localPriorAttemptID: String? = nil
+    public var localRetryAllowed: Bool? = nil
     public var feedbackKey: String {
         if let state = assessmentState, state != "completed" { return "coach.assessment." + state }
         return "coach." + (excluded ? "excluded" : reviewedAt != nil ? outcome : assessment?.verdict ?? outcome)
     }
-    public var canRecheck: Bool { outcome != "skipped" && assessmentState != "pending" && assessmentState != "completed" }
-    enum CodingKeys: String, CodingKey { case id, answer, outcome, originalOutcome = "original_outcome", assisted, at, reviewedAt = "reviewed_at", excluded, assessmentState = "assessment_state", assessment, assessmentError = "assessment_error", sent }
+    public var canRecheck: Bool { localRequest != nil || (outcome != "skipped" && assessmentState != "pending" && assessmentState != "completed") }
+    enum CodingKeys: String, CodingKey { case id, answer, outcome, originalOutcome = "original_outcome", assisted, at, reviewedAt = "reviewed_at", excluded, assessmentState = "assessment_state", assessment, assessmentError = "assessment_error", sent, localRequest, localPriorAttemptID, localRetryAllowed }
 }
 public struct CoachTurn: Codable, Sendable, Identifiable {
-    public let id: String; public let text: String; public let state: String; public let at: String
+    public var id: String; public let text: String; public let state: String; public let at: String
     public let assisted: Bool; public let language: String
     public let message: String?; public let kind: String?; public let prompt: String?; public let target: String?
     public let sourceID: String?; public let quote: String?; public let explanation: String?; public var attempt: CoachAttempt?
@@ -58,7 +62,40 @@ extension CoachSnapshot {
         guard ["answer", "recheck"].contains(input.action), let index = turns.firstIndex(where: { $0.id == input.turnID }) else { return self }
         var value = self
         let prior = turns[index].attempt
+        if prior?.localRequest?.requestID == input.requestID { return self }
         value.turns[index].attempt = CoachAttempt(id: input.requestID, answer: input.action == "answer" ? input.text : prior?.answer ?? "", outcome: "ambiguous", originalOutcome: "ambiguous", assisted: input.action == "answer" ? turns[index].assisted : prior?.assisted ?? false, at: ISO8601DateFormatter().string(from: Date()), reviewedAt: nil, excluded: false, assessmentState: "pending", assessment: nil, assessmentError: nil, sent: nil)
+        value.turns[index].attempt?.localRequest = input
+        value.turns[index].attempt?.localPriorAttemptID = prior?.id
+        return value
+    }
+
+    /// Reconcile a read or unrelated write without treating an older recheck result
+    /// (or a missing/reset exercise) as acknowledgement of a local request.
+    public func preservingUnacknowledged(from local: CoachSnapshot?, removing requestID: String? = nil) -> CoachSnapshot {
+        var value = self
+        for var turn in local?.turns ?? [] {
+            guard var attempt = turn.attempt, attempt.id != requestID else { continue }
+            // Migrate snapshots saved before recovery metadata existed. A matching
+            // server attempt still takes precedence, including server pending state.
+            if attempt.localRequest == nil, attempt.assessmentState == "pending", attempt.sent == nil {
+                attempt.localRequest = CoachAction(requestID: attempt.id, action: "answer", text: attempt.answer, turnID: turn.id, locale: "en")
+            }
+            guard let request = attempt.localRequest else { continue }
+            let index = value.turns.firstIndex { $0.id == request.turnID }
+            let remote = index.map { value.turns[$0] }
+            if remote?.attempt?.id == request.requestID { continue }
+            // Preserve the old acknowledged attempt separately when it cannot be
+            // the predecessor of this request. Recovery must never overwrite it.
+            let predecessor = remote?.attempt?.id == attempt.localPriorAttemptID
+            attempt.localRetryAllowed = remote?.state == "completed" && predecessor
+            turn.attempt = attempt
+            if let index, predecessor {
+                value.turns[index].attempt = attempt
+            } else {
+                if index != nil { turn.id = "local-" + request.requestID }
+                value.turns.append(turn)
+            }
+        }
         return value
     }
 }

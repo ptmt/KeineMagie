@@ -16,7 +16,7 @@ class TranslatorSurfaceTests(unittest.TestCase):
         view = (ROOT / 'App/TranslatorView.swift').read_text()
         self.assertIn('TextEditor(text: $model.draft)', view)
         self.assertIn('await model.translate()', view)
-        self.assertIn('model.provider?.connected != true', view)
+        self.assertNotIn('model.provider?.connected != true', view.split('struct PendingTranslationsView')[0])
         self.assertIn('NavigationLink', view)
         self.assertIn('ChatGPTConnectionView()', view)
         self.assertNotIn('bootstrapToken', view)
@@ -46,10 +46,9 @@ class TranslatorSurfaceTests(unittest.TestCase):
         self.assertIn('model.historyPhase == .loaded', history)
         self.assertIn('model.history.isEmpty', history)
         self.assertNotIn('Task.sleep', view.split('private struct TranslationResultView')[0])
-        # A provider spinner also appeared above cached rows, and waited for history.
-        provider = view.split('if model.session.canWrite && model.provider == nil {', 1)[1].split('if model.outboxStorageError', 1)[0]
-        self.assertNotIn('ProgressView', provider)
-        self.assertIn('Verbindung prüfen', provider)
+        # Auxiliary status lives in settings, not a collapsing translator row.
+        self.assertNotIn('Verbindung prüfen', view)
+        self.assertLess(view.index('ForEach(model.history)'), view.index('if let error = model.historyLoadError'))
 
     def test_direct_login_is_not_a_mislabelled_cli_button(self):
         view = (ROOT / 'App/ChatGPTConnectionView.swift').read_text()

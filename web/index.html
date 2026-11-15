@@ -41,8 +41,8 @@
           <div class="input-panel">
             <div class="panel-top"><label for="source-text">Dein Text</label><button id="clear" disabled type="button" class="quiet-button">Leeren</button></div>
             <textarea id="source-text" disabled name="text" placeholder="Text eingeben …" spellcheck="true" aria-describedby="input-count" lang="ru"></textarea>
-            <div id="style-controls" class="style-controls" hidden>
-              <span class="style-label sr-only">Stil</span><div id="style-chips" class="style-chips" role="group" aria-label="Übersetzungsstil"></div>
+            <div id="style-controls" class="style-controls">
+              <span class="style-label sr-only">Stil</span><div id="style-chips" class="style-chips" role="group" aria-label="Übersetzungsstil"><button type="button" class="style-chip" disabled aria-pressed="true">Standard</button><button type="button" class="style-chip" disabled aria-pressed="false">Freundlich</button><button type="button" class="style-chip" disabled aria-pressed="false">Formell</button></div>
               <button id="add-prompt" disabled type="button" class="quiet-button" aria-label="Eigenen Stil hinzufügen" title="Eigener Stil">+</button><button id="edit-prompt" type="button" class="quiet-button" hidden>Bearbeiten</button>
             </div>
             <div class="panel-bottom"><span id="input-count">0 / 8.000</span><span class="keyboard-hint">⌘ / Ctrl + Enter</span></div>
@@ -59,9 +59,8 @@
           <div class="inline-status"><p id="translation-status" role="status" aria-live="polite"></p><button id="translation-recover" type="button" class="quiet-button" hidden>Gespeichertes Ergebnis öffnen</button></div>
           <div class="translation-actions"><button id="cancel" type="button" class="quiet-button" hidden>Abbrechen</button><button id="translate" class="primary-button" type="submit" disabled>Übersetzen</button></div>
         </div>
-        <div id="connection-notice" hidden><span id="connection-title"></span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div>
       </form>
-      <section id="history" class="history" aria-labelledby="history-title"><div class="section-heading"><h2 id="history-title">Verlauf</h2><button id="refresh-history" class="quiet-button" type="button" disabled>Aktualisieren</button></div><p id="history-status" class="muted">Melde dich an, um deinen persönlichen Verlauf zu laden.</p><ul id="history-list" class="history-list"></ul></section>
+      <section id="history" class="history" aria-labelledby="history-title"><div class="section-heading"><h2 id="history-title">Verlauf</h2><button id="refresh-history" class="quiet-button" type="button" disabled>Aktualisieren</button></div><ul id="history-list" class="history-list"></ul><p id="history-status" class="muted" role="status"></p></section>
     </section>
     <section id="dictation" class="unavailable-page" aria-labelledby="dictation-title" tabindex="-1" hidden>
       <h1 id="dictation-title">Diktat</h1>
@@ -100,6 +99,7 @@
   <dialog id="account-dialog" aria-labelledby="account-title">
     <div class="dialog-heading"><h2 id="account-title">Anmelden</h2><button id="close-account" class="close-button" aria-label="Dialog schließen"><span aria-hidden="true">×</span></button></div>
     <label class="account-language" for="interface-language-account" hidden><span>Sprache</span><select id="interface-language-account" data-interface-language><option value="de" lang="de">Deutsch</option><option value="en" lang="en">English</option><option value="ru" lang="ru">Русский</option><option value="es" lang="es">Español</option><option value="fr" lang="fr">Français</option></select></label>
+        <div id="connection-notice" hidden><span id="connection-title"></span><span id="connection-detail" class="sr-only"></span><button id="connection-action" type="button" class="quiet-button" hidden><img id="connection-action-art" src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden" hidden><span id="connection-action-label">Anmelden</span></button></div>
     <div id="sign-in-options" class="sign-in-options">
       <button id="apple-login" class="apple-button" aria-label="Mit Apple anmelden" disabled><img src="/apple-sign-in-de.png" width="320" height="48" alt="Mit Apple anmelden"></button>
       <div class="signin-feedback">

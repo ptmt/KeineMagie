@@ -40,6 +40,19 @@ struct MainTabsView: View {
         .sheet(isPresented: $showCoachProfile) { LearningProfileView() }
         .sheet(isPresented: $showPending) { PendingTranslationsView() }
         .toolbar {
+            if selected == "translator" {
+                ToolbarItem(placement: .topBarTrailing) {
+                    let pending = model.outbox.items.filter { ![.completed, .cancelled].contains($0.state) }
+                    if !pending.isEmpty {
+                        Button { showPending = true } label: {
+                            Image(systemName: pending.contains(where: { [.failed, .needsDecision].contains($0.state) }) ? "exclamationmark.bubble" : "clock")
+                        }
+                        .accessibilityLabel(Text(LocalizedStringKey(pending.contains(where: { [.failed, .needsDecision].contains($0.state) }) ? "outbox.quiet.failed" : pending.contains(where: { $0.state == .sending }) ? "outbox.quiet.sending" : "outbox.quiet.saved")))
+                        .accessibilityValue(pending.count > 1 ? String(pending.count) : "")
+                        .accessibilityIdentifier("translation-pending")
+                    }
+                }
+            }
             if selected == "coach" {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("coach.skills", systemImage: "graduationcap") { showCoachProfile = true }

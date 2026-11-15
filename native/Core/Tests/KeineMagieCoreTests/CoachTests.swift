@@ -80,3 +80,70 @@ final class CoachTests: XCTestCase {
         _ = try await client.coach(action: CoachAction(requestID: "stable-id", action: "answer", text: "auf", turnID: "one", locale: "de"))
     }
 }
+
+extension CoachTests {
+    private func recoverySnapshot(attemptID: String? = nil, state: String = "failed", reset: Bool = false) throws -> CoachSnapshot {
+        var turn: [String: Any] = ["id": "one", "text": "Practice", "state": "completed", "at": "now", "assisted": false, "language": "de"]
+        if let attemptID {
+            turn["attempt"] = ["id": attemptID, "answer": "  beim  ", "outcome": "ambiguous", "original_outcome": "ambiguous", "assisted": true, "at": "then", "excluded": true, "assessment_state": state]
+        }
+        let object: [String: Any] = ["turns": reset ? [] : [turn], "observations": [], "model": "gpt-6.1-terra", "reset_at": reset ? "later" : ""]
+        return try JSONDecoder().decode(CoachSnapshot.self, from: JSONSerialization.data(withJSONObject: object))
+    }
+
+    func testRecoveryPreservesPriorRecheckIdentityThroughCodingAndReads() throws {
+        let prior = try recoverySnapshot(attemptID: "old")
+        let request = CoachAction(requestID: "new", action: "recheck", turnID: "one", locale: "de", ownerID: "owner")
+        let pending = prior.pendingAssessment(request)
+        let saved = try JSONDecoder().decode(CoachSnapshot.self, from: JSONEncoder().encode(pending))
+        let merged = prior.preservingUnacknowledged(from: saved)
+        XCTAssertEqual(merged.turns.count, 1)
+        XCTAssertEqual(merged.turns[0].attempt?.id, "new")
+        XCTAssertEqual(merged.turns[0].attempt?.answer, "  beim  ")
+        XCTAssertEqual(merged.turns[0].attempt?.localPriorAttemptID, "old")
+        XCTAssertEqual(merged.turns[0].attempt?.localRequest?.action, "recheck")
+        XCTAssertEqual(merged.turns[0].attempt?.localRequest?.ownerID, "owner")
+        XCTAssertTrue(merged.turns[0].attempt?.canRecheck == true)
+        XCTAssertEqual(merged.turns[0].attempt?.localRetryAllowed, true)
+        XCTAssertTrue(merged.observations.isEmpty)
+    }
+
+    func testMatchingServerAcknowledgementAlwaysWins() throws {
+        let pending = try recoverySnapshot().pendingAssessment(CoachAction(requestID: "new", action: "answer", text: "  beim  ", turnID: "one", locale: "en"))
+        for state in ["pending", "completed", "failed", "canceled"] {
+            let remote = try recoverySnapshot(attemptID: "new", state: state)
+            let merged = remote.preservingUnacknowledged(from: pending)
+            XCTAssertEqual(merged.turns.count, 1)
+            XCTAssertEqual(merged.turns[0].attempt?.assessmentState, state)
+            XCTAssertEqual(merged.turns[0].attempt?.excluded, true)
+            XCTAssertNil(merged.turns[0].attempt?.localRequest)
+        }
+    }
+
+    func testDifferentAuthoritativeAttemptAndMissingTurnDoNotEraseLiteral() throws {
+        let pending = try recoverySnapshot().pendingAssessment(CoachAction(requestID: "local", action: "answer", text: "literal", turnID: "one", locale: "en"))
+        let remote = try recoverySnapshot(attemptID: "other", state: "completed")
+        let merged = remote.preservingUnacknowledged(from: pending)
+        XCTAssertEqual(merged.turns.count, 2)
+        XCTAssertEqual(merged.turns[0].attempt?.id, "other")
+        XCTAssertEqual(merged.turns[0].attempt?.assessmentState, "completed")
+        XCTAssertEqual(merged.turns[1].attempt?.answer, "literal")
+        XCTAssertEqual(merged.turns[1].attempt?.localRetryAllowed, false)
+        XCTAssertEqual(remote.preservingUnacknowledged(from: merged).turns.count, 2)
+        let reset = try recoverySnapshot(reset: true)
+        let retained = reset.preservingUnacknowledged(from: merged)
+        XCTAssertEqual(retained.turns.count, 1)
+        XCTAssertEqual(retained.turns[0].attempt?.answer, "literal")
+        XCTAssertTrue(retained.turns[0].attempt?.canRecheck == true)
+        XCTAssertTrue(reset.preservingUnacknowledged(from: retained, removing: "local").turns.isEmpty)
+    }
+
+    func testLegacyPendingCacheSurvivesMissingReceipt() throws {
+        let legacy = try recoverySnapshot(attemptID: "local", state: "pending")
+        let remote = try recoverySnapshot()
+        let merged = remote.preservingUnacknowledged(from: legacy)
+        XCTAssertEqual(merged.turns[0].attempt?.answer, "  beim  ")
+        XCTAssertEqual(merged.turns[0].attempt?.localRequest?.requestID, "local")
+        XCTAssertTrue(merged.turns[0].attempt?.canRecheck == true)
+    }
+}

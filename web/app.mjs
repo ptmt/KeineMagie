@@ -205,8 +205,24 @@ function renderRoute(focus = false) {
   if (!checking || session?.user?.id) podcasts.route(location.hash);
   else podcasts.pause();
 }
-window.addEventListener('hashchange', () => renderRoute(true));
-window.addEventListener('popstate', () => renderRoute(true));
+// Section links are routes, not in-document anchors. pushState preserves
+// Back/Forward URLs without the browser scrolling to a newly revealed section.
+for (const link of [...sectionLinks, document.querySelector('.wordmark')]) {
+  link.addEventListener('click', event => {
+    if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    if (location.hash !== link.hash) window.history.pushState(null, '', link.hash);
+    renderRoute(true);
+    window.scrollTo({top:0, left:0, behavior:'instant'});
+  });
+}
+function routeNavigation() {
+  renderRoute(true);
+  // Reader/skip-link fragments retain their own scrolling semantics.
+  if (sectionLinks.some(link => link.hash === location.hash)) window.scrollTo({top:0, left:0, behavior:'instant'});
+}
+window.addEventListener('hashchange', routeNavigation);
+window.addEventListener('popstate', routeNavigation);
 renderRoute();
 
 
@@ -306,7 +322,7 @@ function renderConnection() {
   if (!signedIn || session?.provider?.connected === true) clearBootstrap();
   setText('provider-detail', !signedIn ? '' : providerError ? providerError : !session.provider ? 'Der Status deines persönlichen ChatGPT-Kontos wird geladen.' : modelUnavailable ? catalogWarning : session?.provider?.connected === true ? 'Dein persönliches ChatGPT-Konto ist verbunden.' : config?.chatgpt_connect_available === true ? 'Verbinde dein eigenes ChatGPT-Konto für Übersetzungen.' : 'Die persönliche ChatGPT-Verbindung ist hier noch nicht verfügbar.');
   // Advisory only: background checks never insert a loading row or gate a POST.
-  $('connection-notice').hidden = !sessionError && !providerError && (checking || providerFlight || phase === 'provider-loading' || phase === 'ready');
+  $('connection-notice').hidden = signedIn || (!sessionError && (checking || !identityKnown));
   $('connection-action').hidden = checking;
   const appleSignIn = !checking && !sessionError && !signedIn && config?.apple_available === true;
   $('connection-action').classList.toggle('apple-button', appleSignIn);
