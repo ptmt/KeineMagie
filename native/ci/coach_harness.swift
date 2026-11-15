@@ -323,7 +323,15 @@ extension CoachGate {
     defer { try? FileManager.default.removeItem(at: root) }
     let gate = CoachGate(); let model = try await gate.model(root)
     gate.bodyOverride = gate.body.replacingOccurrences(of: "\"language\":\"de\"", with: "\"language\":\"de\",\"message_version\":\"saved:completed\",\"seen_version\":\"\"")
-    await model.loadCoach(); let turn = model.coach!.turns[0]
+    await model.loadCoach(); let turn = try #require(model.coach?.turns.first)
+    #expect(turn.isUnread)
+    gate.bodyOverride = gate.bodyOverride?.replacingOccurrences(of: "Saved coach turn", with: "Unrelated receipt response")
+    await model.seeCoach(turn)
+    #expect(model.coach?.turns.first?.message == "Saved coach turn", "A receipt must not replace conversation content")
+    #expect(model.coach?.turns.first?.seenVersion == turn.messageVersion)
+    #expect(model.coach?.turns.first?.isUnread == false)
+    gate.actions.removeAll()
+    await model.loadCoach() // Restore the synthetic unread snapshot through the public read path.
     gate.hold = true
     let seen = Task { await model.seeCoach(turn) }
     while gate.replies.isEmpty { await Task.yield() }
