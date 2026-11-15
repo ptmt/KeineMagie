@@ -1,4 +1,6 @@
-# Coach chat iteration — candidate, not released
+# Coach chat iteration — historical candidate record
+
+Released integration and current limits: [Coach chat release](COACH-CHAT-RELEASE.md). Later bounded AX/frame/two-client evidence supersedes the historical unverified automated gates below; physical VoiceOver/OS Reduce Motion/two-device UI remain unverified.
 
 ## Scope and baseline
 

@@ -1,0 +1,35 @@
+# Coach chat release — 2026-11-15
+
+## Scope and final review
+
+Source **`16709e7e6bc99e9f59dfcb6cfdd90e5c73c6dfb0`**, normal non-force push over freshly fetched `938eab7fe574ae01bd8fe3c7d0f9a28bed0f31a8`. Integrates the Coach chat iteration with released Diktat; no new domain, permanent service, synthetic production data or paid provider call. App Store review submission is not authorized or performed.
+
+- Earlier answered turns mask answer/correction/feedback until an explicit durable reveal; latest feedback remains visible. This is spoiler privacy, not encryption or payload secrecy.
+- Read state is a durable owner/message-revision client receipt: fetching is not reading. Active, visible, near-bottom content is acknowledged; stale callbacks cannot acknowledge new feedback. The server cannot attest viewport visibility.
+- Source/hint disclosure records type, count, turn and time in an owner-private 512-event ring without private text. Pre-answer source reveal marks assistance; post-answer reveal does not retroactively regrade evidence. Replays are idempotent.
+- Server-owned five-hour admission creates a free localized template offer, never AI on entry. Concurrent clients admit one offer. Only explicit practice/message/Check/recheck uses the existing exact `gpt-6.1-terra` path and quota; no fallback or grading substitution.
+- Composer practice preserves the draft; stable bubbles, unread/jump, controlled arrival fade, reduced-motion branch, compact controls and source navigation are retained.
+- All **368** released localization entries are byte-equivalent by parsed key/value; Diktat source, audio assets/player, ContentCache and cache fork behavior remain intact. Existing Diktat env/secret and the single authoritative production budget remain intact.
+
+Final review inspected the actual fresh commit diff. The previously reported successful-seen nonreplacement assertion was **missing**; added it to `native/ci/coach_harness.swift`. It verifies successful receipt changes only matching seen state and cannot replace conversation content. An isolated in-memory mutation replacing the conversation with the receipt response fails that exact assertion (75-test harness, one expected failure); unmodified harness passes 75. A first test edit attempted a private setter and failed compilation; corrected to the public read path, without weakening production access control.
+
+## Verification
+
+Repeated final Go race/vet, **104 Node**, **53 native Python CI (one skip)**, actual AppModel **75**, real-Go/two-independent-AppModel **75**, direct SwiftPM **51 XCTest (one skip) + 68 Swift Testing**, and real Chromium synthetic-transport Coach suite passed. Browser initially used system Python without Playwright; reran successfully using the existing isolated Coach browser environment. Prior integrated signed Release UI and bounded native frame/AX evidence are in [bounded acceptance](COACH-BOUNDED-ACCEPTANCE.md). No paid AI was used; synthetic assessment transports do not establish live pedagogical accuracy.
+
+Actual VoiceOver spoken order/actions, physical OS Reduce Motion, simultaneous two-device UI and physical installation remain **unverified nonblocking physical acceptance**, not claimed by AX snapshots, injected reduced motion or two AppModels. Apple processing/tester availability is separate from upload.
+
+## Backend delivery
+
+- [Server CI 43732452427](https://github.com/ptmt/KeineMagie/actions/runs/43732452427), job **`132867693452`**, success on exact source. Native ARM64 CI artifact **`sha256:e9b4c50f0fa2ef68b91a6d44ab5ad53b6ab926b6e2ff8fcf95b69903b8a6e10c`**, live with exact OCI revision.
+- Current durable Compose was reread before deployment. Byte replacement of the backend image is the **only** override change; full merged config compared. Existing Diktat TTS environment/read-only mount and Traefik `--providers.docker.network=tinyserve_edge` preserved. Existing manual base + durable override lifecycle used, not tinyserve regeneration.
+- Nonblocking store/account locks held, actual job states checked idle before stopping backend; lifetime runner lock acquired after stop, private data backup taken, runner released before replacement and store locks retained through final snapshot. **All 13 actual nonruntime files byte-identical**, no additions; includes the 11 previous files plus two Diktat budget JSON. Actual state: **one completed job, zero active, 2113 segments and 2113 translations**. No data restored or generated.
+- Single production November ledger unchanged: exactly one acceptance ID `20261115T140248.781990000`, **USD 1 reserved**, reported cost **826 micro-USD**, **at most nine new attempts remain**. Application admission is not a provider invoice guarantee. Archived acceptance ledgers not mutated.
+- Worker `sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382`, all worker/unrelated IDs, resources, security, routing, mounts and networks preserved. Dedicated TTS secret opens read-only as **UID 65532**, owned 65532 mode **0400**, without printing content.
+- Public TLS health **200**, **28/28 allowlisted assets exact** and expected cache policy. Coach/Diktat/private Diktat audio/podcasts/history unauthenticated **401**; secret/ledger/source paths **404**. Actual public Chromium guest Coach and Diktat render correctly, no runtime errors; screenshots retained and inspected. An initial verification probe used nonexistent `/v1/dictations` (404); corrected to actual `/v1/learning/dictations` and private audio path (401), no production code change.
+
+Private backup/readbacks/rollback: `/Users/tinyserve/Library/Application Support/tinyserve/services/keinemagie/deployment/release-coach-chat-20261115T155601Z/` (`verified.json`, full container before/after, data hashes, 0600 data archive, previous/candidate Compose). Binary rollback pins previous `sha256:c904d75955ac2347794f320c172d53f84a91df0ed3759154d802fe52e6b31371` using saved Compose; **never restore stale data or remove holds**. Compact public evidence: scratch `coach-chat-public/verified.json`, guest PNGs and final test/mutation logs. No scratch cleanup performed without specific path approval; unrelated AnyRing work untouched.
+
+## Apple delivery
+
+[Explicit UPLOAD 43732685712](https://github.com/ptmt/KeineMagie/actions/runs/43732685712) **success**, dispatched with `publish=UPLOAD` after backend verification; exact source SHA confirmed by run readback. Validate job **`132869216597`**, upload job **`132870706517`**; signed/exported build **`2754.31.6`**. Exact upload-job log: **`UPLOAD SUCCEEDED with no errors` at 2026-11-15T16:10:16.1150570Z**; signing cleanup succeeded. Push validation [43732452423](https://github.com/ptmt/KeineMagie/actions/runs/43732452423) also succeeded (validate job `132867693882`, upload correctly skipped). A local watcher hit the tool's 420-second ceiling; resumed watching the same run, no duplicate dispatch. Processing, tester availability and installation remain unverified. No App Store review submission.
