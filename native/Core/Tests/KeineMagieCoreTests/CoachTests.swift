@@ -2,6 +2,14 @@ import XCTest
 @testable import KeineMagieCore
 
 final class CoachTests: XCTestCase {
+    func testServerActionsAndLegacyFallback() throws {
+        let empty = try JSONDecoder().decode(CoachSnapshot.self, from: Data(#"{"turns":[],"observations":[],"model":"gpt-6.1-terra"}"#.utf8))
+        XCTAssertEqual(empty.quickActions.map(\.action), ["practice"])
+        let raw = #"{"actions":[{"action":"progress","turn_id":""}],"turns":[],"observations":[],"model":"gpt-6.1-terra"}"#
+        let current = try JSONDecoder().decode(CoachSnapshot.self, from: Data(raw.utf8))
+        XCTAssertEqual(current.quickActions.map(\.action), ["progress"])
+        XCTAssertEqual(try JSONDecoder().decode(CoachSnapshot.self, from: JSONEncoder().encode(current)).quickActions.map(\.action), ["progress"])
+    }
     func testChatReceiptContract() throws {
         let raw = #"{"id":"one","text":"","state":"completed","at":"now","assisted":false,"language":"","kind":"nudge","message_version":"one:completed","seen_version":"","source_reveals":0,"answer_reveals":1}"#
         let turn = try JSONDecoder().decode(CoachTurn.self, from: Data(raw.utf8))
@@ -37,6 +45,9 @@ final class CoachTests: XCTestCase {
             XCTAssertFalse(try turn(message).showsInstruction)
         }
         XCTAssertTrue(try turn("Use the formal register.").showsInstruction)
+        var completed = try turn("Fill this gap.")
+        completed.attempt = try JSONDecoder().decode(CoachAttempt.self, from: Data(#"{"id":"a","answer":"bei","outcome":"wrong","original_outcome":"wrong","assisted":false,"at":"now","excluded":false}"#.utf8))
+        XCTAssertFalse(completed.showsInstruction)
         XCTAssertTrue(try turn("Fill in the missing preposition.", kind: "short_rephrase").showsInstruction)
     }
     func testSourceTargetsRejectMalformedIDs() {

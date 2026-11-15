@@ -14,6 +14,24 @@ final class CoachUITests: XCTestCase {
     @MainActor private func shot(_ app: XCUIApplication, _ name: String) {
         let a = XCTAttachment(screenshot: app.screenshot()); a.name = name; a.lifetime = .keepAlways; add(a)
     }
+    @MainActor func testContextualChipsAndProgressRetainDraft() {
+        let app = launch()
+        XCTAssertTrue(app.buttons["coach-progress"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.buttons["coach-practice"].exists)
+        XCTAssertEqual(app.buttons.matching(identifier: "coach-reveal").count, 1)
+        let answer = app.textFields["coach-answer-synthetic-coach"]
+        answer.tap(); answer.typeText("für"); app.buttons["coach-check-synthetic-coach"].tap()
+        XCTAssertTrue(app.buttons["coach-more"].waitForExistence(timeout: 8))
+        shot(app, "coach-contextual-after-feedback-release")
+        let composer = app.textFields["coach-composer"]; composer.tap(); composer.typeText("keep my draft")
+        app.buttons["coach-progress"].tap()
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch.waitForExistence(timeout: 8))
+        XCTAssertEqual(composer.value as? String, "keep my draft")
+        let summary = app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch
+        XCTAssertLessThanOrEqual(summary.frame.maxY, composer.frame.minY - 44)
+        XCTAssertEqual(composer.value as? String, "keep my draft")
+        shot(app, "coach-contextual-progress-release")
+    }
     @MainActor func testContextualAIAssessmentPendingAndCorrection() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-assessment"
@@ -104,6 +122,28 @@ final class CoachUITests: XCTestCase {
             app.terminate()
         }
     }
+    @MainActor func testFiveLocaleLargestContextActions() {
+        for locale in ["en", "de", "ru", "es", "fr"] {
+            let app = XCUIApplication()
+            app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach"
+            app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale, "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+            app.launch()
+            let tab = app.tabBars.buttons[locale == "ru" ? "Тренер" : locale == "es" ? "Entrenador" : "Coach"]
+            XCTAssertTrue(tab.waitForExistence(timeout: 10)); tab.tap()
+            let progress = app.buttons["coach-progress"]
+            XCTAssertTrue(progress.waitForExistence(timeout: 8))
+            XCTAssertGreaterThanOrEqual(progress.frame.height, 44)
+            XCTAssertLessThanOrEqual(progress.frame.height, 70, "Context actions must not fragment into syllables at largest type")
+            XCTAssertGreaterThanOrEqual(progress.frame.minX, 0)
+            XCTAssertLessThanOrEqual(progress.frame.maxX, app.frame.maxX)
+            let composer = app.textFields["coach-composer"]
+            composer.tap(); composer.typeText("exact draft")
+            XCTAssertEqual(composer.value as? String, "exact draft")
+            XCTAssertTrue(progress.isHittable)
+            shot(app, "coach-largest-context-\(locale)")
+            app.terminate()
+        }
+    }
     @MainActor func testProfileCorrectionAndExclusionReachable() {
         let app = launch()
         let answer = app.textFields["coach-answer-synthetic-coach"]
@@ -164,7 +204,7 @@ final class CoachUITests: XCTestCase {
         let app = launch()
         XCTAssertTrue(app.textFields["coach-answer-synthetic-coach"].waitForExistence(timeout: 8))
         let snapshot = app.debugDescription
-        let expected = ["Ich warte ___ den Bus.", "coach-answer-synthetic-coach", "coach-check-synthetic-coach", "label: 'Skip'", "label: 'Hint'", "coach-practice", "coach-composer", "coach-send"]
+        let expected = ["Ich warte ___ den Bus.", "coach-answer-synthetic-coach", "coach-check-synthetic-coach", "label: 'Skip'", "coach-reveal", "coach-progress", "coach-composer", "coach-send"]
         var previous = snapshot.startIndex
         for key in expected {
             guard let range = snapshot.range(of: key, range: previous..<snapshot.endIndex) else { XCTFail("Missing/out-of-order accessible element: \(key)"); continue }
@@ -185,14 +225,14 @@ final class CoachUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Synthetic exercise, not live AI."].waitForExistence(timeout: 8))
         shot(app, reduced ? "coach-reduced-initial" : "coach-motion-initial")
         sleep(2)
-        app.buttons["coach-practice"].tap()
-        XCTAssertTrue(app.staticTexts["Synthetic clarification, not live AI."].waitForExistence(timeout: 8))
+        app.buttons["coach-progress"].tap()
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch.waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons["New messages"].waitForNonExistence(timeout: 8))
         sleep(2)
         shot(app, reduced ? "coach-reduced-arrived-seen" : "coach-motion-arrived-seen")
-        if reduced { XCTAssertEqual(app.buttons["coach-practice"].value as? String, "static;system=false;injected=true") }
+        if reduced { XCTAssertEqual(app.buttons["coach-progress"].value as? String, "static;system=false;injected=true") }
         app.tabBars.buttons["Translator"].tap(); app.tabBars.buttons["Coach"].tap()
-        XCTAssertTrue(app.staticTexts["Synthetic clarification, not live AI."].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch.waitForExistence(timeout: 8))
         shot(app, reduced ? "coach-reduced-return" : "coach-motion-return")
     }
     @MainActor func testArrivalSurvivesImmediateSeenReceipt() { arrival(reduced: false) }

@@ -36,6 +36,7 @@ actor SimulatorSessionFixture {
     private var coachAnswerReveals = 0
     private var coachSeenVersion = ""
     private var coachArrivalSeenVersion = ""
+    private var coachProgressShown = false
     private var coachEntryCount = 0
     private var validations = 0
     private var profileLevels: [String: String] = [:]
@@ -160,6 +161,7 @@ actor SimulatorSessionFixture {
             if request.httpMethod == "POST", let data = request.httpBody {
                 let action = try JSONDecoder().decode(CoachAction.self, from: data)
                 if action.action == "entry" { coachEntryCount += 1 }
+                if action.action == "progress" { coachProgressShown = true }
                 if action.action == "answer" && mode == "coach-assessment" {
                     try await Task.sleep(for: .seconds(2))
                 }
@@ -200,7 +202,9 @@ actor SimulatorSessionFixture {
                 turns[1]["message_version"] = "synthetic-clarification:completed"
                 turns[1]["seen_version"] = coachArrivalSeenVersion
             }
-            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["turns": turns, "observations": [], "model": "gpt-6.1-terra"]), status: 200)
+            if coachProgressShown { turns.append(["id":"synthetic-progress", "text":"My progress", "state":"completed", "at":"now", "assisted":false, "language":"", "kind":"clarification", "message":"Synthetic progress: 4 translations; 2 Coach answers, 1 correct. Repeat preposition case. 3 vocabulary entries; 2 saved podcast passages. Dictation unavailable. Activity is not mastery."]) }
+            let quick: [[String: String]] = coachAnswered ? [["action":"explain", "turn_id":"synthetic-coach"], ["action":"more", "turn_id":""], ["action":"progress", "turn_id":""]] : [["action":"reveal", "turn_id":"synthetic-coach"], ["action":"progress", "turn_id":""]]
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["actions":quick,"turns": turns, "observations": [], "model": "gpt-6.1-terra"]), status: 200)
         }
         if let path = request.url?.path, path.hasPrefix("/v1/learning/") {
             guard request.httpMethod == "GET" || (path.hasPrefix("/v1/learning/profiles/") && request.httpMethod == "PUT") else { return AuthResponse(data: Data(), status: 405) }

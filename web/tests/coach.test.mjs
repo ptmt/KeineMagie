@@ -5,6 +5,7 @@ test('obvious cloze omits only redundant instructions, not useful context',()=>{
  for(const message of ['Fill in the missing preposition.','Ergänze die fehlende Präposition.','Вставьте пропущенный предлог.','Completa la preposición que falta.','Complète la préposition manquante.'])
   assert.equal(coachShowsInstruction({kind:'cloze',prompt:'Ich war einmal ___ diesem Kurs dabei.',message}),false);
  assert.equal(coachShowsInstruction({kind:'cloze',prompt:'___',message:'Use the formal register.'}),true);
+ assert.equal(coachShowsInstruction({kind:'cloze',prompt:'___',message:'Fill this gap.',attempt:{answer:'bei'}}),false);
  assert.equal(coachShowsInstruction({kind:'short_rephrase',prompt:'Rewrite this',message:'Use the formal register.'}),true);
 });
 test('source links are local, exact, and reject malformed identifiers',()=>{

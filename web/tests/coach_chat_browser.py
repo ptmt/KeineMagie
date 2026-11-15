@@ -5,7 +5,7 @@ from threading import Thread
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 import json,time
-D={'turns':[],'observations':[],'model':'gpt-6.1-terra'};CALLS=[];SEEN_DELAY=0
+D={'turns':[],'observations':[],'model':'gpt-6.1-terra','actions':[{'action':'more','turn_id':''}]};CALLS=[];SEEN_DELAY=0
 def turn(id,answered=False):
  t=dict(id=id,text='Synthetic practice',state='completed',at='2026-11-15T12:00:00Z',assisted=False,language='de',message='Synthetic exercise — not live AI.',kind='cloze',prompt='Ich war einmal ___ diesem Kurs dabei.',target='verb_government',source_id='translation:synthetic',message_version=id+':completed',seen_version='',source_reveals=0,answer_reveals=0)
  if answered:t.update(attempt=dict(id='answer-'+id,answer='beim',outcome='wrong',original_outcome='wrong',assisted=False,at='now',excluded=False,assessment_state='completed',assessment=dict(verdict='incorrect',corrected_answer='bei',explanation='Synthetic: beim means bei dem.',uncertainty_reason='')),explanation='Synthetic: beim means bei dem.',quote='Ich war einmal bei diesem Kurs dabei.')
@@ -21,7 +21,7 @@ class Chat(Handler):
   if a=='entry':pass
   elif a=='seen':time.sleep(SEEN_DELAY);t['seen_version']=b['text']
   elif a=='reveal':t[b['text']+'_reveals']+=1
-  elif a=='message':
+  elif a in ['message','more']:
    time.sleep(.35);D['turns'].append(turn(b['request_id']))
   return self.reply(D)
 server=ThreadingHTTPServer(('127.0.0.1',0),Chat);Thread(target=server.serve_forever,daemon=True).start()
@@ -32,7 +32,7 @@ try:
   D['turns']=[turn('old',True),turn('latest',True)]
   page.add_init_script("localStorage.setItem('keinemagie:interface-language:v1','en')")
   page.add_init_script("""window.historyMotion=[];const sample=()=>{for(const e of document.querySelectorAll('[data-turn]'))if(['old','latest'].includes(e.dataset.turn)){const s=getComputedStyle(e);window.historyMotion.push({id:e.dataset.turn,opacity:Number(s.opacity),animation:s.animationName});}if(window.historyMotion.length<180)requestAnimationFrame(sample);};requestAnimationFrame(sample);""")
-  page.goto(f'http://127.0.0.1:{server.server_port}/#coach');page.get_by_role('button',name='30 seconds',exact=True).wait_for()
+  page.goto(f'http://127.0.0.1:{server.server_port}/#coach');page.get_by_role('button',name='More',exact=True).wait_for()
   page.wait_for_function("() => document.querySelectorAll('[data-turn]').length===2")
   old=page.locator('[data-turn="old"]');latest=page.locator('[data-turn="latest"]')
   assert old.locator('.coach-answer').count()==0 and old.locator('.coach-explanation').count()==0
@@ -47,7 +47,7 @@ try:
   page.locator('#coach-input').fill('draft must stay')
   page.evaluate("document.querySelector('.coach-composer button').click();document.querySelector('.coach-composer button').click()")
   page.wait_for_function("() => !document.querySelector('.coach-composer button').disabled")
-  assert len([b for b in CALLS if b['action']=='message'])==1
+  assert len([b for b in CALLS if b['action'] in ['message','more']])==1
   assert page.locator('#coach-input').input_value()=='draft must stay'
   # Saved DOM bubbles retain identity through receipt refreshes.
   page.evaluate("window.savedBubble=document.querySelector('[data-turn=old]')")

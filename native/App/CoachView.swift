@@ -11,7 +11,9 @@ extension EnvironmentValues {
 
 struct CoachView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var nearBottom = true
+    @State private var followQuickReply = false
     @State private var visibleTurns: Set<String> = []
     @State private var hydrated = false
     @State private var presented = false
@@ -69,15 +71,7 @@ struct CoachView: View {
             .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { viewport = $0 }
             .safeAreaInset(edge: .bottom) {
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Button("coach.quickPractice") { model.sendCoach("message", text: AppL10n.text("coach.practice"), preserveDraft: true) }
-                            .font(.subheadline).disabled(!model.session.canWrite || model.coachBusy).accessibilityIdentifier("coach-practice")
-                            .accessibilityValue(motionContract)
-                        Spacer()
-                        if model.coach?.turns.contains(where: \.isUnread) == true {
-                            Button { proxy.scrollTo("coach-bottom", anchor: .bottom) } label: { Image(systemName: "arrow.down.circle").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("coach.newMessages")
-                        }
-                    }
+                    quickControls(proxy: proxy)
                     HStack(alignment: .bottom, spacing: 12) {
                     TextField("coach.message", text: $model.coachDraft, axis: .vertical)
                         .lineLimit(1...5).focused($composerFocused)
@@ -95,8 +89,9 @@ struct CoachView: View {
                 }.padding(.horizontal).padding(.vertical, 8).background(.bar)
             }
             .onChange(of: model.coach?.turns.count) { old, new in
-                if hydrated, let old, let new, new > old, nearBottom {
+                if hydrated, let old, let new, new > old, nearBottom || followQuickReply {
                     withAnimation(reduceMotion ? nil : .easeOut(duration: 0.22)) { proxy.scrollTo("coach-bottom", anchor: .bottom) }
+                    followQuickReply = false
                 }
             }
             .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: model.coachBusy)
@@ -111,6 +106,7 @@ struct CoachView: View {
             if near && scenePhase == .active && presented { for turn in model.coach?.turns ?? [] where visibleTurns.contains(turn.id) { Task { await model.seeCoach(turn) } } }
         }
         .onChange(of: model.coachBusy) { _, busy in
+            if !busy { followQuickReply = false }
             if !busy && scenePhase == .active && nearBottom && presented { for turn in model.coach?.turns ?? [] where visibleTurns.contains(turn.id) { Task { await model.seeCoach(turn) } } }
         }
         .onAppear { presented = true }
@@ -119,6 +115,24 @@ struct CoachView: View {
         .task(id: "\(model.session.generation)-\(model.session.canWrite)") { await model.loadCoach(); if !Task.isCancelled && scenePhase == .active && presented { model.sendCoach("entry") } }
         .refreshable { await Task { await model.loadCoach() }.value }
 
+    }
+    private func quickControls(proxy: ScrollViewProxy) -> some View {
+        let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0)) : AnyLayout(HStackLayout())
+        return layout {
+            ForEach(Array((model.coach?.quickActions ?? []).prefix(3).enumerated()), id: \.offset) { _, action in
+                Button(LocalizedStringKey("coach.quick." + action.action)) {
+                    followQuickReply = action.action != "reveal"
+                    model.sendCoach(action.action, text: action.action == "reveal" ? "source" : AppL10n.text("coach.quick." + action.action), turnID: action.turnID, preserveDraft: true)
+                }
+                .font(.subheadline).frame(minHeight: 44)
+                .disabled(!model.session.canWrite || model.coachBusy)
+                .accessibilityIdentifier("coach-" + action.action).accessibilityValue(motionContract)
+            }
+            if !dynamicTypeSize.isAccessibilitySize { Spacer() }
+            if model.coach?.turns.contains(where: \.isUnread) == true {
+                Button { proxy.scrollTo("coach-bottom", anchor: .bottom) } label: { Image(systemName: "arrow.down.circle").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("coach.newMessages")
+            }
+        }
     }
 }
 
@@ -142,7 +156,6 @@ private struct CoachTurnView: View {
             } else if turn.state == "failed" || turn.state == "canceled" {
                 Text(LocalizedStringKey("coach." + turn.state)).font(.footnote)
             }
-            if turn.isOffer == true { Button("coach.quickPractice") { model.sendCoach("message", text: AppL10n.text("coach.practice"), preserveDraft: true) }.disabled(!writable) }
             if let kind = turn.kind, !["clarification", "nudge"].contains(kind), let prompt = turn.prompt {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(prompt).font(.title3).textSelection(.enabled)
@@ -191,13 +204,14 @@ private struct CoachTurnView: View {
                         }
                     }.padding(.vertical, 8)
                 } label: { Text(LocalizedStringKey(turn.attempt == nil ? "coach.hint" : "coach.source")) }
-            } else if turn.sourceID != nil {
+            } else if turn.sourceID != nil && (turn.attempt != nil || !(model.coach?.quickActions.contains { $0.action == "reveal" && $0.turnID == turn.id } ?? false)) {
                 Button(LocalizedStringKey(turn.attempt == nil ? "coach.hint" : "coach.source")) { model.sendCoach("reveal", text: "source", turnID: turn.id); sourceOpen = true }.disabled(!writable)
             }
         }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
             .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
             .overlay(alignment: .leading) { if turn.isUnread { RoundedRectangle(cornerRadius: 2).fill(.primary.opacity(0.65)).frame(width: 3).padding(.vertical, 12) } }
             .padding(.trailing, 24)
+            .onChange(of: turn.sourceReveals) { old, new in if turn.attempt == nil, (new ?? 0) > (old ?? 0) { sourceOpen = true } }
             .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: sourceOpen)
             .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: turn.attempt?.outcome)
             .confirmationDialog("coach.assessment.confirm", isPresented: $confirmRecheck, titleVisibility: .visible) {

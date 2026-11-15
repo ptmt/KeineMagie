@@ -1,6 +1,6 @@
 import {createCoachState} from './coach-state.mjs';
 import {reconcileDOM} from './core.mjs';
-import {coachMasksAnswer,coachUnread,coachPracticeText,coachChatLabel} from './coach-chat.mjs';
+import {coachMasksAnswer,coachUnread,coachChatLabel,coachQuickActions,coachQuickLabel} from './coach-chat.mjs';
 const words={
  en:['A short exercise from your saved phrases, or a question?','Message','Send','Practice · ~30 sec','Skip','Show source / hint','Check','Cancel','Skills','No observations yet. Your self-assessed CEFR stays separate.','Answer','Refresh','Reset observations','Correct','Needs practice','I can’t check this confidently','Skipped','Excluded','Pending · reload never retries. Cancel to continue.','Failed · send a new message to try again.','Canceled','With help','Examples','Answers','Limited evidence','Self-assessment','Sign in to use Coach.','Saved translations and saved podcast passages only. One personal gpt-6.1-terra call per message; shared daily limit 100.','Exclude','Count as correct','Count as needs practice','Reset observations? Your chat and self-assessed CEFR stay unchanged.'],
  de:['Eine kurze Übung mit deinen gespeicherten Sätzen – oder eine Frage?','Nachricht','Senden','Üben · ~30 Sek.','Überspringen','Quelle / Hinweis','Prüfen','Abbrechen','Fähigkeiten','Noch keine Beobachtungen. Deine CEFR-Selbsteinschätzung bleibt getrennt.','Antwort','Aktualisieren','Beobachtungen zurücksetzen','Richtig','Weiter üben','Das kann ich nicht sicher beurteilen','Übersprungen','Ausgeschlossen','Ausstehend · Neuladen wiederholt nichts. Zum Fortfahren abbrechen.','Fehlgeschlagen · zum Wiederholen eine neue Nachricht senden.','Abgebrochen','Mit Hilfe','Beispiele','Antworten','Begrenzte Evidenz','Selbsteinschätzung','Melde dich für Coach an.','Nur gespeicherte Übersetzungen und Podcaststellen. Ein persönlicher gpt-6.1-terra-Aufruf pro Nachricht; gemeinsames Tageslimit 100.','Ausschließen','Als richtig werten','Zum Üben markieren','Beobachtungen zurücksetzen? Chat und CEFR-Selbsteinschätzung bleiben erhalten.'],
@@ -13,7 +13,7 @@ Object.assign(coachStrings,{"coach.assessment.pending": {"en": "AI check pending
 const ct=(key,locale)=>coachStrings[key]?.[locale]||coachStrings[key]?.en||key;
 const targets={en:['Grammar','Verb government','Vocabulary','Word order','Register'],de:['Grammatik','Verbanschlüsse','Wortschatz','Wortstellung','Register'],ru:['Грамматика','Управление глаголов','Словарь','Порядок слов','Регистр'],es:['Gramática','Régimen verbal','Vocabulario','Orden de palabras','Registro'],fr:['Grammaire','Régime verbal','Vocabulaire','Ordre des mots','Registre']};
 export function coachShowsInstruction(turn){
- if(!turn.message)return false;
+ if(!turn.message||turn.attempt)return false;
  if(!['cloze','preposition_case'].includes(turn.kind)||!turn.prompt?.includes('___'))return true;
  const generic=/^(fill in (the )?missing (preposition|word)|ergänze (die fehlende präposition|den satz)|вставьте пропущенн(ый предлог|ое слово)|completa la preposición que falta|complète la préposition manquante)[.!]?$/iu;
  return !generic.test(turn.message.trim());
@@ -41,7 +41,7 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  const send=el('button');send.type='submit';form.append(input,send);host.append(header,messages,status,form);
  const state=createCoachState(api,render,unauthorized,locale);
  doc.getElementById('learning-profile')?.append(profile);
- const refresh=button('',()=>state.load()),practice=button('',()=>state.act('message',l(3)));form.prepend(practice);actions.append(button(coachChatLabel('profile',locale()),()=>account('de')));
+ const refresh=button('',()=>state.load()),quick=el('div',undefined,'coach-quick');form.prepend(quick);actions.append(button(coachChatLabel('profile',locale()),()=>account('de')));
  const jump=button('',()=>{messages.scrollTop=messages.scrollHeight;checkSeen();});jump.className='coach-jump';host.insertBefore(jump,status);
  let hydrated=false,known=new Set(),entered=false;const seeing=new Set(),arriving=new Set();
  messages.addEventListener('animationend',e=>{if(e.animationName==='coach-enter'&&e.target.dataset.turn){arriving.delete(e.target.dataset.turn);e.target.classList.remove('coach-arrival');}});
@@ -62,8 +62,9 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  form.onsubmit=async e=>{e.preventDefault();const draft=input.value;if(!draft.trim())return;const success=await state.act('message',draft);if(success&&input.value===draft){input.value='';grow();}input.focus();};
  const grow=()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';};input.oninput=grow;
  function render(){
-  summary.textContent=l(8);refresh.textContent=l(11);practice.textContent=coachPracticeText(locale());input.placeholder=l(1);input.setAttribute('aria-label',l(1));send.textContent=l(2);
-  input.disabled=!state.signedIn;send.disabled=practice.disabled=!state.signedIn||state.busy;refresh.disabled=!state.signedIn||state.busy;
+  summary.textContent=l(8);refresh.textContent=l(11);input.placeholder=l(1);input.setAttribute('aria-label',l(1));send.textContent=l(2);
+  input.disabled=!state.signedIn;send.disabled=!state.signedIn||state.busy;
+  quick.replaceChildren(...coachQuickActions(state.value).slice(0,3).map(a=>{const b=button(coachQuickLabel(a.action,locale()),async()=>{const ok=await state.act(a.action,a.action==='reveal'?'source':coachQuickLabel(a.action,locale()),a.turn_id);if(ok&&a.action==='reveal'){const row=[...messages.querySelectorAll('[data-turn]')].find(r=>r.dataset.turn===a.turn_id);row?.querySelector('details:not(.coach-secondary)')?.setAttribute('open','');}});b.disabled=!state.signedIn||state.busy;return b;}));refresh.disabled=!state.signedIn||state.busy;
   status.textContent=state.error?ct('coach.error.'+state.error,locale()):'';
   const next=JSON.stringify([state.value,state.busy,state.pendingID,state.signedIn,locale()]);if(next===signature)return;signature=next;
   const active=doc.activeElement, focusedTurn=active?.closest?.('[data-turn]')?.dataset.turn, selection=focusedTurn&&active.tagName==='INPUT'?[active.selectionStart,active.selectionEnd]:null;
@@ -80,7 +81,6 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
    if(coachShowsInstruction(turn))bubble.append(el('p',turn.message));
    if(turn.state==='pending'){bubble.append(el('p',l(18)),button(l(7),()=>state.act('cancel','',turn.id)));}
    if(turn.state==='failed'||turn.state==='canceled')bubble.append(el('p',l(turn.state==='failed'?19:20)));
-   if(turn.is_offer){const offer=button(coachPracticeText(locale()),()=>state.act('message',l(3)));offer.disabled=state.busy;bubble.append(offer);}
    if(turn.kind&&!['clarification','nudge'].includes(turn.kind)){
     const card=el('section',undefined,'coach-exercise');card.setAttribute('aria-label',target(turn.target));card.append(el('p',turn.prompt,'coach-prompt'));
     if(!turn.attempt){
@@ -107,7 +107,7 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
    if(turn.source_id){
     if(turn.quote&&turn.source_reveals){const details=el('details'),label=el('summary',ct(turn.attempt?'coach.source':'coach.hint',locale()));label.onclick=e=>{if(!e.currentTarget.parentElement.open)void state.act('reveal','source',turn.id);};details.append(label,el('blockquote',turn.quote));if(!turn.attempt&&turn.explanation)details.append(el('p',turn.explanation));
      const href=coachSourceLink(turn.source_id);if(href){const link=el('a',ct(turn.source_id.startsWith('translation:')?'coach.savedTranslation':'coach.savedPassage',locale()));link.href=href;link.dataset.coachSource=turn.id;link.onclick=e=>{if(e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();returnSource=turn.id;globalThis.history.pushState({},'',href);globalThis.dispatchEvent(new PopStateEvent('popstate'));};details.append(link);}bubble.append(details);}
-    else{const reveal=button(ct(turn.attempt?'coach.source':'coach.hint',locale()),async()=>{if(await state.act('reveal','source',turn.id)){const row=[...messages.querySelectorAll('[data-turn]')].find(r=>r.dataset.turn===turn.id);row?.querySelector('details:not(.coach-secondary)')?.setAttribute('open','');}});reveal.disabled=state.busy;bubble.append(reveal);}
+    else if(turn.attempt||!coachQuickActions(state.value).some(a=>a.action==='reveal'&&a.turn_id===turn.id)){const reveal=button(ct(turn.attempt?'coach.source':'coach.hint',locale()),async()=>{if(await state.act('reveal','source',turn.id)){const row=[...messages.querySelectorAll('[data-turn]')].find(r=>r.dataset.turn===turn.id);row?.querySelector('details:not(.coach-secondary)')?.setAttribute('open','');}});reveal.disabled=state.busy;bubble.append(reveal);}
    }
    nextMessages.append(bubble);
   }

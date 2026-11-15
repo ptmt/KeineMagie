@@ -9,6 +9,10 @@ import (
 
 func TestCoachChatHTTPConcurrentOwnerAndStorage(t *testing.T) {
 	f := newAssessmentFixture(t)
+	// A free entry offer applies only when there is no unfinished exercise.
+	if e := f.cfg.coachStore(f.owner).transaction(true, func(d *coachData) error { d.Turns = nil; return nil }); e != nil {
+		t.Fatal(e)
+	}
 	var wg sync.WaitGroup
 	for i := 0; i < 12; i++ {
 		wg.Add(1)

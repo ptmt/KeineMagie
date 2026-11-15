@@ -1,3 +1,5 @@
+export const coachQuickLabel=(action,locale)=>({practice:{en:'30 seconds',ru:'30 секунд',de:'30 Sekunden',es:'30 segundos',fr:'30 secondes'},more:{en:'More',ru:'Ещё',de:'Noch eins',es:'Otro',fr:'Encore'},explain:{en:'Explain',ru:'Объясни',de:'Erklären',es:'Explicar',fr:'Expliquer'},progress:{en:'My progress',ru:'Мой прогресс',de:'Mein Fortschritt',es:'Mi progreso',fr:'Mes progrès'},reveal:{en:'Hint',ru:'Подсказка',de:'Hinweis',es:'Pista',fr:'Indice'}}[action]?.[locale]||action);
+export const coachQuickActions=snapshot=>snapshot?.actions??(!snapshot?.turns?.length?[{action:'practice',turn_id:''}]:[]);
 export const coachPracticeText=locale=>({en:'30 seconds',ru:'30 секунд',de:'30 Sekunden',es:'30 segundos',fr:'30 secondes'}[locale]||'30 seconds');
 export const coachMasksAnswer=(turn,turns)=>!!turn.attempt&&turn.id!==turns.at(-1)?.id&&!turn.answer_reveals;
 export const coachUnread=turn=>turn.state==='completed'&&!!turn.message_version&&turn.message_version!==turn.seen_version;

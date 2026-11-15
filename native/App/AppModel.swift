@@ -145,7 +145,7 @@ final class AppModel {
         }
         if action == "cancel" { coachTask?.cancel() }
         coachBusy = true; coachError = nil
-        coachPendingID = ["message", "answer", "recheck"].contains(action) ? input.requestID : nil
+        coachPendingID = ["message", "practice", "more", "explain", "progress", "answer", "recheck"].contains(action) ? input.requestID : nil
         if ["answer", "recheck"].contains(action) { coach = coach?.pendingAssessment(input) }
         coachTask = Task { [self] in
             defer { if epoch == coachEpoch { coachBusy = false; coachPendingID = nil; coachTask = nil } }

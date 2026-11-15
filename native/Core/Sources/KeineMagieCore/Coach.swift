@@ -43,7 +43,7 @@ extension CoachTurn {
     public var isUnread: Bool { state == "completed" && messageVersion != nil && messageVersion != seenVersion }
     public func masksAnswer(latestID: String?) -> Bool { attempt != nil && id != latestID && (answerReveals ?? 0) == 0 }
     public var showsInstruction: Bool {
-        guard let message, !message.isEmpty else { return false }
+        guard attempt == nil, let message, !message.isEmpty else { return false }
         guard ["cloze", "preposition_case"].contains(kind ?? ""), prompt?.contains("___") == true else { return true }
         let generic = #"^(fill in (the )?missing (preposition|word)|ergänze (die fehlende präposition|den satz)|вставьте пропущенн(ый предлог|ое слово)|completa la preposición que falta|complète la préposition manquante)[.!]?$"#
         return message.trimmingCharacters(in: .whitespacesAndNewlines).range(of: generic, options: [.regularExpression, .caseInsensitive]) == nil
@@ -55,9 +55,15 @@ public struct CoachObservation: Codable, Sendable, Identifiable {
     public let correct: Int; public let needsPractice: Int; public let assisted: Int; public let confidence: String; public let lastAt: String
     enum CodingKeys: String, CodingKey { case target, language, count, distinctExamples = "distinct_examples", correct, needsPractice = "needs_practice", assisted, confidence, lastAt = "last_at" }
 }
+public struct CoachQuickAction: Codable, Sendable {
+    public let action: String; public let turnID: String
+    enum CodingKeys: String, CodingKey { case action, turnID = "turn_id" }
+}
 public struct CoachSnapshot: Codable, Sendable {
+    public var actions: [CoachQuickAction]? = nil
+    public var quickActions: [CoachQuickAction] { actions ?? (turns.isEmpty ? [CoachQuickAction(action: "practice", turnID: "")] : []) }
     public var turns: [CoachTurn]; public let observations: [CoachObservation]; public let model: String; public let resetAt: String?
-    enum CodingKeys: String, CodingKey { case turns, observations, model, resetAt = "reset_at" }
+    enum CodingKeys: String, CodingKey { case actions, turns, observations, model, resetAt = "reset_at" }
 }
 extension CoachSnapshot {
     /// Local display/cache only. Server assessment remains authoritative.

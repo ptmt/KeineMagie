@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -32,7 +33,7 @@ func TestCoachWireExport(t *testing.T) {
 		if e := json.Unmarshal(w.Body.Bytes(), &value); e != nil {
 			t.Fatal(e)
 		}
-		for _, key := range []string{"turns", "observations"} {
+		for _, key := range []string{"actions", "turns", "observations"} {
 			if string(value[key]) == "null" || value[key] == nil {
 				t.Fatal("null Coach array", key)
 			}
@@ -76,7 +77,14 @@ func TestCoachWireExport(t *testing.T) {
 		t.Fatal(w.Code)
 	}
 	save("reset")
-	if f.calls.Load() != 1 {
+	f.reply = func(*http.Request) (string, error) {
+		return accountTranslationSSE(`{"message":"Synthetic progress: one retained translation; dictation unavailable."}`, true, "response.completed"), nil
+	}
+	if w := f.call(coachInput{Action: "progress", RequestID: "progress-wire", Locale: "en"}); w.Code != 200 {
+		t.Fatal(w.Code)
+	}
+	save("progress")
+	if f.calls.Load() != 2 {
 		t.Fatal("GET inferred")
 	}
 }

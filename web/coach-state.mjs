@@ -21,7 +21,7 @@ export function createCoachState(api,changed,unauthorized,locale){
   if(!owner||(state.busy&&action!=='cancel'))return false;
   const version=++epoch,request_id=crypto.randomUUID(),cancel=action==='cancel';read=null;
   if(cancel){controller?.abort();state.busy=true;state.pendingID=null;}
-  if(!cancel){state.busy=true;controller=new AbortController();if(['message','answer','recheck'].includes(action))state.pendingID=request_id;}
+  if(!cancel){state.busy=true;controller=new AbortController();if(['message','practice','more','explain','progress','answer','recheck'].includes(action))state.pendingID=request_id;}
   if(['answer','recheck'].includes(action)&&state.value){
    state.value={...state.value,turns:state.value.turns.map(t=>t.id!==turn_id?t:{...t,attempt:{id:request_id,answer:action==='answer'?text:t.attempt.answer,assisted:action==='answer'?!!t.assisted:!!t.attempt.assisted,outcome:'ambiguous',assessment_state:'pending'}})};
   }

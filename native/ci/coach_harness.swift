@@ -273,8 +273,8 @@ extension CoachGate {
     defer { try? FileManager.default.removeItem(at: root) }
     let gate = CoachGate(); let model = try await gate.model(root)
     await model.loadCoach(); model.coachDraft = "30 seconds"; gate.hold = true
-    model.sendCoach("message", text: "30 seconds", preserveDraft: true)
-    model.sendCoach("message", text: "30 seconds", preserveDraft: true)
+    model.sendCoach("progress", text: "My progress", preserveDraft: true)
+    model.sendCoach("progress", text: "My progress", preserveDraft: true)
     #expect(model.coachBusy)
     while gate.replies.isEmpty { await Task.yield() }
     #expect(gate.actions.count == 1)

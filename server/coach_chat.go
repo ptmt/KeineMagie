@@ -35,7 +35,7 @@ func coachChatMutation(d *coachData, in coachInput, now time.Time) error {
 				eligible = false
 			}
 		}
-		if eligible && len(d.Turns) < 250 {
+		if eligible && coachActive(d) == nil && len(d.Turns) < 250 {
 			offers := map[string]string{"en": "Have 30 seconds?", "ru": "Есть 30 секунд?", "de": "Hast du 30 Sekunden?", "es": "¿Tienes 30 segundos?", "fr": "Tu as 30 secondes ?"}
 			message := offers[in.Locale]
 			if message == "" {

@@ -36,8 +36,12 @@ class LocalizationTests(unittest.TestCase):
                     continue
                 self.assertIn(key, keys, (path.name, key))
         for path in (NATIVE / 'App').glob('*.swift'):
-            for key in re.findall(r'AppL10n\.text\("([^"]+)"', path.read_text()):
+            for key in re.findall(r'AppL10n\.text\("([^"]+)"(?!\s*\+)', path.read_text()):
                 self.assertIn(key, keys, (path.name, key))
+            # Dynamic action labels use a closed server action vocabulary.
+            if '"coach.quick." + action.action' in path.read_text():
+                for action in ['practice', 'more', 'explain', 'progress', 'reveal']:
+                    self.assertIn('coach.quick.' + action, keys, (path.name, action))
         for key, entry in catalog['strings'].items():
             self.assertEqual(set(entry['localizations']), LOCALES, key)
             baseline = entry['localizations']['de']['stringUnit']['value']
