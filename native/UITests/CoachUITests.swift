@@ -160,6 +160,43 @@ final class CoachUITests: XCTestCase {
         XCTAssertEqual(composer.value as? String, "keep this draft")
         shot(app, "coach-background-draft")
     }
+    @MainActor func testAccessibilityReadingOrderAndLabels() {
+        let app = launch()
+        XCTAssertTrue(app.textFields["coach-answer-synthetic-coach"].waitForExistence(timeout: 8))
+        let snapshot = app.debugDescription
+        let expected = ["Ich warte ___ den Bus.", "coach-answer-synthetic-coach", "coach-check-synthetic-coach", "label: 'Skip'", "label: 'Hint'", "coach-practice", "coach-composer", "coach-send"]
+        var previous = snapshot.startIndex
+        for key in expected {
+            guard let range = snapshot.range(of: key, range: previous..<snapshot.endIndex) else { XCTFail("Missing/out-of-order accessible element: \(key)"); continue }
+            previous = range.upperBound
+        }
+        XCTAssertEqual(app.textFields["coach-answer-synthetic-coach"].label, "Answer")
+        XCTAssertEqual(app.textFields["coach-composer"].label, "Message")
+        XCTAssertEqual(app.buttons["coach-send"].label, "Send")
+        let tree = XCTAttachment(string: snapshot); tree.name = "coach-accessibility-tree"; tree.lifetime = .keepAlways; add(tree)
+        shot(app, "coach-accessibility-order")
+    }
+    @MainActor private func arrival(reduced: Bool) {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-arrival"
+        if reduced { app.launchEnvironment["KM_SIMULATOR_COACH_REDUCE_MOTION"] = "1" }
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch(); XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic exercise, not live AI."].waitForExistence(timeout: 8))
+        shot(app, reduced ? "coach-reduced-initial" : "coach-motion-initial")
+        sleep(2)
+        app.buttons["coach-practice"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic clarification, not live AI."].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["New messages"].waitForNonExistence(timeout: 8))
+        sleep(2)
+        shot(app, reduced ? "coach-reduced-arrived-seen" : "coach-motion-arrived-seen")
+        if reduced { XCTAssertEqual(app.buttons["coach-practice"].value as? String, "static;system=false;injected=true") }
+        app.tabBars.buttons["Translator"].tap(); app.tabBars.buttons["Coach"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic clarification, not live AI."].waitForExistence(timeout: 8))
+        shot(app, reduced ? "coach-reduced-return" : "coach-motion-return")
+    }
+    @MainActor func testArrivalSurvivesImmediateSeenReceipt() { arrival(reduced: false) }
+    @MainActor func testReducedMotionUsesStaticProductionBranch() { arrival(reduced: true) }
     @MainActor func testDarkAccessibilityChatAndProfile() {
         let app = launch(large: true)
         XCTAssertTrue(app.staticTexts["Synthetic exercise, not live AI."].waitForExistence(timeout: 8))

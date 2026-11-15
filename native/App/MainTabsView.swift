@@ -17,6 +17,12 @@ struct MainTabsView: View {
             PodcastLibraryView(showAdd: $showPodcastAdd)
                 .tabItem { Label("feature.podcasts", systemImage: "headphones") }.tag("podcasts")
             CoachView()
+                .transformEnvironment(\.coachReduceMotionOverride) { value in
+                    #if targetEnvironment(simulator)
+                    if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] == "coach-arrival",
+                       ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_REDUCE_MOTION"] == "1" { value = true }
+                    #endif
+                }
                 .tabItem { Label("feature.coach", systemImage: "bubble.left.and.bubble.right") }.tag("coach")
         }
         .task(id: "\(model.session.generation)-\(model.session.canWrite)") { await model.warmData() }

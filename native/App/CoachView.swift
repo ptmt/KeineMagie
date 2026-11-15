@@ -1,6 +1,14 @@
 import SwiftUI
 import KeineMagieCore
 
+private struct CoachReduceMotionOverride: EnvironmentKey { static let defaultValue = false }
+extension EnvironmentValues {
+    var coachReduceMotionOverride: Bool {
+        get { self[CoachReduceMotionOverride.self] }
+        set { self[CoachReduceMotionOverride.self] = newValue }
+    }
+}
+
 struct CoachView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var nearBottom = true
@@ -9,9 +17,19 @@ struct CoachView: View {
     @State private var presented = false
     @State private var viewport = CGRect.zero
     @Environment(AppModel.self) private var model
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.coachReduceMotionOverride) private var reduceMotionOverride
+    private var reduceMotion: Bool { systemReduceMotion || reduceMotionOverride }
 
     @FocusState private var composerFocused: Bool
+    private var motionContract: String {
+        #if targetEnvironment(simulator)
+        if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] == "coach-arrival" {
+            return "\(reduceMotion ? "static" : "animated");system=\(UIAccessibility.isReduceMotionEnabled);injected=\(ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_REDUCE_MOTION"] == "1")"
+        }
+        #endif
+        return ""
+    }
     var body: some View {
         @Bindable var model = model
         ScrollViewReader { proxy in
@@ -54,6 +72,7 @@ struct CoachView: View {
                     HStack {
                         Button("coach.quickPractice") { model.sendCoach("message", text: AppL10n.text("coach.practice"), preserveDraft: true) }
                             .font(.subheadline).disabled(!model.session.canWrite || model.coachBusy).accessibilityIdentifier("coach-practice")
+                            .accessibilityValue(motionContract)
                         Spacer()
                         if model.coach?.turns.contains(where: \.isUnread) == true {
                             Button { proxy.scrollTo("coach-bottom", anchor: .bottom) } label: { Image(systemName: "arrow.down.circle").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("coach.newMessages")
@@ -64,13 +83,15 @@ struct CoachView: View {
                         .lineLimit(1...5).focused($composerFocused)
                         .padding(12).background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 16))
                         .accessibilityIdentifier("coach-composer")
+                        .accessibilityLabel("coach.message")
+                        .accessibilitySortPriority(1)
                     Button {
                         model.sendCoach("message", text: model.coachDraft)
                         composerFocused = false
                     } label: { Image(systemName: "arrow.up.circle.fill").font(.title).frame(minWidth: 44, minHeight: 44) }
                         .accessibilityLabel("coach.send").accessibilityIdentifier("coach-send")
                         .disabled(!model.session.canWrite || model.coachBusy || model.coachDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.coachDraft.unicodeScalars.count > 2000)
-                    }
+                    }.accessibilityElement(children: .contain)
                 }.padding(.horizontal).padding(.vertical, 8).background(.bar)
             }
             .onChange(of: model.coach?.turns.count) { old, new in
@@ -103,7 +124,9 @@ struct CoachView: View {
 
 private struct CoachTurnView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.coachReduceMotionOverride) private var reduceMotionOverride
+    private var reduceMotion: Bool { systemReduceMotion || reduceMotionOverride }
     let turn: CoachTurn
     @State private var answer = ""
     @State private var sourceOpen = false
@@ -143,6 +166,7 @@ private struct CoachTurnView: View {
                     } else {
                         TextField("coach.answer", text: $answer, axis: .vertical).lineLimit(1...4).textFieldStyle(.roundedBorder)
                             .accessibilityIdentifier("coach-answer-" + turn.id)
+                            .accessibilityLabel("coach.answer")
                         ViewThatFits(in: .horizontal) {
                             HStack { answerButtons }
                             VStack(alignment: .leading) { answerButtons }

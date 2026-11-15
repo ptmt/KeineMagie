@@ -628,6 +628,7 @@ import KeineMagieCore
  init(model: AppModel) { self.model = model }
  func clear() { cleared = true; record = nil; items = [] }
 ''' + resolver + '}')
+        (p/'Tests/LifecycleTests/CoachTwoClientTests.swift').write_text((ROOT/'ci/coach_two_client_harness.swift').read_text())
         subprocess.run(['swift','test','--package-path',temp],check=True)
 
 class ConnectionLifecycleTests(unittest.TestCase):

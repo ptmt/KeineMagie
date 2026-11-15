@@ -16,6 +16,7 @@ actor SimulatorSessionFixture {
     private var coachRevealed = false
     private var coachAnswerReveals = 0
     private var coachSeenVersion = ""
+    private var coachArrivalSeenVersion = ""
     private var coachEntryCount = 0
     private var validations = 0
     private var profileLevels: [String: String] = [:]
@@ -150,7 +151,7 @@ actor SimulatorSessionFixture {
                 }
                 if action.action == "cancel" { coachPending = false; coachCanceled = true }
                 if action.action == "reveal" { if action.text == "answer" { coachAnswerReveals += 1 } else { coachRevealed = true } }
-                if action.action == "seen" { coachSeenVersion = action.text }
+                if action.action == "seen" { if action.turnID == "synthetic-clarification" { coachArrivalSeenVersion = action.text } else { coachSeenVersion = action.text } }
                 if action.action == "message" { if action.text == "pending" { coachPending = true } else { coachClarified = true } }
             }
             var turn: [String: Any] = ["id": "synthetic-coach", "text": "Practice · synthetic fixture", "state": "completed", "at": "2026-11-13T12:00:00Z", "assisted": coachRevealed, "language": "de", "message": "Synthetic exercise, not live AI.", "kind": "cloze", "prompt": "Ich warte ___ den Bus.", "target": "verb_government", "source_id": "translation:synthetic"]
@@ -174,6 +175,11 @@ actor SimulatorSessionFixture {
                 turns = (0..<24).map { index in
                     ["id": "synthetic-row-\(index)", "text": "", "state": "completed", "at": "now", "assisted": false, "language": "de", "kind": "clarification", "message": "Synthetic saved message \(index).\n" + String(repeating: "Saved practice context. ", count: 6), "message_version": "row-\(index)", "seen_version": index == 23 ? coachSeenVersion : "row-\(index)"] as [String: Any]
                 }
+            }
+            if mode == "coach-arrival", turns.count > 1 {
+                turns[1]["text"] = ""
+                turns[1]["message_version"] = "synthetic-clarification:completed"
+                turns[1]["seen_version"] = coachArrivalSeenVersion
             }
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["turns": turns, "observations": [], "model": "gpt-6.1-terra"]), status: 200)
         }
