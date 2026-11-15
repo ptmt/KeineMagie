@@ -19,7 +19,7 @@ public final class ContentCacheSession: @unchecked Sendable {
 
 /// Non-secret personal content only. Credentials never enter this store.
 public actor ContentCache {
-    private let root: URL
+    private nonisolated let root: URL
     private nonisolated let fence = CacheFence()
     private var revisions: [String: (UUID, Int)] = [:]
     public init(root: URL = URL.applicationSupportDirectory.appendingPathComponent("ContentCache", isDirectory: true)) { self.root = root }
@@ -41,24 +41,39 @@ public actor ContentCache {
     public func remove(session: ContentCacheSession) throws {
         try fence.lock.withLock {
             guard fence.current[session.scope] == session.id else { return }
-            for dataset in ["history", "podcasts", "learning", "coach"] {
+            for dataset in ["history", "podcasts", "learning", "coach", "dictation"] {
                 let url = path(dataset: dataset, server: session.server, owner: session.owner)
                 if FileManager.default.fileExists(atPath: url.path) { try FileManager.default.removeItem(at: url) }
                 revisions[session.scope + "\u{0}" + dataset] = nil
             }
         }
     }
-    private func path(dataset: String, server: String, owner: String) -> URL {
+    private nonisolated func path(dataset: String, server: String, owner: String) -> URL {
         let key = Data((server + "\u{0}" + owner + "\u{0}" + dataset).utf8)
         let digest = SHA256.hash(data: key).map { String(format: "%02x", $0) }.joined()
         return root.appendingPathComponent(digest + ".json")
+    }
+    /// Synchronous small journal writes close the debounce/termination loss window.
+    /// Caller is the session-owned MainActor store; the same lease lock fences logout.
+    public nonisolated func saveImmediately(_ data: Data, dataset: String, session: ContentCacheSession) throws {
+        try fence.lock.withLock {
+            guard session.active, fence.current[session.scope] == session.id else { throw CancellationError() }
+            try save(data, dataset: dataset, server: session.server, owner: session.owner)
+        }
+    }
+    public nonisolated func loadImmediately(dataset: String, server: String, owner: String) throws -> Data? {
+        try fence.lock.withLock {
+            let url = path(dataset: dataset, server: server, owner: owner)
+            guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+            return try Data(contentsOf: url)
+        }
     }
     public func load(dataset: String, server: String, owner: String) throws -> Data? {
         let url = path(dataset: dataset, server: server, owner: owner)
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
         return try Data(contentsOf: url)
     }
-    public func save(_ data: Data, dataset: String, server: String, owner: String) throws {
+    public nonisolated func save(_ data: Data, dataset: String, server: String, owner: String) throws {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         var directory = root
         var values = URLResourceValues(); values.isExcludedFromBackup = true

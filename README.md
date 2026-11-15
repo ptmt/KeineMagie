@@ -8,7 +8,8 @@ Native iOS app for learning German, with a Go backend. Product specification: [d
 - `server/`: authenticated translation/history and durable owner-scoped podcast jobs. Recognition runs in an isolated private Linux worker with no provider credentials; translation remains under the owner's backend provider connection.
 - `web/`: translator with stable initial layout, named style shortcuts, personal history, direct Apple web sign-in and optional iPhone pairing. Authenticated podcast library supports subscriptions, explicit episode preparation, job actions and timestamped transcripts through the existing owner-scoped API; see [web podcasts and verification limits](docs/WEB-PODCASTS.md). Guest controls fail closed.
 - Native and web Coach use saved owner sources and contextual personal `gpt-6.1-terra` assessments, with no fallback. Native translation recovery is durable, compact and GET-only for uncertain receipts. See [combined release verification](docs/COACH-QUIET-GEOMETRY-RELEASE.md).
-- Dictation and the full shadowing learning loop remain planned. No pending Diktat/OpenAI TTS candidate is included. Share-extension source is opt-in only and **not shipped**: app + extension App Group profiles and signing integration are still required.
+- Full shadowing remains planned. Share-extension source is opt-in only and **not shipped**: app + extension App Group profiles and signing integration are still required.
+- Diktat is implemented on web and iOS: private German texts, whole/guided cached playback, durable drafts/attempts and deterministic checking. Server-only OpenAI Realtime uses `gpt-realtime-2.1-mini` / `marin`, explicit Prepare, no fallback and conservative USD 10/month admission. See [release evidence and limits](docs/DICTATION-RELEASE.md); physical-device listening and Apple processing are separate verification gates.
 - Legacy Expo sources remain in Git history.
 
 ## Start here

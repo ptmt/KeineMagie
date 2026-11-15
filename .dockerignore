@@ -10,5 +10,8 @@ native
 **/*.log
 spikes
 server/podcast-worker/models
+server/dictation-tts
+**/*secret*
+**/*.key
 **/__pycache__
 **/*.pyc

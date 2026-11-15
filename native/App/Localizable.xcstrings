@@ -1,6 +1,2316 @@
 {
   "sourceLanguage": "de",
   "strings" : {
+  "Add text": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Text hinzufügen"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Add text"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Añadir texto"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Ajouter un texte"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Добавить текст"
+      }
+    }
+  }
+},
+  "Audio unavailable. Prepare it, then tap Play.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Audio nicht verfügbar. Bereite es vor, dann tippe auf Abspielen."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Audio unavailable. Prepare it, then tap Play."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Audio no disponible. Prepáralo y pulsa Reproducir."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Audio indisponible. Prépare-le puis appuie sur Écouter."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Аудио недоступно. Подготовьте его и нажмите «Слушать»."
+      }
+    }
+  }
+},
+  "By sentences": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Satz für Satz"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "By sentences"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Por frases"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Par phrases"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "По предложениям"
+      }
+    }
+  }
+},
+  "Cancel": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Abbrechen"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Cancel"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Cancelar"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Annuler"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Отменить"
+      }
+    }
+  }
+},
+  "Cancel preparation": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Vorbereitung abbrechen"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Cancel preparation"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Cancelar preparación"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Annuler la préparation"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Отменить подготовку"
+      }
+    }
+  }
+},
+  "Check": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Prüfen"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Check"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Comprobar"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Vérifier"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Проверить"
+      }
+    }
+  }
+},
+  "Checked": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Geprüft"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Checked"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Comprobado"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Vérifié"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Проверено"
+      }
+    }
+  }
+},
+  "Could not complete. Check your connection or speech-engine availability, then retry.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Nicht abgeschlossen. Prüfe Verbindung und Sprachdienst, dann versuche es erneut."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Could not complete. Check your connection or speech-engine availability, then retry."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "No se pudo completar. Revisa la conexión y el motor de voz."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Échec. Vérifie la connexion et la disponibilité du moteur vocal."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Не удалось завершить. Проверьте подключение и доступность синтеза речи."
+      }
+    }
+  }
+},
+  "Could not save. Retry.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Speichern fehlgeschlagen. Erneut versuchen."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Could not save. Retry."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "No se pudo guardar. Reintenta."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Échec de l’enregistrement. Réessaie."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Не удалось сохранить. Повторите."
+      }
+    }
+  }
+},
+  "Delete attempt": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Versuch löschen"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Delete attempt"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Eliminar intento"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Supprimer l’essai"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Удалить попытку"
+      }
+    }
+  }
+},
+  "Delete this attempt and its draft?": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Diesen Versuch und seinen Entwurf löschen?"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Delete this attempt and its draft?"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "¿Eliminar este intento y su borrador?"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Supprimer cet essai et son brouillon ?"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Удалить эту попытку и её черновик?"
+      }
+    }
+  }
+},
+  "Deleted on another device · draft saved locally": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Auf anderem Gerät gelöscht · Entwurf lokal gesichert"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Deleted on another device · draft saved locally"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Eliminado en otro dispositivo · borrador guardado localmente"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Supprimé sur un autre appareil · brouillon enregistré localement"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Удалено на другом устройстве · черновик сохранён локально"
+      }
+    }
+  }
+},
+  "Diktat": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Diktat"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Dictation"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Dictado"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Dictée"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Диктант"
+      }
+    }
+  }
+},
+  "Draft conflict": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Entwurfskonflikt"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Draft conflict"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Conflicto de borradores"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Conflit de brouillons"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Конфликт черновиков"
+      }
+    }
+  }
+},
+  "Exact text comparison, not a language-level assessment.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Genauer Textvergleich, keine Bewertung des Sprachniveaus."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Exact text comparison, not a language-level assessment."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Comparación exacta, no evaluación del nivel de idioma."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Comparaison exacte, pas une évaluation du niveau de langue."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Точное сравнение текстов, а не оценка уровня языка."
+      }
+    }
+  }
+},
+  "Export draft": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Entwurf exportieren"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Export draft"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Exportar borrador"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Exporter le brouillon"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Экспортировать черновик"
+      }
+    }
+  }
+},
+  "German · up to 1800 characters / 300 words. Computer-generated voice.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Deutsch · bis zu 1800 Zeichen / 300 Wörter. Computergenerierte Stimme."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "German · up to 1800 characters / 300 words. Computer-generated voice."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Alemán · hasta 1800 caracteres / 300 palabras. Voz sintetizada."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Allemand · 1800 caractères / 300 mots maximum. Voix de synthèse."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Немецкий · до 1800 символов / 300 слов. Синтезированный голос."
+      }
+    }
+  }
+},
+  "History": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Verlauf"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "History"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Historial"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Historique"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "История"
+      }
+    }
+  }
+},
+  "In progress": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "In Bearbeitung"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "In progress"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "En curso"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "En cours"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "В процессе"
+      }
+    }
+  }
+},
+  "Listen": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Anhören"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Listen"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Escuchar"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Écouter"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Слушать"
+      }
+    }
+  }
+},
+  "Listen to the sentence": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Höre den Satz"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Listen to the sentence"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Escucha la frase"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Écoute la phrase"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Прослушайте предложение"
+      }
+    }
+  }
+},
+  "Listen to the sentence again": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Höre den Satz noch einmal"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Listen to the sentence again"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Escucha la frase otra vez"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Réécoute la phrase"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Прослушайте предложение ещё раз"
+      }
+    }
+  }
+},
+  "Listen to the whole text": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Höre den ganzen Text"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Listen to the whole text"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Escucha el texto completo"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Écoute le texte entier"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Прослушайте весь текст"
+      }
+    }
+  }
+},
+  "Listen to this part": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Höre diesen Abschnitt"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Listen to this part"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Escucha esta parte"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Écoute cette partie"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Прослушайте эту часть"
+      }
+    }
+  }
+},
+  "Loading…": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Wird geladen…"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Loading…"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Cargando…"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Chargement…"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Загрузка…"
+      }
+    }
+  }
+},
+  "Matches the original.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Entspricht dem Original."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Matches the original."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Coincide con el original."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Correspond à l’original."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Совпадает с оригиналом."
+      }
+    }
+  }
+},
+  "Mode": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Modus"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Mode"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Modo"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Mode"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Режим"
+      }
+    }
+  }
+},
+  "New attempt": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Neuer Versuch"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "New attempt"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Nuevo intento"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Nouvel essai"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Новая попытка"
+      }
+    }
+  }
+},
+  "Next": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Weiter"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Next"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Siguiente"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Suivant"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Далее"
+      }
+    }
+  }
+},
+  "No dictations yet.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Noch keine Diktate."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "No dictations yet."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Aún no hay dictados."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Pas encore de dictées."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Диктантов пока нет."
+      }
+    }
+  }
+},
+  "Not saved. Retry before leaving.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Nicht gespeichert. Vor dem Verlassen erneut versuchen."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Not saved. Retry before leaving."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Sin guardar. Reintenta antes de salir."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Non enregistré. Réessaie avant de quitter."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Не сохранено. Повторите перед выходом."
+      }
+    }
+  }
+},
+  "Optional final reading": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Optionales abschließendes Vorlesen"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Optional final reading"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Lectura final opcional"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Dernière lecture facultative"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Последнее чтение — по желанию"
+      }
+    }
+  }
+},
+  "Original": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Original"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Original"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Original"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Original"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Оригинал"
+      }
+    }
+  }
+},
+  "Original text": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Originaltext"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Original text"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Texto original"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Texte original"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Исходный текст"
+      }
+    }
+  }
+},
+  "Pause": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Pause"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Pause"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Pausa"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Pause"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Пауза"
+      }
+    }
+  }
+},
+  "Play / repeat": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Abspielen / wiederholen"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Play / repeat"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Reproducir / repetir"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Écouter / répéter"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Слушать / повторить"
+      }
+    }
+  }
+},
+  "Playback did not start. Tap Play again.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Wiedergabe nicht gestartet. Tippe erneut auf Abspielen."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Playback did not start. Tap Play again."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "No se inició el audio. Pulsa Reproducir otra vez."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "La lecture n’a pas démarré. Appuie à nouveau sur Écouter."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Воспроизведение не началось. Нажмите ещё раз."
+      }
+    }
+  }
+},
+  "Playback speed": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Wiedergabegeschwindigkeit"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Playback speed"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Velocidad de reproducción"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Vitesse de lecture"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Скорость воспроизведения"
+      }
+    }
+  }
+},
+  "Prepare audio": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Audio vorbereiten"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Prepare audio"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Preparar audio"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Préparer l’audio"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Подготовить аудио"
+      }
+    }
+  }
+},
+  "Rebase my draft": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Meinen Entwurf übernehmen"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Rebase my draft"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Aplicar mi borrador"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Appliquer mon brouillon"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Применить мой черновик"
+      }
+    }
+  }
+},
+  "Refresh": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Aktualisieren"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Refresh"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Actualizar"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Actualiser"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Обновить"
+      }
+    }
+  }
+},
+  "Save": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Speichern"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Save"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Guardar"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Enregistrer"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Сохранить"
+      }
+    }
+  }
+},
+  "Save text": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Text speichern"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Save text"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Guardar texto"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Enregistrer le texte"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Сохранить текст"
+      }
+    }
+  }
+},
+  "Server draft": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Serverentwurf"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Server draft"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Borrador del servidor"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Brouillon du serveur"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Черновик на сервере"
+      }
+    }
+  }
+},
+  "Show original · mark assisted": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Original zeigen · als unterstützt markieren"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Show original · mark assisted"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Mostrar original · marcar ayuda"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Afficher l’original · noter l’aide"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Показать оригинал · отметить помощь"
+      }
+    }
+  }
+},
+  "Sign in to use Diktat.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Melde dich für Diktat an."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Sign in to use Dictation."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Inicia sesión para usar Dictado."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Connecte-toi pour utiliser Dictée."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Войдите, чтобы писать диктанты."
+      }
+    }
+  }
+},
+  "Speed": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Tempo"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Speed"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Velocidad"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Vitesse"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Скорость"
+      }
+    }
+  }
+},
+  "Text language": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Textsprache"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Text language"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Idioma del texto"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Langue du texte"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Язык текста"
+      }
+    }
+  }
+},
+  "Title": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Titel"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Title"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Título"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Titre"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Название"
+      }
+    }
+  }
+},
+  "Use German text up to 1800 characters / 300 words and a title up to 80 characters.": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Verwende deutschen Text mit höchstens 1800 Zeichen / 300 Wörtern und einen Titel mit höchstens 80 Zeichen."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Use German text up to 1800 characters / 300 words and a title up to 80 characters."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Usa un texto alemán de hasta 1800 caracteres / 300 palabras y un título de hasta 80 caracteres."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Utilise un texte allemand de 1800 caractères / 300 mots maximum et un titre de 80 caractères maximum."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Используйте немецкий текст до 1800 символов / 300 слов и заголовок до 80 символов."
+      }
+    }
+  }
+},
+  "Use server draft": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Serverentwurf verwenden"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Use server draft"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Usar borrador del servidor"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Utiliser le brouillon du serveur"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Использовать черновик сервера"
+      }
+    }
+  }
+},
+  "What you heard": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Was du gehört hast"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "What you heard"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Lo que has oído"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Ce que tu as entendu"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Что вы услышали"
+      }
+    }
+  }
+},
+  "Whole text": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Ganzer Text"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Whole text"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Texto completo"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Texte entier"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Весь текст"
+      }
+    }
+  }
+},
+  "With hint · assisted": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Mit Hinweis · unterstützt"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "With hint · assisted"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Con pista · con ayuda"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Avec indice · avec aide"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "С подсказкой"
+      }
+    }
+  }
+},
+  "Working…": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Wird verarbeitet…"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Working…"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Procesando…"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Traitement…"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Обработка…"
+      }
+    }
+  }
+},
+  "Write what you heard": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Schreibe, was du gehört hast"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Write what you heard"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Escribe lo que has oído"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Écris ce que tu as entendu"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Напишите, что вы услышали"
+      }
+    }
+  }
+},
+  "Your draft": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Dein Entwurf"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Your draft"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Tu borrador"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Ton brouillon"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Ваш черновик"
+      }
+    }
+  }
+},
+  "case": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Groß-/Kleinschreibung"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Letter case"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Mayúsculas/minúsculas"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Majuscules/minuscules"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Регистр"
+      }
+    }
+  }
+},
+  "conflict": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Anderes Gerät hat Änderungen gespeichert. Dein Entwurf bleibt erhalten. Nicht überschrieben."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Another device saved changes. Your draft is retained; nothing was overwritten."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Otro dispositivo guardó cambios. Tu borrador se conserva sin sobrescribir."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Un autre appareil a enregistré des modifications. Ton brouillon est conservé, sans écrasement."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Другое устройство сохранило изменения. Ваш черновик сохранён без перезаписи."
+      }
+    }
+  }
+},
+  "dictation.paid.notice": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Audio vorbereiten sendet den Text an OpenAI und verursacht API-Kosten. Gespeichertes Audio wiederholen kostet nichts zusätzlich. Abbruch und Wiederholung können erneut Kosten verursachen. KI-generierte Stimme."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Prepare audio sends the text to OpenAI and incurs API charges. Replaying saved audio makes no new paid request. Cancellation and retries may still incur charges. AI-generated voice."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Preparar audio envía el texto a OpenAI y genera cargos de API. Repetir audio guardado no crea otra solicitud de pago. Cancelar y reintentar puede generar cargos. Voz generada por IA."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Préparer l’audio envoie le texte à OpenAI et entraîne des frais d’API. Réécouter l’audio enregistré ne crée pas de requête payante. Annuler et réessayer peut entraîner des frais. Voix générée par IA."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Подготовка аудио отправляет текст в OpenAI и оплачивается через API. Повтор сохранённого аудио не создаёт платных запросов. Отмена и повторные попытки могут повлечь расходы. Голос создан ИИ."
+      }
+    }
+  }
+},
+  "extra": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Zusätzlich"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Extra"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Sobra"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "En trop"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Лишнее"
+      }
+    }
+  }
+},
+  "missing": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Fehlend"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Missing"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Falta"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Manquant"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Пропущено"
+      }
+    }
+  }
+},
+  "punctuation": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Zeichensetzung"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Punctuation"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Puntuación"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Ponctuation"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Пунктуация"
+      }
+    }
+  }
+},
+  "readings": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "{n} vollständige Lesungen · 3 empfohlen, beliebig oft wiederholen."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "{n} completed readings · 3 suggested, repeat as often as you like."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "{n} lecturas completas · se recomiendan 3; repite cuando quieras."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "{n} lectures complètes · 3 conseillées, répète à volonté."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Полных прослушиваний: {n} · рекомендуем 3, можно повторять без ограничений."
+      }
+    }
+  }
+},
+  "step": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Schritt {n} von {total} · schreibe in deinem Tempo, dann Weiter."
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Step {n} of {total} · write at your own pace, then Next."
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Paso {n} de {total} · escribe a tu ritmo y pulsa Siguiente."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Étape {n} sur {total} · écris à ton rythme, puis Suivant."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Шаг {n} из {total} · пишите в своём темпе, затем «Далее»."
+      }
+    }
+  }
+},
+  "substitution": {
+  "extractionState": "manual",
+  "localizations": {
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Ersetzt"
+      }
+    },
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Substitution"
+      }
+    },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Sustitución"
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Substitution"
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Замена"
+      }
+    }
+  }
+},
   "coach.uncertain": {
     "localizations": {
       "en": {

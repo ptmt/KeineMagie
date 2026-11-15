@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -32,6 +33,7 @@ type errorResponse struct {
 }
 
 type serverConfig struct {
+	dictationSpeech func(context.Context, dictationOpenAIConfig, string) ([]byte, error) // In-process test transport only; never environment-configurable.
 	provider        *providerService
 	authPath        string
 	appleClientID   string

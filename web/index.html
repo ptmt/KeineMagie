@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/episode.css">
   <link rel="stylesheet" href="/translator-followup.css">
   <link rel="stylesheet" href="/coach.css">
+  <link rel="stylesheet" href="/dictation.css">
   <script src="/app.mjs" type="module"></script>
 </head>
 <body>
@@ -23,7 +24,7 @@
     <a href="#translator" class="wordmark" aria-label="Keine Magie Startseite">keine<span>magie</span><span class="brand-dot" aria-hidden="true">.</span></a>
     <nav class="section-nav" aria-label="Bereiche">
       <a href="#translator" aria-current="page">Übersetzer</a>
-      <a href="#dictation" aria-disabled="true"><span>Diktat</span><small>Noch nicht verfügbar</small></a>
+      <a href="#dictation">Diktat</a>
       <a href="#podcasts">Podcasts</a>
       <a href="#coach">Coach</a>
     </nav>
@@ -62,9 +63,8 @@
       </form>
       <section id="history" class="history" aria-labelledby="history-title"><div class="section-heading"><h2 id="history-title">Verlauf</h2><button id="refresh-history" class="quiet-button" type="button" disabled>Aktualisieren</button></div><ul id="history-list" class="history-list"></ul><p id="history-status" class="muted" role="status"></p></section>
     </section>
-    <section id="dictation" class="unavailable-page" aria-labelledby="dictation-title" tabindex="-1" hidden>
+    <section id="dictation" class="dictation-page" aria-label="Diktat" tabindex="-1" hidden>
       <h1 id="dictation-title">Diktat</h1>
-      <p class="muted">Noch nicht verfügbar</p>
     </section>
     <section id="podcasts" class="podcasts-page" aria-labelledby="podcasts-title" tabindex="-1" hidden>
       <div class="section-heading"><h1 id="podcasts-title">Podcasts</h1><div><button id="podcast-reload" class="quiet-button" disabled>Aktualisieren</button><button id="podcast-add" class="small-button" aria-label="Podcast hinzufügen" disabled>+</button></div></div>

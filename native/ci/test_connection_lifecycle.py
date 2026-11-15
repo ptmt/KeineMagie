@@ -613,6 +613,21 @@ enum AppL10n { static func text(_ key:String) -> String { key } }
         (p/'Tests/LifecycleTests/DatasetTests.swift').write_text((ROOT/'ci/dataset_harness.swift').read_text())
         (p/'Tests/LifecycleTests/LearningTests.swift').write_text((ROOT/'ci/learning_harness.swift').read_text())
         (p/'Tests/LifecycleTests/CoachTests.swift').write_text((ROOT/'ci/coach_harness.swift').read_text())
+        (p/'Tests/LifecycleTests/DictationTests.swift').write_text((ROOT/'ci/dictation_harness.swift').read_text())
+        # Execute the view's actual conflict resolver without requiring an iOS UI host.
+        view = (ROOT/'App/DictationView.swift').read_text()
+        resolver = view[view.index('    private func resolveConflict('):view.index('    private func perform(')].replace('private func resolveConflict', 'func resolveConflict')
+        (p/'Sources/Lifecycle/DictationConflictHarness.swift').write_text('''import Foundation
+import KeineMagieCore
+@MainActor final class DictationConflictHarness {
+ let model: AppModel
+ var record: DictationRecord?
+ var items: [DictationRecord] = []
+ var error: String?
+ var cleared = false
+ init(model: AppModel) { self.model = model }
+ func clear() { cleared = true; record = nil; items = [] }
+''' + resolver + '}')
         subprocess.run(['swift','test','--package-path',temp],check=True)
 
 class ConnectionLifecycleTests(unittest.TestCase):

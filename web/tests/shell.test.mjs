@@ -31,7 +31,7 @@ test('header contains real section routes with honest unavailable pages', () => 
   for (const [route, label] of [['translator', 'Übersetzer'], ['dictation', 'Diktat'], ['podcasts', 'Podcasts'], ['coach', 'Coach']]) {
     assert.match(header, new RegExp(`<a href="#${route}"[^>]*>(?:<span>)?${label}(?:</span><small>Noch nicht verfügbar</small>)?</a>`));
     assert.match(html, new RegExp(`<section id="${route}"`));
-    if (route === 'dictation') assert.match(html, new RegExp(`<section id="${route}"[^>]*hidden[^>]*>[\\s\\S]*?<h1[^>]*>${label}</h1>\\s*<p[^>]*>Noch nicht verfügbar</p>\\s*</section>`));
+    if (route === 'dictation') { assert.match(html, /class="dictation-page"/); assert.match(js, /mountDictation/); assert.doesNotMatch(header, /href="#dictation" aria-disabled/); }
   }
   assert.match(js, /addEventListener\('hashchange'/);
   assert.match(js, /aria-current/);

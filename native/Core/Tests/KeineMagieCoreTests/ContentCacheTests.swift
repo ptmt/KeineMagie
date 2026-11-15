@@ -2,6 +2,18 @@ import XCTest
 @testable import KeineMagieCore
 
 final class ContentCacheTests: XCTestCase {
+    func testSynchronousDictationJournalIsDurableAndLogoutPurged() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cache = ContentCache(root: root)
+        let lease = cache.openSession(server: "https://one.example", owner: "A")
+        try cache.saveImmediately(Data("pending".utf8), dataset: "dictation", session: lease)
+        XCTAssertEqual(try cache.loadImmediately(dataset: "dictation", server: "https://one.example", owner: "A"), Data("pending".utf8))
+        lease.invalidate()
+        XCTAssertThrowsError(try cache.saveImmediately(Data("stale".utf8), dataset: "dictation", session: lease))
+        try await cache.remove(session: lease)
+        XCTAssertNil(try cache.loadImmediately(dataset: "dictation", server: "https://one.example", owner: "A"))
+    }
     func testRevisionFenceRejectsOutOfOrderWritesAndInvalidatedSession() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -61,7 +73,7 @@ final class ContentCacheTests: XCTestCase {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
         let cache = ContentCache(root: root)
-        try await cache.save(Data("private history".utf8), dataset: "history", server: "https://one.example", owner: "A")
+        try cache.save(Data("private history".utf8), dataset: "history", server: "https://one.example", owner: "A")
         let own = try await cache.load(dataset: "history", server: "https://one.example", owner: "A")
         let otherOwner = try await cache.load(dataset: "history", server: "https://one.example", owner: "B")
         let otherServer = try await cache.load(dataset: "history", server: "https://two.example", owner: "A")

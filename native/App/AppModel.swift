@@ -6,6 +6,21 @@ import KeineMagieCore
 final class AppModel {
     let session: SessionController
     var podcasts = PodcastStore()
+    let dictationDrafts = DictationDraftStore()
+    private var dictationHydratedGeneration: Int?
+    func hydrateDictations() throws {
+        guard session.phase == .signedIn, let owner = session.user?.id else { return }
+        guard dictationHydratedGeneration != session.generation else { return }
+        dictationDrafts.reset()
+        if let lease = cacheSession() {
+            let cache = contentCache
+            // A failed read must never leave the journal in memory-only mode.
+            dictationDrafts.persist = { _ in throw APIError.invalidResponse }
+            if let data = try cache.loadImmediately(dataset: "dictation", server: session.serverURL, owner: owner) { try dictationDrafts.restore(data) }
+            dictationDrafts.persist = { data in try cache.saveImmediately(data, dataset: "dictation", session: lease) }
+        }
+        dictationHydratedGeneration = session.generation
+    }
     private(set) var historyPhase: DatasetPhase = .idle
     private(set) var historyLoadError: String?
     func podcastAPI() throws -> PodcastAPI {
@@ -722,6 +737,7 @@ final class AppModel {
         checkingTranslations.removeAll(); translationCheckNotices.removeAll()
         let previousDirection = outbox.direction
         outbox = TranslationOutbox(); outbox.direction = previousDirection; outboxScope = nil
+        dictationDrafts.reset(); dictationHydratedGeneration = nil
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
         coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil; coachOwnerScope = nil
         if let lease = cacheLease {

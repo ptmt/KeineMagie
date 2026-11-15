@@ -107,8 +107,10 @@ try:
             expect(page.locator('#account')).to_be_visible()
             check(f'{width} cold error offers neutral account not guessed sign-in', page.locator('#account-label').inner_text() == 'Ouvrir le compte' and page.locator('#source-text').is_disabled())
             state['status'] = 200
+            page.locator('#account').click()
             page.locator('#connection-action').click()
             expect(page.locator('.header-language')).to_be_visible()
+            page.locator('#close-account').click()
             check(f'{width} cold error retry recovers', page.locator('#source-text').is_enabled())
             state['hold'] = True
             page.evaluate("window.dispatchEvent(new PageTransitionEvent('pageshow', {persisted:true}))")

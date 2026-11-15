@@ -3,6 +3,7 @@ function episodeLocation(pathname,hash) { return hash ? null : /^\/podcasts\/epi
 async function episodePath(job) { return (await import('./episode.mjs')).episodePath(job); }
 import { mountTranslatorFollowup } from './translator-followup.mjs';
 import { mountCoach } from './coach.mjs';
+import { mountDictation } from './dictation.mjs';
 import { t, interfaceCatalog, getInterfaceLanguage, setInterfaceLanguage, bindInterfaceText, unbindInterfaceText, applyInterfaceLanguage, registerStaticInterface } from './i18n.mjs';
 import { copyText, reconcileDOM, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
@@ -180,6 +181,7 @@ $('profile-cefr').addEventListener('change',()=>void loadLearningProfile({cefr:$
 $('profile-retry').addEventListener('click',()=>void loadLearningProfile());
 const podcasts = mountPodcasts({api, account:openLearningProfile, unauthorized:handleUnauthorized});
 const coach = mountCoach({host:$('coach'),api,locale:getInterfaceLanguage,unauthorized:handleUnauthorized,account:openLearningProfile});
+const dictation = mountDictation({host:$('dictation'),api,locale:getInterfaceLanguage,unauthorized:handleUnauthorized});
 const sectionLinks = [...document.querySelectorAll('.section-nav a')];
 let activeSection = 'translator';
 function renderRoute(focus = false) {
@@ -200,7 +202,7 @@ function renderRoute(focus = false) {
     if (!$('account-dialog').contains(document.activeElement)) $('close-account').focus({ preventScroll: true });
   } else if (focus && next !== activeSection) $(next).focus({ preventScroll: true });
   activeSection = next;
-  coach.route();focusCoachTranslation();
+  coach.route();dictation.route();focusCoachTranslation();
   if (session?.user?.id && !session.provider && next === 'translator') void loadProvider();
   if (!checking || session?.user?.id) podcasts.route(location.hash);
   else podcasts.pause();
@@ -246,6 +248,7 @@ function resetResult() {
 function clearPrivateData() {
   identityKnown = true; // Explicit logout/revocation, not a speculative guest.
   coach.identity(null);
+  dictation.identity(null);
   cancelAppleLogin();
   resetLearningProfile();
   generation++;
@@ -290,6 +293,7 @@ function updateInput() {
 }
 function renderConnection() {
   coach.identity(session);
+  dictation.identity(session);
   podcasts.identity(session, {checking,config,error:sessionError});
   const signedIn = !!session?.user?.id;
   $('header-account').dataset.identityKnown = String(identityKnown || !!sessionError);
@@ -672,7 +676,7 @@ document.querySelectorAll('[data-interface-language]').forEach(select=>select.ad
   const appleArt=!checking&&!sessionError&&!session?.user?.id&&config?.apple_available===true;
   $('connection-action').classList.toggle('apple-button',appleArt);$('connection-action-art').hidden=!appleArt;$('connection-action-label').hidden=appleArt;
   document.querySelectorAll('[data-history-date]').forEach(el=>{const date=new Date(el.dataset.historyDate);el.textContent=el.dataset.direction+(Number.isNaN(date.valueOf())?'':` · ${date.toLocaleString(getInterfaceLanguage(),{dateStyle:'medium',timeStyle:'short'})}`);});
-  followup.localize(); podcasts.localize();coach.localize();renderLearningProfile();
+  followup.localize(); podcasts.localize();coach.localize();dictation.localize();renderLearningProfile();
   document.title=`Keine Magie · ${document.querySelector('.section-nav [aria-current="page"]').textContent}`;
 }));
 

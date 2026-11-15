@@ -381,6 +381,9 @@ func TestAppleWebSignedCodeLogin(t *testing.T) {
 	h, cfg, transport := webAppleFixture(t)
 	issued := time.Now().UTC()
 	cfg.auth.now = func() time.Time { return issued }
+	// Keep the synthetic provider's iat on the same frozen clock. Wall-clock
+	// signing could cross a second under load and become future-issued.
+	transport.change = func(c jwt.MapClaims) { c["iat"] = issued.Unix() }
 	_, native, err := cfg.auth.store.create("apple-subject", time.Now())
 	if err != nil {
 		t.Fatal(err)

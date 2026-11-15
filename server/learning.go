@@ -193,6 +193,10 @@ func (cfg *serverConfig) handleLearning(w http.ResponseWriter, r *http.Request) 
 	if !ok {
 		return
 	}
+	if r.URL.Path == "/v1/learning/dictations" || strings.HasPrefix(r.URL.Path, "/v1/learning/dictations/") {
+		cfg.dictationHTTP(w, r, owner)
+		return
+	}
 	if r.URL.Path == "/v1/learning/coach" {
 		cfg.coachHTTP(w, r, owner)
 		return

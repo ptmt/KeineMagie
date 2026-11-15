@@ -138,6 +138,39 @@ public struct PodcastAPI: Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         return request
     }
+    public func dictationRequest(id: String = "", action: String = "", method: String = "GET", body: Data? = nil) throws -> URLRequest {
+        guard id.isEmpty || id.range(of: "^[A-Za-z0-9_-]{1,80}$", options: .regularExpression) != nil,
+              action.isEmpty || ["check", "reveal", "attempts"].contains(action) || action.range(of: "^audio/(0|[1-9][0-9]{0,2})$", options: .regularExpression) != nil else { throw APIError.invalidResponse }
+        var r = try request(method: method)
+        r.url = endpoint.url(path: "v1/learning/dictations" + (id.isEmpty ? "" : "/" + id) + (action.isEmpty ? "" : "/" + action))
+        r.cachePolicy = .reloadIgnoringLocalCacheData
+        r.timeoutInterval = method == "POST" && action.hasPrefix("audio/") ? 250 : 50
+        r.httpBody = body
+        if body != nil { r.setValue("application/json", forHTTPHeaderField: "Content-Type") }
+        return r
+    }
+    public func dictations() async throws -> DictationHistory {
+        let data = try await send(dictationRequest())
+        try Task.checkCancellation()
+        return try JSONDecoder().decode(DictationHistory.self, from: data)
+    }
+    public func deleteDictation(id: String, revision: Int) async throws {
+        _ = try await send(dictationRequest(id: id, method: "DELETE", body: JSONEncoder().encode(["revision":revision])))
+        try Task.checkCancellation()
+    }
+    public func dictation(id: String = "", action: String = "", method: String = "GET", body: Data? = nil) async throws -> DictationRecord {
+        let data = try await send(dictationRequest(id: id, action: action, method: method, body: body))
+        try Task.checkCancellation()
+        return try JSONDecoder().decode(DictationRecord.self, from: data)
+    }
+    public func dictationAudio(id: String, index: Int, prepare: Bool) async throws -> Data {
+        let r = try dictationRequest(id: id, action: "audio/\(index)", method: prepare ? "POST" : "GET", body: prepare ? Data("{}".utf8) : nil)
+        let response = try await transport(r)
+        try Task.checkCancellation()
+        guard response.status == 200 else { throw APIError.http(response.status) }
+        guard response.data.count <= 16 << 20 else { throw APIError.invalidResponse }
+        return response.data
+    }
     public func importRequest(url: String, source: String, feedID: String? = nil, episodeID: String? = nil) throws -> URLRequest {
         let value = try PodcastShareURL(url)
         guard ["de", "ru"].contains(source) else { throw APIError.invalidResponse }

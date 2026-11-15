@@ -7,11 +7,12 @@ struct MainTabsView: View {
     @State private var showPodcastAdd = false
     @State private var showCoachProfile = false
     @State private var showPending = false
+    @State private var showDictationAdd = false
     var body: some View {
         TabView(selection: $selected) {
             TranslatorView(showPending: $showPending)
                 .tabItem { Label("feature.translator", systemImage: "character.bubble") }.tag("translator")
-            UnavailableFeatureView(title: "feature.dictation", symbol: "waveform")
+            DictationView(showAdd: $showDictationAdd)
                 .tabItem { Label("feature.dictation", systemImage: "waveform") }.tag("dictation")
             PodcastLibraryView(showAdd: $showPodcastAdd)
                 .tabItem { Label("feature.podcasts", systemImage: "headphones") }.tag("podcasts")
@@ -51,6 +52,13 @@ struct MainTabsView: View {
                         .accessibilityValue(pending.count > 1 ? String(pending.count) : "")
                         .accessibilityIdentifier("translation-pending")
                     }
+                }
+            }
+            if selected == "dictation" {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Add text", systemImage: "plus") { showDictationAdd = true }
+                        .accessibilityIdentifier("dictation-add")
+                        .disabled(!model.session.canWrite)
                 }
             }
             if selected == "coach" {
