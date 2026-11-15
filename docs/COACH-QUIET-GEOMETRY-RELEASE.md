@@ -65,6 +65,12 @@ Independent re-review returned PASS with no actionable findings (82 Node and
 17 native source checks). The final rebuilt combined Release matrix remains a
 publication gate. Publication evidence follows after exact readback.
 
+The rebuilt UI matrix exposed a simulator contract bug: its hardcoded attempt ID
+was not the submitted request ID, so correct receipt reconciliation retained both
+records and the profile test found duplicate review buttons. The simulator-only
+fixture now echoes `action.requestID`, matching actual Go answer/skip handlers;
+independent review passed. No production matching rule or UI assertion was weakened.
+
 ## Deployment invariants
 
 Backend first, through the established manual Compose base plus durable override,

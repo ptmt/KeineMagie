@@ -7,6 +7,7 @@ import KeineMagieCore
 actor SimulatorSessionFixture {
     private var coachAnswered = false
     private var coachAnswer = ""
+    private var coachAttemptID = ""
     private var coachOutcome = "correct"
     private var coachPending = false
     private var coachCanceled = false
@@ -118,6 +119,7 @@ actor SimulatorSessionFixture {
                 }
                 if action.action == "answer" || action.action == "skip" {
                     coachAnswered = true; coachAnswer = action.text
+                    coachAttemptID = action.requestID
                     coachOutcome = action.action == "skip" ? "skipped" : action.text == "auf" ? "correct" : action.text == "für" ? "wrong" : "ambiguous"
                 }
                 if action.action == "cancel" { coachPending = false; coachCanceled = true }
@@ -125,12 +127,12 @@ actor SimulatorSessionFixture {
                 if action.action == "message" { if action.text == "pending" { coachPending = true } else { coachClarified = true } }
             }
             var turn: [String: Any] = ["id": "synthetic-coach", "text": "Practice · synthetic fixture", "state": "completed", "at": "2026-11-13T12:00:00Z", "assisted": coachRevealed, "language": "de", "message": "Synthetic exercise, not live AI.", "kind": "cloze", "prompt": "Ich warte ___ den Bus.", "target": "verb_government", "source_id": "translation:synthetic"]
-            if coachAnswered { turn["attempt"] = ["id": "synthetic-attempt", "answer": coachAnswer, "outcome": coachOutcome, "original_outcome": coachOutcome, "assisted": coachRevealed, "at": "2026-11-13T12:00:00Z", "excluded": false] }
+            if coachAnswered { turn["attempt"] = ["id": coachAttemptID, "answer": coachAnswer, "outcome": coachOutcome, "original_outcome": coachOutcome, "assisted": coachRevealed, "at": "2026-11-13T12:00:00Z", "excluded": false] }
             if coachAnswered || coachRevealed { turn["quote"] = "Ich warte auf den Bus."; turn["explanation"] = "warten auf + Akkusativ" }
             if mode == "coach-assessment" {
                 turn["prompt"] = "Ich war einmal ___ diesem Kurs dabei."
                 if coachAnswered {
-                    turn["attempt"] = ["id":"synthetic-attempt", "answer":coachAnswer, "outcome":"wrong", "original_outcome":"wrong", "assisted":coachRevealed, "at":"2026-11-13T12:00:00Z", "excluded":false, "assessment_state":"completed", "assessment":["verdict":"incorrect", "corrected_answer":"bei", "explanation":"Beim means bei dem; diesem already supplies the determiner. Use bei.", "uncertainty_reason":""]]
+                    turn["attempt"] = ["id":coachAttemptID, "answer":coachAnswer, "outcome":"wrong", "original_outcome":"wrong", "assisted":coachRevealed, "at":"2026-11-13T12:00:00Z", "excluded":false, "assessment_state":"completed", "assessment":["verdict":"incorrect", "corrected_answer":"bei", "explanation":"Beim means bei dem; diesem already supplies the determiner. Use bei.", "uncertainty_reason":""]]
                     turn["explanation"] = "Beim means bei dem; diesem already supplies the determiner. Use bei."
                     turn["quote"] = "Ich war einmal bei diesem Kurs dabei."
                 }
