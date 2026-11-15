@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Official current patch builder tag verified before this release.
-FROM golang:1.27.4-bookworm AS build
+FROM --platform=$BUILDPLATFORM golang:1.27.4-bookworm AS build
 ARG TARGETOS
 ARG TARGETARCH
 WORKDIR /src

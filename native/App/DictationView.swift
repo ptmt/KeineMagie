@@ -20,7 +20,12 @@ import KeineMagieCore
     func pause() { player?.pause(); playing = false }
     func stop() { generation += 1; finished = nil; player?.stop(); player = nil; playing = false; try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation) }
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        Task { @MainActor [weak self] in guard let self, self.player === player else { return }; self.playing = false; if flag { self.finished?() } }
+        let completedPlayer = ObjectIdentifier(player)
+        Task { @MainActor [weak self] in
+            guard let self, let current = self.player, ObjectIdentifier(current) == completedPlayer else { return }
+            self.playing = false
+            if flag { self.finished?() }
+        }
     }
 }
 
