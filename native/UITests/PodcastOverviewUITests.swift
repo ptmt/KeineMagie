@@ -45,7 +45,10 @@ final class PodcastOverviewUITests: XCTestCase {
             let row = app.buttons["podcast-overview-synthetic-feed-000000001-overview-0"]
             XCTAssertTrue(row.waitForExistence(timeout: 5))
             XCTAssertTrue(row.label.contains("Starred passages: 1"))
-            app.collectionViews.firstMatch.swipeDown()
+            let list = app.collectionViews.firstMatch
+            let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+            let end = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.85))
+            start.press(forDuration: 0.1, thenDragTo: end)
             if mode.hasSuffix("error") {
                 XCTAssertTrue(app.staticTexts["podcast.error"].waitForExistence(timeout: 5))
                 XCTAssertTrue(row.label.contains("Starred passages: 1"))
