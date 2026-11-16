@@ -30,4 +30,11 @@ Local evidence: `/Users/tinyserve/.hermes/cache/scratch/km-compact/` (synthetic 
 
 ## Publication
 
-Local review and intended UI cases are complete. Existing production `/health` returned HTTP 200 (the initial `/healthz` probe was 404; no backend deployment was needed). Proceed through a scoped source commit/push and one explicit existing TestFlight workflow dispatch (`publish=UPLOAD`). Record exact source SHA, validate/upload job IDs, archived build number and Apple's `UPLOAD SUCCEEDED` only after actual remote verification. A green upload is not proof of processing or tester/device availability.
+- Source **`cb9811e5334b2fbf8ad7c23b75c9ab15a69a1bc3`** committed and pushed normally to main after a fresh fetch; remote ref read back exact. Original dirty main worktree was never checked out, reset or edited.
+- Push validation [43827576578](https://github.com/ptmt/KeineMagie/actions/runs/43827576578): **success**, exact source SHA.
+- One explicit `publish=UPLOAD` [TestFlight run 43827583681](https://github.com/ptmt/KeineMagie/actions/runs/43827583681): **success**, exact source SHA; validate job **133166608027**, upload job **133168758076**, cleanup success.
+- Hosted signing/archive/export accepted **1.0 (2760.8.92)**; actual upload log: **`UPLOAD SUCCEEDED with no errors` at 2026-11-16T08:12:54Z**. `gh run watch --exit-status` returned 0 and run/jobs were read back. Concise evidence `upload-run.json` and `upload-job.log` retained locally.
+- Existing production `/health` returned HTTP 200 (initial `/healthz` probe was 404). Native-only release: backend was not deployed or changed. No real-provider/TTS requests or credentials used.
+- Apple processing, tester assignment, iPhone installation and spoken VoiceOver remain **unverified**; successful upload alone does not establish availability.
+
+Removed only this candidate's regenerable `/Users/tinyserve/.hermes/cache/scratch/km-compact/build` (331720 KiB) and `small-build` (337432 KiB) after upload and checking no xcodebuild/Swift build was active: **669152 allocated KiB reclaimed**, both paths verified absent (`cleanup.json`). Removed its Python `native/ci/__pycache__` too. Source worktree, compact screenshots, logs and xcresults retained.
