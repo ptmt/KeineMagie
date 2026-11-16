@@ -1,4 +1,6 @@
-# Coach history/status/scroll — independently reviewed local candidate
+# Coach history/status/scroll — independently reviewed candidate (released)
+
+Released from approved source `110b90689046f7e70dd86d4c3607c530be4cb049`; see [COACH-HISTORY-RELEASE.md](COACH-HISTORY-RELEASE.md) for live deployment and Apple publication evidence. Candidate-only statements below describe the pre-release review.
 
 Integrated locally onto origin/main `4613d315eb1f2d5b12d8184546e5353be2b04454`, including podcast release `1bdffc820c668beb69395bb604f233cfd5af9f35`. Branch `candidate/coach-history-status`, isolated worktree `/Users/tinyserve/Projects/KeineMagie-coach-history`. No push/deploy/upload. Original dirty checkout and AnyProgress untouched.
 
