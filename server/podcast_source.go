@@ -26,6 +26,7 @@ type podcastEpisode struct {
 	Preparation *podcastJob `json:"preparation,omitempty"`
 }
 type podcastDiscovery struct {
+	Author             string           `json:"author,omitempty"`
 	URL                string           `json:"url"`
 	Title              string           `json:"title"`
 	Episodes           []podcastEpisode `json:"episodes"`
@@ -190,7 +191,7 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 	seenID, seenURL := map[string]bool{}, map[string]bool{}
 	root := ""
 	var latest time.Time
-	imageDepth := 0
+	imageDepth, authorDepth := 0, 0
 	for tokens := 0; tokens < 200000; tokens++ {
 		tok, e := d.Token()
 		if e == io.EOF {
@@ -261,6 +262,11 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 				}
 			} else if itemDepth == 0 && ((name == "url" && imageDepth > 0 && depth == imageDepth+1) || ((name == "logo" || name == "icon") && depth == 2)) {
 				field = "artwork"
+			} else if itemDepth == 0 && name == "author" && depth <= 3 {
+				authorDepth = depth
+				field = "feedAuthor"
+			} else if itemDepth == 0 && name == "name" && authorDepth > 0 && depth == authorDepth+1 {
+				field = "feedAuthor"
 			} else if itemDepth == 0 && name == "title" && depth <= 3 {
 				field = "feedTitle"
 			}
@@ -275,6 +281,8 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 				}
 			}
 			switch field {
+			case "feedAuthor":
+				appendBound(&out.Author)
 			case "artwork":
 				if u, err := podcastReference(base, strings.TrimSpace(text)); err == nil {
 					out.ArtworkURL = u.String()
@@ -289,6 +297,10 @@ func podcastParseFeed(b []byte, base *url.URL) (podcastDiscovery, error) {
 				appendBound(&out.Title)
 			}
 		case xml.EndElement:
+			if depth == authorDepth {
+				authorDepth = 0
+				out.Author = strings.TrimSpace(out.Author)
+			}
 			if depth == itemDepth && itemDepth > 0 {
 				entry.ID = strings.TrimSpace(entry.ID)
 				entry.Title = strings.TrimSpace(entry.Title)

@@ -5,7 +5,7 @@ import { mountTranslatorFollowup } from './translator-followup.mjs';
 import { mountCoach } from './coach.mjs';
 import { mountDictation } from './dictation.mjs';
 import { t, interfaceCatalog, getInterfaceLanguage, setInterfaceLanguage, bindInterfaceText, unbindInterfaceText, applyInterfaceLanguage, registerStaticInterface } from './i18n.mjs';
-import { copyText, reconcileDOM, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
+import { copyText, reconcileDOM, latestPodcastEpisodes, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
@@ -756,6 +756,27 @@ function mountPodcasts({api, account, unauthorized}) {
     if(isActive(job)){ const progress=node('progress');progress.max=100;if(Number.isFinite(job.progress))progress.value=Math.max(0,Math.min(100,job.progress));progress.setAttribute('aria-label',t('Verarbeitungsschritt, kein Audio-Fortschritt'));p.append(progress); }
     if(job.error)p.append(node('span',job.error,'error-text'));return p;
   }
+  function coverage(job) {
+    const c=job?.coverage;if(!c)return null;
+    const box=node('small',undefined,'muted podcast-coverage');box.dataset.coverage='';
+    if(c.recognized_segments>0)box.append(node('span',t('Übersetzte Passagen {translated} / {total}',{translated:c.translated_segments,total:c.recognized_segments})));
+    if(Number.isInteger(c.favorite_passages))box.append(node('span',t('Markierte Passagen: {count}',{count:c.favorite_passages})));
+    return box;
+  }
+  function episodeRow(feed,episode,{overview=false}={}) {
+    const s=library.state,job=library.preparation(feed,episode);
+    const row=node('li',undefined,'podcast-episode');row.dataset.key=`episode:${feed.id}:${episode.id}`;row.dataset.state=job?.state||'unprepared';
+    const title=node('div'),heading=node('strong',undefined,'podcast-episode-title');
+    heading.append(link(episode.title||t('Folge'),job?podcastRoute('job',job.id):`${podcastRoute('feed',feed.id)}?episode=${encodeURIComponent(episode.id)}`));title.append(heading);
+    const metadata=node('div',undefined,'podcast-episode-meta');
+    if(episode.published){const date=new Date(episode.published);if(!Number.isNaN(date.valueOf()))metadata.append(node('small',date.toLocaleDateString(getInterfaceLanguage()),'muted'));}
+    if(job)metadata.append(status(job));else metadata.append(node('small',t('Nicht vorbereitet'),'muted'));
+    const saved=coverage(job);if(saved)metadata.append(saved);title.append(metadata);row.append(title);
+    const actions=node('div',undefined,'podcast-actions');
+    if(job)controls(job,actions);
+    else if(!overview)actions.append(action('Vorbereiten',async()=>{const job=await library.prepare(feed.id,episode.id,source);await library.detail(job.id);},!s.worker||s.pending.has(`${session.user.id}:prepare:${feed.id}:${episode.id}`)));
+    row.append(actions);return row;
+  }
   function overflow(label, buttons, key) {
     const details=node('details',undefined,'podcast-overflow');details.dataset.key=key;
     const summary=node('summary','⋯');summary.setAttribute('aria-label',label);summary.title=label;
@@ -816,19 +837,14 @@ function mountPodcasts({api, account, unauthorized}) {
       const menu=overflow(t('Podcast-Aktionen'),[refresh,remove],`feed-actions:${feed.id}`);menu.dataset.feedActions='';bar.append(menu);header.append(cover(feed),bar);content.append(header);
       content.append(node('p',t('Vorbereiten startet Transkription und Übersetzung über dein Konto.'),'muted podcast-prepare-help'));
       if(!feed.episodes?.length)content.append(node('p',t('Dieser Feed enthält noch keine verfügbaren Folgen.'),'muted'));
+      else if(route.episodeID&&!feed.episodes.some(episode=>episode.id===route.episodeID))content.append(node('p',t('Dieser Podcast ist nicht mehr verfügbar.'),'error-text'));
       const list=node('ul',undefined,'podcast-list');
       for(const episode of feed.episodes||[]) {
-        const job=library.preparation(feed,episode);
-        const row=node('li',undefined,'podcast-episode');row.dataset.key=episode.id;row.dataset.state=job?.state||'unprepared';const title=node('div');
-        const heading=node('strong',undefined,'podcast-episode-title');heading.append(job?link(episode.title||t('Folge'),podcastRoute('job',job.id)):document.createTextNode(episode.title||t('Folge')));title.append(heading);
-        const metadata=node('div',undefined,'podcast-episode-meta');
-        if(episode.published){const date=new Date(episode.published);if(!Number.isNaN(date.valueOf()))metadata.append(node('small',date.toLocaleDateString(getInterfaceLanguage()),'muted'));}
-        if(job)metadata.append(status(job));if(job?.coverage){const c=job.coverage,coverage=node('small',undefined,'muted');coverage.dataset.coverage='';coverage.append(node('span',t('Übersetzt {translated} / {total} Segmente',{translated:c.translated_segments,total:c.recognized_segments})));if(c.recognized_segments>0)coverage.append(document.createTextNode(' · '),node('span',t('Markierte Passagen {count} / {total}',{count:c.favorite_passages,total:c.recognized_segments})));metadata.append(coverage);}title.append(metadata);row.append(title);
-        const actions=node('div',undefined,'podcast-actions');
-        if(job){controls(job,actions);}
-        else actions.append(action('Vorbereiten',async()=>{const job=await library.prepare(feed.id,episode.id,source);await library.detail(job.id);},!s.worker||s.pending.has(`${session.user.id}:prepare:${feed.id}:${episode.id}`)));
-        row.append(actions);list.append(row);
-      }content.append(list);return;
+        if(route.episodeID&&episode.id!==route.episodeID)continue;
+        list.append(episodeRow(feed,episode));
+      }content.append(list);
+      if(route.episodeID)content.append(link(t('Alle Folgen'),podcastRoute('feed',feed.id)));
+      return;
     }
     if(route.kind==='job'){
       const job=s.jobs.find(j=>j.id===route.id);
@@ -838,7 +854,18 @@ function mountPodcasts({api, account, unauthorized}) {
       episodeView.render(reader,job,{feed:s.feeds.find(f=>f.id===job.feed_id),controls});return;
     }
     const list=node('ul',undefined,'podcast-list');
-    for (const feed of s.feeds){const li=node('li');li.dataset.key=feed.id;const a=link('',podcastRoute('feed',feed.id));a.className='podcast-feed';const text=node('span');text.append(node('strong',feed.title||'Podcast'),node('small',feed.latest_episode_title||feed.episodes?.[0]?.title||t('Noch keine Folgen'),'muted'));a.append(cover(feed),text,node('span','›'));li.append(a);list.append(li);}content.append(list);
+    for(const feed of s.feeds){
+      const li=node('li',undefined,'podcast-overview');li.dataset.key=feed.id;
+      const header=node('div',undefined,'podcast-overview-header'),a=link('',podcastRoute('feed',feed.id));a.className='podcast-feed';
+      const text=node('span');text.append(node('strong',feed.title||'Podcast'));if(feed.author)text.append(node('small',feed.author,'muted'));
+      a.append(cover(feed),text);const all=link(t('Alle Folgen'),podcastRoute('feed',feed.id));all.className='podcast-all-episodes';all.setAttribute('aria-label',`${t('Alle Folgen')} · ${feed.title||'Podcast'}`);header.append(a,all);li.append(header);
+      if(Array.isArray(feed.episodes)){
+        const episodes=node('ul',undefined,'podcast-list podcast-overview-episodes');
+        for(const episode of latestPodcastEpisodes(feed))episodes.append(episodeRow(feed,episode,{overview:true}));
+        if(!feed.episodes.length)li.append(node('p',t('Dieser Feed enthält noch keine verfügbaren Folgen.'),'muted podcast-feed-empty'));else li.append(episodes);
+      }else li.append(node('p',t('Folgen werden geladen …'),'muted'));
+      list.append(li);
+    }content.append(list);
     const imports=library.directJobs();if(imports.length){content.append(node('h2',t('Einzelne Folgen')));const list=node('ul',undefined,'podcast-list');for(const job of imports){const li=node('li',undefined,'podcast-episode');li.dataset.key=job.id;const title=node('div');title.append(link(job.title||sourceName(job),podcastRoute('job',job.id)),status(job));li.append(title);list.append(li);}content.append(list);}
     if(!s.feeds.length&&!imports.length)content.append(node('p',t('Noch keine Podcasts. Füge über + einen Podcast oder eine einzelne Folge hinzu.'),'muted'));
   }

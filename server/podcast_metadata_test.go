@@ -1,11 +1,42 @@
 package main
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 )
+
+func TestPodcastFeedAuthorIsDurablePlainMetadata(t *testing.T) {
+	base, _ := podcastURL("https://example.com/feed")
+	for _, xml := range []string{
+		`<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"><channel><title>Feed</title><itunes:author>The Nut Sisters</itunes:author><item><author>Episode Author</author><enclosure url="/audio.mp3"/></item></channel></rss>`,
+		`<feed xmlns="http://www.w3.org/2005/Atom"><title>Feed</title><author><name>The Nut Sisters</name></author><entry><author><name>Episode Author</name></author><link rel="enclosure" href="/audio.mp3"/></entry></feed>`,
+	} {
+		got, e := podcastParseFeed([]byte(xml), base)
+		if e != nil {
+			t.Fatal(e)
+		}
+		encoded, _ := json.Marshal(got)
+		var fields map[string]any
+		_ = json.Unmarshal(encoded, &fields)
+		if fields["author"] != "The Nut Sisters" {
+			t.Fatalf("missing feed author: %s", encoded)
+		}
+		store, _ := openPodcastStore(filepath.Join(t.TempDir(), "jobs.json"))
+		sub, e := store.saveSubscription("owner", "", got, time.Now())
+		if e != nil {
+			t.Fatal(e)
+		}
+		saved, _ := store.subscription("owner", sub.ID)
+		encoded, _ = json.Marshal(saved)
+		_ = json.Unmarshal(encoded, &fields)
+		if fields["author"] != "The Nut Sisters" {
+			t.Fatal("author not durable")
+		}
+	}
+}
 
 func TestPodcastMetadataLatestUsesDatesAndPersists(t *testing.T) {
 	base, _ := podcastURL("https://example.com/feed")

@@ -128,6 +128,12 @@ export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
   };
 }
 
+// Dated episodes first, newest first; ties and unknown dates retain feed order.
+export function latestPodcastEpisodes(feed) {
+  const time = episode => { const value=Date.parse(episode.published); return Number.isFinite(value)?value:-Infinity; };
+  return [...(feed.episodes || [])].sort((a,b)=>time(b)-time(a)||0).slice(0,3);
+}
+
 // Owner-scoped in-memory library. No credentials, URLs or transcripts are persisted.
 export function createPodcasts({api, changed = () => {}, unauthorized = () => {}, visible = () => true, schedule = setTimeout, unschedule = clearTimeout} = {}) {
   const state = {phase:'guest', feeds:[], jobs:[], limits:null, worker:false, error:'', pending:new Set(), route:{kind:'library'}};
@@ -230,9 +236,13 @@ export function createPodcasts({api, changed = () => {}, unauthorized = () => {}
 export function apiID(id) { if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,200}$/.test(id)) throw new Error('Invalid identifier'); return id; }
 export function parsePodcastRoute(hash) {
   if (hash === '#podcasts') return {kind:'library'};
-  const match = /^#podcasts\/(feed|job)\/([^/]+)$/.exec(hash);
+  const match = /^#podcasts\/(feed|job)\/([^/?]+)(?:\?episode=([^&/?]+))?$/.exec(hash);
   if (!match) return {kind:'invalid'};
-  try { const id = decodeURIComponent(match[2]); return /^[A-Za-z0-9_-]{1,200}$/.test(id) ? {kind:match[1],id} : {kind:'invalid'}; } catch { return {kind:'invalid'}; }
+  try {
+    const id=apiID(decodeURIComponent(match[2]));
+    if(match[3])return match[1]==='feed'?{kind:'feed',id,episodeID:apiID(decodeURIComponent(match[3]))}:{kind:'invalid'};
+    return {kind:match[1],id};
+  } catch { return {kind:'invalid'}; }
 }
 export const podcastRoute = (kind,id) => `#podcasts/${kind}/${encodeURIComponent(id)}`;
 export const isActive = job => ['queued','fetching','transcribing','translating'].includes(job.state);

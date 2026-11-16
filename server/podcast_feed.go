@@ -11,6 +11,7 @@ import (
 )
 
 type podcastSubscription struct {
+	Author             string           `json:"author,omitempty"`
 	ID                 string           `json:"id"`
 	URL                string           `json:"url"`
 	Title              string           `json:"title"`
@@ -97,6 +98,7 @@ func (s *podcastStore) saveSubscription(owner, id string, discovery podcastDisco
 				}
 				sub.URL = discovery.URL
 				sub.Title = discovery.Title
+				sub.Author = discovery.Author
 				sub.ArtworkURL = discovery.ArtworkURL
 				sub.LatestEpisodeTitle = discovery.LatestEpisodeTitle
 				sub.Episodes = merged
@@ -111,7 +113,7 @@ func (s *podcastStore) saveSubscription(owner, id string, discovery podcastDisco
 		if count >= 10 || len(d.Subscriptions) >= 100 {
 			return errPodcastLimit
 		}
-		out = podcastSubscription{ID: randomAuthToken(), URL: discovery.URL, Title: discovery.Title, Episodes: discovery.Episodes, ArtworkURL: discovery.ArtworkURL, LatestEpisodeTitle: discovery.LatestEpisodeTitle, RefreshedAt: now.UTC()}
+		out = podcastSubscription{ID: randomAuthToken(), URL: discovery.URL, Title: discovery.Title, Author: discovery.Author, Episodes: discovery.Episodes, ArtworkURL: discovery.ArtworkURL, LatestEpisodeTitle: discovery.LatestEpisodeTitle, RefreshedAt: now.UTC()}
 		d.Subscriptions = append(d.Subscriptions, podcastStoredSubscription{podcastSubscription: out, Owner: owner})
 		return s.write(d)
 	})

@@ -1,7 +1,12 @@
 // UI-only copy. Never pass user text, prompt instructions or server content here.
 export const interfaceLocales = Object.freeze({de:'Deutsch',en:'English',ru:'Русский',es:'Español',fr:'Français'});
 export const interfaceLanguageKey = 'keinemagie:interface-language:v1';
-const rows = `Übersetzt {translated} / {total} Segmente|Translated {translated} / {total} segments|Переведено {translated} / {total} фрагментов|Traducidos {translated} / {total} segmentos|Traduits {translated} / {total} segments
+const rows = `Alle Folgen|All episodes|Все эпизоды|Todos los episodios|Tous les épisodes
+Nicht vorbereitet|Not prepared|Не подготовлен|Sin preparar|Non préparé
+Folgen werden geladen …|Loading episodes …|Загрузка эпизодов …|Cargando episodios …|Chargement des épisodes …
+Übersetzte Passagen {translated} / {total}|Translated passages {translated} / {total}|Переведено {translated} / {total} фрагментов|Pasajes traducidos {translated} / {total}|Passages traduits {translated} / {total}
+Markierte Passagen: {count}|Starred passages: {count}|Отмеченные фрагменты: {count}|Pasajes destacados: {count}|Passages favoris : {count}
+Übersetzt {translated} / {total} Segmente|Translated {translated} / {total} segments|Переведено {translated} / {total} фрагментов|Traducidos {translated} / {total} segmentos|Traduits {translated} / {total} segments
 Markierte Passagen {count} / {total}|Starred {count} / {total} passages|Отмечено {count} / {total} фрагментов|Marcados {count} / {total} pasajes|Favoris {count} / {total} passages
 Profil|Profile|Профиль|Perfil|Profil
 Lernprofil|Learning profile|Учебный профиль|Perfil de aprendizaje|Profil d’apprentissage

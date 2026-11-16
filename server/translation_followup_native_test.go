@@ -75,18 +75,24 @@ func TestNativeFollowupOptionalOwnerWebCompatibilityAndCSRF(t *testing.T) {
 			}
 		})
 	}
-	token, _, err := cfg.auth.store.create("other-owner", time.Now())
+	token, otherSession, err := cfg.auth.store.create("other-owner", time.Now())
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, expected := range []string{"", "other-owner"} {
+	// create takes an Apple subject, not the generated authenticated UserID.
+	// A mismatched expected-owner header is rejected before history lookup;
+	// an absent or matching header reaches the owner-scoped missing record.
+	for _, tc := range []struct {
+		expected string
+		want     int
+	}{{"", 404}, {otherSession.UserID, 404}, {"other-owner", 403}} {
 		r := httptest.NewRequest("POST", "/v1/translation-followups", strings.NewReader(followupValidBody))
 		r.Header.Set("Authorization", "Bearer "+token)
-		r.Header.Set("X-Translation-Owner", expected)
+		r.Header.Set("X-Translation-Owner", tc.expected)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
-		if w.Code != 404 {
-			t.Fatalf("cross-owner history visible: %d", w.Code)
+		if w.Code != tc.want {
+			t.Fatalf("cross-owner header %q: got %d, want %d", tc.expected, w.Code, tc.want)
 		}
 	}
 	if calls != 0 || followupQuotaAttempts(t, cfg, owner) != 0 {
