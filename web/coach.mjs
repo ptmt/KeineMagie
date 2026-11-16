@@ -1,4 +1,5 @@
 import {createCoachState} from './coach-state.mjs';
+import {coachRecentTurns,coachHistoryWindow,coachExerciseStatus,coachPresentationLabel as pl} from './coach-presentation.mjs';
 import {reconcileDOM} from './core.mjs';
 import {coachMasksAnswer,coachUnread,coachChatLabel,coachQuickActions,coachQuickLabel} from './coach-chat.mjs';
 const words={
@@ -27,7 +28,7 @@ export function coachSourceLink(id){
 export function mountCoach({host,api,locale,unauthorized,account,document:doc=globalThis.document}){
  const el=(tag,text,cls)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
  const l=i=>(words[locale()]||words.en)[i],target=t=>coachStrings['coach.target.'+t]?ct('coach.target.'+t,locale()):(targets[locale()]||targets.en)[['grammar','verb_government','vocabulary','word_order','register'].indexOf(t)]||t;
- let owner=null,signature='',answerDrafts=new Map(),turnCount=0,returnSource=null;
+ let owner=null,signature='',answerDrafts=new Map(),turnCount=0,returnSource=null,showEarlier=0,follow=true,ownSend=false,wasVisible=false,historyNow=Date.now();
  const resize=()=>{if(host.hidden)return;const viewport=globalThis.visualViewport;host.style.height=Math.max(240,(viewport?.height||globalThis.innerHeight)-Math.max(0,host.getBoundingClientRect().top)+ (viewport?.offsetTop||0)-12)+'px';};
  globalThis.visualViewport?.addEventListener('resize',resize);
  globalThis.addEventListener?.('resize',resize);
@@ -42,7 +43,18 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  const state=createCoachState(api,render,unauthorized,locale);
  doc.getElementById('learning-profile')?.append(profile);
  const refresh=button('',()=>state.load()),quick=el('div',undefined,'coach-quick');form.prepend(quick);actions.append(button(coachChatLabel('profile',locale()),()=>account('de')));
- const jump=button('',()=>{messages.scrollTop=messages.scrollHeight;checkSeen();});jump.className='coach-jump';host.insertBefore(jump,status);
+ const jump=button('',()=>{follow=true;bottom();checkSeen();});jump.className='coach-jump';host.insertBefore(jump,status);
+ const atBottom=()=>messages.scrollHeight-messages.clientHeight-messages.scrollTop<80;
+ function updateJump(){jump.hidden=atBottom();jump.textContent=pl('latest',locale());}
+ function bottom(){manualScroll=false;messages.scrollTop=messages.scrollHeight;lastScroll=messages.scrollTop;updateJump();}
+ const contentObserver=globalThis.ResizeObserver?new ResizeObserver(()=>{if(follow&&!host.hidden)bottom();else updateJump();}):null;
+ contentObserver?.observe(messages);
+ let lastScroll=0,manualScroll=false;
+ messages.addEventListener('wheel',()=>{manualScroll=true;},{passive:true});
+ messages.addEventListener('pointerdown',()=>{manualScroll=true;},{passive:true});
+ messages.addEventListener('touchstart',()=>{manualScroll=true;},{passive:true});
+ messages.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))manualScroll=true;});
+ messages.addEventListener('scroll',()=>{if(manualScroll){follow=atBottom();}lastScroll=messages.scrollTop;updateJump();},{passive:true});
  let hydrated=false,known=new Set(),entered=false;const seeing=new Set(),arriving=new Set();
  messages.addEventListener('animationend',e=>{if(e.animationName==='coach-enter'&&e.target.dataset.turn){arriving.delete(e.target.dataset.turn);e.target.classList.remove('coach-arrival');}});
  let checkingSeen=false;
@@ -59,20 +71,25 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  const observer=globalThis.IntersectionObserver?new IntersectionObserver(checkSeen,{root:messages,threshold:[0,.6,1]}):null;
  messages.addEventListener('touchstart',e=>{messages.dataset.touch=String(e.touches[0].clientY);},{passive:true});
  messages.addEventListener('touchend',e=>{if(messages.scrollTop===0&&e.changedTouches[0].clientY-Number(messages.dataset.touch)>70)void state.load();},{passive:true});
- form.onsubmit=async e=>{e.preventDefault();const draft=input.value;if(!draft.trim())return;const success=await state.act('message',draft);if(success&&input.value===draft){input.value='';grow();}input.focus();};
+ form.onsubmit=async e=>{e.preventDefault();const draft=input.value;if(!draft.trim())return;ownSend=true;follow=true;const success=await state.act('message',draft);if(success&&input.value===draft){input.value='';grow();}input.focus({preventScroll:true});};
  const grow=()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';};input.oninput=grow;
  function render(){
   summary.textContent=l(8);refresh.textContent=l(11);input.placeholder=l(1);input.setAttribute('aria-label',l(1));send.textContent=l(2);
   input.disabled=!state.signedIn;send.disabled=!state.signedIn||state.busy;
-  quick.replaceChildren(...coachQuickActions(state.value).slice(0,3).map(a=>{const b=button(coachQuickLabel(a.action,locale()),async()=>{const ok=await state.act(a.action,a.action==='reveal'?'source':coachQuickLabel(a.action,locale()),a.turn_id);if(ok&&a.action==='reveal'){const row=[...messages.querySelectorAll('[data-turn]')].find(r=>r.dataset.turn===a.turn_id);row?.querySelector('details:not(.coach-secondary)')?.setAttribute('open','');}});b.disabled=!state.signedIn||state.busy;return b;}));refresh.disabled=!state.signedIn||state.busy;
+  quick.replaceChildren(...coachQuickActions(state.value).slice(0,3).map(a=>{const b=button(coachQuickLabel(a.action,locale()),async()=>{ownSend=a.action!=='reveal';if(ownSend)follow=true;await state.act(a.action,a.action==='reveal'?'source':coachQuickLabel(a.action,locale()),a.turn_id);});b.disabled=!state.signedIn||state.busy;return b;}));refresh.disabled=!state.signedIn||state.busy;
+  const activeEarlier=[...(state.value?.turns||[])].reverse().find(t=>!t.attempt&&t.kind&&!['clarification','nudge'].includes(t.kind)&&!coachRecentTurns([t],historyNow).length);
+  if(activeEarlier){const open=button(pl('awaiting',locale()),()=>{const older=(state.value?.turns||[]).filter(t=>!coachRecentTurns([t],historyNow).length),index=older.indexOf(activeEarlier);showEarlier=(Math.floor((older.length-index-1)/50)+1)*50;follow=false;render();[...messages.querySelectorAll('[data-turn]')].find(e=>e.dataset.turn===activeEarlier.id)?.scrollIntoView({block:'center'});});open.className='coach-active-earlier';quick.append(open);}
   status.textContent=state.error?ct('coach.error.'+state.error,locale()):'';
-  const next=JSON.stringify([state.value,state.busy,state.pendingID,state.signedIn,locale()]);if(next===signature)return;signature=next;
+  const next=JSON.stringify([state.value,state.busy,state.pendingID,state.signedIn,locale(),showEarlier]);if(next===signature)return;signature=next;
   const active=doc.activeElement, focusedTurn=active?.closest?.('[data-turn]')?.dataset.turn, selection=focusedTurn&&active.tagName==='INPUT'?[active.selectionStart,active.selectionEnd]:null;
   const expanded=[...messages.querySelectorAll?.('details[open]')||[]].map(e=>e.closest('[data-turn]')?.dataset.turn);
   const scroll=messages.scrollTop,nearBottom=messages.scrollHeight-messages.clientHeight-scroll<80;
   const nextMessages=el('div');
+  const recent=coachRecentTurns(state.value?.turns||[],historyNow);
+  const olderCount=(state.value?.turns?.length||0)-recent.length;
+  if(olderCount){const earlier=button(pl('earlier',locale()),()=>{showEarlier=showEarlier<olderCount?showEarlier+50:0;follow=false;render();messages.scrollTop=0;});earlier.setAttribute('aria-expanded',String(showEarlier>0));earlier.className='coach-earlier';nextMessages.append(earlier);if(showEarlier){const latest=button(pl('latest',locale()),()=>{showEarlier=0;follow=true;render();});latest.className='coach-earlier';nextMessages.append(latest);}}
   if(!state.value?.turns?.length){const bubble=el('div',undefined,'coach-bubble');bubble.append(el('p',state.signedIn?l(0):l(26)),el('small',ct('coach.scope',locale())));nextMessages.append(bubble);}
-  for(const turn of state.value?.turns||[]){
+  for(const turn of coachHistoryWindow(state.value?.turns||[],historyNow,showEarlier)){
    if(turn.text){const user=el('div',turn.text,'coach-bubble coach-user');user.dataset.key='user:'+turn.id;nextMessages.append(user);}
    const bubble=el('div',undefined,'coach-bubble');bubble.dataset.turn=turn.id;bubble.dataset.key='coach:'+turn.id;
    if(coachUnread(turn))bubble.classList.add('coach-unread');
@@ -82,6 +99,8 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
    if(turn.state==='pending'){bubble.append(el('p',l(18)),button(l(7),()=>state.act('cancel','',turn.id)));}
    if(turn.state==='failed'||turn.state==='canceled')bubble.append(el('p',l(turn.state==='failed'?19:20)));
    if(turn.kind&&!['clarification','nudge'].includes(turn.kind)){
+    const presentation=coachExerciseStatus(turn);bubble.classList.add('coach-'+presentation);
+    if(presentation!=='completed')bubble.append(el('small',pl(presentation,locale()),'coach-task-status'));
     const card=el('section',undefined,'coach-exercise');card.setAttribute('aria-label',target(turn.target));card.append(el('p',turn.prompt,'coach-prompt'));
     if(!turn.attempt){
      const answer=el('input');answer.value=answerDrafts.get(turn.id)||'';answer.maxLength=300;answer.setAttribute('aria-label',l(10));answer.placeholder=l(10);answer.disabled=state.busy;answer.oninput=e=>answerDrafts.set(turn.id,e.currentTarget.value);
@@ -104,11 +123,8 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
     }
     bubble.append(card);
    }
-   if(turn.source_id){
-    if(turn.quote&&turn.source_reveals){const details=el('details'),label=el('summary',ct(turn.attempt?'coach.source':'coach.hint',locale()));label.onclick=e=>{if(!e.currentTarget.parentElement.open)void state.act('reveal','source',turn.id);};details.append(label,el('blockquote',turn.quote));if(!turn.attempt&&turn.explanation)details.append(el('p',turn.explanation));
-     const href=coachSourceLink(turn.source_id);if(href){const link=el('a',ct(turn.source_id.startsWith('translation:')?'coach.savedTranslation':'coach.savedPassage',locale()));link.href=href;link.dataset.coachSource=turn.id;link.onclick=e=>{if(e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();returnSource=turn.id;globalThis.history.pushState({},'',href);globalThis.dispatchEvent(new PopStateEvent('popstate'));};details.append(link);}bubble.append(details);}
-    else if(turn.attempt||!coachQuickActions(state.value).some(a=>a.action==='reveal'&&a.turn_id===turn.id)){const reveal=button(ct(turn.attempt?'coach.source':'coach.hint',locale()),async()=>{if(await state.act('reveal','source',turn.id)){const row=[...messages.querySelectorAll('[data-turn]')].find(r=>r.dataset.turn===turn.id);row?.querySelector('details:not(.coach-secondary)')?.setAttribute('open','');}});reveal.disabled=state.busy;bubble.append(reveal);}
-   }
+
+   if(!turn.attempt&&turn.source_reveals&&turn.quote){const hint=el('div',undefined,'coach-hint');hint.append(el('small',coachQuickLabel('reveal',locale())),el('p',turn.quote));if(turn.explanation)hint.append(el('p',turn.explanation));bubble.append(hint);}
    nextMessages.append(bubble);
   }
   if(state.busy&&!state.value?.turns?.some(t=>t.attempt?.assessment_state==='pending')){const busy=el('div',undefined,'coach-bubble');busy.append(el('span','…'));if(state.pendingID)busy.append(button(l(7),()=>state.act('cancel','',state.pendingID)));nextMessages.append(busy);}
@@ -120,10 +136,12 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
   [...messages.querySelectorAll('input')].forEach((e,i)=>{e.oninput=handlers[i]?.oninput;e.onkeydown=handlers[i]?.onkeydown;});
   for(const row of messages.children){if(expanded.includes(row.dataset?.turn))for(const d of row.querySelectorAll?.('details')||[])d.open=true;if(selection&&row.dataset?.turn===focusedTurn){const field=row.querySelector('input');if(field&&!field.disabled){field.focus({preventScroll:true});field.setSelectionRange(...selection);}}}
   messages.scrollTop=scroll;
-  if(nearBottom&&hydrated)messages.scrollTop=messages.scrollHeight;
+  follow=ownSend||!hydrated||follow;
+  if(follow){bottom();(globalThis.requestAnimationFrame||setTimeout)(()=>{if(follow)bottom();});}ownSend=false;
+  contentObserver?.disconnect();contentObserver?.observe(messages);for(const row of messages.children)contentObserver?.observe(row);
   turnCount=state.value?.turns?.length||0;
   if(state.value){hydrated=true;known=new Set(state.value.turns.map(t=>t.id));}
-  const unread=state.value?.turns.filter(coachUnread).length||0;jump.hidden=!unread;jump.textContent=coachChatLabel('new',locale())+' · '+unread;
+  updateJump();
   observer?.disconnect();for(const row of messages.querySelectorAll('[data-turn]'))observer?.observe(row);
   (globalThis.requestAnimationFrame||setTimeout)(checkSeen);
   resize();
@@ -140,5 +158,5 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  doc.addEventListener('visibilitychange',()=>{if(doc.visibilityState==='visible')enter();else entered=false;});
  render();
  function enter(){if(host.hidden||!state.signedIn){entered=false;return;}if(doc.visibilityState==='hidden')return;if(!entered){entered=true;void state.act('entry');}else void state.load();}
- return {identity(session){const id=session?.user?.id||null;if(id!==owner){owner=id;input.value='';answerDrafts.clear();signature='';returnSource=null;hydrated=false;known.clear();seeing.clear();entered=false;}state.identity(session);enter();},route(){resize();enter();if(!host.hidden&&returnSource){const link=[...messages.querySelectorAll('[data-coach-source]')].find(e=>e.dataset.coachSource===returnSource);link?.closest('details')?.setAttribute('open','');link?.focus({preventScroll:true});}},localize(){signature='';render();grow();}};
+ return {identity(session){const id=session?.user?.id||null;if(id!==owner){owner=id;input.value='';answerDrafts.clear();signature='';returnSource=null;hydrated=false;showEarlier=false;follow=true;known.clear();seeing.clear();entered=false;}state.identity(session);enter();},route(){if(!host.hidden&&!wasVisible){historyNow=Date.now();showEarlier=false;hydrated=false;follow=true;signature='';render();}wasVisible=!host.hidden;resize();enter();if(!host.hidden&&returnSource){const link=[...messages.querySelectorAll('[data-coach-source]')].find(e=>e.dataset.coachSource===returnSource);link?.closest('details')?.setAttribute('open','');link?.focus({preventScroll:true});}},localize(){signature='';render();grow();}};
 }

@@ -7,7 +7,7 @@ from playwright.sync_api import sync_playwright
 import json,time,os
 D={'turns':[],'observations':[],'model':'gpt-6.1-terra','actions':[{'action':'practice','turn_id':''}]};CALLS=[]
 def turn(id,kind='clarification',message='Have 30 seconds?'):
- return dict(id=id,text='',state='completed',at='2026-11-15T12:00:00Z',assisted=False,language='de',kind=kind,message=message,is_offer=id=='offer',message_version=id+':completed')
+ return dict(id=id,text='',state='completed',at='now',assisted=False,language='de',kind=kind,message=message,is_offer=id=='offer',message_version=id+':completed')
 class Chat(Handler):
  def do_GET(self):
   if self.path=='/v1/learning/coach':return self.reply(D)

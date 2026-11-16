@@ -204,15 +204,15 @@ actor SimulatorSessionFixture {
                 if action.action == "seen" { if action.turnID == "synthetic-clarification" { coachArrivalSeenVersion = action.text } else { coachSeenVersion = action.text } }
                 if action.action == "message" { if action.text == "pending" { coachPending = true } else { coachClarified = true } }
             }
-            var turn: [String: Any] = ["id": "synthetic-coach", "text": "Practice · synthetic fixture", "state": "completed", "at": "2026-11-13T12:00:00Z", "assisted": coachRevealed, "language": "de", "message": "Synthetic exercise, not live AI.", "kind": "cloze", "prompt": "Ich warte ___ den Bus.", "target": "verb_government", "source_id": "translation:synthetic"]
+            var turn: [String: Any] = ["id": "synthetic-coach", "text": "Practice · synthetic fixture", "state": "completed", "at": ISO8601DateFormatter().string(from: Date()), "assisted": coachRevealed, "language": "de", "message": "Synthetic exercise, not live AI.", "kind": "cloze", "prompt": "Ich warte ___ den Bus.", "target": "verb_government", "source_id": "translation:synthetic"]
             turn["source_reveals"] = coachRevealed ? 1 : 0; turn["answer_reveals"] = coachAnswerReveals
             turn["message_version"] = "synthetic-coach:" + (coachAnswered ? coachAttemptID : "completed"); turn["seen_version"] = coachSeenVersion
-            if coachAnswered { turn["attempt"] = ["id": coachAttemptID, "answer": coachAnswer, "outcome": coachOutcome, "original_outcome": coachOutcome, "assisted": coachRevealed, "at": "2026-11-13T12:00:00Z", "excluded": false] }
+            if coachAnswered { turn["attempt"] = ["id": coachAttemptID, "answer": coachAnswer, "outcome": coachOutcome, "original_outcome": coachOutcome, "assisted": coachRevealed, "at": ISO8601DateFormatter().string(from: Date()), "excluded": false] }
             if coachAnswered || coachRevealed { turn["quote"] = "Ich warte auf den Bus."; turn["explanation"] = "warten auf + Akkusativ" }
             if mode == "coach-assessment" {
                 turn["prompt"] = "Ich war einmal ___ diesem Kurs dabei."
                 if coachAnswered {
-                    turn["attempt"] = ["id":coachAttemptID, "answer":coachAnswer, "outcome":"wrong", "original_outcome":"wrong", "assisted":coachRevealed, "at":"2026-11-13T12:00:00Z", "excluded":false, "assessment_state":"completed", "assessment":["verdict":"incorrect", "corrected_answer":"bei", "explanation":"Beim means bei dem; diesem already supplies the determiner. Use bei.", "uncertainty_reason":""]]
+                    turn["attempt"] = ["id":coachAttemptID, "answer":coachAnswer, "outcome":"wrong", "original_outcome":"wrong", "assisted":coachRevealed, "at":ISO8601DateFormatter().string(from: Date()), "excluded":false, "assessment_state":"completed", "assessment":["verdict":"incorrect", "corrected_answer":"bei", "explanation":"Beim means bei dem; diesem already supplies the determiner. Use bei.", "uncertainty_reason":""]]
                     turn["explanation"] = "Beim means bei dem; diesem already supplies the determiner. Use bei."
                     turn["quote"] = "Ich war einmal bei diesem Kurs dabei."
                 }
@@ -220,11 +220,28 @@ actor SimulatorSessionFixture {
             if mode == "coach-entry-lifecycle" { turn["message"] = "Synthetic entry count: \(coachEntryCount)" }
             if coachPending || coachCanceled { turn["state"] = coachPending ? "pending" : "canceled"; turn.removeValue(forKey: "kind") }
             var turns = [turn]
-            if coachClarified { turns.append(["id": "synthetic-clarification", "text": "Can you clarify this?", "state": "completed", "at": "2026-11-13T12:01:00Z", "assisted": false, "language": "de", "message": "Synthetic clarification, not live AI.", "kind": "clarification", "prompt": "", "target": "verb_government", "source_id": "translation:synthetic", "quote": "Ich warte auf den Bus.", "explanation": "warten auf + Akkusativ"]) }
+            if coachClarified { turns.append(["id": "synthetic-clarification", "text": "Can you clarify this?", "state": "completed", "at": ISO8601DateFormatter().string(from: Date()), "assisted": false, "language": "de", "message": "Synthetic clarification, not live AI.", "kind": "clarification", "prompt": "", "target": "verb_government", "source_id": "translation:synthetic", "quote": "Ich warte auf den Bus.", "explanation": "warten auf + Akkusativ"]) }
             if mode == "coach-scroll" {
                 turns = (0..<24).map { index in
                     ["id": "synthetic-row-\(index)", "text": "", "state": "completed", "at": "now", "assisted": false, "language": "de", "kind": "clarification", "message": "Synthetic saved message \(index).\n" + String(repeating: "Saved practice context. ", count: 6), "message_version": "row-\(index)", "seen_version": index == 23 ? coachSeenVersion : "row-\(index)"] as [String: Any]
                 }
+            }
+            if mode == "coach-history" {
+                let now = ISO8601DateFormatter().string(from: Date())
+                var archived = turn; archived["id"] = "history-archived"; archived["at"] = "2020-01-01T00:00:00Z"; archived["prompt"] = "Archived synthetic exercise"
+                let archiveCount = Int(ProcessInfo.processInfo.environment["KM_COACH_ARCHIVE_COUNT"] ?? "1") ?? 1
+                let archivedRows = (0..<archiveCount).map { index in var row = archived; row["id"] = "history-archived-\(index)"; row["prompt"] = "Archived synthetic exercise \(index)"; return row }
+                turns = archivedRows + (0..<18).map { index in
+                    ["id":"history-row-\(index)", "text":"", "state":"completed", "at":now, "assisted":false, "language":"de", "kind":"clarification", "message":"Synthetic saved conversation \(index). " + String(repeating: "Saved practice context. ", count: 10)] as [String:Any]
+                }
+                for (id, outcome) in [("history-correct", "correct"), ("history-wrong", "wrong")] {
+                    var completed = turn; completed["id"] = id; completed["at"] = now; completed["text"] = ""; completed["answer_reveals"] = 1
+                    completed["attempt"] = ["id":"a-"+id, "answer":"literal answer", "outcome":outcome, "original_outcome":outcome, "assisted":false, "at":now, "excluded":false]
+                    completed["explanation"] = "Synthetic explanation remains readable."
+                    turns.append(completed)
+                }
+                var waiting = turn; waiting["id"] = "history-waiting"; waiting["at"] = now; waiting["text"] = ""; turns.append(waiting)
+                if coachClarified { turns.append(["id":"history-arrival", "text":"Question", "state":"completed", "at":now, "assisted":false, "language":"de", "kind":"clarification", "message":"Synthetic arrival at the actual bottom."]) }
             }
             if mode == "coach-arrival", turns.count > 1 {
                 turns[1]["text"] = ""

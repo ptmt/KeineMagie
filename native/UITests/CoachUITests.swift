@@ -91,17 +91,14 @@ final class CoachUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Canceled"].waitForExistence(timeout: 8))
         shot(app, "coach-cancel")
     }
-    @MainActor func testCitationOpensOriginalAndReturns() {
+    @MainActor func testSourceControlsAreAbsent() {
         let app = launch()
-        let source = app.buttons["Hint"]
-        XCTAssertTrue(source.waitForExistence(timeout: 8)); source.tap()
-        let original = app.buttons["coach-source-synthetic-coach"]
-        if !original.isHittable { app.scrollViews.firstMatch.swipeUp() }
-        XCTAssertTrue(original.waitForExistence(timeout: 8)); original.tap()
-        XCTAssertTrue(app.staticTexts["Synthetic original translation"].waitForExistence(timeout: 8))
-        shot(app, "coach-original-source")
-        app.navigationBars.buttons.firstMatch.tap()
-        XCTAssertTrue(app.buttons["coach-source-synthetic-coach"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.textFields["coach-answer-synthetic-coach"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["coach-reveal"].exists)
+        app.buttons["coach-reveal"].tap()
+        XCTAssertTrue(app.staticTexts["Ich warte auf den Bus."].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.buttons["Source"].exists)
+        XCTAssertFalse(app.buttons["coach-source-synthetic-coach"].exists)
     }
     @MainActor func testFiveLocaleCompactFeedback() {
         let samples = [("de", "Richtig"), ("en", "Correct"), ("ru", "Верно"), ("es", "Correcto"), ("fr", "Correct")]
@@ -174,19 +171,16 @@ final class CoachUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Correct"].waitForExistence(timeout: 8))
         shot(app, "coach-old-answer-revealed")
     }
-    @MainActor func testOffscreenUnreadSurvivesBackgroundAndJumpAcknowledges() {
+    @MainActor func testLongHistoryOpensAtBottomWithoutResettingReceipts() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-scroll"
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch(); XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
-        let jump = app.buttons["New messages"]
-        XCTAssertTrue(jump.waitForExistence(timeout: 8))
-        XCUIDevice.shared.press(.home); sleep(1); app.activate()
-        XCTAssertTrue(jump.waitForExistence(timeout: 8))
-        shot(app, "coach-scrolled-up-unread")
-        jump.tap()
-        XCTAssertTrue(jump.waitForNonExistence(timeout: 8))
-        shot(app, "coach-jump-seen")
+        let last = app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic saved message 23.")).firstMatch
+        XCTAssertTrue(last.waitForExistence(timeout: 8)); XCTAssertTrue(last.isHittable)
+        app.scrollViews.firstMatch.swipeDown()
+        XCTAssertTrue(app.buttons["coach-latest"].waitForExistence(timeout: 5))
+        app.buttons["coach-latest"].tap(); XCTAssertTrue(last.isHittable)
     }
     @MainActor func testBackgroundReturnConsultsServerAdmissionAndKeepsDraft() {
         let app = XCUIApplication()
@@ -204,7 +198,7 @@ final class CoachUITests: XCTestCase {
         let app = launch()
         XCTAssertTrue(app.textFields["coach-answer-synthetic-coach"].waitForExistence(timeout: 8))
         let snapshot = app.debugDescription
-        let expected = ["Ich warte ___ den Bus.", "coach-answer-synthetic-coach", "coach-check-synthetic-coach", "label: 'Skip'", "coach-reveal", "coach-progress", "coach-composer", "coach-send"]
+        let expected = ["Ich warte ___ den Bus.", "coach-answer-synthetic-coach", "coach-check-synthetic-coach", "label: 'Skip'", "coach-progress", "coach-composer", "coach-send"]
         var previous = snapshot.startIndex
         for key in expected {
             guard let range = snapshot.range(of: key, range: previous..<snapshot.endIndex) else { XCTFail("Missing/out-of-order accessible element: \(key)"); continue }

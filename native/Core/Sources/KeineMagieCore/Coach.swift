@@ -33,13 +33,33 @@ public struct CoachAttempt: Codable, Sendable {
 }
 public struct CoachTurn: Codable, Sendable, Identifiable {
     public var isOffer: Bool?; public var sourceReveals: Int?; public var answerReveals: Int?; public var messageVersion: String?; public var seenVersion: String?
-    public var id: String; public let text: String; public let state: String; public let at: String
+    public var id: String; public let text: String; public let state: String; public let at: String?
     public let assisted: Bool; public let language: String
     public let message: String?; public let kind: String?; public let prompt: String?; public let target: String?
     public let sourceID: String?; public let quote: String?; public let explanation: String?; public var attempt: CoachAttempt?
     enum CodingKeys: String, CodingKey { case isOffer = "is_offer", sourceReveals = "source_reveals", answerReveals = "answer_reveals", messageVersion = "message_version", seenVersion = "seen_version", id, text, state, at, assisted, language, message, kind, prompt, target, sourceID = "source_id", quote, explanation, attempt }
 }
 extension CoachTurn {
+    /// Display-only rolling day. Unknown/future dates remain visible; never erase data.
+    public func isRecent(now: Date = Date()) -> Bool {
+        let standard = ISO8601DateFormatter()
+        let fractional = ISO8601DateFormatter(); fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let dates = [at, attempt?.at, attempt?.reviewedAt].compactMap { value -> Date? in
+            guard let value else { return nil }; return fractional.date(from: value) ?? standard.date(from: value)
+        }
+        guard let latest = dates.max() else { return true }
+        return latest >= now.addingTimeInterval(-86400)
+    }
+    public static func historyWindow(_ turns: [CoachTurn], now: Date, earlierLimit: Int) -> [CoachTurn] {
+        let classified = turns.map { ($0, $0.isRecent(now: now)) }
+        let olderIDs = Set(classified.filter { !$0.1 }.suffix(max(0, earlierLimit)).prefix(50).map { $0.0.id })
+        return classified.filter { $0.1 || olderIDs.contains($0.0.id) }.map(\.0)
+    }
+    public var presentationStatus: String {
+        if state == "pending" || attempt?.assessmentState == "pending" { return "working" }
+        if attempt?.outcome == "skipped" { return "unanswered" }
+        return attempt == nil ? "awaiting" : "completed"
+    }
     public var isUnread: Bool { state == "completed" && messageVersion != nil && messageVersion != seenVersion }
     public func masksAnswer(latestID: String?) -> Bool { attempt != nil && id != latestID && (answerReveals ?? 0) == 0 }
     public var showsInstruction: Bool {

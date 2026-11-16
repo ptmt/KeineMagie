@@ -12,11 +12,14 @@ class CoachCompactTests(unittest.TestCase):
         self.assertIn('Menu("coach.review")', profile)
         self.assertIn('turn.showsInstruction', bubble)
         self.assertIn('if let explanation = turn.explanation, turn.attempt != nil', bubble)
-        self.assertIn('coach.savedTranslation', bubble)
+        self.assertNotIn('CoachSourceView', bubble)
+        self.assertNotIn('coach-source-', bubble)
+        self.assertNotIn('$0.action != "reveal"', bubble)
+        self.assertIn('Text("coach.hint")', bubble)
         self.assertNotIn('Text(LocalizedStringKey("coach.target.', bubble)
     def test_native_labels_have_five_locales(self):
         strings = json.loads((ROOT/'App/Localizable.xcstrings').read_text())['strings']
-        for key in ['coach.hint','coach.source','coach.savedTranslation','coach.savedPassage','coach.ambiguous']:
+        for key in ['coach.earlier','coach.latest','coach.awaiting','coach.unanswered','coach.working','coach.ambiguous']:
             self.assertEqual(set(strings[key]['localizations']), {'de','en','ru','es','fr'})
         self.assertEqual(strings['coach.ambiguous']['localizations']['ru']['stringUnit']['value'], 'Не могу уверенно проверить')
 

@@ -7,7 +7,7 @@ from playwright.sync_api import sync_playwright
 import json,time
 D={'turns':[],'observations':[],'model':'gpt-6.1-terra','actions':[{'action':'more','turn_id':''}]};CALLS=[];SEEN_DELAY=0
 def turn(id,answered=False):
- t=dict(id=id,text='Synthetic practice',state='completed',at='2026-11-15T12:00:00Z',assisted=False,language='de',message='Synthetic exercise — not live AI.',kind='cloze',prompt='Ich war einmal ___ diesem Kurs dabei.',target='verb_government',source_id='translation:synthetic',message_version=id+':completed',seen_version='',source_reveals=0,answer_reveals=0)
+ t=dict(id=id,text='Synthetic practice',state='completed',at='now',assisted=False,language='de',message='Synthetic exercise — not live AI.',kind='cloze',prompt='Ich war einmal ___ diesem Kurs dabei.',target='verb_government',source_id='translation:synthetic',message_version=id+':completed',seen_version='',source_reveals=0,answer_reveals=0)
  if answered:t.update(attempt=dict(id='answer-'+id,answer='beim',outcome='wrong',original_outcome='wrong',assisted=False,at='now',excluded=False,assessment_state='completed',assessment=dict(verdict='incorrect',corrected_answer='bei',explanation='Synthetic: beim means bei dem.',uncertainty_reason='')),explanation='Synthetic: beim means bei dem.',quote='Ich war einmal bei diesem Kurs dabei.')
  return t
 class Chat(Handler):
@@ -55,23 +55,11 @@ try:
   assert page.evaluate("window.savedBubble===document.querySelector('[data-turn=old]')")
   page.reload();page.locator('[data-turn=old] .coach-answer').wait_for()
   assert not page.locator('.coach-arrival').count(), 'rehydration animates history'
-  # Scrolled-up reader remains in place and offscreen new message stays unread.
-  D['turns']=[turn(str(i),True) for i in range(20)];page.reload();page.locator('[data-turn="0"]').wait_for()
-  page.locator('.coach-messages').evaluate('(e)=>e.scrollTop=0');page.wait_for_timeout(150)
-  assert not any(b['action']=='seen' and b['turn_id']=='19' for b in CALLS)
-  D['turns'].append(turn('incoming'))
-  # Measure real frames: history stays still; a genuinely new bubble animates even when seen settles.
-  page.evaluate("""() => { window.motionFrames=[]; const start=performance.now(); function sample(now){const e=document.querySelector('[data-turn=incoming]');if(e){const s=getComputedStyle(e);window.motionFrames.push({at:now-start,opacity:Number(s.opacity),animation:s.animationName});}if(now-start<900)requestAnimationFrame(sample);}requestAnimationFrame(sample); }""")
-  page.get_by_role('link',name='Translator',exact=True).click();page.get_by_role('link',name='Coach',exact=True).click()
-  page.locator('[data-turn=incoming]').wait_for(state='attached')
-  assert page.locator('.coach-messages').evaluate('(e)=>e.scrollTop')<20
-  page.get_by_role('button',name='New messages',exact=False).click();page.wait_for_timeout(200)
-  assert any(b['action']=='seen' and b['turn_id']=='incoming' for b in CALLS)
-  page.wait_for_timeout(800)
-  frames=page.evaluate('window.motionFrames')
-  (evidence/'browser-animation-frames.json').write_text(json.dumps(frames,indent=2))
-  assert any(0<f['opacity']<1 and f['animation']=='coach-enter' for f in frames),frames
-  assert frames[-1]['opacity']==1,frames
+  # Entry now explicitly opens at bottom; manual-reading/async coverage lives
+  # in coach_presentation_browser.py.
+  D['turns']=[turn(str(i),True) for i in range(20)];page.reload()
+  page.wait_for_timeout(400)
+  assert page.locator('.coach-messages').evaluate('(e)=>e.scrollHeight-e.clientHeight-e.scrollTop')<3
   # Deterministic visibility events exercise the actual foreground handler, not a paid model.
   entries=len([b for b in CALLS if b['action']=='entry'])
   page.evaluate("Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});document.dispatchEvent(new Event('visibilitychange'))")

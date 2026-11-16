@@ -6117,6 +6117,11 @@
         }
       }
     },
+    "coach.earlier": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Earlier"}}, "de": {"stringUnit": {"state": "translated", "value": "Früher"}}, "ru": {"stringUnit": {"state": "translated", "value": "Ранее"}}, "es": {"stringUnit": {"state": "translated", "value": "Anteriores"}}, "fr": {"stringUnit": {"state": "translated", "value": "Plus tôt"}}}},
+    "coach.latest": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Latest"}}, "de": {"stringUnit": {"state": "translated", "value": "Zum neuesten"}}, "ru": {"stringUnit": {"state": "translated", "value": "К последнему"}}, "es": {"stringUnit": {"state": "translated", "value": "Lo más reciente"}}, "fr": {"stringUnit": {"state": "translated", "value": "Derniers messages"}}}},
+    "coach.awaiting": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Awaiting answer"}}, "de": {"stringUnit": {"state": "translated", "value": "Antwort ausstehend"}}, "ru": {"stringUnit": {"state": "translated", "value": "Ожидает ответа"}}, "es": {"stringUnit": {"state": "translated", "value": "Esperando respuesta"}}, "fr": {"stringUnit": {"state": "translated", "value": "En attente de réponse"}}}},
+    "coach.unanswered": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Unanswered"}}, "de": {"stringUnit": {"state": "translated", "value": "Unbeantwortet"}}, "ru": {"stringUnit": {"state": "translated", "value": "Без ответа"}}, "es": {"stringUnit": {"state": "translated", "value": "Sin responder"}}, "fr": {"stringUnit": {"state": "translated", "value": "Sans réponse"}}}},
+    "coach.working": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Checking…"}}, "de": {"stringUnit": {"state": "translated", "value": "Wird geprüft…"}}, "ru": {"stringUnit": {"state": "translated", "value": "Проверка…"}}, "es": {"stringUnit": {"state": "translated", "value": "Comprobando…"}}, "fr": {"stringUnit": {"state": "translated", "value": "Vérification…"}}}},
     "coach.source": {
       "extractionState": "manual",
       "localizations": {
