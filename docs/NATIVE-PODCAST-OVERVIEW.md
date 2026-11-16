@@ -1,4 +1,13 @@
-# Native podcast overview — accepted iOS release candidate
+# Native podcast overview — Apple upload verified
+
+## Release record — 16 November 2026 UTC
+
+- **Uploaded exact SHA `f787b40e044ddd44b62c5557a1a7a7e78443425c`, build `2765.41.82`.** Normal non-force push advanced `main` from the freshly verified `6a45610a1720857e7bc532ba9f9d88a02779bc1e`; the remote ref was read back. This release SHA differs from tested `8077d02f5afc0d6617efe3f663e2555d0547adea` only by this acceptance document.
+- Push validation run **43973105210**, validate job **133670079951**, completed **success**; its upload job was correctly skipped. Exactly one explicit `workflow_dispatch`, with `publish=UPLOAD`, created run **43973121315** for the exact SHA above. Read-back: **completed/success**, validate job **133672488824**, TestFlight job **133675586424**, both **success**.
+- Hosted validation independently passed **54 native CI tests** (one pre-build metadata skip), **95 AppModel tests**, **58 Core XCTest cases** (one Go-wire skip, covered separately by actual wire validation), **72 Swift Testing tests**, simulator build and **3 effective built-plist tests**. No UI startup is counted as a test pass; local Release acceptance is the separate 17-test run below.
+- Apple job log: **ARCHIVE SUCCEEDED** `22:57:53Z`; **EXPORT SUCCEEDED** `22:57:55Z`; **UPLOAD SUCCEEDED with no errors** at **2026-11-16 22:59:56.190148Z** (**23:59:56 CET**). Run completed `23:00:02Z` (**17 November 00:00:02 CET**). Signing cleanup also succeeded. Upload acceptance does not establish Apple processing completion, tester availability or installation on a physical iPhone.
+- iOS only: no backend rollout, provider/TTS calls, private Health/account access, domain changes or App Review submission. Original dirty worktree and all AnyProgress devices/projects remained untouched; the one task-owned simulator was shut down after evidence export.
+- Detailed retained logs: scratch `podcast-release-upload-run.json`, `podcast-release-upload-job.log`, `podcast-release-upload-validate.log`, `podcast-release-push-validate.log`. This documentation follow-up does not dispatch another upload.
 
 ## Current acceptance — 16 November 2026
 
@@ -8,7 +17,7 @@
 - Inspected actual small/dark overview, Russian XXXL, keyboard reader, successful refresh and retained-error screenshots. Standard text/counts and controls are readable; at XXXL long source titles wrap and require scrolling, with no horizontal overflow in the asserted row. Screenshots are synthetic simulator transport, not live accounts. Final evidence: `/Users/tinyserve/.hermes/cache/scratch/podcast-resume-final-evidence/`; summary `podcast-resume-final-summary.json`. Failed and targeted rerun evidence are retained separately.
 - Initial host preflight had no active Xcode build but nine unrelated booted simulators and 34,567 MiB used swap. Only existing task-owned small simulator `C2173CB2-2CC3-4883-B55C-6C8412DB4966` was booted; it completed migration in 13 seconds. No other device/process was changed. After evidence export this device was shut down and its Shutdown state read back.
 - Fresh fetch at 23:45 CET still found `origin/main` at `6a45610a1720857e7bc532ba9f9d88a02779bc1e`. All **54 original dirty-file manifest entries** hash-identical; original worktree remains untouched. Web/server, Coach history, native Translator/follow-up, Dictation production implementation and AnyProgress are unchanged. This is iOS-only; no backend rollout is needed.
-- Local acceptance gates are closed; scoped normal push and explicit `publish=UPLOAD` CI follow. Apple upload, build number and processing are not claimed until recorded below.
+- Local acceptance gates are closed; scoped normal push and explicit `publish=UPLOAD` CI completed as recorded above. Apple processing/tester availability remain unverified.
 
 The candidate and blocked-review sections below are historical evidence, superseded by this acceptance and the release record.
 
