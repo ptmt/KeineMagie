@@ -81,8 +81,17 @@ struct TranslatorView: View {
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .listRowSeparator(.hidden)
             // One stable output footprint; retain the last result throughout submission.
-            TranslationResultView(text: model.result?.translation ?? "", pending: model.translationPending)
+            TranslationResultView(text: model.displayedTranslation, pending: model.translationPending)
                 .listRowSeparator(.hidden)
+            if let result = model.result, model.history.contains(where: { $0.id == result.id }) {
+                Button { model.openTranslationDiscussion(result) } label: {
+                    Label("followup.clarify", systemImage: "text.bubble").font(.subheadline).frame(minHeight: 44)
+                }.buttonStyle(.borderless).foregroundStyle(.secondary)
+                    .disabled(model.translationPending)
+                    .accessibilityIdentifier("translation-clarify")
+                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    .listRowSeparator(.hidden)
+            }
             Section {
                 // Initial/cache hydration and refresh are quiet. Only a completed load
                 // can claim emptiness; saved rows remain visible through refresh/error.
@@ -103,9 +112,15 @@ struct TranslatorView: View {
                             }
                         }
                         Text(verbatim: item.translation).textSelection(.enabled)
+                        HStack(spacing: 12) {
                         Button { UIPasteboard.general.string = item.translation } label: {
                             Label("translation.copy", systemImage: "doc.on.doc").labelStyle(.iconOnly).frame(width: 44, height: 44)
                         }.buttonStyle(.borderless).accessibilityIdentifier("history-copy-\(item.id)")
+                        Button { model.openTranslationDiscussion(item) } label: {
+                            Label("followup.clarify", systemImage: "text.bubble").font(.subheadline).frame(minHeight: 44)
+                        }.buttonStyle(.borderless).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("history-clarify-\(item.id)")
+                        }
                         if let error = model.historyErrors[item.id] { ErrorNotice(text: error) }
                     }.frame(maxWidth: 700, alignment: .leading).frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
@@ -138,6 +153,9 @@ struct TranslatorView: View {
         }
 
         .listStyle(.plain)
+        .sheet(isPresented: $model.discussionPresented, onDismiss: { model.closeTranslationDiscussion() }) {
+            TranslationDiscussionView()
+        }
         .onChange(of: model.translationPending) { _, pending in
             if pending { UIAccessibility.post(notification: .announcement, argument: AppL10n.text("outbox.quiet.sending")) }
         }

@@ -83,6 +83,20 @@ public struct APIClient: Sendable {
         return result
     }
     public func historyRequest() throws -> URLRequest { try request(path: "v1/translations", method: "GET") }
+    public func translationFollowupRequest(_ input: TranslationFollowupInput, owner: String) throws -> URLRequest {
+        guard input.isValid, !owner.isEmpty else { throw APIError.invalidResponse }
+        var result = try request(path: "v1/translation-followups", method: "POST")
+        result.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        result.setValue(owner, forHTTPHeaderField: "X-Translation-Owner")
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        result.httpBody = try encoder.encode(input)
+        return result
+    }
+    public func translationFollowup(_ input: TranslationFollowupInput, original: TranslationRecord, owner: String) async throws -> TranslationRecord {
+        let record = try APIJSON.decoder().decode(TranslationRecord.self, from: await send(translationFollowupRequest(input, owner: owner)))
+        guard input.validates(record, original: original) else { throw APIError.invalidResponse }
+        return record
+    }
     private func historyMutationRequest(id: String, method: String) throws -> URLRequest {
         guard !id.isEmpty, id != ".", id != "..",
               let encoded = id.addingPercentEncoding(withAllowedCharacters: CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_~"))) else { throw APIError.invalidResponse }

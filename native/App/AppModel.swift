@@ -329,6 +329,126 @@ final class AppModel {
         async let podcast: () = refreshPodcasts()
         _ = await (translator, podcast)
     }
+    // Discussion state is owner-bound and independent of provider-status reads.
+    var discussionPresented = false
+    private var discussionID: String?
+    private var discussionDrafts: [String: TranslationDiscussionDraft] = [:]
+    private var discussionHydratedGeneration: Int?
+    private var followupEpoch = 0
+    private var followupTask: Task<Void, Never>?
+    private(set) var followupPending = false
+    private(set) var followupError: String?
+    private(set) var appliedProposalID: String?
+    private var localTranslation: (id: String, text: String)?
+    var displayedTranslation: String {
+        if let localTranslation, localTranslation.id == result?.id { return localTranslation.text }
+        return result?.translation ?? ""
+    }
+    var discussionRecord: TranslationRecord? {
+        guard session.phase == .signedIn, let id = discussionID else { return nil }
+        return history.first { $0.id == id }
+    }
+    var followupQuestion: String {
+        get { discussionID.flatMap { discussionDrafts[$0]?.question } ?? "" }
+        set {
+            guard let id = discussionID else { return }
+            var entry = discussionDrafts[id] ?? TranslationDiscussionDraft()
+            entry.question = newValue; discussionDrafts[id] = entry; followupError = nil
+            // Disk-only draft preservation. Typing never starts inference.
+            _ = persistTranslationDiscussions()
+        }
+    }
+    func openTranslationDiscussion(_ record: TranslationRecord) {
+        guard session.phase == .signedIn, history.contains(where: { $0.id == record.id }) else { return }
+        if discussionID != record.id { closeTranslationDiscussion() }
+        if result?.id != record.id {
+            result = record; draft = record.text
+            if let value = TranslationDirection.allCases.first(where: { $0.source == record.sourceLanguage && $0.target == record.targetLanguage }) { direction = value }
+            localTranslation = nil
+        }
+        discussionID = record.id; discussionPresented = true; followupError = nil; appliedProposalID = nil
+    }
+    func closeTranslationDiscussion() {
+        followupEpoch += 1; followupTask?.cancel(); followupTask = nil
+        followupPending = false; discussionPresented = false
+    }
+    func loadTranslationDiscussions() async {
+        let version = session.generation
+        guard discussionHydratedGeneration != version, session.phase == .signedIn, cacheEnabled, let owner = session.user?.id else { return }
+        let data = try? await contentCache.load(dataset: "translation-discussions", server: session.serverURL, owner: owner)
+        guard version == session.generation, session.phase == .signedIn else { return }
+        if let data, let saved = try? JSONDecoder().decode([String: TranslationDiscussionDraft].self, from: data) {
+            discussionDrafts.merge(saved) { current, _ in current }
+        }
+        discussionHydratedGeneration = version
+    }
+    @discardableResult private func persistTranslationDiscussions() -> Task<Bool, Never> {
+        guard let lease = cacheSession() else { return Task { !self.cacheEnabled } }
+        cacheRevision += 1
+        let revision = cacheRevision, snapshot = discussionDrafts, cache = contentCache
+        return Task {
+            do {
+                let data = try await Task.detached { try JSONEncoder().encode(snapshot) }.value
+                try await cache.save(data, dataset: "translation-discussions", session: lease, revision: revision); return true
+            }
+            catch { return false }
+        }
+    }
+    @discardableResult func beginTranslationFollowup(locale: String) -> Task<Void, Never>? {
+        guard !followupPending, session.canWrite, let owner = session.user?.id, let record = discussionRecord,
+              result?.id == record.id, direction.source == record.sourceLanguage, direction.target == record.targetLanguage,
+              !historyBusy(record.id), record.followups.count < 6 else { return nil }
+        let question = followupQuestion
+        let candidate = TranslationFollowupInput(historyID: record.id, question: question, locale: locale, expectedTurns: record.followups.count, currentSource: draft, currentTranslation: displayedTranslation)
+        guard candidate.isValid else { followupError = "followup.draftLimit"; return nil }
+        let version = session.generation, epoch = followupEpoch
+        followupPending = true; followupError = nil
+        let task = Task { [self] in
+            @MainActor func current() -> Bool { !Task.isCancelled && version == session.generation && epoch == followupEpoch && session.phase == .signedIn && owner == session.user?.id && discussionID == record.id && history.contains(where: { $0.id == record.id }) }
+            defer { if epoch == followupEpoch { followupPending = false; followupTask = nil } }
+            await loadTranslationDiscussions()
+            guard current() else { return }
+            // A retained request is retried exactly, even if the working pair changed.
+            // Editing the question explicitly authorizes a distinct new question.
+            let prior = discussionDrafts[record.id]?.request
+            let request = prior?.question == question ? prior! : candidate
+            discussionDrafts[record.id] = TranslationDiscussionDraft(question: question, request: request)
+            guard await persistTranslationDiscussions().value else { if current() { followupError = "followup.storage" }; return }
+            guard current(), session.canWrite else { return }
+            do {
+                let updated = try await api().translationFollowup(request, original: record, owner: owner)
+                guard current() else { return }
+                historyState.insert(updated)
+                if result?.id == record.id { result = updated }
+                if discussionDrafts[record.id]?.question == question { discussionDrafts[record.id]?.question = "" }
+                discussionDrafts[record.id]?.request = nil
+                await persistHistory()
+                guard current() else { return }
+                _ = await persistTranslationDiscussions().value
+            } catch {
+                guard current() else { return }
+                if case APIError.http(401) = error { session.rejectUnauthorized(); resetSessionContent(); return }
+                session.recordNetworkFailure(error)
+                switch error {
+                case APIError.http(429): followupError = "followup.quota"
+                case APIError.http(409): followupError = "followup.conflict"
+                case APIError.http(404): followupError = "followup.deleted"
+                default: followupError = "followup.error"
+                }
+            }
+        }
+        followupTask = task
+        return task
+    }
+    func applyTranslationProposal(_ turn: TranslationFollowup) {
+        guard !followupPending, session.canWrite, let record = discussionRecord, result?.id == record.id,
+              let saved = record.followups.first(where: { $0.id == turn.id }), let translation = saved.revisedText else { return }
+        // A proposal is always an atomic pair, including legacy translation-only turns.
+        draft = saved.proposalSource(original: record.text)
+        localTranslation = (record.id, translation)
+        if let value = TranslationDirection.allCases.first(where: { $0.source == record.sourceLanguage && $0.target == record.targetLanguage }) { direction = value }
+        appliedProposalID = turn.id
+    }
     private(set) var input = ""
     private(set) var result: TranslationRecord?
     private(set) var historyState = HistoryState()
@@ -360,6 +480,9 @@ final class AppModel {
                     try await client.deleteHistory(id: item.id)
                     guard !Task.isCancelled, version == session.generation, session.phase == .signedIn else { return }
                     historyState.completeDeletion(mutation)
+                    if discussionID == item.id { closeTranslationDiscussion(); discussionID = nil }
+                    discussionDrafts[item.id] = nil
+                    _ = persistTranslationDiscussions()
                     // Current translation and draft intentionally remain readable after history deletion.
                 }
                 await persistHistory()
@@ -738,6 +861,7 @@ final class AppModel {
                     outbox.items[i].result = item; outbox.items[i].state = .completed; outbox.items[i].failure = nil
                     guard await persistTranslationOutbox().value else { return }
                     guard version == session.generation, epoch == translationEpoch, session.user?.id == owner else { return }
+                    closeTranslationDiscussion(); localTranslation = nil
                     result = item; historyState.insert(item); translatorError = nil
                     if draft == snapshot.text && direction == snapshot.direction && translationInstruction == snapshot.instructions { selectedShortcutID = nil }
                     await persistHistory()
@@ -808,6 +932,8 @@ final class AppModel {
         #endif
     }
     func resetSessionContent() {
+        closeTranslationDiscussion(); discussionID = nil; discussionDrafts = [:]
+        discussionHydratedGeneration = nil; followupError = nil; appliedProposalID = nil; localTranslation = nil
         outboxLease.invalidate()
         translationAcceptance = nil
         if let scope = outboxScope, let owner = scope.owner, session.user == nil {

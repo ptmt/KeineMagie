@@ -70,7 +70,36 @@ actor SimulatorSessionFixture {
     init(mode: String) { self.mode = mode }
     static let copyTranslation = "  Übersetzung 👩🏽‍💻 Привет e\u{0301}\n\n" + String(repeating: "Zeile 日本語\t  {\"nested\":{\"literal\":\"\\n\",\"items\":[1,2]}}\n", count: 1200) + "  Ende\n "
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
+    private var followupRecord: [String: Any]?
+    private var followupAttempts = 0
+    private var followupRequestID: String?
     func send(_ request: URLRequest) async throws -> AuthResponse {
+        if mode.hasPrefix("translation-followup") {
+            if mode == "translation-followup-accessibility", followupRecord == nil {
+                followupRecord = ["id": "followup-synthetic", "created_at": "2026-11-16T12:00:00Z", "text": "Фрагмент", "translation": "Fragment", "source_language": "ru", "target_language": "de", "idioms": [], "patterns": [], "vocabulary": []]
+            }
+            if request.url?.path == "/v1/translations", request.httpMethod == "POST" {
+                let input = try JSONSerialization.jsonObject(with: request.httpBody!) as! [String: Any]
+                let record: [String: Any] = ["id": "followup-synthetic", "created_at": "2026-11-16T12:00:00Z", "text": input["text"]!, "translation": "Fragment", "source_language": input["source_language"]!, "target_language": input["target_language"]!, "idioms": [], "patterns": [], "vocabulary": [], "followups": NSNull()]
+                followupRecord = record
+                return AuthResponse(data: try JSONSerialization.data(withJSONObject: record), status: 201)
+            }
+            if request.url?.path == "/v1/translation-followups" {
+                followupAttempts += 1
+                let input = try JSONDecoder().decode(TranslationFollowupInput.self, from: request.httpBody!)
+                if let previous = followupRequestID, previous != input.requestID { return AuthResponse(data: Data(), status: 409) }
+                followupRequestID = input.requestID
+                try await Task.sleep(for: .seconds(2))
+                if mode == "translation-followup-retry", followupAttempts == 1 { return AuthResponse(data: Data(), status: 502) }
+                guard var record = followupRecord else { throw APIError.invalidResponse }
+                record["followups"] = [["request_id": input.requestID, "question": input.question, "answer": "Short explanation: this means an appointment.", "current_source": input.currentSource, "current_translation": input.currentTranslation, "revised_source_text": "У меня встреча.", "revised_text": "Ich habe einen Termin.", "created_at": "2026-11-16T12:01:00Z"]]
+                followupRecord = record
+                return AuthResponse(data: try JSONSerialization.data(withJSONObject: record), status: 201)
+            }
+            if request.url?.path == "/v1/translations", request.httpMethod == "GET", let record = followupRecord {
+                return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": [record]]), status: 200)
+            }
+        }
         if mode.hasPrefix("translation-geometry"), request.url?.path == "/v1/provider" {
             try await Task.sleep(for: .seconds(12))
             if mode == "translation-geometry-error" { return AuthResponse(data: Data(), status: 503) }

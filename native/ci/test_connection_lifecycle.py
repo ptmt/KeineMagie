@@ -761,6 +761,7 @@ enum AppL10n { static func text(_ key:String) -> String { key } }
         (p/'Tests/LifecycleTests/LearningTests.swift').write_text((ROOT/'ci/learning_harness.swift').read_text())
         (p/'Tests/LifecycleTests/CoachTests.swift').write_text((ROOT/'ci/coach_harness.swift').read_text())
         (p/'Tests/LifecycleTests/DictationTests.swift').write_text((ROOT/'ci/dictation_harness.swift').read_text())
+        (p/'Tests/LifecycleTests/FollowupTests.swift').write_text((ROOT/'ci/followup_harness.swift').read_text())
         # Execute the view's actual conflict resolver without requiring an iOS UI host.
         view = (ROOT/'App/DictationView.swift').read_text()
         resolver = view[view.index('    private func resolveConflict('):view.index('    private func perform(')].replace('private func resolveConflict', 'func resolveConflict')

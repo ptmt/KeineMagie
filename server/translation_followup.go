@@ -98,6 +98,10 @@ func (cfg *serverConfig) handleTranslationFollowups(w http.ResponseWriter, r *ht
 	if !ok {
 		return
 	}
+	if expected := r.Header.Get("X-Translation-Owner"); expected != "" && expected != user {
+		writeError(w, 403, "translation owner changed")
+		return
+	}
 	if r.Method != "POST" {
 		writeError(w, 405, "method not allowed")
 		return
