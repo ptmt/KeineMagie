@@ -53,13 +53,14 @@ final class CoachPresentationUITests: XCTestCase {
             app.launch(); XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
             XCTAssertTrue(app.textFields["coach-answer-history-waiting"].waitForExistence(timeout: 15))
             XCTAssertTrue(app.textFields["coach-answer-history-waiting"].isHittable)
-            print("COACH_UI_BENCH count=\(count) initial_seconds=\(Date().timeIntervalSince(start))")
+            let initialSeconds = Date().timeIntervalSince(start)
             for _ in 0..<20 { if app.buttons["coach-earlier"].isHittable { break }; app.scrollViews.firstMatch.swipeDown() }
             let reveal = Date(); app.buttons["coach-earlier"].tap()
             XCTAssertTrue(app.staticTexts["Archived synthetic exercise \(count - 50)"].waitForExistence(timeout: 10))
             XCTAssertFalse(app.staticTexts["Archived synthetic exercise 0"].exists)
             XCTAssertTrue(app.textFields["coach-answer-history-archived-\(count - 50)"].exists)
-            print("COACH_UI_BENCH count=\(count) reveal_seconds=\(Date().timeIntervalSince(reveal)) page=50")
+            let measurement = XCTAttachment(string: "count=\(count) initial_seconds=\(initialSeconds) reveal_seconds=\(Date().timeIntervalSince(reveal)) page=50")
+            measurement.name = "coach-benchmark-\(count)"; measurement.lifetime = .keepAlways; add(measurement)
             app.terminate()
         }
     }

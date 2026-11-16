@@ -42,17 +42,17 @@ public struct CoachTurn: Codable, Sendable, Identifiable {
 extension CoachTurn {
     /// Display-only rolling day. Unknown/future dates remain visible; never erase data.
     public func isRecent(now: Date = Date()) -> Bool {
-        let standard = ISO8601DateFormatter()
-        let fractional = ISO8601DateFormatter(); fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let dates = [at, attempt?.at, attempt?.reviewedAt].compactMap { value -> Date? in
-            guard let value else { return nil }; return fractional.date(from: value) ?? standard.date(from: value)
+            guard let value else { return nil }
+            return (try? Date.ISO8601FormatStyle(includingFractionalSeconds: true).parse(value)) ?? (try? Date.ISO8601FormatStyle().parse(value))
         }
         guard let latest = dates.max() else { return true }
         return latest >= now.addingTimeInterval(-86400)
     }
     public static func historyWindow(_ turns: [CoachTurn], now: Date, earlierLimit: Int) -> [CoachTurn] {
         let classified = turns.map { ($0, $0.isRecent(now: now)) }
-        let olderIDs = Set(classified.filter { !$0.1 }.suffix(max(0, earlierLimit)).prefix(50).map { $0.0.id })
+        let older = classified.filter { !$0.1 }
+        let olderIDs = Set(older.suffix(max(0, earlierLimit)).prefix(min(50, max(0, older.count - earlierLimit + 50))).map { $0.0.id })
         return classified.filter { $0.1 || olderIDs.contains($0.0.id) }.map(\.0)
     }
     public var presentationStatus: String {

@@ -8,7 +8,7 @@ export function coachRecentTurns(turns,now=Date.now()){
 export function coachHistoryWindow(turns,now,earlierLimit=0){
  const recent=new Set(coachRecentTurns(turns,now));
  const older=turns.filter(t=>!recent.has(t));
- const earlier=new Set(earlierLimit>0?older.slice(Math.max(0,older.length-earlierLimit),Math.max(0,older.length-earlierLimit)+50):[]);
+ const earlier=new Set(earlierLimit>0?older.slice(Math.max(0,older.length-earlierLimit),Math.max(0,older.length-earlierLimit+50)):[]);
  return turns.filter(t=>recent.has(t)||earlier.has(t));
 }
 export function coachExerciseStatus(turn){

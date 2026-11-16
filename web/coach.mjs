@@ -77,7 +77,8 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
   summary.textContent=l(8);refresh.textContent=l(11);input.placeholder=l(1);input.setAttribute('aria-label',l(1));send.textContent=l(2);
   input.disabled=!state.signedIn;send.disabled=!state.signedIn||state.busy;
   quick.replaceChildren(...coachQuickActions(state.value).slice(0,3).map(a=>{const b=button(coachQuickLabel(a.action,locale()),async()=>{ownSend=a.action!=='reveal';if(ownSend)follow=true;await state.act(a.action,a.action==='reveal'?'source':coachQuickLabel(a.action,locale()),a.turn_id);});b.disabled=!state.signedIn||state.busy;return b;}));refresh.disabled=!state.signedIn||state.busy;
-  const activeEarlier=[...(state.value?.turns||[])].reverse().find(t=>!t.attempt&&t.kind&&!['clarification','nudge'].includes(t.kind)&&!coachRecentTurns([t],historyNow).length);
+  const lastExercise=[...(state.value?.turns||[])].reverse().find(t=>t.kind&&!['clarification','nudge'].includes(t.kind));
+  const activeEarlier=lastExercise&&!lastExercise.attempt&&!coachRecentTurns([lastExercise],historyNow).length?lastExercise:null;
   if(activeEarlier){const open=button(pl('awaiting',locale()),()=>{const older=(state.value?.turns||[]).filter(t=>!coachRecentTurns([t],historyNow).length),index=older.indexOf(activeEarlier);showEarlier=(Math.floor((older.length-index-1)/50)+1)*50;follow=false;render();[...messages.querySelectorAll('[data-turn]')].find(e=>e.dataset.turn===activeEarlier.id)?.scrollIntoView({block:'center'});});open.className='coach-active-earlier';quick.append(open);}
   status.textContent=state.error?ct('coach.error.'+state.error,locale()):'';
   const next=JSON.stringify([state.value,state.busy,state.pendingID,state.signedIn,locale(),showEarlier]);if(next===signature)return;signature=next;

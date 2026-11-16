@@ -28,7 +28,8 @@ try:
  with sync_playwright() as p:
   browser=p.chromium.launch()
   for locale,earlier,waiting in [('en','Earlier','Awaiting answer'),('de','Früher','Antwort ausstehend'),('ru','Ранее','Ожидает ответа'),('es','Anteriores','Esperando respuesta'),('fr','Plus tôt','En attente de réponse')]:
-   page=browser.new_page(viewport={'width':390,'height':844},color_scheme='dark',reduced_motion='reduce');errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+   scheme=os.environ.get('KM_COACH_COLOR_SCHEME','dark')
+   page=browser.new_page(viewport={'width':390,'height':844},color_scheme=scheme,reduced_motion='reduce');errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
    from datetime import datetime, timezone
    page.clock.install(time=datetime(2026,10,25,12,tzinfo=timezone.utc))
    page.add_init_script("localStorage.setItem('keinemagie:interface-language:v1',"+json.dumps(locale)+")")
@@ -46,7 +47,17 @@ try:
    assert page.locator('[data-turn=waiting] .coach-hint').is_visible()
    assert page.locator('#coach-input').input_value()=='hint preserves draft'
    page.locator('#coach-input').fill('')
-   page.screenshot(path=str(evidence/f'web-{locale}-dark.png'))
+   page.screenshot(path=str(evidence/f'web-{locale}-{scheme}.png'))
+   # Read actual computed foreground/backgrounds, including placeholder rules.
+   samples=page.evaluate('''() => {
+    const rgba=s=>{const m=s.match(/[\\d.]+/g).map(Number);return [m[0]/255,m[1]/255,m[2]/255,m[3]??1]};
+    const over=(a,b)=>[0,1,2].map(i=>a[i]*a[3]+b[i]*(1-a[3])).concat(1);
+    const bg=e=>{if(!e)return [1,1,1,1];const c=rgba(getComputedStyle(e).backgroundColor);return over(c,e.parentElement?bg(e.parentElement):(matchMedia('(prefers-color-scheme: dark)').matches?[.07,.07,.07,1]:[1,1,1,1]))};
+    const lum=c=>c.slice(0,3).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((v,x,i)=>v+x*[.2126,.7152,.0722][i],0);
+    return ['.coach-task-status','.coach-prompt','.coach-answer','.coach-exercise input','#coach-input'].map(s=>{const e=document.querySelector(s);const p=e.matches('input,textarea')?'::placeholder':null;const style=getComputedStyle(e,p),back=bg(e),fore=over(rgba(style.color),back),a=lum(fore),b=lum(back);return {selector:s,color:style.color,background:back,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)}});
+   }''')
+   assert all(s['ratio']>=4.5 for s in samples),samples
+   (evidence/f'contrast-{locale}-{scheme}.json').write_text(json.dumps(samples,indent=2))
    page.locator('.coach-messages').evaluate('(e)=>e.scrollTop=0');page.wait_for_timeout(100)
    page.get_by_role('button',name=earlier,exact=True).click();assert page.locator('[data-turn=archived]').count()==1
    page.locator('#coach-input').fill('keep draft while reading');before=page.locator('.coach-messages').evaluate('(e)=>e.scrollTop')
@@ -66,6 +77,20 @@ try:
    page.locator('.coach-composer button[type=submit]').click();page.wait_for_timeout(400);assert gap()<3,('own send',gap())
    page.reload();page.wait_for_timeout(300);assert page.locator('[data-turn=archived]').count()==0;assert gap()<3
    assert not errors,errors
+   page.close()
+  # Large archives use a replacement page, not an ever-growing native/web stack.
+  for count in [200,1000]:
+   D['turns']=[exercise('old-'+str(i),at='2020-01-01T00:00:00Z') for i in range(count)]+[row('new')]
+   D['actions']=[{'action':'reveal','turn_id':'old-'+str(count-1)}]
+   page=browser.new_page(viewport={'width':390,'height':844},color_scheme='light');page.clock.install(time=datetime(2026,10,25,12,tzinfo=timezone.utc))
+   start=time.perf_counter();page.goto(f'http://127.0.0.1:{server.server_port}/#coach');page.locator('.coach-active-earlier').wait_for();initial=time.perf_counter()-start
+   assert page.locator('[data-turn]').count()==1
+   start=time.perf_counter();page.locator('.coach-active-earlier').click();page.locator(f'[data-turn="old-{count-50}"]').wait_for();reveal=time.perf_counter()-start
+   assert page.locator('[data-turn]').count()==51
+   assert page.locator('[data-turn="old-0"]').count()==0
+   page.get_by_role('button',name='Earlier',exact=True).click();assert page.locator('[data-turn]').count()==51
+   assert page.locator(f'[data-turn="old-{count-100}"]').count()==1
+   print('WEB_BENCH',json.dumps({'archive':count,'initial_s':initial,'reveal_s':reveal,'rendered':51}))
    page.close()
   browser.close()
  print('PASS five locales: history/reload, neutral correct+wrong, source absent, initial/own send bottom, manual reading+draft, resize, asynchronous layout. Evidence:',evidence)

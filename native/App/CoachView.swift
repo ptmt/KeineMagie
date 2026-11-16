@@ -160,7 +160,7 @@ struct CoachView: View {
                 .accessibilityIdentifier("coach-" + action.action).accessibilityValue(motionContract)
             }
             if !dynamicTypeSize.isAccessibilitySize { Spacer() }
-            if let active = model.coach?.turns.last(where: { $0.attempt == nil && $0.kind != nil && !["clarification", "nudge"].contains($0.kind ?? "") }), !active.isRecent(now: historyNow), showEarlier == 0 {
+            if let active = model.coach?.turns.last(where: { $0.kind != nil && !["clarification", "nudge"].contains($0.kind ?? "") }), active.attempt == nil, !active.isRecent(now: historyNow), !CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier).contains(where: { $0.id == active.id }) {
                 Button("coach.awaiting") {
                     let older = (model.coach?.turns ?? []).filter { !$0.isRecent(now: historyNow) }
                     let index = older.firstIndex(where: { $0.id == active.id }) ?? 0
