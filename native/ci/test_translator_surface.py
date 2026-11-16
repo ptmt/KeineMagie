@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class TranslatorSurfaceTests(unittest.TestCase):
     def test_signed_in_route_is_translator_not_account_list(self):
         root = (ROOT / 'App/KeineMagieApp.swift').read_text()
-        self.assertIn('MainTabsView()', root)
+        self.assertIn('MainTabsView(showSettings:', root)
         tabs = (ROOT / 'App/MainTabsView.swift').read_text()
         self.assertIn('TranslatorView(showPending:', tabs)
         self.assertLess(tabs.index('TranslatorView(showPending:'), tabs.index('feature.dictation'))

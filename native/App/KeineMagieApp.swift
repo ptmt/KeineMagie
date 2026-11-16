@@ -19,7 +19,7 @@ struct RootView: View {
         NavigationStack {
             Group {
                 if model.session.phase == .signedIn {
-                    MainTabsView().id(model.session.generation)
+                    MainTabsView(showSettings: $showSettings).id(model.session.generation)
                 } else {
                     LoginGate()
                 }
@@ -27,9 +27,11 @@ struct RootView: View {
             .navigationTitle(model.session.phase == .signedIn ? "" : ProductIdentity.displayName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Einstellungen", systemImage: "gearshape") { showSettings = true }
-                        .disabled(model.session.phase == .loggingOut)
+                if model.session.phase != .signedIn {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Einstellungen", systemImage: "gearshape") { showSettings = true }
+                            .disabled(model.session.phase == .loggingOut)
+                    }
                 }
             }
         }

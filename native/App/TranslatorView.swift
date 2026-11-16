@@ -15,12 +15,6 @@ struct TranslatorView: View {
         List {
 
             VStack(alignment: .leading, spacing: 12) {
-                Picker("Richtung", selection: $model.direction) {
-                    ForEach(TranslationDirection.allCases, id: \.self) { direction in
-                        Text(verbatim: direction.compactTitle).tag(direction)
-                            .accessibilityLabel(Text(LocalizedStringKey("direction." + direction.rawValue)))
-                    }
-                }.pickerStyle(.segmented).accessibilityIdentifier("translator-direction")
                 VStack(spacing: 0) {
                     TextEditor(text: $model.draft)
                         .focused($inputFocused)
@@ -242,7 +236,7 @@ private struct TranslationPendingPanel: View {
                                 RoundedRectangle(cornerRadius: 4).fill(.quaternary)
                                     .frame(width: max(0, geometry.size.width - 32) * [1.0, 0.85, 0.62][index], height: 12)
                             }
-                        }.padding(16).padding(.top, 44)
+                        }.padding(16).padding(.trailing, 52)
                     }
                     if !reduceMotion {
                         let phase = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.6) / 1.6
@@ -271,9 +265,13 @@ private struct TranslationResultView: View {
     @State private var pasteboardCheck = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Spacer(minLength: 0)
+        HStack(alignment: .top, spacing: 8) {
+            Text(verbatim: text).font(.title3).textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("translation-result-text")
+            // Reserve the lane even when there is no copyable output.
+            Group {
+                if !text.isEmpty {
                 Button {
                     UIPasteboard.general.string = text
                     copied = true; confirmationID = UUID()
@@ -292,11 +290,13 @@ private struct TranslationResultView: View {
                 .disabled(pending || text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 .accessibilityIdentifier("translation-copy")
                 .accessibilityValue(Text(verbatim: pasteboardCheck))
+                } else {
+                    Color.clear.frame(width: 44, height: 44).accessibilityHidden(true)
+                }
             }
-            Text(verbatim: text).font(.title3).textSelection(.enabled)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(minHeight: 70, alignment: .topLeading)
         }
+        // Preserve the previous 44 + 8 + 70 footprint through empty/pending states.
+        .frame(minHeight: 122, alignment: .topLeading)
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
         .overlay {

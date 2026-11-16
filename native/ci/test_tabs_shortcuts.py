@@ -36,7 +36,7 @@ class TabsAndShortcutsTests(unittest.TestCase):
 
     def test_identity_epoch_resets_tabs_and_account_local_content(self):
         source = (ROOT / 'App/KeineMagieApp.swift').read_text()
-        self.assertIn('MainTabsView().id(model.session.generation)', source)
+        self.assertIn('MainTabsView(showSettings: $showSettings).id(model.session.generation)', source)
         self.assertIn('model.resetSessionContent(); model.loadShortcuts()', source)
 
 if __name__ == '__main__':

@@ -45,6 +45,7 @@ final class TranslationFeedbackUITests: XCTestCase {
         for locale in ["en", "de", "ru", "es", "fr"] {
             let app = XCUIApplication()
             app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "translation-pending"
+            app.launchEnvironment["KM_SIMULATOR_PENDING_GEOMETRY"] = "1"
             app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
             app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]
             app.launch()
@@ -57,7 +58,7 @@ final class TranslationFeedbackUITests: XCTestCase {
             let outputBefore = output.frame
             submit.tap()
             XCTAssertFalse(submit.isEnabled)
-            XCTAssertFalse(app.buttons["translation-copy"].isEnabled)
+            XCTAssertFalse(app.buttons["translation-copy"].exists, "No copy control without completed output")
             XCTAssertEqual(submit.frame.minY, before.minY, accuracy: 1)
             XCTAssertEqual(submit.frame.height, before.height, accuracy: 1)
             XCTAssertEqual(output.frame.minY, outputBefore.minY, accuracy: 1)
@@ -69,7 +70,7 @@ final class TranslationFeedbackUITests: XCTestCase {
             XCTAssertTrue(app.keyboards.firstMatch.exists)
             let completed = NSPredicate(format: "enabled == true")
             expectation(for: completed, evaluatedWith: submit)
-            waitForExpectations(timeout: 15)
+            waitForExpectations(timeout: 30)
             app.swipeUp()
             XCTAssertTrue(app.buttons["translation-copy"].isEnabled)
             app.terminate()

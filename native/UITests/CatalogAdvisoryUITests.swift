@@ -20,9 +20,9 @@ final class CatalogAdvisoryUITests: XCTestCase {
         let submit = app.buttons["translator-submit"]
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         XCTAssertFalse(submit.isEnabled, "Empty text, not catalog state, disables submit")
-        let before = [editor.frame, submit.frame, app.segmentedControls["translator-direction"].frame]
+        let before = [editor.frame, submit.frame, app.buttons["translator-direction"].frame]
         Thread.sleep(forTimeInterval: 4)
-        let after = [editor.frame, submit.frame, app.segmentedControls["translator-direction"].frame]
+        let after = [editor.frame, submit.frame, app.buttons["translator-direction"].frame]
         XCTAssertEqual(before, after)
         XCTAssertFalse(app.staticTexts[oldWarning].exists)
         XCTAssertFalse(app.staticTexts["provider-diagnostic"].exists)

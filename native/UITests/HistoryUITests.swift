@@ -39,12 +39,12 @@ final class HistoryUITests: XCTestCase {
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"
         app.launchArguments = ["-AppleLanguages", "(en)"]
         app.launch()
-        let picker = app.segmentedControls["translator-direction"]
+        let picker = app.buttons["translator-direction"]
         XCTAssertTrue(picker.waitForExistence(timeout: 10))
-        XCTAssertTrue(picker.buttons["Russian to German"].isSelected)
-        picker.buttons["German to Russian"].tap()
+        XCTAssertEqual(picker.label, "Russian to German")
+        picker.tap(); app.buttons["translator-direction-de-ru"].tap()
         XCUIDevice.shared.press(.home); app.activate()
-        XCTAssertTrue(picker.buttons["German to Russian"].isSelected)
+        XCTAssertEqual(picker.label, "German to Russian")
     }
     @MainActor func testDirectionSwitchKeepsDraftAndUsesFullAccessibleNames() {
         let app = XCUIApplication()
@@ -54,9 +54,11 @@ final class HistoryUITests: XCTestCase {
         let editor = app.textViews["translator-input"]
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         editor.tap(); editor.typeText("Ich hat Zeit")
-        let picker = app.segmentedControls["translator-direction"]
-        for title in ["Russian to German", "Polish German", "German to Russian"] {
-            picker.buttons[title].tap()
+        let picker = app.buttons["translator-direction"]
+        for (raw, title) in [("ru-de", "Russian to German"), ("de-de", "Polish German"), ("de-ru", "German to Russian")] {
+            picker.tap(); app.buttons["translator-direction-" + raw].tap()
+            XCTAssertEqual(picker.label, title)
+            XCTAssertTrue(app.keyboards.firstMatch.exists)
             XCTAssertEqual(editor.value as? String, "Ich hat Zeit")
         }
         screenshot(app, "synthetic-direction-compact-preserved-draft")

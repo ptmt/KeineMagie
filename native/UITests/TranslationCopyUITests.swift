@@ -53,9 +53,12 @@ final class TranslationCopyUITests: XCTestCase {
     }
 
     @MainActor
-    func testClearIsDisabledDuringPendingTranslation() {
+    func testClearDuringPendingTranslationKeepsAcceptedSnapshotAndKeyboard() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "translation-pending"
+        // Hold past editing and accessibility snapshots so the test exercises
+        // a genuinely pending accepted request, not a completed fixture.
+        app.launchEnvironment["KM_SIMULATOR_PENDING_GEOMETRY"] = "1"
         app.launchArguments = ["-AppleLanguages", "(en)"]
         app.launch()
         let editor = app.textViews["translator-input"]
@@ -67,9 +70,15 @@ final class TranslationCopyUITests: XCTestCase {
         submit.tap()
         let clear = app.buttons["translator-clear"]
         XCTAssertTrue(clear.exists)
-        XCTAssertFalse(clear.isEnabled)
-        XCTAssertEqual(editor.value as? String, "Keep this pending draft")
-        XCTAssertTrue(app.buttons["translation-copy"].waitForExistence(timeout: 15))
+        // Accepted requests are immutable; the current draft remains editable.
+        // This is the shipped outbox contract, not a new compact-layout policy.
+        XCTAssertTrue(clear.isEnabled)
+        clear.tap()
+        XCTAssertEqual(editor.value as? String, "")
+        XCTAssertTrue(app.keyboards.firstMatch.exists)
+        editor.typeText("Next draft")
+        XCTAssertTrue(app.buttons["translation-copy"].waitForExistence(timeout: 30))
+        XCTAssertEqual(editor.value as? String, "Next draft", "Completion must not replace the newer draft")
         XCTAssertTrue(clear.isEnabled)
     }
 

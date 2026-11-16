@@ -207,6 +207,38 @@ final class JournalProbe: @unchecked Sendable {
     #expect(!model.translationPending)
     #expect(model.draft == "different draft")
 }
+@Test @MainActor func headerDirectionEditsRetainResultAndNeverMutateAcceptedSnapshot() async throws {
+    let gate = Gate()
+    let model = await fixture(gate)
+    model.draft = "first"; model.direction = .germanToRussian
+    await model.translate()
+    let prior = try #require(model.result)
+    gate.holdTranslation = true
+    model.draft = "second"; model.direction = .russianToGerman
+    let accepted = try #require(model.beginTranslation())
+    while gate.translationRelease == nil { await Task.yield() }
+    model.direction = .germanPolishing
+    #expect(model.draft == "second")
+    #expect(model.result?.id == prior.id)
+    #expect(model.result?.translation == prior.translation)
+    #expect(model.translationPending)
+    #expect(!model.translationSubmitPending, "A changed next-draft direction is editable during an immutable send")
+    #expect(model.outbox.items.last?.direction == .russianToGerman)
+    #expect(gate.translationRequests.count == 2, "Changing direction does not automatically translate")
+    let body = try #require(gate.translationRequests.last?.httpBody)
+    let payload = try #require(JSONSerialization.jsonObject(with: body) as? [String:Any])
+    #expect(payload["source_language"] as? String == "ru")
+    #expect(payload["target_language"] as? String == "de")
+    gate.translationRelease?.resume(); gate.translationRelease = nil
+    await accepted.value
+    #expect(model.direction == .germanPolishing)
+    #expect(gate.translationRequests.count == 2)
+    #expect(await model.flushTranslationPersistence())
+    let relaunched = await fixture(gate); relaunched.loadTranslationOutbox()
+    #expect(relaunched.direction == .germanPolishing)
+    #expect(relaunched.draft == "second")
+}
+
 @Test @MainActor func historyFailureStaysInHistoryAndProviderSettlesIndependently() async throws {
     let gate = Gate(); gate.holdHistory = true; gate.failHistory = true
     let model = await fixture(gate)

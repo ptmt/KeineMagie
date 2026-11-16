@@ -233,7 +233,10 @@ actor SimulatorSessionFixture {
         case "/v1/translations":
             if mode == "coach" { return AuthResponse(data: Data(#"{"items":[{"id":"synthetic","created_at":"2026-11-13T00:00:00Z","text":"Synthetic original source","translation":"Synthetic original translation","source_language":"ru","target_language":"de","idioms":[],"patterns":[],"vocabulary":[]}]}"#.utf8), status: 200) }
             if mode.hasPrefix("translation-"), request.httpMethod == "POST" {
-                if mode == "translation-pending" { try await Task.sleep(for: .seconds(8)) }
+                if mode == "translation-pending" {
+                    let delay = ProcessInfo.processInfo.environment["KM_SIMULATOR_PENDING_GEOMETRY"] == "1" ? 20 : 8
+                    try await Task.sleep(for: .seconds(delay))
+                }
                 let translation = mode == "translation-controls" ? "Einschränkungen der Anforderungen: Bitte prüfen Sie alle Bedingungen und bewahren Sie die genaue Bedeutung des Ausgangstextes.\n\nZusätzliche Zeile zur Prüfung des Eingabefelds. (Synthetic fixture)" : Self.copyTranslation
                 let item: [String: Any] = ["id": "synthetic-copy", "created_at": "2026-11-11T12:00:00Z", "text": "SOURCE NOT OUTPUT", "source_language": "ru", "target_language": "de", "translation": translation, "idioms": [], "patterns": [], "vocabulary": []]
                 return AuthResponse(data: try JSONSerialization.data(withJSONObject: item), status: 200)

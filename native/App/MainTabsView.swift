@@ -1,8 +1,11 @@
 import SwiftUI
+import UIKit
+import KeineMagieCore
 
 struct MainTabsView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
+    @Binding var showSettings: Bool
     @State private var selected = "translator"
     @State private var showPodcastAdd = false
     @State private var showCoachProfile = false
@@ -42,6 +45,8 @@ struct MainTabsView: View {
                 if model.podcasts.jobs.contains(where: \.active) { await model.refreshPodcasts() }
             }
         }
+        // Let the system adapt the sole inline title when Dynamic Type leaves
+        // insufficient centered space beside the two independent controls.
         .navigationTitle(LocalizedStringKey("feature." + selected))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showCoachProfile) { LearningProfileView() }
@@ -49,6 +54,20 @@ struct MainTabsView: View {
         .toolbar {
             if selected == "translator" {
                 ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 0) {
+                        TranslatorDirectionMenu(direction: model.direction) { model.direction = $0 }
+                            .frame(width: 60, height: 44)
+                        Button { showSettings = true } label: {
+                            Image(systemName: "gearshape").frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Einstellungen")
+                        .accessibilityIdentifier("main-settings")
+                    }
+                }
+                .translatorToolbarBackground()
+                ToolbarItem(placement: .topBarLeading) {
                     let pending = model.outbox.items.filter { ![.completed, .cancelled].contains($0.state) }
                     if !pending.isEmpty {
                         Button { showPending = true } label: {
@@ -58,6 +77,13 @@ struct MainTabsView: View {
                         .accessibilityValue(pending.count > 1 ? String(pending.count) : "")
                         .accessibilityIdentifier("translation-pending")
                     }
+                }
+            }
+            if selected != "translator" {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Einstellungen", systemImage: "gearshape") { showSettings = true }
+                        .accessibilityIdentifier("main-settings")
+                        .disabled(model.session.phase == .loggingOut)
                 }
             }
             if selected == "dictation" {
@@ -81,6 +107,41 @@ struct MainTabsView: View {
                 }
             }
         }
+    }
+}
+
+/// A real 44pt UIKit menu target avoids the OS shrinking a SwiftUI toolbar
+/// Menu to the 36pt glass capsule, and does not resign the text editor.
+private struct TranslatorDirectionMenu: UIViewRepresentable {
+    let direction: TranslationDirection
+    let select: (TranslationDirection) -> Void
+    func makeUIView(context: Context) -> UIButton {
+        let button = UIButton(type: .system)
+        button.showsMenuAsPrimaryAction = true
+        button.accessibilityIdentifier = "translator-direction"
+        return button
+    }
+    func updateUIView(_ button: UIButton, context: Context) {
+        button.setTitle(direction.compactTitle, for: .normal)
+        button.titleLabel?.font = .preferredFont(forTextStyle: .subheadline, compatibleWith: UITraitCollection(preferredContentSizeCategory: .large))
+        // Keep the compact code label inside the navigation bar at large type;
+        // the menu and spoken full language names remain fully accessible.
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
+        button.titleLabel?.minimumScaleFactor = 0.8
+        button.accessibilityLabel = AppL10n.text("direction." + direction.rawValue)
+        button.menu = UIMenu(children: [TranslationDirection.russianToGerman, .germanToRussian, .germanPolishing].map { value in
+            let action = UIAction(title: value.compactTitle, state: value == direction ? .on : .off) { _ in select(value) }
+            action.accessibilityLabel = AppL10n.text("direction." + value.rawValue)
+            action.accessibilityIdentifier = "translator-direction-" + value.source.rawValue + "-" + value.target.rawValue
+            return action
+        })
+    }
+}
+
+private extension ToolbarContent {
+    @ToolbarContentBuilder func translatorToolbarBackground() -> some ToolbarContent {
+        if #available(iOS 26.0, *) { self.sharedBackgroundVisibility(.hidden) }
+        else { self }
     }
 }
 

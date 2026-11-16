@@ -1,0 +1,33 @@
+# Native compact Translator — verification and release
+
+Base: fresh origin/main `6411fbaf20815cb4a9e4e53bd2d4ade1cd172ef8` (contextual Coach ancestor `40a1c25146f2fafd853354ca131781b3bd60b7a3`). Worktree: `/Users/tinyserve/Projects/KeineMagie-native-compact-translator`. Original dirty checkout untouched. Native-only: no web/backend changes or deployment; no provider/TTS credentials or paid inference used.
+
+## Delivered behavior
+
+- Parent MainTabsView owns direction and signed-in Settings; signed-out Settings remains in RootView. The checked menu offers ru → de, de → ru and de → de, with existing full accessibility names in DE/EN/RU/ES/FR. Selection only changes the next draft direction, never starts translation or dismisses keyboard.
+- Direction immediately precedes the gear in one ordinary trailing toolbar HStack. Both controls remain separate accessibility buttons: direction 60×44pt, gear 44×44pt. UIKit UIButton menu bridge is retained because SwiftUI Menu shrank to a 36pt target despite frame modifiers; actual ±21pt edge taps exercise the bridge.
+- Sole title uses system `.navigationTitle`/inline, not a custom principal view, offset, overlay, fixed title width or constrained Dynamic Type. Grouping controls removes inter-item system spacing and restores centered ordinary titles in all five locales on 375pt iPhone 13 mini. At accessibility XXXL Russian, iOS adapts the full readable title to leading alignment; this is acceptable system behavior, not artificially shrunken text. Other inspected titles remain centered. No title/control overlap or clipping; full menu labels remain accessible. The compact language-code label uses the existing bounded subheadline treatment; content/menu Dynamic Type remains enabled.
+- Removed segmented selector. Copy shares the first translation row with reserved trailing lane; exact string assignment and brief checkmark retained. Empty output has no Copy. Existing input and 154pt minimum output-card footprint remain; long output grows and scrolls naturally. Shimmer starts at content top.
+- Measured 390pt baseline: editor y 160→117, submit 352→309, result card 425.33→382.33: **43pt recovered**. First result text 493.33→398.33: **95pt higher**, without reducing input/card sizes.
+
+## Independent review
+
+Reviewed the actual diff and surrounding AppModel/outbox/copy/localization/toolbar ownership. Production AppModel, transport, owner/session generation fences, durable admission-before-POST, retries and request snapshots are unchanged. Added AppModel regression proves direction edits retain draft/result, do not add POSTs, preserve accepted original source/target and persist edited direction on relaunch. Current Diktat, Coach context chips/AI assessment, shimmer, flame and all existing localization entries remain inherited unchanged.
+
+`TranslatorInitialGeometryUITests.swift` was inspected in the final tree: it is unchanged from the base (last source commit `759c628`). The alleged ambiguous cleanup patch did not land. All four original tests remain, including unchanged pre/post form/history geometry and a bounded 15-swipe reveal of virtualized Retry only AFTER geometry assertions. No test/assertion was removed. The separate Coach receipt assertion is also present: a deliberately different `Unrelated receipt response` must not replace `Saved coach turn`.
+
+## Executed evidence
+
+Local evidence: `/Users/tinyserve/.hermes/cache/scratch/km-compact/` (synthetic simulator fixtures, not live provider results).
+
+- `review-ci.log`: complete Python native CI discovery **53 tests, 1 skipped, 0 failures**; actual AppModel/Coach/Diktat harness **82 Swift tests passed**, including wire and account isolation gates.
+- `review-core.log`: **52 XCTest (1 intentional wire skip), plus 69 Swift Testing tests passed**. Actual Go→Swift wire execution belongs to CI discovery, not the skipped package-only test.
+- `review-red.log`: strengthened actual header regression catches missing gear identity; `review-system-title.log`: system title with separate items reproduces ordinary leading alignment and 36pt Settings target. `review-grouped.xcresult`: system inline title with grouped 44pt controls passes all five locales × ordinary/accessibility XXXL, before/after keyboard and menu selection.
+- `review-shots/manifest.json`: ten named keyboard screenshots and AX trees. Vision inspected English ordinary (`A3ED78BF-5B90-47E9-B189-A57912028640.png`), Russian XXXL (`134EAD98-C4AC-46FF-A78A-299C84F95463.png`) and French XXXL (`D70FB844-30C5-49F0-9EB2-5B36274D0661.png`): readable distinct controls, sole title, no header overlap/clipping. Keyboard naturally covers lower scrollable content.
+- Existing pre-review evidence: `final-candidate.xcresult` six Release UI passes (inline copy, real exact UIPasteboard probe all five locales, menu choices/keyboard/draft, other tab actions); `geometry-final.xcresult` pending/provider/outbox geometry; `cached-retry.xcresult` cached-history geometry/error action five locales. Earlier offscreen Retry failure passed isolated rerun; no assertion weakening.
+- Final expanded Release regression: `review-final-ui.xcresult` (CompactTranslator, TranslationCopy, History, CatalogAdvisory, TranslationFeedback and all TranslatorInitialGeometry tests). Final unique-title and actual Settings-content readback assertions included. Broad execution exposed a stale pre-outbox test expecting Clear disabled: actual BASE and candidate intentionally keep it editable while an immutable accepted request runs. The test is corrected to actively clear/type during the held request and require the newer draft/keyboard survive completion, not just drop its assertion; production behavior is untouched. Corrected rerun `review-clear-corrected.xcresult` passes. Broad batch: 22 passes + the one stale assertion; with the corrected equivalent exercised, all 23 intended cases are verified (not a claim that the original batch was green). All four initial-geometry cases passed without any edits.
+- `git diff --check`, shell syntax and both tracked plist lint passed. No secrets or backend changes introduced. No real-provider translation, paid TTS, spoken VoiceOver, physical-device or Apple processing/tester availability claim.
+
+## Publication
+
+Local review and intended UI cases are complete. Existing production `/health` returned HTTP 200 (the initial `/healthz` probe was 404; no backend deployment was needed). Proceed through a scoped source commit/push and one explicit existing TestFlight workflow dispatch (`publish=UPLOAD`). Record exact source SHA, validate/upload job IDs, archived build number and Apple's `UPLOAD SUCCEEDED` only after actual remote verification. A green upload is not proof of processing or tester/device availability.
