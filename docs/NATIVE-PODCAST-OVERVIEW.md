@@ -1,4 +1,16 @@
-# Native podcast overview — local candidate
+# Native podcast overview — accepted iOS release candidate
+
+## Current acceptance — 16 November 2026
+
+- Source candidate `e1cb2bf4ddda2cfe125ef54c0ceced6e66dee758`; final tested commit `8077d02f5afc0d6617efe3f663e2555d0547adea` changes only the refresh UI-test gesture after the independent source review below. No production implementation changed during resumed acceptance.
+- **All 17 Release UI tests passed, zero failures/skips**, parsed from `podcast-resume-final-green.xcresult`: six overview tests plus all eleven existing Podcast UI tests, serially on one task-owned **iPhone SE (3rd generation), iOS 27.2, dark mode**. Refresh stars/error retention, duplicate IDs, explicit cancel/retry, keyboard/Profile, reader/back/full feed, five locales/XXXL, offline restoration and existing regressions are now accepted. Earlier blocked startup attempts are not counted as passes.
+- The first resumed run executed **16 passes / 1 failure**: a fast XCTest `swipeDown()` did not trigger refresh on the small device. Changing only that test gesture to a deliberate in-list drag, with unchanged assertions/timeouts, passed the isolated refresh test and then the entire 17-test suite. Production refresh code was not changed. Error retention kept real synthetic `1 / 2` and star `1`; successful refresh showed star `2`.
+- Inspected actual small/dark overview, Russian XXXL, keyboard reader, successful refresh and retained-error screenshots. Standard text/counts and controls are readable; at XXXL long source titles wrap and require scrolling, with no horizontal overflow in the asserted row. Screenshots are synthetic simulator transport, not live accounts. Final evidence: `/Users/tinyserve/.hermes/cache/scratch/podcast-resume-final-evidence/`; summary `podcast-resume-final-summary.json`. Failed and targeted rerun evidence are retained separately.
+- Initial host preflight had no active Xcode build but nine unrelated booted simulators and 34,567 MiB used swap. Only existing task-owned small simulator `C2173CB2-2CC3-4883-B55C-6C8412DB4966` was booted; it completed migration in 13 seconds. No other device/process was changed. After evidence export this device was shut down and its Shutdown state read back.
+- Fresh fetch at 23:45 CET still found `origin/main` at `6a45610a1720857e7bc532ba9f9d88a02779bc1e`. All **54 original dirty-file manifest entries** hash-identical; original worktree remains untouched. Web/server, Coach history, native Translator/follow-up, Dictation production implementation and AnyProgress are unchanged. This is iOS-only; no backend rollout is needed.
+- Local acceptance gates are closed; scoped normal push and explicit `publish=UPLOAD` CI follow. Apple upload, build number and processing are not claimed until recorded below.
+
+The candidate and blocked-review sections below are historical evidence, superseded by this acceptance and the release record.
 
 ## Scope and baseline
 
