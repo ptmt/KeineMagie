@@ -131,7 +131,7 @@ final class PodcastUITests: XCTestCase {
         let app = launch()
         let feed = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Synthetic language podcast")).firstMatch
         XCTAssertTrue(feed.waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["Synthetic latest episode"].exists)
+        XCTAssertTrue(app.staticTexts["Synthetic episode one"].exists)
         XCTAssertTrue(app.navigationBars["Podcasts"].exists)
         XCTAssertFalse(app.navigationBars["Keine Magie"].exists)
         screenshot(app, "synthetic-podcasts-populated")

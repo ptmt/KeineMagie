@@ -32,6 +32,10 @@ final class PodcastWireShapeTests: XCTestCase {
         XCTAssertEqual(library.items.first?.segments.count, 2113)
         XCTAssertEqual(library.items.first?.episodeTitle, preparation.episodeTitle)
         XCTAssertFalse(library.workerAvailable)
+        XCTAssertEqual(feeds.items.first?.author, "Synthetic author")
+        XCTAssertEqual(library.items.first?.coverage?.knownTotal, 2113)
+        XCTAssertEqual(library.items.first?.coverage?.translatedSegments, 0)
+        XCTAssertEqual(library.items.first?.coverage?.favoritePassages, 1)
         let empty = try JSONDecoder().decode(PodcastSubscription.self, from: Data(contentsOf: root.appendingPathComponent("empty-subscription.json")))
         XCTAssertTrue(empty.episodes.isEmpty)
     }

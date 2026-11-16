@@ -17,7 +17,7 @@ func TestNativePodcastWireFixture(t *testing.T) {
  now := time.Date(2026, 11, 14, 0, 0, 0, 0, time.UTC)
  job := podcastJob{ID: "synthetic-job-000000001", Owner: "synthetic-owner", URL: "https://audio.example/raw.mp3", FeedID: "synthetic-feed-00000001", EpisodeID: "synthetic-episode", Title: "Saved episode title", SourceLanguage: "de", TargetLanguage: "ru", State: "completed", Progress: 100, CreatedAt: now, UpdatedAt: now}
  for i := 0; i < 2113; i++ { job.Segments = append(job.Segments, podcastSegment{Start: float64(i), End: float64(i+1), Text: "Synthetic transcript"}) }
- sub := podcastSubscription{ID: job.FeedID, URL: "https://audio.example/feed.xml", Title: "Saved feed", Episodes: []podcastEpisode{{ID: job.EpisodeID, Title: job.Title, URL: job.URL}}, RefreshedAt: now}
+ sub := podcastSubscription{ID: job.FeedID, URL: "https://audio.example/feed.xml", Title: "Saved feed", Author: "Synthetic author", Episodes: []podcastEpisode{{ID: job.EpisodeID, Title: job.Title, URL: job.URL}}, RefreshedAt: now}
  data := podcastData{Jobs: []podcastStoredJob{{podcastJob: job, Owner: job.Owner}}, Budgets: map[string]podcastBudget{}, Subscriptions: []podcastStoredSubscription{{podcastSubscription: sub, Owner: job.Owner}}}
  if err := store.write(data); err != nil { t.Fatal(err) }
  subs, err := store.subscriptions(job.Owner)
@@ -25,6 +25,8 @@ func TestNativePodcastWireFixture(t *testing.T) {
  jobs, err := store.list(job.Owner)
  if err != nil { t.Fatal(err) }
  if len(subs) != 1 || subs[0].Episodes[0].Preparation == nil || subs[0].Episodes[0].Preparation.Segments != nil || len(jobs) != 1 || len(jobs[0].Segments) != 2113 { t.Fatal("wire shape mismatch") }
+ coverage := coverageFor(jobs[0], []learningPassage{{JobID: job.ID, SegmentID: 0, Quote: jobs[0].Segments[0].Text}})
+ jobs[0].Coverage = &coverage
  foreign, err := store.subscriptions("another-owner")
  if err != nil || len(foreign) != 0 { t.Fatal("owner isolation failed") }
  for name, value := range map[string]any{

@@ -32,6 +32,42 @@ import KeineMagieCore
 @MainActor func episode() throws -> PodcastEpisode {
     try JSONDecoder().decode(PodcastEpisode.self, from: Data(#"{"id":"episode","url":"https://audio.example/episode.mp3","title":"Episode"}"#.utf8))
 }
+@Test @MainActor func overviewProjectionIsPureAndRefreshUpdatesSavedCoverage() async throws {
+    let gate = PodcastReadGate()
+    let model = try await gate.model()
+    await model.refreshPodcasts()
+    let pairCount = gate.requests.count
+    for _ in 0..<10 {
+        for feed in model.podcasts.subscriptions {
+            for episode in feed.latestEpisodes {
+                _ = model.podcasts.jobs.first { $0.belongs(to: episode, feedID: feed.id) }?.coverage
+            }
+        }
+    }
+    #expect(gate.requests.count == pairCount, "Rendering never makes per-episode calls")
+    #expect(gate.requests.filter { $0.url!.path.hasPrefix("/v1/podcasts") }.count == 2)
+    #expect(model.podcasts.jobs.first?.coverage?.favoritePassages == 1)
+    gate.starredPassages = 2
+    await model.refreshPodcasts()
+    #expect(model.podcasts.jobs.first?.coverage?.favoritePassages == 2)
+    #expect(model.podcasts.jobs.first?.coverage?.translatedSegments == 0)
+    #expect(gate.requests.allSatisfy { $0.httpMethod == "GET" })
+    gate.libraryStatus = 503
+    await model.refreshPodcasts()
+    #expect(model.podcasts.jobs.first?.coverage?.favoritePassages == 2)
+    #expect(model.podcasts.phase == .error)
+}
+@Test @MainActor func overviewLateReadAfterResetCannotResurrectCoverage() async throws {
+    let gate = PodcastReadGate(); gate.holdLibrary = true
+    let model = try await gate.model()
+    let task = Task { await model.refreshPodcasts() }
+    while gate.libraryWait == nil { await Task.yield() }
+    model.resetSessionContent()
+    gate.libraryWait?.resume(); gate.libraryWait = nil
+    await task.value
+    #expect(model.podcasts.jobs.isEmpty)
+    #expect(model.podcasts.subscriptions.isEmpty)
+}
 @Test @MainActor func preparationCoalescesAcrossCallersAndSurvivesCallerCancellation() async throws {
     let gate = PodcastGate(); gate.hold = true
     let store = PodcastStore(); let item = try episode()
@@ -109,6 +145,7 @@ import KeineMagieCore
 
 // Production-shaped reads, independently suspended endpoints, no real network.
 @MainActor final class PodcastReadGate {
+    var starredPassages = 1
     var libraryStatus = 200
     var feedStatus = 200
     var feedError: URLError?
@@ -131,7 +168,8 @@ import KeineMagieCore
         case "/v1/auth/session": return AuthResponse(data: Data("{\"user\":{\"id\":\"\(owner)\"},\"expires_at\":\"2099-01-01T00:00:00Z\"}".utf8), status: 200)
         case "/v1/podcasts":
             if holdLibrary { await withCheckedContinuation { libraryWait = $0 } }
-            return AuthResponse(data: Data("{\"items\":[\(Self.libraryJob)],\"worker_available\":false}".utf8), status: libraryStatus)
+            let job = Self.libraryJob.replacingOccurrences(of: "\"progress\":100", with: "\"progress\":100,\"coverage\":{\"recognized_segments\":2113,\"translated_segments\":0,\"favorite_passages\":\(starredPassages)}")
+            return AuthResponse(data: Data("{\"items\":[\(job)],\"worker_available\":false}".utf8), status: libraryStatus)
         case "/v1/podcasts/subscriptions":
             if let feedError { throw feedError }
             let body = malformedFeeds ? Self.feeds.replacingOccurrences(of: "\"segments\":null", with: "\"segments\":{}") : Self.feeds

@@ -30,6 +30,16 @@ public struct PodcastSegment: Codable, Sendable, Identifiable {
     public let text: String
     public let translation: String?
 }
+/// Durable passage counts from the owner-scoped batch library, never playback or vocabulary.
+public struct PodcastCoverage: Codable, Sendable {
+    public let recognizedSegments: Int?
+    public let translatedSegments: Int?
+    public let favoritePassages: Int?
+    public var knownTotal: Int? { recognizedSegments.flatMap { $0 > 0 ? $0 : nil } }
+    enum CodingKeys: String, CodingKey {
+        case recognizedSegments = "recognized_segments", translatedSegments = "translated_segments", favoritePassages = "favorite_passages"
+    }
+}
 public struct PodcastJob: Codable, Sendable, Identifiable {
     public let id: String
     public let url: String
@@ -43,6 +53,7 @@ public struct PodcastJob: Codable, Sendable, Identifiable {
     public let episodeID: String?
     public let sourceURL: String?
     public let episodeTitle: String?
+    public let coverage: PodcastCoverage?
     public var displayProgress: Double? { active && progress > 0 && progress < 100 ? Double(progress) / 100 : nil }
     public func belongs(to episode: PodcastEpisode, feedID: String) -> Bool {
         if let linked = self.feedID, let episodeID { return linked == feedID && episodeID == episode.id }
@@ -56,7 +67,7 @@ public struct PodcastJob: Codable, Sendable, Identifiable {
     }
     public var active: Bool { ["queued", "fetching", "downloading", "transcribing", "translating"].contains(state) }
     enum CodingKeys: String, CodingKey {
-        case id, url, state, progress, error, segments
+        case id, url, state, progress, error, segments, coverage
         case feedID = "feed_id", episodeID = "episode_id", sourceURL = "source_url", episodeTitle = "title"
         case sourceLanguage = "source_language", targetLanguage = "target_language"
     }
@@ -70,6 +81,7 @@ public struct PodcastJob: Codable, Sendable, Identifiable {
         state = try c.decode(String.self, forKey: .state)
         progress = try c.decode(Int.self, forKey: .progress)
         error = try c.decodeIfPresent(String.self, forKey: .error)
+        coverage = try c.decodeIfPresent(PodcastCoverage.self, forKey: .coverage)
         // Subscription preparation summaries deliberately omit transcript bytes.
         segments = try c.decodeIfPresent([PodcastSegment].self, forKey: .segments) ?? []
         feedID = try c.decodeIfPresent(String.self, forKey: .feedID)
@@ -87,6 +99,21 @@ public struct PodcastEpisode: Codable, Sendable, Identifiable {
     public let published: String?
     public let duration: String?
     public let preparation: PodcastJob?
+    public var publicationDate: Date? {
+        guard let published else { return nil }
+        let iso = ISO8601DateFormatter()
+        if let date = iso.date(from: published) { return date }
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = iso.date(from: published) { return date }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        for format in ["yyyy-MM-dd", "EEE, dd MMM yyyy HH:mm:ss Z", "EEE, d MMM yyyy HH:mm:ss zzz"] {
+            formatter.dateFormat = format
+            if let date = formatter.date(from: published) { return date }
+        }
+        return nil
+    }
 }
 public struct PodcastSubscription: Codable, Sendable, Identifiable {
     public let id: String
@@ -95,8 +122,18 @@ public struct PodcastSubscription: Codable, Sendable, Identifiable {
     public let episodes: [PodcastEpisode]
     public let artworkURL: String?
     public let latestEpisodeTitle: String?
+    public let author: String?
+    public var latestEpisodes: [PodcastEpisode] {
+        episodes.enumerated().map { (index: $0.offset, episode: $0.element, date: $0.element.publicationDate) }
+            .sorted { a, b in
+                if let lhs = a.date, let rhs = b.date, lhs != rhs { return lhs > rhs }
+                if a.date != nil && b.date == nil { return true }
+                if a.date == nil && b.date != nil { return false }
+                return a.index < b.index
+            }.prefix(3).map(\.episode)
+    }
     enum CodingKeys: String, CodingKey {
-        case id, url, title, episodes
+        case id, url, title, episodes, author
         case artworkURL = "artwork_url", latestEpisodeTitle = "latest_episode_title"
     }
     public init(from decoder: Decoder) throws {
@@ -104,6 +141,7 @@ public struct PodcastSubscription: Codable, Sendable, Identifiable {
         id = try c.decode(String.self, forKey: .id)
         url = try c.decode(String.self, forKey: .url)
         title = try c.decode(String.self, forKey: .title)
+        author = try c.decodeIfPresent(String.self, forKey: .author)
         episodes = try c.decodeIfPresent([PodcastEpisode].self, forKey: .episodes) ?? []
         artworkURL = try c.decodeIfPresent(String.self, forKey: .artworkURL)
         latestEpisodeTitle = try c.decodeIfPresent(String.self, forKey: .latestEpisodeTitle)

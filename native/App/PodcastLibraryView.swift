@@ -47,8 +47,8 @@ struct PodcastLibraryView: View {
                 }
             }
             if !subscriptions.isEmpty {
-                Section {
-                    ForEach(subscriptions) { subscription in
+                ForEach(subscriptions) { subscription in
+                    Section {
                         NavigationLink {
                             feedDetail(subscription.id)
                         } label: {
@@ -56,8 +56,8 @@ struct PodcastLibraryView: View {
                                 PodcastArtwork(subscription: subscription, client: { try api() })
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(subscription.title.isEmpty ? subscription.url : subscription.title).fontWeight(.semibold)
-                                    if let latest = subscription.latestEpisodeTitle, !latest.isEmpty {
-                                        Text(latest).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                                    if let author = subscription.author, !author.isEmpty {
+                                        Text(author).font(.subheadline).foregroundStyle(.secondary)
                                     }
                                 }
                             }.padding(.vertical, 6)
@@ -65,6 +65,13 @@ struct PodcastLibraryView: View {
                         .swipeActions {
                             Button("podcast.unsubscribe", role: .destructive) { Task { await subscriptionAction(subscription, "delete") } }.disabled(busy || !model.session.canWrite)
                         }
+                        ForEach(subscription.latestEpisodes) { episode in
+                            overviewEpisode(episode, feed: subscription)
+                        }
+                        if subscription.episodes.isEmpty { Text("podcast.empty").font(.subheadline).foregroundStyle(.secondary) }
+                        NavigationLink { feedDetail(subscription.id) } label: {
+                            Text("podcast.all.episodes").font(.subheadline).frame(minHeight: 44)
+                        }.accessibilityIdentifier("podcast-all-" + subscription.id)
                     }
                 }
             }
@@ -98,7 +105,7 @@ struct PodcastLibraryView: View {
             }
         }
         .sheet(isPresented: $showAdd, onDismiss: { addError = nil; selectedShare = nil; url = "" }) { [workerAvailable] in addSheet(workerAvailable: workerAvailable) }
-        .refreshable { await refresh() }
+        .refreshable { await Task { await refresh() }.value }
         .task { loadInbox() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { loadInbox() } }
     }
@@ -142,13 +149,53 @@ struct PodcastLibraryView: View {
 
         }
     }
-    private func feedDetail(_ id: String) -> some View {
+    private func overviewEpisode(_ episode: PodcastEpisode, feed: PodcastSubscription) -> some View {
+        let job = jobs.first { $0.belongs(to: episode, feedID: feed.id) } ?? episode.preparation
+        let pending = model.podcasts.isPending(feedID: feed.id, episodeID: episode.id)
+        return VStack(alignment: .leading, spacing: 4) {
+            NavigationLink {
+                if let job { jobDetail(job) }
+                else { feedDetail(feed.id, episodeID: episode.id) }
+            } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(episode.title.isEmpty ? episode.url : episode.title).font(.subheadline).fontWeight(.medium)
+                    if let date = episode.publicationDate { Text(date, style: .date).font(.caption).foregroundStyle(.secondary) }
+                    Text(verbatim: pending ? AppL10n.text("podcast.state.queued") : job.map { stateLabel($0.state) } ?? AppL10n.text("podcast.state.unprepared"))
+                        .font(.caption).foregroundStyle(.secondary)
+                    if let coverage = job?.coverage {
+                        if let total = coverage.knownTotal, let translated = coverage.translatedSegments {
+                            Text(verbatim: AppL10n.text("podcast.coverage.translated", translated, total))
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if let count = coverage.favoritePassages {
+                            Text(verbatim: AppL10n.text("podcast.coverage.starred", count))
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                }.frame(minHeight: 44, alignment: .leading).padding(.vertical, 4)
+            }.accessibilityIdentifier("podcast-overview-" + feed.id + "-" + episode.id)
+            if pending { ProgressView() }
+            if let job, job.active {
+                ProgressView(value: job.displayProgress).accessibilityLabel(Text("podcast.stage.progress"))
+                Button("podcast.cancel", role: .destructive) { Task { await action(job, "cancel") } }
+                    .buttonStyle(.borderless).frame(minHeight: 44).disabled(busy || !model.session.canWrite)
+            }
+            if let job, ["failed", "canceled"].contains(job.state) {
+                Button("podcast.retry") { Task { await action(job, "retry") } }
+                    .buttonStyle(.borderless).frame(minHeight: 44).disabled(busy || !model.session.canWrite || !workerAvailable)
+            }
+            if let error = model.podcasts.episodeErrors[.init(feedID: feed.id, episodeID: episode.id)] {
+                Text(verbatim: error).font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+    private func feedDetail(_ id: String, episodeID: String? = nil) -> AnyView {
         let feed = subscriptions.first { $0.id == id }
-        return List {
+        return AnyView(List {
             if let feed {
             if let message { Text(message).foregroundStyle(.secondary).accessibilityIdentifier("podcast.error") }
             if feed.episodes.isEmpty { Text("podcast.empty").foregroundStyle(.secondary) }
-            ForEach(feed.episodes) { episode in
+            ForEach(feed.episodes.filter { episodeID == nil || $0.id == episodeID }) { episode in
                 VStack(alignment: .leading, spacing: 6) {
                     Text(episode.title.isEmpty ? episode.url : episode.title)
                     if let published = episode.published { Text(published).font(.caption).foregroundStyle(.secondary) }
@@ -166,9 +213,9 @@ struct PodcastLibraryView: View {
                             }
                         }
                         if let progress = job.displayProgress { ProgressView(value: progress) }
-                        if job.state == "failed" {
-                            Text("podcast.failed").font(.caption).foregroundStyle(.secondary)
-                            Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !model.session.canWrite)
+                        if ["failed", "canceled"].contains(job.state) {
+                            if job.state == "failed" { Text("podcast.failed").font(.caption).foregroundStyle(.secondary) }
+                            Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !model.session.canWrite || !workerAvailable)
                         }
                     }
                     if let error = model.podcasts.episodeErrors[key] { Text(verbatim: error).font(.caption).foregroundStyle(.secondary) }
@@ -182,10 +229,11 @@ struct PodcastLibraryView: View {
             }
             Section {
                 Button("podcast.feed.refresh") { Task { await subscriptionAction(feed, "refresh") } }.disabled(busy || !model.session.canWrite)
+                if episodeID != nil { NavigationLink("podcast.all.episodes") { feedDetail(id) } }
                 if busy { ProgressView().accessibilityIdentifier("podcast.feed.busy") }
             }
             }
-        }.navigationTitle(feed?.title ?? AppL10n.text("podcast.title")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(feed?.title ?? AppL10n.text("podcast.title")).navigationBarTitleDisplayMode(.inline))
     }
     private func jobDetail(_ original: PodcastJob) -> some View {
         let job = jobs.first { $0.id == original.id } ?? original
@@ -195,7 +243,7 @@ struct PodcastLibraryView: View {
                     .font(.headline).accessibilityIdentifier("podcast-detail-title")
                 if job.active { ProgressView(value: job.displayProgress).accessibilityIdentifier("podcast-detail-progress") }
                 if job.state != "completed" { Text(verbatim: stateLabel(job.state)).font(.caption).foregroundStyle(.secondary) }
-                if job.state == "failed" { Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !model.session.canWrite || !workerAvailable) }
+                if ["failed", "canceled"].contains(job.state) { Button("podcast.retry") { Task { await action(job, "retry") } }.disabled(busy || !model.session.canWrite || !workerAvailable) }
                 if job.active { Button("podcast.cancel", role: .destructive) { Task { await action(job, "cancel") } }.disabled(busy || !model.session.canWrite) }
             }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
             EpisodeReaderView(job: job)

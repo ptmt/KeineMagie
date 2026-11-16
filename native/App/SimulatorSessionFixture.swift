@@ -41,6 +41,7 @@ actor SimulatorSessionFixture {
     private var validations = 0
     private var profileLevels: [String: String] = [:]
     private var podcastRefreshed = false
+    private var overviewState = "transcribing"
     private var preparedJob: [String: Any]?
     private var prepareRequests = 0
     private var wireLibraryReads = 0
@@ -103,6 +104,36 @@ actor SimulatorSessionFixture {
         if mode.hasPrefix("translation-geometry"), request.url?.path == "/v1/provider" {
             try await Task.sleep(for: .seconds(12))
             if mode == "translation-geometry-error" { return AuthResponse(data: Data(), status: 503) }
+        }
+        if mode == "podcast-overview-actions", let path = request.url?.path, path.hasPrefix("/v1/podcasts/synthetic-overview-job-0/") {
+            guard request.httpMethod == "POST" else { return AuthResponse(data: Data(), status: 405) }
+            if path.hasSuffix("/cancel") { overviewState = "canceled" }
+            else if path.hasSuffix("/retry") { overviewState = "queued" }
+            else { return AuthResponse(data: Data(), status: 404) }
+            return AuthResponse(data: Data("{}".utf8), status: 200)
+        }
+        if mode.hasPrefix("podcast-overview"), let path = request.url?.path, path == "/v1/podcasts" || path == "/v1/podcasts/subscriptions" {
+            guard request.httpMethod == "GET" else { return AuthResponse(data: Data(), status: 405) }
+            let feedID = "synthetic-feed-000000001"
+            let episodes: [[String: Any]] = (0..<4).map { index in
+                ["id": "overview-\(index)", "title": ["Synthetic saved conversation", "Synthetic failed episode", "Synthetic unknown coverage", "Older fourth episode"][index], "url": "https://audio.example/overview-\(index).mp3", "published": "2026-11-\(16-index)T12:00:00Z"]
+            }
+            if path.hasSuffix("subscriptions") {
+                var feed = podcastFeed(); feed["episodes"] = episodes; feed["author"] = "Synthetic source author"
+                let other: [String: Any] = ["id": "synthetic-feed-000000002", "url": "https://audio.example/other.xml", "title": "Second synthetic podcast", "episodes": [episodes[0]]]
+                let empty: [String: Any] = ["id": "synthetic-feed-000000003", "url": "https://audio.example/empty.xml", "title": "Empty synthetic podcast", "episodes": []]
+                return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": [feed, other, empty]]), status: 200)
+            }
+            wireLibraryReads += 1
+            if mode == "podcast-overview-error", wireLibraryReads > 1 { return AuthResponse(data: Data(), status: 503) }
+            let items: [[String: Any]] = (0..<3).map { index in
+                var job: [String: Any] = ["id": "synthetic-overview-job-\(index)", "url": episodes[index]["url"]!, "feed_id": feedID, "episode_id": episodes[index]["id"]!, "title": episodes[index]["title"]!, "source_language": "de", "target_language": "ru", "state": ["completed", "failed", "canceled"][index], "progress": index == 0 ? 100 : 0, "segments": index == 0 ? [["start": 0, "end": 8, "text": "Synthetic saved passage at zero", "translation": "Сохранённый отрывок"], ["start": 8, "end": 16, "text": "Synthetic second passage"]] : []]
+                if index == 0 { job["coverage"] = ["recognized_segments": 2, "translated_segments": 1, "favorite_passages": wireLibraryReads > 1 ? 2 : 1] }
+                if index == 1 { job["coverage"] = ["recognized_segments": 0, "translated_segments": 0, "favorite_passages": 0] }
+                if index == 0 && mode == "podcast-overview-actions" { job["state"] = overviewState; job["progress"] = overviewState == "transcribing" ? 35 : 0 }
+                return job
+            }
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": items, "worker_available": mode == "podcast-overview-actions"]), status: 200)
         }
         if mode.hasPrefix("podcast-wire") {
             if request.url?.path == "/v1/podcasts" {
