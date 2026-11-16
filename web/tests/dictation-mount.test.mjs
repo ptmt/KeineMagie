@@ -2,6 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,record,tick} from './dictation-mount-fixture.mjs';
 
+test('malformed history reports an error without poisoning subsequent rendering',async()=>{
+ const f=fixture({request:async()=>({items:null})});
+ await f.start();
+ assert.match(f.host.textContent,/Could not save\. Retry\./);
+ assert.doesNotThrow(()=>f.controller.localize());
+ f.controller.identity(null);
+});
+
+test('local draft hydration is visibly loading before history can start',async()=>{
+ const f=fixture({request:async()=>({items:[]})});f.controller.identity(f.session);
+ assert.match(f.host.textContent,/Loading…/);await tick();await tick();f.controller.identity(null);
+});
+
+test('empty history renders after loading settles',async()=>{
+ const f=fixture({request:async()=>({items:[]})});await f.start();
+ assert.match(f.host.textContent,/No dictations yet\./);f.controller.identity(null);
+});
+
 test('failed hydration stays closed and cannot overwrite an unread durable journal',async()=>{
  const f=fixture({readError:true,request:async(path,options)=>options.method==='POST'?record('new'):{items:[]}});
  const old={revision:8,entries:{valuable:{local:{draft:'unread Ω'}}}};

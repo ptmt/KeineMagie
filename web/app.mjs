@@ -292,10 +292,12 @@ function updateInput() {
   $('translation-form').setAttribute('aria-busy', String(busy));
   $('translation-form').classList.toggle('translation-pending', busy);
   $('result').setAttribute('aria-busy', String(busy));
-  $('result-skeleton').hidden = !busy || !!currentOutput();
+  // A still-open pre-feedback shell has neither optional presentation node.
+  // Keep identity and unrelated tabs usable across that module update.
+  if ($('result-skeleton')) $('result-skeleton').hidden = !busy || !!currentOutput();
   $('copy').disabled = busy || !currentOutput();
   $('translate').dataset.pendingLabel = t('Wird übersetzt …');
-  setText('translate-label', busy ? 'Wird übersetzt …' : 'Übersetzen');
+  if ($('translate-label')) setText('translate-label', busy ? 'Wird übersetzt …' : 'Übersetzen');
 }
 function renderConnection() {
   coach.identity(session);
