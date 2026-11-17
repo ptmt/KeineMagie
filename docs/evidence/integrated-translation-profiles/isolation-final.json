@@ -1,0 +1,57 @@
+{
+  "unchanged": [
+    "/Users/tinyserve/Projects/KeineMagie",
+    "/Users/tinyserve/Projects/KeineMagie-catalog-advisory",
+    "/Users/tinyserve/Projects/KeineMagie-coach-actions",
+    "/Users/tinyserve/Projects/KeineMagie-coach-assessment",
+    "/Users/tinyserve/Projects/KeineMagie-coach-chat-iteration",
+    "/Users/tinyserve/Projects/KeineMagie-coach-compact",
+    "/Users/tinyserve/Projects/KeineMagie-coach-daily-chat",
+    "/Users/tinyserve/Projects/KeineMagie-coach-daily-integration",
+    "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages",
+    "/Users/tinyserve/Projects/KeineMagie-coach-history",
+    "/Users/tinyserve/Projects/KeineMagie-coach-quiet-release",
+    "/Users/tinyserve/Projects/KeineMagie-coach-release-fresh",
+    "/Users/tinyserve/Projects/KeineMagie-coach-release-integration",
+    "/Users/tinyserve/Projects/KeineMagie-dictation-integrated",
+    "/Users/tinyserve/Projects/KeineMagie-dictation-openai",
+    "/Users/tinyserve/Projects/KeineMagie-episode-true-tabs",
+    "/Users/tinyserve/Projects/KeineMagie-icon",
+    "/Users/tinyserve/Projects/KeineMagie-native-compact-translator",
+    "/Users/tinyserve/Projects/KeineMagie-native-followup",
+    "/Users/tinyserve/Projects/KeineMagie-native-podcast-inline3",
+    "/Users/tinyserve/Projects/KeineMagie-outbox",
+    "/Users/tinyserve/Projects/KeineMagie-passage-groups",
+    "/Users/tinyserve/Projects/KeineMagie-podcast-load",
+    "/Users/tinyserve/Projects/KeineMagie-podcast-overview",
+    "/Users/tinyserve/Projects/KeineMagie-translate-feedback",
+    "/Users/tinyserve/Projects/KeineMagie-translation-profile-sync",
+    "/Users/tinyserve/Projects/KeineMagie-translator-initial-geometry",
+    "/Users/tinyserve/Projects/KeineMagie-translator-quiet",
+    "/Users/tinyserve/Projects/KeineMagie-translator-result-controls",
+    "/Users/tinyserve/Projects/KeineMagie-web-incident",
+    "/Users/tinyserve/Projects/KeineMagie-web-layout"
+  ],
+  "changed": {
+    "/Users/tinyserve/Projects/KeineMagie-dictation-focused-ux": {
+      "status_changed": true,
+      "changed_hashes": [
+        "docs/evidence/dictation-focused-ux/policy/verification.json",
+        "server/dictation_playback.go",
+        "web/dictation.mjs",
+        "web/tests/dictation-policy.test.mjs",
+        "docs/DICTATION-FOCUSED-UX.md",
+        "web/tests/dictation_policy_browser.py",
+        "docs/evidence/dictation-focused-ux/policy/node-all.log",
+        "docs/evidence/dictation-focused-ux/policy/whole-fr.png",
+        "docs/evidence/dictation-focused-ux/policy/blockers.txt",
+        "web/dictation-playback.mjs",
+        "web/dictation-i18n.mjs",
+        "docs/evidence/dictation-focused-ux/policy/whole-en.png",
+        "docs/evidence/dictation-focused-ux/policy/whole-de.png",
+        "docs/evidence/dictation-focused-ux/policy/whole-es.png",
+        "docs/evidence/dictation-focused-ux/policy/whole-ru.png"
+      ]
+    }
+  }
+}

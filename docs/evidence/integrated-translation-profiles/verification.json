@@ -1,0 +1,54 @@
+{
+  "source_review": "a82728d0cc7dd3af96b4a00795ed6680edb7a860",
+  "combined_base": "277d7c3ea993d458b57fb11199a627680ff775e9",
+  "profile_integration": "713433e",
+  "dictation_source": "37bfd0381b4247de46970b94d2743c8b81d7569a",
+  "go_race": {
+    "pass": 562,
+    "skip": 15,
+    "fail": 0
+  },
+  "go_vet": "pass",
+  "node": {
+    "pass": 161,
+    "skip": 1,
+    "fail": 0
+  },
+  "profile_wire": {
+    "pass": 8
+  },
+  "app_model_wire": {
+    "pass": 113
+  },
+  "daily_haptics_harness": {
+    "pass": 16
+  },
+  "native_python": {
+    "run": 55,
+    "skip": 1,
+    "fail": 0
+  },
+  "built_metadata_explicit_rerun": {
+    "run": 3,
+    "skip": 0,
+    "fail": 0
+  },
+  "native_combined": {
+    "pass": 23,
+    "fail": 1,
+    "skip": 0
+  },
+  "native_focused_after_test_only_fix": {
+    "pass": 1,
+    "fail": 0,
+    "skip": 0
+  },
+  "profile_browser_checks": 13,
+  "dictation_heading_cases": 20,
+  "dictation_reveal_cases": 10,
+  "dictation_geometry_locales": 5,
+  "dictation_policy_real_media": "pass, synthetic silent WAV",
+  "mixed_version_browser": "pass",
+  "native_parity": "pending separate delegate; no push",
+  "rollback": "policy-aware backend only"
+}

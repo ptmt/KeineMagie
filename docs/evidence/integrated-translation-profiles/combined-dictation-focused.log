@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "synthetic": true,
+  "errors": [],
+  "checks": [
+    "empty onboarding",
+    "create",
+    "explicit paid prepare only once",
+    "stable preparing geometry",
+    "pause/resume currentTime",
+    "ended replay",
+    "mode draft preservation",
+    "five locales mobile overflow",
+    "check then explicit original reveal",
+    "new attempt cache reuse",
+    "history draft",
+    "assistance confirmation",
+    "prepare error retry cancel",
+    "keyboard menu Escape"
+  ]
+}

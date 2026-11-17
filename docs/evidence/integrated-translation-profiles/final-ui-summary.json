@@ -1,0 +1,61 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "56A70197-59DE-4410-9E76-25272244E9C8",
+        "deviceName" : "KeineMagie profiles integrated isolated",
+        "modelName" : "iPhone SE (3rd generation)",
+        "osBuildNumber" : "24B8117",
+        "osVersion" : "27.2",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 23,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "KeineMagie · Built with macOS 27.2.1",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1794930410.612,
+  "passedTests" : 23,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-profile-integration/native/App/DictationView.swift"
+    },
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-profile-integration/native/App/DictationView.swift"
+    }
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1794929161.09,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "KeineMagieUITests",
+      "testIdentifier" : 16,
+      "testIdentifierString" : "TranslationProfileSyncUITests/testMigrationConflictOfflineRelaunchAndRemoteDeletion()",
+      "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationProfileSyncUITests/testMigrationConflictOfflineRelaunchAndRemoteDeletion",
+      "testName" : "testMigrationConflictOfflineRelaunchAndRemoteDeletion()"
+    }
+  ],
+  "title" : "Test - KeineMagie",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 24
+}

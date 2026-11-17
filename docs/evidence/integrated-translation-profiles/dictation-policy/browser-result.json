@@ -1,0 +1,20 @@
+{
+  "result": "PASS",
+  "audio": "explicitly synthetic silent WAV",
+  "ranges": [
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-"
+  ],
+  "errors": []
+}

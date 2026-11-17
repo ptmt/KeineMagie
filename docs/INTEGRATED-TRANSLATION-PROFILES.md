@@ -10,9 +10,9 @@ profile source `a82728d0cc7dd3af96b4a00795ed6680edb7a860` from
 The original uncommitted implementation worktree remains untouched.
 
 This is a local integration, not a published release. No push, deployment, upload,
-production account/profile inspection, or paid AI/TTS call was performed. Later
-Dictation review/playback/heading/ellipsis work is deliberately **not included**;
-parent coordination must combine that work and verify native parity before publication.
+production account/profile inspection, or paid AI/TTS call was performed. The six
+requested web Dictation commits through `37bfd038` are now integrated in order;
+separate native Dictation parity remains a mandatory parent integration gate.
 
 ## Review and integration corrections
 
@@ -45,7 +45,7 @@ It has **417 keys**: all **409 target keys** unchanged, plus eight profile keys 
 all five locales. The verified semantic merge was inserted without reformatting the
 existing catalog (280 added lines, zero removed). AppModel and API DTO changes are
 additive; existing owner generation, cache/outbox, passage and Daily lifecycle fences
-remain in place. Focused Dictation playback work was not imported.
+remain in place. The subsequent web Dictation merge is documented below.
 
 ## Fresh combined-tree non-UI gates
 
@@ -87,7 +87,22 @@ deletion, owner revocation and offline purge, plus five-locale large-text editor
 The final combined invocation also selects every previously accepted Coach/Daily,
 Dictation, Translator and passage test from the 21-test base gate.
 
-**Current native gate status: running; completion is not claimed here yet.**
+**Native gate completed: 23/24 passed in the combined invocation; the remaining
+profile test passed 1/1 in a focused Release rerun after a test-only correction.**
+The failing assertion tapped an already-selected profile after cold relaunch,
+toggling it to Normal. The test now selects only if necessary, then requires
+selected state before remote deletion. No production code changed for this failure.
+The entire 24-test invocation was not rerun after that correction.
+
+`final-combined.xcresult` and `profiles-selection-final.xcresult` retain exact results.
+All 21 inherited Coach/Daily/Dictation/Translator/passage tests passed; profile
+five-locale keyboard and owner-revocation tests passed in the combined invocation.
+The focused rerun proves actual migration, incoming edit preservation, keep-both,
+offline cold journal recovery, server acknowledgement, and selected remote deletion.
+Five-locale captures were visually inspected: title and Save/Cancel remain above
+the keyboard; lower instruction content requires normal form scrolling. This is
+XXXL Dynamic Type, not a claim about every accessibility-size category.
+The serial native build/simulator slot is released for the native-parity worker.
 
 Initial failed bundles are retained, not relabeled successes. An early probe mixed an
 OS background transition into the focused-edit test and lost the nested editor; the
@@ -99,6 +114,58 @@ wait covers that interval while still requiring the actual server title to chang
 Native Normal is represented by no selected style, not a nonexistent Normal button;
 the deletion assertion checks the actual strip's selection state.
 
+## Final web Dictation merge and fresh gates
+
+Profile integration was committed as `713433e`. The six requested commits were
+cherry-picked, not copied over combined files:
+
+| Requested source | Local integration commit |
+| --- | --- |
+| `eb20d830` | `0c8b37f` |
+| `41c77659` | `cd1f879` |
+| `ee89d5f8` | `561081b` |
+| `b0405816` | `8fc5f18` |
+| `5d78f7b1` | `d5b8755` |
+| `37bfd038` | `7a5ad35` |
+
+Only the first cherry-pick conflicted: additive Dictation localization rows and
+three presentation blocks. Inspected combined changes against common ancestor
+`b52c48d`; retained onboarding, creation recovery, History Refresh, owner cache
+and lifecycle fences. The resulting `dictation.mjs` and `dictation-i18n.mjs` are
+byte-identical to requested `37bfd038`. Profile modules, owner routes, Docker
+entries, native AppModel/Core and the 417-key native catalog remain unchanged.
+Server changes to shared files only add the playback module to allowlists/packaging
+and recognize HEAD as safe alongside GET; authentication remains enforced.
+
+Fresh final-tree verification (synthetic data only):
+
+- Full Go race suite: **562 passing / 15 skipped records**, no failures; `go vet`
+  passed. Skipped opt-in bridge/provider tests are not counted as passes.
+- Node web plus onboarding: **161 passed / one bridge skip**. Dedicated profile
+  wire runs separately: **8 passed**; actual native AppModel wire: **113 passed**.
+- Native Python discovery: 55 tests, one built-metadata skip from a misnamed
+  environment variable; correctly configured metadata rerun: **3/3 passed**.
+- Actual Coach two-client AppModel/Go bridge passed; Daily/haptic harness **16 passed**.
+- Real Go-handler/Chromium policy playback passed: natural media completion,
+  four-start admission, retry/restart, fencing and real Range requests. Audio is
+  explicitly synthetic silent WAV, not provider or acoustic quality evidence.
+- Actual Chromium: profile **13 checks**, Dictation headings **20 cases**,
+  overflow reveal **10 cases**, focused lifecycle, legacy real media and all-five-
+  locale preparing geometry passed. Zero page errors; no real provider calls.
+
+The latest heading layout introduced a reproducible German preparing-state jump
+of 12px: adding the info control narrowed the action so its busy label wrapped.
+The existing real-browser geometry test failed before the correction. Reserving
+64px for the action's two-line label fixes all five locales without changing
+playback, privacy text, Check or request semantics; screenshots were regenerated
+and Russian mobile inspected. No new layout abstraction or protocol refactor.
+
+Fresh evidence is under `docs/evidence/integrated-translation-profiles/` and full
+logs/xcresults under the scratch directory above. The initial browser reveal run
+lacked its local static server; after starting this worktree's loopback server,
+its full ten-case run passed. No fabricated successful result substitutes for a
+failed or skipped invocation.
+
 ## Isolation and release boundary
 
 Before/after snapshots verify the original checkout's **59 status entries / 304 file
@@ -107,6 +174,7 @@ and the clean combined base worktree are unchanged. The separately delegated foc
 Dictation worktree changed during its own parallel work; it was never edited here.
 All other pre-existing KeineMagie worktree manifests match. AnyProgress was not edited.
 
-Parent review, coherent integration of the newer Dictation work, and its native parity
-remain mandatory. Earlier user publication authorization does not authorize pushing
-this older partial candidate by itself.
+Parent review and the separate native Dictation parity merge remain mandatory.
+User publication authorization does not authorize pushing this partial native-parity
+candidate by itself. Roll back web assets only with a **policy-aware backend**;
+never restore a pre-policy JSON-writing server binary.

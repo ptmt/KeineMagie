@@ -83,7 +83,11 @@ final class TranslationProfileSyncUITests: XCTestCase {
         _ = try await waitTitles(["Remote native title", "Offline durable"])
         let selected = app.scrollViews["shortcut-strip"].buttons["Remote native title"]
         for _ in 0..<5 where !selected.isHittable { app.scrollViews["shortcut-strip"].swipeLeft() }
-        XCTAssertTrue(selected.waitForExistence(timeout: 5)); selected.tap(); XCTAssertTrue(selected.isSelected)
+        XCTAssertTrue(selected.waitForExistence(timeout: 5))
+        // Selection survives relaunch. Tapping an already-selected style toggles
+        // Normal, so only select when needed before testing remote deletion.
+        if !selected.isSelected { selected.tap() }
+        XCTAssertTrue(selected.isSelected)
         _ = try await control("remote-delete"); refresh(app)
         XCTAssertTrue(selected.waitForNonExistence(timeout: 40))
         XCTAssertTrue(app.scrollViews["shortcut-strip"].buttons.allElementsBoundByIndex.allSatisfy { !$0.isSelected })

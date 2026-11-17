@@ -1,0 +1,8 @@
+test_effective_built_plist_declares_only_exempt_encryption (test_app_metadata.AppMetadataTests) ... ok
+test_ipad_multitasking_has_all_four_orientations (test_app_metadata.AppMetadataTests) ... ok
+test_source_plists_declare_only_exempt_encryption (test_app_metadata.AppMetadataTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK
