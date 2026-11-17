@@ -7,6 +7,7 @@ struct TranslatorView: View {
     @Environment(AppModel.self) private var model
     @FocusState private var inputFocused: Bool
     @State private var restoreInputFocus = false
+    @State private var historyPasteboardCheck = ""
     @Binding var showPending: Bool
     @ScaledMetric(relativeTo: .body) private var editorHeight = 112
 
@@ -16,6 +17,7 @@ struct TranslatorView: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 VStack(spacing: 0) {
+                    VStack(spacing: 0) {
                     TextEditor(text: $model.draft)
                         .focused($inputFocused)
                         .frame(height: editorHeight)
@@ -55,11 +57,14 @@ struct TranslatorView: View {
                             .padding(8)
                         }
                     }
+                    TranslationShortcutsView()
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 4)
+                }
                     .background(.background, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(.quaternary))
                     .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("translator-input-container")
-                TranslationShortcutsView()
                 Button {
                     model.beginTranslation()
                 } label: {
@@ -81,17 +86,8 @@ struct TranslatorView: View {
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .listRowSeparator(.hidden)
             // One stable output footprint; retain the last result throughout submission.
-            TranslationResultView(text: model.displayedTranslation, pending: model.translationPending)
+            TranslationResultView(text: model.displayedTranslation, pending: model.translationPending, clarify: resultClarification)
                 .listRowSeparator(.hidden)
-            if let result = model.result, model.history.contains(where: { $0.id == result.id }) {
-                Button { model.openTranslationDiscussion(result) } label: {
-                    Label("followup.clarify", systemImage: "text.bubble").font(.subheadline).frame(minHeight: 44)
-                }.buttonStyle(.borderless).foregroundStyle(.secondary)
-                    .disabled(model.translationPending)
-                    .accessibilityIdentifier("translation-clarify")
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                    .listRowSeparator(.hidden)
-            }
             Section {
                 // Initial/cache hydration and refresh are quiet. Only a completed load
                 // can claim emptiness; saved rows remain visible through refresh/error.
@@ -113,14 +109,23 @@ struct TranslatorView: View {
                         }
                         Text(verbatim: item.translation).textSelection(.enabled)
                         HStack(spacing: 12) {
-                        Button { UIPasteboard.general.string = item.translation } label: {
+                        Spacer(minLength: 0)
+                        Button {
+                            UIPasteboard.general.string = item.translation
+                            #if targetEnvironment(simulator)
+                            if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] == "translation-history-controls" {
+                                historyPasteboardCheck = UIPasteboard.general.string == item.translation ? "pasteboard-exact-" + item.id : "pasteboard-mismatch"
+                            }
+                            #endif
+                        } label: {
                             Label("translation.copy", systemImage: "doc.on.doc").labelStyle(.iconOnly).frame(width: 44, height: 44)
-                        }.buttonStyle(.borderless).accessibilityIdentifier("history-copy-\(item.id)")
+                        }.buttonStyle(.borderless).foregroundStyle(.secondary).accessibilityIdentifier("history-copy-\(item.id)")
+                            .accessibilityValue(Text(verbatim: historyPasteboardCheck))
                         Button { model.openTranslationDiscussion(item) } label: {
-                            Label("followup.clarify", systemImage: "text.bubble").font(.subheadline).frame(minHeight: 44)
+                            Label("followup.clarify", systemImage: "text.bubble").labelStyle(.iconOnly).frame(width: 44, height: 44)
                         }.buttonStyle(.borderless).foregroundStyle(.secondary)
                             .accessibilityIdentifier("history-clarify-\(item.id)")
-                        }
+                        }.dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                         if let error = model.historyErrors[item.id] { ErrorNotice(text: error) }
                     }.frame(maxWidth: 700, alignment: .leading).frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
@@ -168,6 +173,10 @@ struct TranslatorView: View {
         .environment(\.layoutDirection, .leftToRight)
         .scrollDismissesKeyboard(.interactively)
         .task { model.loadTranslationOutbox(); model.loadShortcuts() }
+    }
+    private var resultClarification: (() -> Void)? {
+        guard let result = model.result, model.history.contains(where: { $0.id == result.id }) else { return nil }
+        return { model.openTranslationDiscussion(result) }
     }
 }
 
@@ -278,11 +287,13 @@ private struct TranslationPendingPanel: View {
 private struct TranslationResultView: View {
     let text: String
     var pending = false
+    var clarify: (() -> Void)?
     @State private var copied = false
     @State private var confirmationID = UUID()
     @State private var pasteboardCheck = ""
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
         HStack(alignment: .top, spacing: 8) {
             Text(verbatim: text).font(.title3).textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -311,9 +322,18 @@ private struct TranslationResultView: View {
                 } else {
                     Color.clear.frame(width: 44, height: 44).accessibilityHidden(true)
                 }
-            }
+            }.dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
-        // Preserve the previous 44 + 8 + 70 footprint through empty/pending states.
+        Spacer(minLength: 8)
+        Button { clarify?() } label: {
+            Text("followup.clarify").font(.subheadline).frame(minHeight: 44, alignment: .leading)
+        }.buttonStyle(.borderless).foregroundStyle(.secondary)
+            .disabled(pending || clarify == nil)
+            .opacity(clarify == nil ? 0 : 1)
+            .accessibilityHidden(clarify == nil)
+            .accessibilityIdentifier("translation-clarify")
+        }
+        // Reserve the footer in empty/pending states without another List row.
         .frame(minHeight: 122, alignment: .topLeading)
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))

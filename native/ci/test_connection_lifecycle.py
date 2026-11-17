@@ -9,6 +9,7 @@ HARNESS = r'''
 import Foundation
 import Testing
 import CryptoKit
+import Observation
 import KeineMagieCore
 @testable import Lifecycle
 
@@ -92,6 +93,53 @@ import KeineMagieCore
     let session = SessionController(serverURL:"https://synthetic.invalid",readToken:{"synthetic"},saveToken:{_ in},transport:transport)
     await session.restore()
     return AppModel(session:session, client:APIClient(endpoint:try! ServerEndpoint("https://synthetic.invalid"),token:"synthetic",transport:transport), cache: ContentCache(root: gate.outboxRoot.appendingPathComponent("cache")), outboxStore: TranslationOutboxStore(root: gate.outboxRoot))
+}
+final class PendingObservation: @unchecked Sendable {
+    private let lock = NSLock()
+    private var changed = false
+    func record() { lock.withLock { changed = true } }
+    var didChange: Bool { lock.withLock { changed } }
+}
+@Test @MainActor func idleResumeNeverPublishesFalsePending() async throws {
+    let gate = Gate(); let model = await fixture(gate)
+    model.loadTranslationOutbox()
+    let observation = PendingObservation()
+    withObservationTracking { _ = model.translationPending } onChange: { observation.record() }
+    await model.resumeTranslations()
+    #expect(!observation.didChange, "Empty queue must not publish pending even for a single task hop")
+    #expect(gate.translationRequests.isEmpty)
+    model.draft = "Hallo"; await model.translate()
+    let saved = model.displayedTranslation
+    let completed = PendingObservation()
+    withObservationTracking { _ = model.translationPending } onChange: { completed.record() }
+    await model.resumeTranslations()
+    #expect(!completed.didChange, "Completed receipts must not flash the retained result on foreground")
+    #expect(model.displayedTranslation == saved)
+    #expect(gate.translationRequests.count == 1)
+}
+@Test @MainActor func clearInputKeepsResultAndAcceptedReceiptWithoutOverwritingNewDraft() async throws {
+    let gate = Gate(); let model = await fixture(gate)
+    model.draft = "Hallo"; await model.translate()
+    let prior = try #require(model.result)
+    model.draft = ""
+    #expect(model.displayedTranslation == prior.translation)
+    model.openTranslationDiscussion(prior)
+    #expect(model.discussionSource == prior.text)
+    #expect(model.draft.isEmpty)
+    model.closeTranslationDiscussion()
+    model.draft = "accepted next"; gate.holdTranslation = true
+    let task = try #require(model.beginTranslation())
+    while gate.translationRelease == nil { await Task.yield() }
+    model.draft = ""
+    #expect(model.displayedTranslation == prior.translation)
+    #expect(model.translationPending)
+    model.draft = "new unsubmitted draft"
+    gate.translationRelease?.resume(); await task.value
+    #expect(model.draft == "new unsubmitted draft")
+    #expect(model.outbox.items.last?.text == "accepted next")
+    #expect(model.outbox.items.last?.state == .completed)
+    let body = try #require(JSONSerialization.jsonObject(with: gate.translationRequests.last!.httpBody!) as? [String: String])
+    #expect(body["text"] == "accepted next")
 }
 @Test @MainActor func translationJournalRunsOffMain() async throws {
     let gate = Gate()

@@ -13,7 +13,7 @@ final class TranslatorInitialGeometryUITests: XCTestCase {
     }
     @MainActor private func snapshot(_ app: XCUIApplication, _ name: String, locale: String) -> [String:CGRect] {
         var result: [String:CGRect] = [:]
-        for id in ["translator-input", "translator-submit", "history-row-synthetic-history-1"] {
+        for id in ["translator-input", "translator-submit", "translation-output", "history-row-synthetic-history-1"] {
             let element = app.descendants(matching: .any).matching(identifier:id).firstMatch
             if element.exists { result[id] = element.frame }
         }

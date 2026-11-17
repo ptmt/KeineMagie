@@ -339,7 +339,18 @@ final class AppModel {
     private(set) var followupPending = false
     private(set) var followupError: String?
     private(set) var appliedProposalID: String?
-    private var localTranslation: (id: String, text: String)?
+    private var localTranslation: (id: String, source: String, text: String)?
+    // The result owns its source. Editing/clearing the composer never changes it.
+    var discussionSource: String {
+        guard let record = discussionRecord else { return "" }
+        if let localTranslation, localTranslation.id == record.id { return localTranslation.source }
+        return record.text
+    }
+    var discussionTranslation: String {
+        guard let record = discussionRecord else { return "" }
+        if let localTranslation, localTranslation.id == record.id { return localTranslation.text }
+        return record.translation
+    }
     var displayedTranslation: String {
         if let localTranslation, localTranslation.id == result?.id { return localTranslation.text }
         return result?.translation ?? ""
@@ -361,11 +372,6 @@ final class AppModel {
     func openTranslationDiscussion(_ record: TranslationRecord) {
         guard session.phase == .signedIn, history.contains(where: { $0.id == record.id }) else { return }
         if discussionID != record.id { closeTranslationDiscussion() }
-        if result?.id != record.id {
-            result = record; draft = record.text
-            if let value = TranslationDirection.allCases.first(where: { $0.source == record.sourceLanguage && $0.target == record.targetLanguage }) { direction = value }
-            localTranslation = nil
-        }
         discussionID = record.id; discussionPresented = true; followupError = nil; appliedProposalID = nil
     }
     func closeTranslationDiscussion() {
@@ -396,10 +402,9 @@ final class AppModel {
     }
     @discardableResult func beginTranslationFollowup(locale: String) -> Task<Void, Never>? {
         guard !followupPending, session.canWrite, let owner = session.user?.id, let record = discussionRecord,
-              result?.id == record.id, direction.source == record.sourceLanguage, direction.target == record.targetLanguage,
               !historyBusy(record.id), record.followups.count < 6 else { return nil }
         let question = followupQuestion
-        let candidate = TranslationFollowupInput(historyID: record.id, question: question, locale: locale, expectedTurns: record.followups.count, currentSource: draft, currentTranslation: displayedTranslation)
+        let candidate = TranslationFollowupInput(historyID: record.id, question: question, locale: locale, expectedTurns: record.followups.count, currentSource: discussionSource, currentTranslation: discussionTranslation)
         guard candidate.isValid else { followupError = "followup.draftLimit"; return nil }
         let version = session.generation, epoch = followupEpoch
         followupPending = true; followupError = nil
@@ -441,11 +446,12 @@ final class AppModel {
         return task
     }
     func applyTranslationProposal(_ turn: TranslationFollowup) {
-        guard !followupPending, session.canWrite, let record = discussionRecord, result?.id == record.id,
+        guard !followupPending, session.canWrite, let record = discussionRecord,
               let saved = record.followups.first(where: { $0.id == turn.id }), let translation = saved.revisedText else { return }
         // A proposal is always an atomic pair, including legacy translation-only turns.
         draft = saved.proposalSource(original: record.text)
-        localTranslation = (record.id, translation)
+        result = record
+        localTranslation = (record.id, draft, translation)
         if let value = TranslationDirection.allCases.first(where: { $0.source == record.sourceLanguage && $0.target == record.targetLanguage }) { direction = value }
         appliedProposalID = turn.id
     }
@@ -836,14 +842,16 @@ final class AppModel {
         if translationTask != nil { return }
         guard translationAcceptance == nil, session.phase == .signedIn, let owner = session.user?.id else { return }
         let version = session.generation, epoch = translationEpoch
-        translationSending = true
         let task = Task { [self] in
-            defer { if epoch == translationEpoch { translationTask = nil; translationSending = false } }
+            defer { if epoch == translationEpoch { translationTask = nil; if translationSending { translationSending = false } } }
             while !Task.isCancelled, version == session.generation, epoch == translationEpoch,
                   session.user?.id == owner, session.phase == .signedIn {
                 guard translationForeground, !outboxStorageError, explicit || session.translationOwnerValidated else { return }
                 guard let index = outbox.items.firstIndex(where: { $0.state == .queued }) else { return }
                 if let date = outbox.items[index].nextAttempt, date > Date() { return }
+                // Resume runs on entry/foreground even with no work. Publish
+                // pending only for a due receipt, never for the drain task itself.
+                translationSending = true
                 outbox.items[index].state = .sending
                 outbox.items[index].attempts += 1
                 let snapshot = outbox.items[index]

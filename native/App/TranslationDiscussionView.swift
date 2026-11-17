@@ -16,10 +16,10 @@ struct TranslationDiscussionView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     if let record = model.discussionRecord {
                         DisclosureGroup {
-                            Text(verbatim: model.draft).foregroundStyle(.secondary)
-                            Text(verbatim: model.displayedTranslation)
+                            Text(verbatim: model.discussionSource).foregroundStyle(.secondary)
+                            Text(verbatim: model.discussionTranslation)
                         } label: {
-                            Text(verbatim: model.displayedTranslation).lineLimit(2).foregroundStyle(.secondary)
+                            Text(verbatim: model.discussionTranslation).lineLimit(2).foregroundStyle(.secondary)
                         }.font(.subheadline).accessibilityIdentifier("followup-context")
                         ForEach(record.followups) { turn in
                             VStack(alignment: .leading, spacing: 8) {
@@ -78,7 +78,7 @@ struct TranslationDiscussionView: View {
                                 Image(systemName: model.followupPending ? "ellipsis" : "arrow.up.circle.fill")
                                     .font(.title2).frame(width: 44, height: 44).contentShape(Rectangle())
                             }.buttonStyle(.plain).accessibilityLabel("followup.send").accessibilityIdentifier("followup-send")
-                                .disabled(!model.session.canWrite || model.followupPending || model.followupQuestion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.followupQuestion.unicodeScalars.count > 2000 || model.draft.unicodeScalars.count > 8000 || model.displayedTranslation.unicodeScalars.count > 8000)
+                                .disabled(!model.session.canWrite || model.followupPending || model.followupQuestion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.followupQuestion.unicodeScalars.count > 2000 || model.discussionSource.unicodeScalars.count > 8000 || model.discussionTranslation.unicodeScalars.count > 8000)
                         }
                         if model.followupQuestion.unicodeScalars.count >= 1800 {
                             Text(verbatim: "\(model.followupQuestion.unicodeScalars.count) / 2,000").font(.caption).foregroundStyle(.secondary)

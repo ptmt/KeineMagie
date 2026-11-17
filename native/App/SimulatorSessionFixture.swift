@@ -70,11 +70,18 @@ actor SimulatorSessionFixture {
     }
     init(mode: String) { self.mode = mode }
     static let copyTranslation = "  Übersetzung 👩🏽‍💻 Привет e\u{0301}\n\n" + String(repeating: "Zeile 日本語\t  {\"nested\":{\"literal\":\"\\n\",\"items\":[1,2]}}\n", count: 1200) + "  Ende\n "
+    static let historyCopyTranslation = "  Привет 👩🏽‍💻 e\u{0301}\n日本語\t  \n "
     private static let record = #"{"id":"synthetic-account-A-record","created_at":"2026-11-09T12:00:00Z","text":"Synthetic account A history","source_language":"de","target_language":"ru","translation":"Synthetic stale account A result","idioms":[],"patterns":[],"vocabulary":[]}"#
     private var followupRecord: [String: Any]?
     private var followupAttempts = 0
     private var followupRequestID: String?
     func send(_ request: URLRequest) async throws -> AuthResponse {
+        if mode == "translation-history-controls", request.url?.path == "/v1/translations", request.httpMethod == "GET" {
+            let records: [[String: Any]] = (1...2).map { index in
+                ["id": "history-control-\(index)", "created_at": "2026-11-16T12:00:00Z", "text": "Source \(index)", "translation": index == 1 ? Self.historyCopyTranslation : "Second exact translation", "source_language": "ru", "target_language": "de", "idioms": [], "patterns": [], "vocabulary": []]
+            }
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": records]), status: 200)
+        }
         if mode.hasPrefix("translation-followup") {
             if mode == "translation-followup-accessibility", followupRecord == nil {
                 followupRecord = ["id": "followup-synthetic", "created_at": "2026-11-16T12:00:00Z", "text": "Фрагмент", "translation": "Fragment", "source_language": "ru", "target_language": "de", "idioms": [], "patterns": [], "vocabulary": []]

@@ -10,18 +10,20 @@ import KeineMagieCore
     var suspend = false
     var status = 201
     var revisedSource: String? = "У меня встреча."
+    var includeSecond = false
+    var second: String { original.replacingOccurrences(of: "saved", with: "saved-other").replacingOccurrences(of: "фрагмент", with: "  другой e\u{301} 👩🏽‍💻  ").replacingOccurrences(of: "Fragment", with: "  Another 日本語  ") }
     let original = #"{"id":"saved","created_at":"2026-11-16T12:00:00Z","text":"фрагмент","source_language":"ru","target_language":"de","translation":"Fragment","idioms":[],"patterns":[],"vocabulary":[]}"#
     func send(_ r: URLRequest) async throws -> AuthResponse {
         if r.url!.path == "/v1/auth/session" { return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["user": ["id": owner], "expires_at": "2099-01-01T00:00:00Z"]), status: 200) }
         if r.url!.path == "/v1/provider" { return AuthResponse(data: Data(), status: 503) }
-        if r.url!.path == "/v1/translations" { return AuthResponse(data: Data(("{\"items\":[" + original + "]}").utf8), status: 200) }
+        if r.url!.path == "/v1/translations" { return AuthResponse(data: Data(("{\"items\":[" + original + (includeSecond ? "," + second : "") + "]}").utf8), status: 200) }
         if r.url!.path == "/v1/auth/logout" { return AuthResponse(data: Data(), status: 204) }
         if r.httpMethod == "DELETE" { return AuthResponse(data: Data(), status: 204) }
         let body = try JSONDecoder().decode(TranslationFollowupInput.self, from: r.httpBody!)
         requests.append(r)
         if suspend { await withCheckedContinuation { held = $0 } }
         if status != 201 { return AuthResponse(data: Data(), status: status) }
-        var record = try JSONSerialization.jsonObject(with: Data(original.utf8)) as! [String: Any]
+        var record = try JSONSerialization.jsonObject(with: Data((body.historyID == "saved-other" ? second : original).utf8)) as! [String: Any]
         record["followups"] = [["request_id": body.requestID, "question": body.question, "answer": "Short explanation", "current_source": body.currentSource, "current_translation": body.currentTranslation, "revised_text": "Ich habe einen Termin.", "revised_source_text": revisedSource as Any? ?? NSNull(), "created_at": "2026-11-16T12:01:00Z"]]
         return AuthResponse(data: try JSONSerialization.data(withJSONObject: record), status: 201)
     }
@@ -36,6 +38,51 @@ import KeineMagieCore
     model.openTranslationDiscussion(model.history[0])
     return model
 }
+@Test @MainActor func openingHistoryDiscussionDoesNotReplaceComposer() async throws {
+    let gate = FollowupGate(); let model = await followupFixture(gate)
+    #expect(model.draft.isEmpty)
+    #expect(model.result == nil)
+    model.draft = "  unrelated 👩🏽‍💻\n"
+    model.openTranslationDiscussion(model.history[0])
+    #expect(model.draft == "  unrelated 👩🏽‍💻\n")
+    #expect(model.result == nil)
+    model.followupQuestion = "Explain"
+    await model.beginTranslationFollowup(locale: "en")?.value
+    let request = try #require(gate.requests.first)
+    let body = try JSONDecoder().decode(TranslationFollowupInput.self, from: request.httpBody!)
+    #expect(body.currentSource == "фрагмент")
+    #expect(body.currentTranslation == "Fragment")
+    #expect(model.draft == "  unrelated 👩🏽‍💻\n")
+}
+
+@Test @MainActor func historyDiscussionUsesEachExactRecordAndAppliedPairSurvivesClear() async throws {
+    let gate = FollowupGate(); gate.includeSecond = true
+    let model = await followupFixture(gate)
+    model.followupQuestion = "first"
+    await model.beginTranslationFollowup(locale: "en")?.value
+    model.applyTranslationProposal(try #require(model.discussionRecord?.followups.first))
+    model.draft = ""
+    #expect(model.displayedTranslation == "Ich habe einen Termin.")
+    #expect(model.discussionSource == "У меня встреча.")
+    model.followupQuestion = "applied pair"
+    await model.beginTranslationFollowup(locale: "en")?.value
+    let applied = try JSONDecoder().decode(TranslationFollowupInput.self, from: gate.requests.last!.httpBody!)
+    #expect(applied.currentSource == "У меня встреча.")
+    #expect(applied.currentTranslation == "Ich habe einen Termin.")
+    let second = try #require(model.history.first(where: { $0.id == "saved-other" }))
+    model.openTranslationDiscussion(second)
+    #expect(model.draft.isEmpty)
+    #expect(model.result?.id == "saved")
+    model.followupQuestion = "second"
+    await model.beginTranslationFollowup(locale: "en")?.value
+    let request = try JSONDecoder().decode(TranslationFollowupInput.self, from: gate.requests.last!.httpBody!)
+    #expect(request.historyID == second.id)
+    #expect(request.currentSource == second.text)
+    #expect(request.currentTranslation == second.translation)
+    #expect(model.displayedTranslation == "Ich habe einen Termin.")
+    #expect(model.draft.isEmpty)
+}
+
 @Test @MainActor func followupOfflineReadsAndOwnerReplacementFence() async throws {
     let gate = FollowupGate(); let model = await followupFixture(gate)
     model.followupQuestion = "private"
@@ -63,8 +110,8 @@ import KeineMagieCore
     let task = try #require(model.beginTranslationFollowup(locale: "ru")); await task.value
     #expect(gate.requests.count == 1)
     #expect(model.discussionRecord?.followups.count == 1)
-    #expect(model.displayedTranslation == "Fragment")
-    #expect(model.draft == "фрагмент")
+    #expect(model.displayedTranslation.isEmpty)
+    #expect(model.draft.isEmpty)
     model.applyTranslationProposal(try #require(model.discussionRecord?.followups.first))
     #expect(model.draft == "У меня встреча.")
     #expect(model.displayedTranslation == "Ich habe einen Termin.")
@@ -127,7 +174,7 @@ import KeineMagieCore
     gate.held?.resume(); await task.value
     #expect(model.draft == "edited during followup")
     #expect(model.followupQuestion == "next question")
-    #expect(model.displayedTranslation == "Fragment")
+    #expect(model.displayedTranslation.isEmpty)
     #expect(model.discussionRecord?.followups.count == 1)
 }
 @Test @MainActor func followupOwnerGenerationAndDeletionIgnoreLateTransport() async throws {
@@ -162,18 +209,18 @@ import KeineMagieCore
     #expect(recreated.followupQuestion.isEmpty, "Logout must purge persisted discussion drafts")
 }
 
-@Test @MainActor func followupSnapshotsExactCurrentDraftAndDoesNotApplyAnUnrequestedProposal() async throws {
+@Test @MainActor func followupSnapshotsSavedPairAndDoesNotApplyAnUnrequestedProposal() async throws {
     let gate = FollowupGate(); let model = await followupFixture(gate)
     model.draft = "  Текущий e\u{301} 👩🏽‍💻\n"
     model.followupQuestion = "  Why?\n"
     await model.beginTranslationFollowup(locale: "en")?.value
     let request = try #require(gate.requests.first)
     let body = try JSONDecoder().decode(TranslationFollowupInput.self, from: request.httpBody!)
-    #expect(body.currentSource == "  Текущий e\u{301} 👩🏽‍💻\n")
+    #expect(body.currentSource == "фрагмент")
     #expect(body.currentTranslation == "Fragment")
     #expect(body.question == "  Why?\n")
-    #expect(model.draft == body.currentSource)
-    #expect(model.displayedTranslation == "Fragment")
+    #expect(model.draft == "  Текущий e\u{301} 👩🏽‍💻\n")
+    #expect(model.displayedTranslation.isEmpty)
     let turn = try #require(model.discussionRecord?.followups.first)
     model.draft = "later manual edit"
     model.applyTranslationProposal(turn)
@@ -193,7 +240,7 @@ import KeineMagieCore
     #expect(turn.revisedSourceText == nil)
     model.draft = "later unrelated draft"
     model.applyTranslationProposal(turn)
-    #expect(model.draft == "  captured source\n")
+    #expect(model.draft == "фрагмент")
     #expect(model.displayedTranslation == "Ich habe einen Termin.")
     #expect(model.history[0].text == "фрагмент")
 }

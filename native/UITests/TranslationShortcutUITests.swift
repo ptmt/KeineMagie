@@ -95,9 +95,9 @@ final class TranslationShortcutUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.tabBars.buttons["Übersetzer"].waitForExistence(timeout: 10))
         app.tabBars.buttons["Diktat"].tap()
-        XCTAssertTrue(app.staticTexts["Noch nicht verfügbar"].exists)
+        XCTAssertTrue(app.tabBars.buttons["Diktat"].isSelected)
         app.tabBars.buttons["Coach"].tap()
-        XCTAssertTrue(app.staticTexts["Noch nicht verfügbar"].exists)
+        XCTAssertTrue(app.buttons["coach-profile"].waitForExistence(timeout: 5))
         app.tabBars.buttons["Übersetzer"].tap()
         app.buttons["shortcut-add"].tap()
         let customTitle = "Work \(UUID().uuidString.prefix(6))"
