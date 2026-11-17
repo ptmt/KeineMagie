@@ -1,0 +1,33 @@
+{
+  "result": "PASS",
+  "policy_v2_implemented": false,
+  "locales": [
+    {
+      "locale": "ru",
+      "no_overflow": true,
+      "hint": "Подсказка\n\nСлушайте текст целиком. В первый раз запишите всё, что удалось расслышать, хотя бы отдельные слова. При каждом повторе добавляйте слова и детали."
+    },
+    {
+      "locale": "en",
+      "no_overflow": true,
+      "hint": "Hint\n\nListen to the whole text. First, note anything you catch, even a few words. Add more words and details each time you listen again."
+    },
+    {
+      "locale": "de",
+      "no_overflow": true,
+      "hint": "Hinweis\n\nHöre den ganzen Text. Notiere beim ersten Mal alles, was du verstehst, auch einzelne Wörter. Ergänze bei jedem weiteren Hören Wörter und Details."
+    },
+    {
+      "locale": "es",
+      "no_overflow": true,
+      "hint": "Consejo\n\nEscucha el texto completo. La primera vez, anota lo que entiendas, aunque sean palabras sueltas. Añade más palabras y detalles en cada repetición."
+    },
+    {
+      "locale": "fr",
+      "no_overflow": true,
+      "hint": "Conseil\n\nÉcoutez le texte entier. La première fois, notez ce que vous comprenez, même quelques mots. Ajoutez des mots et des détails à chaque nouvelle écoute."
+    }
+  ],
+  "errors": [],
+  "explicit_keyboard_check_posts": 1
+}

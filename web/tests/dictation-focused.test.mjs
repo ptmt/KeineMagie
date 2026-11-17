@@ -1,17 +1,39 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,record} from './dictation-mount-fixture.mjs';
-test('uncached exercise has one audio action, visible paid disclosure and secondary attempt menu',async()=>{
+test('uncached exercise has one audio action, quiet audio details and secondary attempt menu',async()=>{
  const value={...record(),ready:[]};
  const f=fixture({request:async path=>path.endsWith('/one')?value:{items:[value]}});
  await f.start();await f.click('Test one · In progress');
  const controls=f.host.all().find(e=>e.className==='dictation-player');
  assert.ok(controls,'focused player');
  assert.equal(controls.all().filter(e=>e.tagName==='BUTTON'&&!e.hidden).length,1);
- assert.match(f.host.textContent,/Via OpenAI API · paid/);
+ assert.doesNotMatch(f.host.textContent,/Via OpenAI API · paid/);
+ const disclosure=f.host.all().find(e=>e.className==='dictation-disclosure');
+ assert.equal(disclosure.querySelector('summary').textContent,'Audio details');
+ assert.match(disclosure.textContent,/sends the text to OpenAI/);
  const more=f.host.all().find(e=>e.className==='dictation-attempt-menu');
  assert.ok(more.all().includes(f.button('Delete attempt')));
  assert.equal(f.requests.filter(r=>r.method==='POST').length,0);
+ f.controller.identity(null);
+});
+test('mode guidance is separate from the draft and Check remains explicit above it',async()=>{
+ const value={...record(),draft:'Partial words'};
+ const f=fixture({request:async path=>path.endsWith('/one')?value:{items:[value]}});
+ await f.start();await f.click('Test one · In progress');
+ const panel=f.host.all().find(e=>e.className==='dictation-work');
+ const hint=panel.all().find(e=>e.className==='dictation-hint');
+ assert.ok(hint,'distinct hint block');
+ const draft=panel.querySelector('textarea');
+ assert.equal(draft.placeholder||'','');
+ assert.equal(draft.getAttribute('aria-describedby'),hint.id);
+ assert.match(hint.textContent,/First, note anything/);
+ const header=panel.all().find(e=>e.className==='dictation-input-header');
+ assert.ok(header?.all().includes(f.button('Check')),'explicit Check in input header');
+ const footer=panel.all().find(e=>e.className==='dictation-answer-actions');
+ assert.ok(!footer.all().includes(f.button('Check')));
+ assert.equal(f.requests.filter(r=>r.path.endsWith('/check')).length,0);
+ assert.equal(draft.value,'Partial words');
  f.controller.identity(null);
 });
 test('missing cached media returns to explicit paid preparation, never auto-retries',async()=>{

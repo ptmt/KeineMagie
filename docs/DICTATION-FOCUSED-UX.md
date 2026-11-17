@@ -1,5 +1,46 @@
 # Focused Dictation UX — local visual-approval candidate
 
+## User correction — presentation implemented; playback policy pending
+
+**This section supersedes the historical presentation below. The requested four-playthrough / automatic-pause behavior is NOT implemented. Do not release this as completion of that request.**
+
+Inspected starting HEAD: `eb20d8304ea69495f1213bf095c2b87b6b8cbef2`. Only this worktree was modified; no push, deployment, native build, provider call or change to the separate combined/Profile worktrees.
+
+Implemented locally:
+- Removed the prominent “Через OpenAI API · платно” summary. The existing closed **Об аудио** disclosure retains all source-to-OpenAI, paid preparation, cached replay, retry/cancellation and AI-voice information. No additional consent prompt. Backend monthly budget code is untouched.
+- Replaced the textarea placeholder with a separate, restrained Hint card, max-width 60ch, accessible through `aria-describedby`. German, English, Russian, Spanish and French have matching three-sentence guidance. **The current copy describes legacy behavior truthfully; it does not falsely promise four listens or automatic pauses.**
+- Removed Check from the footer. Kept the same explicit **Проверить / Check** action at the input's top-right provisionally. It still flushes the draft and calls the existing revision-checked endpoint only on a click/keyboard activation. It is NOT renamed “Готово”, and never fires automatically after audio. Parent/user confirmation of the final trigger/placement is pending. The current Go `/check` handler performs deterministic `dictationGrade`, not AI inference.
+
+### Architecture decision required before playback implementation
+
+The current record has `replays`, **not `full_listens`**. Web `practiceTransition` and native `DictationRecord.transition` both increment it on every segment's `ended` and reset it on mode changes. Go accepts it from client PUT progress. There is no server playback admission/start/end endpoint and no durable active-listen identity or offset. Retrofitting a global cap here would change released iOS and existing attempts; a component-only count would reset or race.
+
+The actual plan is whole → sentence → optional clause/word-group chunks → repeated sentence → … → final whole. Each entry references a separate cached asset; these are NOT word-aligned timestamps. Current Next is manual and no timed automatic pauses exist. Keep “По предложениям”; do not advertise “по словам”.
+
+Proposed opt-in protocol (not yet implemented):
+1. Persist immutable `playback_policy_version` on new explicitly opted-in attempts; absent version stays legacy. Preserve existing attempts and native unlimited behavior. A new attempt gets its own ledger while reusing authorized cached audio. Do not reset the ledger on mode changes.
+2. Add owner/attempt-scoped idempotent playback reservations, separate from mutable draft revision and the paid-generation ledger. Admit at most four whole-listen identities. Keep the active identity and saved position across interruption, reload and retry; duplicate starts or resumed interrupted listens do not consume another slot. A genuine natural completion is acknowledged idempotently. A failed start/network error is not a completed listen; expose recovery rather than claiming it was heard.
+3. Serialize reservations under the existing durable transaction lock. Fence late callbacks with owner, attempt, asset and reservation identity; use a session lease/generation for device handoff so two devices cannot independently spend the same slot. Distinguish stale clients, expired handoff and unresolved completion. Preserve typed journal data independently during all playback/checkpoint traffic.
+4. Whole mode hides Pause and native media controls, exposes no manual seek UI and does not reset src on resume. Browser/OS interruptions cannot be prohibited and audio events cannot prove a human heard it; truthful interrupted-state recovery is required. Do not automatically submit the draft at the fourth end.
+5. Sentence mode schedules the existing plan's cached assets continuously with explicit timed pauses at existing boundaries, retaining typing. Exclude the final whole entry from the automatic chain and offer it once explicitly after the sequence. Pause duration is an unresolved product parameter; do not imply a word-timing model. A generation of any missing asset must remain inside an explicitly authorized Prepare scope, never on play/end/locale/navigation. If not prepared, stop truthfully rather than secretly POSTing synthesis.
+
+Target Russian hints **only after that behavior is implemented and verified**:
+- Whole: “Текст можно прослушать 4 раза, без пауз. В первый раз запишите всё, что расслышали, хотя бы отдельные слова или подсказки. При каждом следующем прослушивании добавляйте слова и детали.”
+- Sentences: “Слушайте текст с паузами между фрагментами. Записывайте на ходу. В конце можно ещё раз послушать текст целиком.”
+
+Required future tests: server fourth admission/fifth rejection, reload and fresh attempt, owner isolation, duplicate/reordered start/end, two-device handoff, interrupted resume and failed starts, draft saves during all plays, and legacy web/native backward compatibility. Exercise natural real HTMLMediaElement events with clearly labeled controlled WAV fixtures for pause timing, sequence transitions, final explicit replay, seek-control absence and recovery without new paid POSTs. Dispatched fake `ended` events alone are not completion evidence. No acoustic fidelity claim from silent fixtures.
+
+### Verification of this presentation-only correction
+
+- Strict red/green Node tests first caught the prominent paid summary and absent hint/header placement. Full Node suite: **124 passed, 0 failed**.
+- `go test ./... -run 'TestDictation' -count=1`: passed; backend unmodified, opt-in live/provider tests not enabled.
+- `dictation_correction_browser.py`: passed; actual module/CSS, five locales, no overflow, no placeholder, closed privacy details, no footer Check, visible keyboard focus, zero automatic audio/check requests, exactly one explicit keyboard Check. Captures and JSON: `docs/evidence/dictation-focused-ux/correction/`.
+- Existing focused lifecycle and five-locale preparation-geometry suites: passed, no page errors. Cancellation fixture wait enlarged from 1s to 10s after a loaded-host click raced the simulated completion; production cancellation code unchanged.
+- Existing real HTMLMediaElement suite: passed using a synthetic **silent** 3-second WAV and HTTP Range; verifies unchanged legacy pause/resume/end/replay behavior, not policy v2 or real voice.
+- Inspected actual Russian desktop/mobile screenshots: readable neutral hint, no prominent paid line, no bottom Check, provisional top-right Check and no clipping.
+
+## Historical candidate record (before the user correction)
+
 ## Status and source
 
 **Web only. Not pushed, published, or deployed. User visual approval is required before release.**

@@ -1,0 +1,16 @@
+{
+  "result": "PASS",
+  "audio": "synthetic 3-second silent WAV; real HTMLMediaElement",
+  "ranges": [
+    "bytes=0-",
+    "bytes=0-"
+  ],
+  "errors": [],
+  "checks": [
+    "play gesture",
+    "pause/resume time",
+    "ended/replay",
+    "navigation cancels media src",
+    "one explicit prepare POST"
+  ]
+}

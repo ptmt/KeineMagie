@@ -11,7 +11,7 @@ with sync_playwright() as p:
  def click(name):page.get_by_role('button',name=name,exact=True).click()
  page.goto(BASE+'?empty');expect(page.get_by_text('Listen → type → check.',exact=False)).to_be_visible();shot('after-empty')
  page.get_by_role('button',name='Add text',exact=True).last.click();page.get_by_role('textbox',name='Title',exact=True).fill('Ein Spaziergang im Park');page.get_by_role('textbox',name='Original text',exact=True).fill('Heute scheint die Sonne. Wir gehen in den Park.');click('Save text')
- expect(page.get_by_role('button',name='Prepare audio',exact=True)).to_be_visible();expect(page.get_by_text('Via OpenAI API · paid',exact=True)).to_be_visible()
+ expect(page.get_by_role('button',name='Prepare audio',exact=True)).to_be_visible();expect(page.get_by_text('Audio details',exact=True)).to_be_visible();expect(page.get_by_text('Via OpenAI API · paid',exact=True)).to_have_count(0)
  assert page.evaluate("calls.filter(x=>x.path.includes('/audio/')).length")==0
  shot('after-unprepared-desktop');page.set_viewport_size({'width':390,'height':844});shot('after-unprepared-mobile')
  original_rect=page.locator('.dictation-work textarea').bounding_box();page.evaluate('fixture.delay=800');click('Prepare audio');expect(page.get_by_role('button',name='Preparing audio…')).to_be_disabled()
@@ -32,7 +32,7 @@ with sync_playwright() as p:
  page.set_viewport_size({'width':1280,'height':900});page.get_by_role('combobox',name='Fixture locale').select_option('ru');shot('after-assisted-desktop')
  # Isolated error / cancellation exercise, no cached audio.
  ctx2=b.new_context(viewport={'width':390,'height':844});page=ctx2.new_page();page.on('pageerror',lambda e:errors.append(str(e)));page.goto(BASE);click('Ein Spaziergang im Park · In progress');page.evaluate('fixture.fail=true');click('Prepare audio');expect(page.get_by_role('button',name='Prepare audio',exact=True)).to_be_visible();shot('after-error-mobile');assert page.evaluate("calls.filter(x=>x.path.includes('/audio/')).length")==1
- page.evaluate('fixture.fail=false;fixture.delay=1000');click('Prepare audio');click('Cancel preparation');expect(page.get_by_role('button',name='Prepare audio',exact=True)).to_be_visible();page.evaluate('fixture.delay=0');click('Prepare audio');expect(page.get_by_role('button',name='Play',exact=True)).to_be_visible()
+ page.evaluate('fixture.fail=false;fixture.delay=10000');click('Prepare audio');click('Cancel preparation');expect(page.get_by_role('button',name='Prepare audio',exact=True)).to_be_visible();page.evaluate('fixture.delay=0');click('Prepare audio');expect(page.get_by_role('button',name='Play',exact=True)).to_be_visible()
  summary=page.locator('.dictation-attempt-menu summary');summary.focus();page.keyboard.press('Enter');expect(page.get_by_role('button',name='Delete attempt',exact=True)).to_be_visible();page.keyboard.press('Escape');expect(summary).to_be_focused();expect(page.get_by_role('button',name='Delete attempt',exact=True)).not_to_be_visible()
  assert not errors,errors
  (OUT/'result.json').write_text(json.dumps({'result':'PASS','synthetic':True,'errors':errors,'checks':['empty onboarding','create','explicit paid prepare only once','stable preparing geometry','pause/resume currentTime','ended replay','mode draft preservation','five locales mobile overflow','check then explicit original reveal','new attempt cache reuse','history draft','assistance confirmation','prepare error retry cancel','keyboard menu Escape']},indent=2));print((OUT/'result.json').read_text());b.close()
