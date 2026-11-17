@@ -33,12 +33,18 @@ try:
    from datetime import datetime, timezone
    page.clock.install(time=datetime(2026,10,25,12,tzinfo=timezone.utc))
    page.add_init_script("localStorage.setItem('keinemagie:interface-language:v1',"+json.dumps(locale)+")")
-   page.goto(f'http://127.0.0.1:{server.server_port}/#coach');page.get_by_text(waiting,exact=True).wait_for();page.wait_for_timeout(300)
+   page.goto(f'http://127.0.0.1:{server.server_port}/#coach')
+   try: page.get_by_text(waiting,exact=True).wait_for()
+   except Exception:
+    page.screenshot(path=str(evidence/f'failure-{locale}-{scheme}.png'))
+    print('LOAD_FAILURE',locale,page.evaluate('document.visibilityState'),errors,page.locator('body').inner_text())
+    raise
+   page.wait_for_timeout(300)
    gap=lambda:page.locator('.coach-messages').evaluate('(e)=>e.scrollHeight-e.clientHeight-e.scrollTop')
    assert gap()<3,('initial bottom',locale,gap())
    assert page.locator('[data-turn=archived]').count()==0
-   assert page.locator('[data-turn=correct].coach-completed').count()==1
-   assert page.locator('[data-turn=wrong].coach-completed').count()==1
+   assert page.locator('[data-turn=correct].coach-success').count()==1
+   assert page.locator('[data-turn=wrong].coach-incorrect').count()==1
    assert page.locator('[data-coach-source],.coach-bubble blockquote').count()==0
    assert 'internal-only' not in page.locator('.coach-messages').inner_text()
    hint=page.locator('.coach-quick button');assert hint.count()==1,'Contextual Hint must remain'
@@ -93,5 +99,5 @@ try:
    print('WEB_BENCH',json.dumps({'archive':count,'initial_s':initial,'reveal_s':reveal,'rendered':51}))
    page.close()
   browser.close()
- print('PASS five locales: history/reload, neutral correct+wrong, source absent, initial/own send bottom, manual reading+draft, resize, asynchronous layout. Evidence:',evidence)
+ print('PASS five locales: history/reload, green correct + muted-red wrong, source absent, initial/own send bottom, manual reading+draft, resize, asynchronous layout. Evidence:',evidence)
 finally:server.shutdown()

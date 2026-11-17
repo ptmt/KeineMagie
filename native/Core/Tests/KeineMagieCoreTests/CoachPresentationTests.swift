@@ -39,9 +39,28 @@ final class CoachPresentationTests: XCTestCase {
             print("COACH_PRESENTATION_BENCH count=\(count) iterations=3 elapsed=\(start.duration(to: .now)) rendered=50")
         }
     }
+    func testEntryTimeZoneIsOptionalAndLegacyCodingSurvives() throws {
+        let entry = CoachAction(action: "entry", locale: "en", timeZone: "Europe/Berlin")
+        let object = try JSONSerialization.jsonObject(with: JSONEncoder().encode(entry)) as! [String: Any]
+        XCTAssertEqual(object["time_zone"] as? String, "Europe/Berlin")
+        let legacy = CoachAction(action: "entry", locale: "en")
+        let data = try JSONEncoder().encode(legacy)
+        XCTAssertNil((try JSONSerialization.jsonObject(with: data) as! [String: Any])["time_zone"])
+        XCTAssertNil(try JSONDecoder().decode(CoachAction.self, from: data).timeZone)
+    }
+    func testLegacyGreetingsAreFilteredWithoutMutatingHistory() throws {
+        var offer = try turn(); offer.id = "offer"; offer.isOffer = true
+        let nudge = try JSONDecoder().decode(CoachTurn.self, from: Data(#"{"id":"nudge","text":"","state":"completed","assisted":false,"language":"de","kind":"nudge"}"#.utf8))
+        let turns = [offer, nudge, try turn()]
+        XCTAssertEqual(CoachTurn.historyWindow(turns, now: Date(), earlierLimit: 50).map(\.id), ["fixture"])
+        XCTAssertEqual(turns.count, 3)
+    }
+    func testFailedAssessmentIsNeutralEvenWithOldCorrectOutcome() throws {
+        XCTAssertEqual(try turn(attempt: ["outcome":"correct", "assessment_state":"failed"]).presentationStatus, "completed")
+    }
     func testStatusesDoNotConfuseAttemptWithIncorrectOrWaiting() throws {
         XCTAssertEqual(try turn().presentationStatus, "awaiting")
-        for outcome in ["correct", "wrong", "ambiguous"] { XCTAssertEqual(try turn(attempt: ["outcome":outcome]).presentationStatus, "completed") }
+        for (outcome, status) in [("correct", "success"), ("wrong", "incorrect"), ("ambiguous", "completed")] { XCTAssertEqual(try turn(attempt: ["outcome":outcome]).presentationStatus, status) }
         XCTAssertEqual(try turn(attempt: ["assessment_state":"pending"]).presentationStatus, "working")
         XCTAssertEqual(try turn(attempt: ["outcome":"skipped"]).presentationStatus, "unanswered")
     }

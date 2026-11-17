@@ -23,10 +23,11 @@ import KeineMagieCore
     async let readA: () = a.loadCoach(); async let readB: () = b.loadCoach(); _ = await (readA, readB)
     #expect(a.coach?.turns.count == 1 && b.coach?.turns.count == 1)
     #expect(a.coach?.turns.first?.isUnread == true && b.coach?.turns.first?.isUnread == true, "GET cannot see invisible content")
+    a.coachForeground = true; b.coachForeground = true
     a.sendCoach("entry"); b.sendCoach("entry")
     while a.coachBusy || b.coachBusy { await Task.yield() }
     await a.loadCoach(); await b.loadCoach()
-    #expect(a.coach?.turns.filter { $0.isOffer == true }.count == 1)
+    #expect(a.coach?.turns.count == 1 && a.coach?.turns.first?.id == "one", "Daily entry resumes the unfinished exercise")
     #expect(a.coach?.turns.map(\.id) == b.coach?.turns.map(\.id))
     let old = try #require(a.coach?.turns.first)
     async let visibleA: () = a.seeCoach(old); async let visibleB: () = b.seeCoach(old); _ = await (visibleA, visibleB)
@@ -42,5 +43,5 @@ import KeineMagieCore
     await b.seeCoach(revised); await a.loadCoach()
     #expect(a.coach?.turns.first?.isUnread == false)
     #expect(a.coach?.turns.first?.seenVersion == revised.messageVersion)
-    #expect(a.coach?.turns.filter { $0.isOffer == true }.count == 1)
+    #expect(a.coach?.turns.filter { $0.isOffer == true }.isEmpty == true)
 }

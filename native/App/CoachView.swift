@@ -6,6 +6,7 @@ import KeineMagieCore
 private enum CoachPalette {
     static let secondary = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.78, alpha: 1) : UIColor(white: 0.32, alpha: 1) })
     static let surface = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.15, alpha: 1) : UIColor(white: 0.94, alpha: 1) })
+    static let success = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.125, green: 0.208, blue: 0.161, alpha: 1) : UIColor(red: 0.929, green: 0.965, blue: 0.937, alpha: 1) })
     static let unanswered = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.161, green: 0.145, blue: 0.149, alpha: 1) : UIColor(red: 0.973, green: 0.953, blue: 0.953, alpha: 1) })
 }
 
@@ -18,6 +19,7 @@ extension EnvironmentValues {
 }
 
 struct CoachView: View {
+    var isSelected = true
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var nearBottom = true
@@ -26,6 +28,8 @@ struct CoachView: View {
     @State private var followQuickReply = false
     @State private var visibleTurns: Set<String> = []
     @State private var hydrated = false
+    @State private var followedSendRevision = 0
+    @State private var contentHeight: CGFloat = 0
     @State private var presented = false
     @State private var viewport = CGRect.zero
     @Environment(AppModel.self) private var model
@@ -47,18 +51,17 @@ struct CoachView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    if model.coach?.turns.contains(where: { !$0.isRecent(now: historyNow) }) == true {
+                    if model.coach?.turns.contains(where: { $0.isVisible && !$0.isRecent(now: historyNow) }) == true {
                         Button {
-                            let count = model.coach?.turns.filter { !$0.isRecent(now: historyNow) }.count ?? 0
+                            let count = model.coach?.turns.filter { $0.isVisible && !$0.isRecent(now: historyNow) }.count ?? 0
                             showEarlier = showEarlier < count ? showEarlier + 50 : 0
                         } label: { Label("coach.earlier", systemImage: "chevron.up") }
                             .font(.footnote).frame(minHeight: 44).accessibilityIdentifier("coach-earlier")
                     }
                     if !model.session.canWrite { Text("Offline. Showing saved history").font(.footnote).foregroundStyle(.secondary) }
-                    if model.coach?.turns.isEmpty != false {
+                    if model.coach?.turns.filter(\.isVisible).isEmpty != false {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("coach.welcome")
-                            Text("coach.scope").font(.caption).foregroundStyle(.secondary)
 
                         }.padding().background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
                     }
@@ -75,7 +78,7 @@ struct CoachView: View {
                     }
                     if model.coachBusy && !(model.coach?.turns.contains { $0.attempt?.assessmentState == "pending" } ?? false) {
                         HStack {
-                            ProgressView().accessibilityLabel("coach.pending")
+                            CoachCheckingView(reduceMotion: reduceMotion)
                             if let id = model.coachPendingID { Button("coach.cancel") { model.sendCoach("cancel", turnID: id) } }
                         }.padding(12)
                     }
@@ -85,13 +88,12 @@ struct CoachView: View {
                             nearBottom = viewport.height > 0 && frame.maxY <= viewport.maxY + 80
                         }
                 }.padding(.horizontal).padding(.vertical, 16)
+                    .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { contentHeight = $0 }
 
             }
             .scrollDismissesKeyboard(.interactively)
-            .defaultScrollAnchor(.bottom)
             .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frame in
-                let following = nearBottom; viewport = frame
-                if following && hydrated { proxy.scrollTo("coach-bottom", anchor: .bottom) }
+                viewport = frame
             }
             .safeAreaInset(edge: .bottom) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -113,20 +115,21 @@ struct CoachView: View {
                     }.accessibilityElement(children: .contain)
                 }.padding(.horizontal).padding(.vertical, 8).background(.bar)
             }
-            .task(id: scrollRevision) {
-                guard model.coach != nil else { return }
+            .task(id: "\(scrollRevision)-\(model.coachOwnSendRevision)-\(model.coachLoaded)-\(viewport.height > 0)-\(contentHeight > 0)") {
+                guard model.coachLoaded, viewport.height > 0, contentHeight > 0 else { return }
                 let initial = !hydrated
-                let shouldFollow = initial || nearBottom || followQuickReply
-                hydrated = true
+                let shouldFollow = initial || nearBottom || followQuickReply || followedSendRevision != model.coachOwnSendRevision
                 guard shouldFollow else { return }
                 await Task.yield()
+                guard !Task.isCancelled else { return }
+                hydrated = true
+                followedSendRevision = model.coachOwnSendRevision
                 proxy.scrollTo("coach-bottom", anchor: .bottom)
-                try? await Task.sleep(for: .milliseconds(180))
-                if !Task.isCancelled && (initial || nearBottom || followQuickReply) { proxy.scrollTo("coach-bottom", anchor: .bottom) }
                 if !model.coachBusy { followQuickReply = false }
             }
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: model.coachBusy)
             .onChange(of: scenePhase) { _, phase in
+                model.coachForeground = presented && phase == .active
+                if phase == .active && presented && model.session.canWrite { model.sendCoach("entry") }
                 if phase == .active && nearBottom && presented { for turn in model.coach?.turns ?? [] where visibleTurns.contains(turn.id) { Task { await model.seeCoach(turn) } } }
             }
         }
@@ -136,16 +139,20 @@ struct CoachView: View {
         .onChange(of: model.coachBusy) { _, busy in
             if !busy && scenePhase == .active && nearBottom && presented { for turn in model.coach?.turns ?? [] where visibleTurns.contains(turn.id) { Task { await model.seeCoach(turn) } } }
         }
-        .onAppear { presented = true; hydrated = false; historyNow = Date(); showEarlier = 0 }
-        .onDisappear { presented = false; visibleTurns.removeAll() }
+        .onAppear { presented = isSelected; model.coachForeground = isSelected && scenePhase == .active }
+        .onChange(of: isSelected) { _, selected in
+            presented = selected; model.coachForeground = selected && scenePhase == .active
+            if selected { historyNow = Date() } else { visibleTurns.removeAll() }
+        }
+        .onDisappear { presented = false; model.coachForeground = false; visibleTurns.removeAll() }
         .onChange(of: model.session.generation) { _, _ in showEarlier = 0; hydrated = false; historyNow = Date(); visibleTurns.removeAll() }
         .animation(reduceMotion || !hydrated ? nil : .easeOut(duration: 0.2), value: model.coach?.turns.map(\.id))
-        .task(id: "\(model.session.generation)-\(model.session.canWrite)") { await model.loadCoach(); if !Task.isCancelled && scenePhase == .active && presented { model.sendCoach("entry") } }
+        .task(id: "\(model.session.generation)-\(model.session.canWrite)-\(isSelected)") { guard isSelected else { return }; await model.loadCoach(); if !Task.isCancelled && model.session.canWrite && scenePhase == .active && presented { model.sendCoach("entry") } }
         .refreshable { await Task { await model.loadCoach() }.value }
 
     }
     private var scrollRevision: String {
-        "\(model.coachBusy)-\(model.coach?.turns.map { "\($0.id):\($0.state):\($0.messageVersion ?? ""):\($0.attempt?.assessmentState ?? ""):\($0.answerReveals ?? 0)" }.joined(separator: "|") ?? "")"
+        "\(model.coach?.turns.filter(\.isVisible).map { "\($0.id):\($0.state):\($0.messageVersion ?? ""):\($0.attempt?.id ?? ""):\($0.attempt?.assessmentState ?? "")" }.joined(separator: "|") ?? "")"
     }
     private func quickControls(proxy: ScrollViewProxy) -> some View {
         let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0)) : AnyLayout(HStackLayout())
@@ -160,9 +167,9 @@ struct CoachView: View {
                 .accessibilityIdentifier("coach-" + action.action).accessibilityValue(motionContract)
             }
             if !dynamicTypeSize.isAccessibilitySize { Spacer() }
-            if let active = model.coach?.turns.last(where: { $0.kind != nil && !["clarification", "nudge"].contains($0.kind ?? "") }), active.attempt == nil, !active.isRecent(now: historyNow), !CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier).contains(where: { $0.id == active.id }) {
+            if let active = model.coach?.turns.last(where: { $0.isVisible && $0.kind != nil && !["clarification", "nudge"].contains($0.kind ?? "") }), active.attempt == nil, !active.isRecent(now: historyNow), !CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier).contains(where: { $0.id == active.id }) {
                 Button("coach.awaiting") {
-                    let older = (model.coach?.turns ?? []).filter { !$0.isRecent(now: historyNow) }
+                    let older = (model.coach?.turns ?? []).filter { $0.isVisible && !$0.isRecent(now: historyNow) }
                     let index = older.firstIndex(where: { $0.id == active.id }) ?? 0
                     showEarlier = ((older.count - index - 1) / 50 + 1) * 50
                     Task { await Task.yield(); proxy.scrollTo(active.id, anchor: .center) }
@@ -175,6 +182,16 @@ struct CoachView: View {
     }
 }
 
+private struct CoachCheckingView: View {
+    let reduceMotion: Bool
+    var body: some View {
+        Group {
+            if reduceMotion { Text(verbatim: "•••").font(.caption) }
+            else { ProgressView().controlSize(.small) }
+        }.accessibilityElement(children: .ignore).accessibilityLabel("coach.working")
+    }
+}
+
 private struct CoachTurnView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
@@ -184,26 +201,30 @@ private struct CoachTurnView: View {
     @State private var answer = ""
     @State private var confirmRecheck = false
     private var writable: Bool { model.session.canWrite && !model.coachBusy }
-    private var masked: Bool { turn.masksAnswer(latestID: model.coach?.turns.last?.id) }
+    private var masked: Bool { turn.masksAnswer(latestID: model.coach?.turns.last(where: \.isVisible)?.id) }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let message = turn.message, turn.showsInstruction { Text(message).textSelection(.enabled) }
             if turn.state == "pending" {
-                Text("coach.pending").font(.footnote)
+                CoachCheckingView(reduceMotion: reduceMotion)
                 Button("coach.cancel") { model.sendCoach("cancel", turnID: turn.id) }.disabled(!model.session.canWrite)
             } else if turn.state == "failed" || turn.state == "canceled" {
                 Text(LocalizedStringKey("coach." + turn.state)).font(.footnote)
             }
             if let kind = turn.kind, !["clarification", "nudge"].contains(kind), let prompt = turn.prompt {
                 VStack(alignment: .leading, spacing: 12) {
-                    if turn.presentationStatus != "completed" { Text(LocalizedStringKey("coach." + turn.presentationStatus)).font(.caption).foregroundStyle(CoachPalette.secondary) }
-                    Text(prompt).font(.title3).textSelection(.enabled)
+                    if !["completed", "success", "incorrect", "working"].contains(turn.presentationStatus) { Text(LocalizedStringKey("coach." + turn.presentationStatus)).font(.caption).foregroundStyle(CoachPalette.secondary) }
+                    Text(prompt).font(.body).textSelection(.enabled)
                     if masked {
                         Button("coach.showAnswer") { model.sendCoach("reveal", text: "answer", turnID: turn.id) }.disabled(!writable)
                     } else if let attempt = turn.attempt {
                         Text(attempt.answer).italic()
-                        Text(LocalizedStringKey(attempt.feedbackKey)).font(attempt.outcome == "ambiguous" ? .callout : .headline)
-                            .accessibilityIdentifier("coach-feedback")
+                        if attempt.assessmentState == "pending" {
+                            CoachCheckingView(reduceMotion: reduceMotion)
+                        } else {
+                            Text(LocalizedStringKey(attempt.feedbackKey)).font(.callout)
+                                .accessibilityIdentifier("coach-feedback")
+                        }
                         if attempt.assessmentState == "pending" {
                             Button("coach.cancel") { model.sendCoach("cancel", turnID: attempt.id) }.disabled(!model.session.canWrite)
                         }
@@ -220,8 +241,8 @@ private struct CoachTurnView: View {
                             .accessibilityIdentifier("coach-answer-" + turn.id)
                             .accessibilityLabel("coach.answer")
                         ViewThatFits(in: .horizontal) {
-                            HStack { answerButtons }
-                            VStack(alignment: .leading) { answerButtons }
+                            HStack(spacing: 16) { answerButtons }
+                            VStack(alignment: .leading, spacing: 16) { answerButtons }
                         }
                     }
                 }
@@ -236,24 +257,28 @@ private struct CoachTurnView: View {
                     .accessibilityIdentifier("coach-explanation")
             }
 
-        }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
-            .background(isUnanswered ? CoachPalette.unanswered : CoachPalette.surface, in: RoundedRectangle(cornerRadius: 18))
-            .overlay { if isUnanswered { RoundedRectangle(cornerRadius: 18).stroke(Color(red: 0.65, green: 0.42, blue: 0.42).opacity(0.65), lineWidth: 1) } }
+        }.padding(12)
+            .background(turn.presentationStatus == "success" ? CoachPalette.success : turn.presentationStatus == "incorrect" ? CoachPalette.unanswered : CoachPalette.surface, in: RoundedRectangle(cornerRadius: 18))
+            .overlay { if turn.presentationStatus == "incorrect" { RoundedRectangle(cornerRadius: 18).stroke(Color(red: 0.65, green: 0.42, blue: 0.42).opacity(0.65), lineWidth: 1) } }
             .overlay(alignment: .leading) { if turn.presentationStatus == "working" { RoundedRectangle(cornerRadius: 2).fill(.secondary.opacity(0.5)).frame(width: 3).padding(.vertical, 12) } }
             .overlay(alignment: .leading) { if turn.isUnread { RoundedRectangle(cornerRadius: 2).fill(.primary.opacity(0.65)).frame(width: 3).padding(.vertical, 12) } }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, 24)
             .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: turn.attempt?.outcome)
             .confirmationDialog("coach.assessment.confirm", isPresented: $confirmRecheck, titleVisibility: .visible) {
                 Button("coach.assessment.recheck") { model.sendCoach("recheck", turnID: turn.id) }
             }
     }
-    private var isUnanswered: Bool { turn.kind != nil && !["clarification", "nudge"].contains(turn.kind ?? "") && ["awaiting", "unanswered"].contains(turn.presentationStatus) }
     @ViewBuilder private var answerButtons: some View {
-        Button("coach.check") { model.sendCoach("answer", text: answer, turnID: turn.id) }
+        Button { model.sendCoach("answer", text: answer, turnID: turn.id) } label: {
+            Text("coach.check").frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+        }
             .buttonStyle(.borderedProminent).tint(.primary)
             .disabled(!writable || answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || answer.unicodeScalars.count > 300)
             .accessibilityIdentifier("coach-check-" + turn.id)
-        Button("coach.skip") { model.sendCoach("skip", turnID: turn.id) }.disabled(!writable)
+        Button { model.sendCoach("skip", turnID: turn.id) } label: {
+            Text("coach.skip").frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+        }.disabled(!writable)
     }
 }
 

@@ -12,7 +12,7 @@ class CoachContrastTests(unittest.TestCase):
         source=(Path(__file__).resolve().parents[1]/'App/CoachView.swift').read_text()
         for token in ['UIColor(white: 0.78, alpha: 1)','UIColor(white: 0.32, alpha: 1)','UIColor(white: 0.15, alpha: 1)','UIColor(white: 0.94, alpha: 1)','prompt: Text("coach.message").foregroundStyle(CoachPalette.secondary)','prompt: Text("coach.answer").foregroundStyle(CoachPalette.secondary)']:
             self.assertIn(token,source)
-        for theme,fg,surfaces in [('dark',(.78,)*3,[(.15,)*3,(.161,.145,.149),(0,)*3]),('light',(.32,)*3,[(.94,)*3,(.973,.953,.953),(1,)*3])]:
+        for theme,fg,surfaces in [('dark',(.78,)*3,[(.15,)*3,(.161,.145,.149),(.125,.208,.161),(0,)*3]),('light',(.32,)*3,[(.94,)*3,(.973,.953,.953),(.929,.965,.937),(1,)*3])]:
             ratios=[contrast(fg,bg) for bg in surfaces]
             print('NATIVE_CONTRAST',theme,ratios)
             self.assertGreaterEqual(min(ratios),4.5)

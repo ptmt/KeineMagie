@@ -57,3 +57,10 @@ test('answer immediately shows verbatim pending attempt and cancels by assessmen
 test('explicit send uses stable id; failures do not silently retry',async()=>{
  let count=0;const api={request:async()=>{count++;throw new Error('offline')}};const state=createCoachState(api,()=>{},()=>{},()=> 'en');state.identity({user:{id:'a'},csrf_token:'x'});await state.act('message','hello');assert.equal(count,1);assert.ok(state.error);assert.equal(state.busy,false);
 });
+test('entry sends local IANA time zone, ordinary actions stay wire compatible',async()=>{
+ const bodies=[];const state=createCoachState({request:async(_,o)=>{bodies.push(o.body);return {turns:[]}}},()=>{},()=>{},()=> 'en');
+ assert.equal(await state.act('entry'),false);
+ state.identity({user:{id:'a'}});await state.act('entry');await state.act('message','hello');
+ assert.equal(bodies[0].time_zone,Intl.DateTimeFormat().resolvedOptions().timeZone);
+ assert.equal(Object.hasOwn(bodies[1],'time_zone'),false);
+});

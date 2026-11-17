@@ -1,6 +1,40 @@
 {
   "sourceLanguage": "de",
   "strings" : {
+  "dictation.onboarding": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Anhören → schreiben → prüfen. Füge einen Text hinzu, um zu beginnen."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Listen → type → check. Add a text to begin."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Слушайте → пишите → проверяйте. Добавьте текст, чтобы начать."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Escucha → escribe → comprueba. Añade un texto para empezar."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Écoute → écris → vérifie. Ajoute un texte pour commencer."
+        }
+      }
+    }
+  },
   "podcast.all.episodes": {
     "localizations": {
       "de": {
@@ -6118,31 +6152,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eine kurze Übung mit deinen gespeicherten Sätzen – oder eine Frage?"
+            "value": "Dein tägliches Training und deine Fragen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A short exercise from your saved phrases, or a question?"
+            "value": "Your daily practice and questions."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Короткое задание по сохранённым фразам или вопрос?"
+            "value": "Ежедневная практика и ваши вопросы."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Un ejercicio breve con tus frases guardadas o una pregunta?"
+            "value": "Tu práctica diaria y tus preguntas."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un petit exercice avec tes phrases enregistrées, ou une question ?"
+            "value": "Ta pratique quotidienne et tes questions."
           }
         }
       }

@@ -37,6 +37,7 @@ struct DictationView: View {
     @State private var record: DictationRecord?
     @State private var busy = false
     @State private var loaded = false
+    @State private var historyConfirmed = false
     @State private var error: String?
     @State private var title = ""
     @State private var original = ""
@@ -54,7 +55,27 @@ struct DictationView: View {
             else {
                 List {
                     if !loaded { ProgressView() }
-                    if loaded && items.isEmpty { Text("No dictations yet.").foregroundStyle(.secondary) }
+                    if model.session.canWrite && historyConfirmed && loaded && !busy && error == nil && items.isEmpty && model.dictationDrafts.records.isEmpty && model.dictationDrafts.recoveries.isEmpty && model.dictationDrafts.addForm.title.isEmpty && model.dictationDrafts.addForm.original.isEmpty && model.dictationDrafts.addForm.pending == nil {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("No dictations yet.")
+                            Text("dictation.onboarding").font(.callout)
+                            Button("Add text") { showAdd = true }
+                                .buttonStyle(.borderedProminent).frame(minHeight: 44)
+                                .accessibilityIdentifier("dictation-empty-create")
+                        }.foregroundStyle(.secondary)
+                    }
+                    if model.session.canWrite && (!model.dictationDrafts.addForm.title.isEmpty || !model.dictationDrafts.addForm.original.isEmpty || model.dictationDrafts.addForm.pending != nil) {
+                        Button {
+                            title = model.dictationDrafts.addForm.title
+                            original = model.dictationDrafts.addForm.original
+                            showAdd = true
+                        } label: {
+                            VStack(alignment: .leading) {
+                                if !model.dictationDrafts.addForm.title.isEmpty { Text(model.dictationDrafts.addForm.title) }
+                                Text(AppL10n.text("In progress")).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }.accessibilityIdentifier("dictation-resume-create")
+                    }
                     ForEach(items) { item in
                         Button { if let cached = model.dictationDrafts.record(item.id) { record = cached }; perform { api, current in let value = try await api.dictation(id: item.id); if current() { try accept(value) } } } label: {
                             VStack(alignment: .leading) { Text(item.title); Text(AppL10n.text(item.checked ? "Checked" : "In progress")).font(.caption).foregroundStyle(.secondary) }
@@ -68,8 +89,7 @@ struct DictationView: View {
                         }.accessibilityIdentifier("dictation-recovery")
                     }
                     if let error { Text(error).font(.footnote).foregroundStyle(.secondary) }
-                    Button("Refresh") { load() }.disabled(busy)
-                }.refreshable { load() }
+                }.refreshable { load(); await task?.value }
             }
         }
         .task(id: model.session.generation) { clear(); load() }
@@ -193,12 +213,12 @@ struct DictationView: View {
     private func cancelTransport() { task?.cancel();task=nil;epoch += 1;busy=false;player.pause() }
     private func stage(_ kind: String) -> String { ["whole":"Listen to the whole text","sentence":"Listen to the sentence","chunk":"Listen to this part","sentence_repeat":"Listen to the sentence again","final":"Optional final reading"][kind] ?? "Listen" }
     private func transition(_ event: DictationEvent) { player.stop();record?.transition(event);if let record { do { try model.dictationDrafts.update(record) } catch { self.error = AppL10n.text("Not saved. Retry before leaving.") } };save() }
-    private func clear() { epoch += 1;saveFence.reset();task?.cancel();saveTask?.cancel();player.stop();items=[];record=nil;title="";original="";error=nil;busy=false;saving=false;loaded=false;showAdd=false }
+    private func clear() { epoch += 1;saveFence.reset();task?.cancel();saveTask?.cancel();player.stop();items=[];record=nil;title="";original="";error=nil;busy=false;saving=false;loaded=false;historyConfirmed=false;showAdd=false }
     private func saveAddForm() { do { try model.dictationDrafts.editAdd(title:title,original:original) } catch { self.error=AppL10n.text("Not saved. Retry before leaving.") } }
     private func accept(_ value: DictationRecord) throws { try model.dictationDrafts.accept(value);record = model.dictationDrafts.record(value.id) }
     private func load() {
         do { try model.hydrateDictations();title=model.dictationDrafts.addForm.title;original=model.dictationDrafts.addForm.original;items = model.dictationDrafts.records;loaded = true } catch { self.error = AppL10n.text("Not saved. Retry before leaving.");return }
-        perform { api, current in let value = try await api.dictations().items; if current() { try model.dictationDrafts.reconcile(value);items = value; loaded = true;if let selected=record,model.dictationDrafts.record(selected.id)==nil {player.stop();record=nil} } }
+        perform { api, current in let value = try await api.dictations().items; if current() { try model.dictationDrafts.reconcile(value);items = value; loaded = true;historyConfirmed = true;if let selected=record,model.dictationDrafts.record(selected.id)==nil {player.stop();record=nil} } }
     }
     private func save(_ completion: @escaping @MainActor () -> Void = {}) {
         guard !saving, !busy else { return }

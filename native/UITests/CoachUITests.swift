@@ -41,7 +41,8 @@ final class CoachUITests: XCTestCase {
         let answer = app.textFields["coach-answer-synthetic-coach"]
         XCTAssertTrue(answer.waitForExistence(timeout: 8)); answer.tap(); answer.typeText("beim")
         app.buttons["coach-check-synthetic-coach"].tap()
-        XCTAssertTrue(app.staticTexts["AI check pending…"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Checking…")).firstMatch.waitForExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts["AI check pending…"].exists)
         shot(app, "coach-assessment-pending-synthetic")
         XCTAssertTrue(app.staticTexts["Incorrect"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["beim"].exists)

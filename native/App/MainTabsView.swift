@@ -19,10 +19,10 @@ struct MainTabsView: View {
                 .tabItem { Label("feature.dictation", systemImage: "waveform") }.tag("dictation")
             PodcastLibraryView(showAdd: $showPodcastAdd)
                 .tabItem { Label("feature.podcasts", systemImage: "headphones") }.tag("podcasts")
-            CoachView()
+            CoachView(isSelected: selected == "coach" && !showCoachProfile && !showSettings)
                 .transformEnvironment(\.coachReduceMotionOverride) { value in
                     #if targetEnvironment(simulator)
-                    if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] == "coach-arrival",
+                    if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"]?.hasPrefix("coach") == true,
                        ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_REDUCE_MOTION"] == "1" { value = true }
                     #endif
                 }

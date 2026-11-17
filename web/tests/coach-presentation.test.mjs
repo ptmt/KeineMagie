@@ -7,9 +7,9 @@ test('rolling 24h retains complete groups by latest learner/assessment activity,
  assert.deepEqual(coachRecentTurns(turns,now).map(t=>t.id),['edge','feedback','future','unknown','legacy']);
  assert.equal(turns.length,7);
 });
-test('attempts including wrong/uncertain are neutral completed; checking differs from waiting and skipped',()=>{
+test('checked results differ from neutral waiting, uncertain and skipped',()=>{
  assert.equal(coachExerciseStatus({state:'completed'}),'awaiting');
- for(const outcome of ['correct','wrong','ambiguous'])assert.equal(coachExerciseStatus({attempt:{outcome}}),'completed');
+ for(const [outcome,status] of [['correct','success'],['wrong','incorrect'],['ambiguous','completed']])assert.equal(coachExerciseStatus({attempt:{outcome}}),status);
  assert.equal(coachExerciseStatus({attempt:{assessment_state:'pending'}}),'working');
  assert.equal(coachExerciseStatus({state:'pending'}),'working');
  assert.equal(coachExerciseStatus({attempt:{outcome:'skipped'}}),'unanswered');
@@ -23,4 +23,17 @@ test('Earlier bounds rendering to a 50-group window without changing saved data'
  assert.equal(coachHistoryWindow(turns,now,100).length,51);
  assert.equal(coachHistoryWindow(turns,now,100)[0].id,'900');
  assert.equal(turns.length,1001);
+});
+
+test('legacy offers and nudges are display-only filtered, snapshots stay intact',()=>{
+ const turns=[{id:'offer',is_offer:true},{id:'nudge',kind:'nudge'},{id:'exercise',kind:'cloze'}];
+ assert.deepEqual(coachHistoryWindow(turns,now,50).map(t=>t.id),['exercise']);
+ assert.equal(turns.length,3);
+});
+test('only checked correct and wrong get result colors; pending, failed, skipped stay neutral',()=>{
+ assert.equal(coachExerciseStatus({attempt:{outcome:'correct',assessment_state:'completed'}}),'success');
+ assert.equal(coachExerciseStatus({attempt:{outcome:'wrong',assessment_state:'completed'}}),'incorrect');
+ assert.equal(coachExerciseStatus({attempt:{outcome:'correct',assessment_state:'failed'}}),'completed');
+ assert.equal(coachExerciseStatus({attempt:{outcome:'wrong',assessment_state:'pending'}}),'working');
+ assert.equal(coachExerciseStatus({attempt:{outcome:'ambiguous'}}),'completed');
 });

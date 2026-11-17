@@ -7,10 +7,11 @@ public struct CoachAction: Codable, Sendable {
     public let turnID: String
     public let locale: String
     public let ownerID: String?
-    public init(requestID: String = UUID().uuidString, action: String, text: String = "", turnID: String = "", locale: String, ownerID: String? = nil) {
-        self.requestID = requestID; self.action = action; self.text = text; self.turnID = turnID; self.locale = locale; self.ownerID = ownerID
+    public let timeZone: String?
+    public init(requestID: String = UUID().uuidString, action: String, text: String = "", turnID: String = "", locale: String, ownerID: String? = nil, timeZone: String? = nil) {
+        self.requestID = requestID; self.action = action; self.text = text; self.turnID = turnID; self.locale = locale; self.ownerID = ownerID; self.timeZone = timeZone
     }
-    enum CodingKeys: String, CodingKey { case requestID = "request_id", action, text, turnID = "turn_id", locale, ownerID = "owner_id" }
+    enum CodingKeys: String, CodingKey { case requestID = "request_id", action, text, turnID = "turn_id", locale, ownerID = "owner_id", timeZone = "time_zone" }
 }
 public struct CoachAssessment: Codable, Sendable {
     public let verdict: String; public let correctedAnswer: String; public let explanation: String; public let uncertaintyReason: String
@@ -40,6 +41,7 @@ public struct CoachTurn: Codable, Sendable, Identifiable {
     enum CodingKeys: String, CodingKey { case isOffer = "is_offer", sourceReveals = "source_reveals", answerReveals = "answer_reveals", messageVersion = "message_version", seenVersion = "seen_version", id, text, state, at, assisted, language, message, kind, prompt, target, sourceID = "source_id", quote, explanation, attempt }
 }
 extension CoachTurn {
+    public var isVisible: Bool { isOffer != true && kind != "nudge" }
     /// Display-only rolling day. Unknown/future dates remain visible; never erase data.
     public func isRecent(now: Date = Date()) -> Bool {
         let dates = [at, attempt?.at, attempt?.reviewedAt].compactMap { value -> Date? in
@@ -50,7 +52,7 @@ extension CoachTurn {
         return latest >= now.addingTimeInterval(-86400)
     }
     public static func historyWindow(_ turns: [CoachTurn], now: Date, earlierLimit: Int) -> [CoachTurn] {
-        let classified = turns.map { ($0, $0.isRecent(now: now)) }
+        let classified = turns.filter(\.isVisible).map { ($0, $0.isRecent(now: now)) }
         let older = classified.filter { !$0.1 }
         let olderIDs = Set(older.suffix(max(0, earlierLimit)).prefix(min(50, max(0, older.count - earlierLimit + 50))).map { $0.0.id })
         return classified.filter { $0.1 || olderIDs.contains($0.0.id) }.map(\.0)
@@ -58,6 +60,11 @@ extension CoachTurn {
     public var presentationStatus: String {
         if state == "pending" || attempt?.assessmentState == "pending" { return "working" }
         if attempt?.outcome == "skipped" { return "unanswered" }
+        if let attempt, !attempt.excluded, attempt.assessmentState == nil || attempt.assessmentState == "completed" {
+            let result = attempt.reviewedAt != nil ? attempt.outcome : attempt.assessment?.verdict ?? attempt.outcome
+            if result == "correct" { return "success" }
+            if ["wrong", "incorrect", "partially_correct"].contains(result) { return "incorrect" }
+        }
         return attempt == nil ? "awaiting" : "completed"
     }
     public var isUnread: Bool { state == "completed" && messageVersion != nil && messageVersion != seenVersion }

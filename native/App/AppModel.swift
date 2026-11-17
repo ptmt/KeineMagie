@@ -1,6 +1,9 @@
 import SwiftUI
 import CryptoKit
 import KeineMagieCore
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @MainActor @Observable
 final class AppModel {
@@ -64,6 +67,15 @@ final class AppModel {
         let revision = cacheRevision
         try? await contentCache.save(data, dataset: dataset, session: lease, revision: revision)
     }
+    // Only the visible, active Coach view enables assessment feedback.
+    var coachForeground = false
+    @ObservationIgnored var coachAssessmentHaptic: @MainActor (String) -> Void = { result in
+        #if canImport(UIKit)
+        UINotificationFeedbackGenerator().notificationOccurred(result == "correct" ? .success : .error)
+        #endif
+    }
+    private(set) var coachOwnSendRevision = 0
+    private(set) var coachLoaded = false
     private(set) var coach: CoachSnapshot?
     private(set) var coachError: String?
     private(set) var coachBusy = false
@@ -78,7 +90,7 @@ final class AppModel {
         let scope = session.serverURL + "\u{0}" + (session.user?.id ?? "")
         guard coachOwnerScope != scope else { return }
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
-        coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil
+        coachLoaded = false; coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil
         coachOwnerScope = scope
     }
     func loadCoach() async {
@@ -87,7 +99,7 @@ final class AppModel {
         guard session.phase == .signedIn, coachReadID == nil, !coachBusy else { return }
         let version = session.generation, epoch = coachEpoch, id = UUID()
         coachReadID = id
-        defer { if coachReadID == id { coachReadID = nil } }
+        defer { if coachReadID == id { coachReadID = nil; coachLoaded = coach != nil } }
         func current() -> Bool { !Task.isCancelled && session.generation == version && coachEpoch == epoch && coachReadID == id && session.phase == .signedIn }
         if coachHydratedGeneration != version, cacheEnabled, let owner = session.user?.id {
             let data = try? await contentCache.load(dataset: "coach", server: session.serverURL, owner: owner)
@@ -127,6 +139,7 @@ final class AppModel {
         guard session.canWrite else { return }
         scopeCoach()
         guard session.canWrite, !coachBusy || action == "cancel" else { return }
+        guard action != "entry" || coachForeground else { return }
         guard let client = try? podcastAPI() else { return }
         let version = session.generation
         coachEpoch += 1
@@ -134,18 +147,21 @@ final class AppModel {
         coachReadID = nil
         let locale = Locale.preferredLanguages.first?.split(separator: "-").first.map(String.init) ?? "en"
         let input: CoachAction
+        var recoveringAssessment = false
         if action == "recheck", let attempt = coach?.turns.first(where: { $0.id == turnID })?.attempt, let saved = attempt.localRequest {
             guard attempt.localRetryAllowed != false, saved.ownerID == nil || saved.ownerID == session.user?.id else {
                 coachError = AppL10n.text("coach.error.conflict")
                 return
             }
             input = saved
+            recoveringAssessment = true
         } else {
-            input = CoachAction(action: action, text: text, turnID: turnID, locale: ["de", "en", "ru", "es", "fr"].contains(locale) ? locale : "en", ownerID: session.user?.id)
+            input = CoachAction(action: action, text: text, turnID: turnID, locale: ["de", "en", "ru", "es", "fr"].contains(locale) ? locale : "en", ownerID: session.user?.id, timeZone: action == "entry" ? TimeZone.current.identifier : nil)
         }
+        if ["message", "practice", "more", "explain", "progress", "answer", "skip", "recheck"].contains(action) { coachOwnSendRevision += 1 }
         if action == "cancel" { coachTask?.cancel() }
         coachBusy = true; coachError = nil
-        coachPendingID = ["message", "practice", "more", "explain", "progress", "answer", "recheck"].contains(action) ? input.requestID : nil
+        coachPendingID = ["entry", "message", "practice", "more", "explain", "progress", "answer", "recheck"].contains(action) ? input.requestID : nil
         if ["answer", "recheck"].contains(action) { coach = coach?.pendingAssessment(input) }
         coachTask = Task { [self] in
             defer { if epoch == coachEpoch { coachBusy = false; coachPendingID = nil; coachTask = nil } }
@@ -166,10 +182,19 @@ final class AppModel {
                         return
                     }
                 }
-                guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.canWrite else { return }
+                guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.canWrite, action != "entry" || coachForeground else { return }
                 let value = try await client.coach(action: input)
                 guard !Task.isCancelled, version == session.generation, epoch == coachEpoch, session.phase == .signedIn else { return }
+                // Match only this explicit assessment acknowledgement. Reads, local
+                // receipt recovery, history reveals and late/background responses stay silent.
+                if ["answer", "recheck"].contains(action), !recoveringAssessment, coachForeground,
+                   let attempt = value.turns.first(where: { $0.id == turnID })?.attempt,
+                   attempt.id == input.requestID, attempt.assessmentState == "completed", !attempt.excluded,
+                   let verdict = attempt.assessment?.verdict, ["correct", "incorrect", "partially_correct"].contains(verdict) {
+                    coachAssessmentHaptic(verdict == "correct" ? "correct" : "wrong")
+                }
                 coach = action == "reset" ? value : value.preservingUnacknowledged(from: coach, removing: action == "cancel" ? turnID : nil)
+                coachLoaded = true
                 if action == "message", !preserveDraft, coachDraft == text { coachDraft = "" }
                 if let data = try? JSONEncoder().encode(coach) { await persist(data, dataset: "coach") }
             } catch {
@@ -953,7 +978,7 @@ final class AppModel {
         outbox = TranslationOutbox(); outbox.direction = previousDirection; outboxScope = nil
         dictationDrafts.reset(); dictationHydratedGeneration = nil
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
-        coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil; coachOwnerScope = nil
+        coachLoaded = false; coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil; coachOwnerScope = nil
         if let lease = cacheLease {
             lease.invalidate()
             Task { try? await contentCache.remove(session: lease) }

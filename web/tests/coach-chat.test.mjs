@@ -21,3 +21,7 @@ test('unread matches exact message revision, not fetch',()=>{
  assert.equal(coachUnread({state:'pending',message_version:'a'}),false);
  assert.equal(coachPracticeText('ru'),'30 секунд');
 });
+test('hidden legacy greetings cannot mask the latest visible feedback',()=>{
+ const answer={id:'answer',attempt:{answer:'auf'}};
+ assert.equal(coachMasksAnswer(answer,[answer,{id:'nudge',kind:'nudge'},{id:'offer',is_offer:true}]),false);
+});

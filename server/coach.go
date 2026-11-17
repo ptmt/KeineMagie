@@ -36,12 +36,14 @@ type coachResult struct {
 	Explanation      string   `json:"explanation"`
 }
 type coachInput struct {
-	OwnerID   string `json:"owner_id,omitempty"`
-	RequestID string `json:"request_id"`
-	Action    string `json:"action"`
-	Text      string `json:"text"`
-	TurnID    string `json:"turn_id"`
-	Locale    string `json:"locale"`
+	TimeZone       string `json:"time_zone,omitempty"`
+	dailyAdmission bool
+	OwnerID        string `json:"owner_id,omitempty"`
+	RequestID      string `json:"request_id"`
+	Action         string `json:"action"`
+	Text           string `json:"text"`
+	TurnID         string `json:"turn_id"`
+	Locale         string `json:"locale"`
 }
 type coachAttempt struct {
 	ID              string           `json:"id"`
@@ -79,12 +81,14 @@ type coachReceipt struct {
 	Digest string `json:"digest"`
 }
 type coachData struct {
-	LastVisit *time.Time       `json:"last_visit,omitempty"`
-	LastNudge *time.Time       `json:"last_nudge,omitempty"`
-	Events    []coachChatEvent `json:"events,omitempty"`
-	Turns     []coachTurn      `json:"turns"`
-	Receipts  []coachReceipt   `json:"receipts"`
-	ResetAt   *time.Time       `json:"reset_at,omitempty"`
+	DailyTimeZone string            `json:"daily_time_zone,omitempty"`
+	DailyClaims   []coachDailyClaim `json:"daily_claims,omitempty"`
+	LastVisit     *time.Time        `json:"last_visit,omitempty"`
+	LastNudge     *time.Time        `json:"last_nudge,omitempty"`
+	Events        []coachChatEvent  `json:"events,omitempty"`
+	Turns         []coachTurn       `json:"turns"`
+	Receipts      []coachReceipt    `json:"receipts"`
+	ResetAt       *time.Time        `json:"reset_at,omitempty"`
 }
 type coachStore struct{ lock *historyStore }
 
@@ -218,6 +222,11 @@ func coachView(d *coachData) map[string]any {
 	groups := map[string]*coachObservation{}
 	seen := map[string]map[string]bool{}
 	for _, v := range d.Turns {
+		// Opted-in owners see exercises, including through released clients.
+		// Keep legacy offer records untouched in durable storage.
+		if d.DailyTimeZone != "" && v.Result != nil && v.Result.Kind == "nudge" {
+			continue
+		}
 		t := map[string]any{"id": v.ID, "text": v.Text, "state": v.State, "at": v.At, "assisted": v.Assisted, "language": v.Language, "source_reveals": v.SourceReveals, "answer_reveals": v.AnswerReveals, "seen_version": v.SeenVersion, "message_version": coachMessageVersion(&v)}
 		if v.Result != nil {
 			x := v.Result
@@ -380,6 +389,10 @@ func (cfg *serverConfig) coachHTTP(w http.ResponseWriter, r *http.Request, owner
 		coachFailure(w, 400, "invalid", "text required")
 		return
 	}
+	if in.Action == "entry" && in.TimeZone != "" {
+		cfg.coachDailyEntry(w, r, owner, in)
+		return
+	}
 	if coachIsMessage(in.Action) {
 		cfg.coachMessage(w, r, owner, in)
 		return
@@ -477,6 +490,9 @@ func (cfg *serverConfig) coachHTTP(w http.ResponseWriter, r *http.Request, owner
 }
 func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, owner string, in coachInput) {
 	operation := in.Action
+	if in.dailyAdmission {
+		operation = "practice"
+	}
 	if operation == "message" {
 		operation = coachMessageIntent(in.Text)
 	}
@@ -486,7 +502,7 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 		coachError(w, e)
 		return
 	}
-	if duplicate {
+	if duplicate && !in.dailyAdmission {
 		cfg.coachRead(w, owner)
 		return
 	}
@@ -544,17 +560,24 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 	e = cfg.coachWrite(r, owner, func(d *coachData) error {
 		var e error
 		duplicate, e = coachReceiptExists(d, in)
+		if in.dailyAdmission {
+			v := coachFind(d, in.RequestID)
+			if v == nil || v.State != "pending" {
+				return errCoachConflict
+			}
+			duplicate = false
+		}
 		if e != nil || duplicate {
 			return e
 		}
-		if priorTurn := coachFind(d, in.RequestID); priorTurn != nil {
+		if priorTurn := coachFind(d, in.RequestID); priorTurn != nil && !in.dailyAdmission {
 			if priorTurn.State == "canceled" {
 				duplicate = true
 				return nil
 			}
 			return errCoachConflict
 		}
-		if len(d.Turns) >= 250 || len(d.Receipts) >= 10000 {
+		if !in.dailyAdmission && (len(d.Turns) >= 250 || len(d.Receipts) >= 10000) {
 			return errors.New("coach conversation full")
 		}
 		if (operation == "practice" || operation == "more") && coachActive(d) != nil {
@@ -571,6 +594,9 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 		}
 		for i := range d.Turns {
 			v := &d.Turns[i]
+			if in.dailyAdmission && v.ID == in.RequestID {
+				continue
+			}
 			if v.State == "pending" {
 				return errCoachConflict
 			}
@@ -588,8 +614,10 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 		if len(prior) > 6 {
 			prior = prior[len(prior)-6:]
 		}
-		d.Turns = append(d.Turns, coachTurn{ID: in.RequestID, Text: in.Text, Locale: in.Locale, State: "pending", At: time.Now().UTC()})
-		coachRecord(d, in)
+		if !in.dailyAdmission {
+			d.Turns = append(d.Turns, coachTurn{ID: in.RequestID, Text: in.Text, Locale: in.Locale, State: "pending", At: time.Now().UTC()})
+			coachRecord(d, in)
+		}
 		return nil
 	})
 	if e != nil {
@@ -649,6 +677,30 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 		if v == nil || v.State != "pending" {
 			return errCoachConflict
 		}
+		if in.dailyAdmission {
+			zone, err := time.LoadLocation(d.DailyTimeZone)
+			if err != nil {
+				return err
+			}
+			day := cfg.auth.now().In(zone).Format("2006-01-02")
+			claimed := false
+			for _, claim := range d.DailyClaims {
+				if claim.Day == day {
+					if claim.TurnID != in.RequestID {
+						return errCoachConflict
+					}
+					claimed = true
+				}
+			}
+			// Slow preflight can cross local midnight. Bind the dispatch day too;
+			// even an uncertain accepted response cannot spend again that day.
+			if !claimed {
+				if len(d.DailyClaims) >= 10000 {
+					return errCoachConflict
+				}
+				d.DailyClaims = append(d.DailyClaims, coachDailyClaim{day, in.RequestID})
+			}
+		}
 		return consume(p.cfg.auth.now())
 	})
 	if e != nil {
@@ -664,6 +716,9 @@ func (cfg *serverConfig) coachMessage(w http.ResponseWriter, r *http.Request, ow
 		generationInput := in
 		generationInput.Action = operation
 		result, e = p.coachGenerate(ctx, credential.AccessToken, sources, prior, generationInput)
+		if e == nil && in.dailyAdmission && result.Kind == "clarification" {
+			e = errCoachResult
+		}
 		if e == nil && (operation == "explain" || operation == "active_question") && result.Kind != "clarification" {
 			e = errCoachResult
 		}

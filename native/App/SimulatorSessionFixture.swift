@@ -172,6 +172,9 @@ actor SimulatorSessionFixture {
         if mode == "translation-outbox-lostack", request.url?.path == "/v1/translations", request.httpMethod == "POST" { throw URLError(.networkConnectionLost) }
         if mode == "translation-outbox-401", request.url?.path == "/v1/translations", request.httpMethod == "POST" { return AuthResponse(data: Data(), status: 401) }
         if mode == "translation-outbox-status", request.url?.path == "/v1/auth/session", validations > 0 { try await Task.sleep(for: .seconds(15)) }
+        if mode == "dictation-empty", request.url?.path == "/v1/learning/dictations", request.httpMethod == "GET" {
+            return AuthResponse(data: Data(#"{"items":[],"tts_available":true,"languages":["de"]}"#.utf8), status: 200)
+        }
         if mode == "dictation-local", let path = request.url?.path, path.hasPrefix("/v1/learning/dictations"),
            let token = ProcessInfo.processInfo.environment["KM_DICTATION_FIXTURE_TOKEN"] {
             var local = request
@@ -230,7 +233,8 @@ actor SimulatorSessionFixture {
                 if action.action == "entry" { coachEntryCount += 1 }
                 if action.action == "progress" { coachProgressShown = true }
                 if action.action == "answer" && mode == "coach-assessment" {
-                    try await Task.sleep(for: .seconds(2))
+                    let delay = ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_CHECK_CAPTURE"] == "1" ? 6 : 2
+                    try await Task.sleep(for: .seconds(delay))
                 }
                 if action.action == "answer" || action.action == "skip" {
                     coachAnswered = true; coachAnswer = action.text

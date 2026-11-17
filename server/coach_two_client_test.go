@@ -39,6 +39,12 @@ func TestCoachTwoClientBridge(t *testing.T) {
 	deadline := time.Now().Add(90 * time.Second)
 	for time.Now().Before(deadline) {
 		if _, err := os.Stat(filepath.Join(dir, "stop")); err == nil {
+			if f.calls.Load() != 1 {
+				t.Errorf("two entries plus one explicit assessment: provider requests=%d, want 1", f.calls.Load())
+			}
+			if d := f.read(t); len(d.DailyClaims) != 1 || d.DailyClaims[0].TurnID != "one" {
+				t.Error("daily resume claim not shared durably")
+			}
 			return
 		}
 		time.Sleep(50 * time.Millisecond)

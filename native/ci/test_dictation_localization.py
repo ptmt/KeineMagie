@@ -11,7 +11,7 @@ class DictationLocalization(unittest.TestCase):
   self.assertIn('Text("dictation.paid.notice")',(ROOT/'App/DictationView.swift').read_text())
  def test_reachable_dictation_controls_have_five_translations(self):
   catalog=json.loads((ROOT/'App/Localizable.xcstrings').read_text())['strings']
-  for key in ['Add text','Prepare audio','By sentences','What you heard','New attempt','Delete attempt','Not saved. Retry before leaving.','readings','step','Draft conflict','Your draft','Server draft','Export draft','Rebase my draft','Use server draft','Deleted on another device · draft saved locally']:
+  for key in ['dictation.onboarding','Add text','Prepare audio','By sentences','What you heard','New attempt','Delete attempt','Not saved. Retry before leaving.','readings','step','Draft conflict','Your draft','Server draft','Export draft','Rebase my draft','Use server draft','Deleted on another device · draft saved locally']:
    self.assertIn(key,catalog)
    self.assertEqual(set(catalog[key]['localizations']),{'de','en','ru','es','fr'})
 if __name__=='__main__':unittest.main()

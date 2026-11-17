@@ -1,6 +1,7 @@
 """Five-language source translations used to generate the checked-in catalogs."""
 # Order: German, English, Russian, Spanish, French.
 APP = [
+    ('dictation.onboarding', 'Anhören → schreiben → prüfen. Füge einen Text hinzu, um zu beginnen.', 'Listen → type → check. Add a text to begin.', 'Слушайте → пишите → проверяйте. Добавьте текст, чтобы начать.', 'Escucha → escribe → comprueba. Añade un texto para empezar.', 'Écoute → écris → vérifie. Ajoute un texte pour commencer.'),
     ('podcast.load.library', 'Die Bibliothek konnte nicht geladen werden.', 'Could not load the library.', 'Не удалось загрузить библиотеку.', 'No se pudo cargar la biblioteca.', 'Impossible de charger la bibliothèque.'),
     ('podcast.load.subscriptions', 'Die abonnierten Podcasts konnten nicht geladen werden.', 'Could not load subscribed podcasts.', 'Не удалось загрузить подписки на подкасты.', 'No se pudieron cargar las suscripciones.', 'Impossible de charger les abonnements.'),
     ('podcast.load.response', 'Die Serverantwort ist nicht kompatibel. Aktualisiere die App und versuche es erneut.', 'The server response is incompatible. Update the app and try again.', 'Ответ сервера несовместим. Обновите приложение и повторите попытку.', 'La respuesta del servidor es incompatible. Actualiza la app y vuelve a intentarlo.', 'La réponse du serveur est incompatible. Mettez l’app à jour et réessayez.'),
@@ -46,7 +47,7 @@ APP = [
 ('coach.target.word_order.subordinate_clause', 'Wortstellung im Nebensatz', 'Subordinate-clause word order', 'Порядок слов в придаточном', 'Orden en subordinadas', 'Ordre dans la subordonnée'),
 ('coach.target.register.formality', 'Formell oder informell', 'Formal and informal language', 'Формальная и неформальная речь', 'Lenguaje formal e informal', 'Langage formel et informel'),
 
-('coach.welcome', 'Eine kurze Übung mit deinen gespeicherten Sätzen – oder eine Frage?', 'A short exercise from your saved phrases, or a question?', 'Короткое задание по сохранённым фразам или вопрос?', '¿Un ejercicio breve con tus frases guardadas o una pregunta?', 'Un petit exercice avec tes phrases enregistrées, ou une question ?'),
+('coach.welcome', 'Dein tägliches Training und deine Fragen.', 'Your daily practice and questions.', 'Ежедневная практика и ваши вопросы.', 'Tu práctica diaria y tus preguntas.', 'Ta pratique quotidienne et tes questions.'),
 ('coach.message', 'Nachricht', 'Message', 'Сообщение', 'Mensaje', 'Message'),
 ('coach.send', 'Senden', 'Send', 'Отправить', 'Enviar', 'Envoyer'),
 ('coach.practice', 'Üben · ~30 Sek.', 'Practice · ~30 sec', 'Практика · ~30 сек', 'Practicar · ~30 s', 'Pratiquer · ~30 s'),
