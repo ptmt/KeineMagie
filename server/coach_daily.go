@@ -56,8 +56,23 @@ func (cfg *serverConfig) coachDailyEntry(w http.ResponseWriter, r *http.Request,
 		}
 		resume := ""
 		for _, t := range d.Turns {
-			if t.State == "pending" || t.Attempt != nil && t.Attempt.AssessmentState != "" && t.Attempt.AssessmentState != "completed" {
+			if t.State == "pending" || t.Attempt != nil && t.Attempt.AssessmentState == "pending" {
 				resume = t.ID
+				break
+			}
+		}
+		// Only the latest exercise can resume a settled assessment failure.
+		// An explicit later exercise moves on without deleting old answers or
+		// silently retrying them. Pending/uncertain work still fails closed above.
+		if resume == "" {
+			for i := len(d.Turns) - 1; i >= 0; i-- {
+				t := &d.Turns[i]
+				if t.Result == nil || t.Result.Kind == "clarification" || t.Result.Kind == "nudge" {
+					continue
+				}
+				if a := t.Attempt; a != nil && a.AssessmentState != "" && a.AssessmentState != "completed" {
+					resume = t.ID
+				}
 				break
 			}
 		}
