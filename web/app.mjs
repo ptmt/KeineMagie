@@ -46,6 +46,7 @@ let selectedInstructions = '';
 let editingPrompt = null;
 let styleSignature = null;
 let appliedTranslation = null;
+let appliedSource = null;
 const editingLabels={en:{edit:'Edit translation',done:'Done',draft:'Current draft only; original kept in history.'},de:{edit:'Übersetzung bearbeiten',done:'Fertig',draft:'Nur aktueller Entwurf; Original bleibt im Verlauf.'},ru:{edit:'Изменить перевод',done:'Готово',draft:'Только текущий черновик; оригинал остаётся в истории.'},es:{edit:'Editar traducción',done:'Listo',draft:'Solo borrador actual; el original sigue en el historial.'},fr:{edit:'Modifier la traduction',done:'Terminé',draft:'Brouillon actuel uniquement ; original conservé dans l’historique.'}};
 function currentOutput(){return appliedTranslation ?? record?.translation ?? '';}
 function localizeTranslationEditor(){
@@ -70,9 +71,9 @@ $('translation-editor').addEventListener('input',()=>{if(record)applyCurrentTran
 $('translation-editor').addEventListener('keydown',event=>{if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();event.stopPropagation();showTranslationEditor(false);}});
 
 const followup = mountTranslatorFollowup({host:$('translation-followup'),api,locale:getInterfaceLanguage,unauthorized:handleUnauthorized,
-  currentDraft:()=>record?{current_source:$('source-text').value,current_translation:currentOutput()}:null,
+  currentDraft:()=>record?{current_source:appliedSource ?? record.text,current_translation:currentOutput()}:null,
   saved(item) { history = [item,...history.filter(existing=>existing.id!==item.id)]; renderHistory(); if(record?.id===item.id){record=item;} },
-  apply(item,text,source) { if(record?.id!==item.id)return; if(typeof source==='string'){$('source-text').value=source;$('source-text').lang=item.source_language;$('language-direction').value=`${item.source_language}-${item.target_language}`;} applyCurrentTranslation(text);showTranslationEditor(false);updateInput(); }
+  apply(item,text,source) { if(record?.id!==item.id)return; if(typeof source==='string'){appliedSource=source;$('source-text').value=source;$('source-text').lang=item.source_language;$('language-direction').value=`${item.source_language}-${item.target_language}`;} applyCurrentTranslation(text);showTranslationEditor(false);updateInput(); }
 });
 function canEditDraft() { return !!session?.user?.id && !busy; }
 function styleStore() {
@@ -237,7 +238,7 @@ let copyTimer = null;
 function resetCopy() { clearTimeout(copyTimer); copyTimer = null; setText('copy', 'Kopieren'); }
 function resetResult() {
   $('translation-recover').hidden = true;
-  followup.select(null); appliedTranslation=null;showTranslationEditor(false);$('edit-translation').disabled=true;
+  followup.select(null); appliedTranslation=null;appliedSource=null;showTranslationEditor(false);$('edit-translation').disabled=true;
   resetCopy();
   record = null;
   $('translation-editor').value='';
@@ -436,7 +437,7 @@ function restore({force = true, refreshProvider = false} = {}) {
   return task;
 }
 function renderRecord(item) {
-  appliedTranslation=null; showTranslationEditor(false);$('translation-editor').value='';followup.select(item);
+  appliedTranslation=null; appliedSource=null; showTranslationEditor(false);$('translation-editor').value='';followup.select(item);
   resetCopy();
   record = item;
   $('language-direction').value = `${item.source_language}-${item.target_language}`;
@@ -554,11 +555,11 @@ function changeLanguage(source, target) {
   resetResult(); updateInput(); status('Dein Text wird erst beim Übersetzen gesendet.');
 }
 $('translation-form').addEventListener('submit', translate);
-$('source-text').addEventListener('input', () => { if (record) resetResult(); updateInput(); });
+$('source-text').addEventListener('input', updateInput);
 $('source-text').addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); $('translation-form').requestSubmit(); } });
 $('language-direction').addEventListener('change', () => changeLanguage(...$('language-direction').value.split('-')));
 $('swap').addEventListener('click', () => { if (!canEditDraft()) return; const [source, target] = $('language-direction').value.split('-'); const swapped = swapDraft(source, $('source-text').value, appliedTranslation ?? record?.translation, target); $('source-text').value = swapped.text; changeLanguage(swapped.source, swapped.target); });
-$('clear').addEventListener('click', () => { if (!canEditDraft()) return; $('source-text').value = ''; resetResult(); updateInput(); status('Text geleert.'); $('source-text').focus(); });
+$('clear').addEventListener('click', () => { if (!canEditDraft()) return; $('source-text').value = ''; updateInput(); status('Text geleert.'); $('source-text').focus(); });
 $('cancel').addEventListener('click', () => controller?.abort());
 $('copy').addEventListener('click', async () => {
   if (!record?.translation || $('copy').disabled) return;
