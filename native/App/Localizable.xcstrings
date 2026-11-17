@@ -1,6 +1,286 @@
 {
   "sourceLanguage": "de",
   "strings" : {
+  "shortcut.sync.limit": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "50 synced styles maximum. Delete a synced style to make room. Pending styles stay on this device."
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Maximal 50 synchronisierte Stile. Lösche einen, um Platz zu schaffen. Ausstehende Stile bleiben auf diesem Gerät."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Можно синхронизировать до 50 стилей. Удалите один, чтобы освободить место. Ожидающие стили остаются на устройстве."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Máximo 50 estilos sincronizados. Elimina uno para dejar espacio. Los pendientes permanecen en este dispositivo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "50 styles synchronisés maximum. Supprimez-en un pour libérer de la place. Les styles en attente restent sur cet appareil."
+        }
+      }
+    }
+  },
+  "shortcut.sync.validation": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "An older title exceeds 60 Unicode characters. Shorten it to sync; the original local copy is kept."
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Ein älterer Titel hat mehr als 60 Unicode-Zeichen. Kürze ihn zum Synchronisieren; die lokale Originalkopie bleibt erhalten."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Старое название длиннее 60 символов Unicode. Сократите его для синхронизации; исходная локальная копия сохранится."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Un título antiguo supera los 60 caracteres Unicode. Acórtalo para sincronizar; se conserva la copia local original."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Un ancien titre dépasse 60 caractères Unicode. Raccourcissez-le pour synchroniser ; la copie locale originale est conservée."
+        }
+      }
+    }
+  },
+  "shortcut.sync.scope": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Saved to your account and synced between the app and web. Offline changes wait for a connection. Do not enter secrets."
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "In deinem Konto gespeichert und zwischen App und Web synchronisiert. Offline-Änderungen warten auf eine Verbindung. Keine Geheimnisse eingeben."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сохраняется в аккаунте и синхронизируется между приложением и сайтом. Изменения без сети отправятся после подключения. Не вводите секретные данные."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Guardado en tu cuenta y sincronizado entre la app y la web. Los cambios sin conexión esperan. No introduzcas secretos."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Enregistré dans votre compte et synchronisé entre l’app et le web. Les changements hors ligne attendent une connexion. Ne saisissez pas de secrets."
+        }
+      }
+    }
+  },
+  "shortcut.sync.pending": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Styles not synced yet. Retry."
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Stile noch nicht synchronisiert. Erneut versuchen."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Стили ещё не синхронизированы. Повторить."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Estilos sin sincronizar. Reintentar."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Styles non synchronisés. Réessayer."
+        }
+      }
+    }
+  },
+  "shortcut.sync.conflict": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "A style changed on another device. Choose which version to keep."
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Ein Stil wurde auf einem anderen Gerät geändert. Wähle die Version."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Стиль изменён на другом устройстве. Выберите, какую версию сохранить."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Un estilo cambió en otro dispositivo. Elige qué versión conservar."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Un style a changé sur un autre appareil. Choisissez la version à garder."
+        }
+      }
+    }
+  },
+  "shortcut.sync.keepBoth": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Keep both"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Beide behalten"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сохранить оба"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Conservar ambos"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Garder les deux"
+        }
+      }
+    }
+  },
+  "shortcut.sync.useServer": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Use server version"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Serverversion verwenden"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Версия сервера"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Versión del servidor"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Version du serveur"
+        }
+      }
+    }
+  },
+  "shortcut.title.scalarLimit": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Up to 60 Unicode characters."
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Bis zu 60 Unicode-Zeichen."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "До 60 символов Unicode."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Hasta 60 caracteres Unicode."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Jusqu’à 60 caractères Unicode."
+        }
+      }
+    }
+  },
   "dictation.onboarding": {
     "localizations": {
       "de": {

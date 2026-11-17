@@ -85,6 +85,29 @@ actor SimulatorSessionFixture {
         }
         // Explicit synthetic-only loopback transport; no production account or provider.
         // Keep the real APIClient request path, body and expected-owner header intact.
+        if mode == "profile-http", let path = request.url?.path,
+           path == "/v1/auth/session" || path == "/v1/translation-profiles" {
+            var local = request
+            local.url = URL(string: "http://127.0.0.1:18880" + path)
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.urlCache = nil
+            let session = URLSession(configuration: configuration)
+            defer { session.invalidateAndCancel() }
+            let (data, response) = try await session.data(for: local)
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 500
+            // Seed only this explicitly named synthetic simulator namespace.
+            if path == "/v1/auth/session", status == 200,
+               ProcessInfo.processInfo.environment["KM_PROFILE_UI_SEED"] == "1",
+               let namespace = ProcessInfo.processInfo.environment["KM_SIMULATOR_CACHE_NAMESPACE"], UUID(uuidString: namespace) != nil,
+               !UserDefaults.standard.bool(forKey: "profile-ui-seeded:" + namespace),
+               let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let user = object["user"] as? [String: Any], let owner = user["id"] as? String {
+                let legacy = try TranslationShortcut(id: UUID(uuidString: "00000000-0000-0000-0000-000000000007")!, title: "Legacy native", instruction: "Literal legacy instruction e\u{0301}")
+                try TranslationShortcutStore().save([legacy], server: "https://fixture.invalid", owner: owner)
+                UserDefaults.standard.set(true, forKey: "profile-ui-seeded:" + namespace)
+            }
+            return AuthResponse(data: data, status: status)
+        }
         if mode == "passage-http", let path = request.url?.path,
            path == "/v1/auth/session" || path.hasPrefix("/v1/podcasts") || path.contains("/passage") {
             var local = request

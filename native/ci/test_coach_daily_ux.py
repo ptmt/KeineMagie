@@ -19,6 +19,7 @@ let package = Package(name:"Lifecycle",platforms:[.macOS(.v14)],dependencies:[.p
 ''' % (ROOT/'Core'))
         app = (ROOT/'App/AppModel.swift').read_text().replace('import SwiftUI','import Foundation\nimport Observation')
         (source/'AppModel.swift').write_text(app)
+        (source/'TranslationProfileSync.swift').write_text((ROOT/'App/TranslationProfileSync.swift').read_text())
         (source/'PodcastStore.swift').write_text((ROOT/'App/PodcastStore.swift').read_text())
         (source/'Stubs.swift').write_text('''import Foundation
 import KeineMagieCore

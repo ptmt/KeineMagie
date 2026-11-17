@@ -1,5 +1,10 @@
 # Translation styles and saved shortcuts
 
+> The server-sync integration candidate is documented in
+> [TRANSLATION-PROFILE-SYNC.md](TRANSLATION-PROFILE-SYNC.md). Its migration and
+> account-sync rules supersede the original local-only storage behavior below
+> when that candidate is integrated; this note does not claim a deployed release.
+
 `POST /v1/translations` accepts an optional `instructions` JSON string on both
 account and legacy token routes. Omit it (or send an empty string) for the existing
 translation behavior. The maximum is **1,000 Unicode code points**, not UTF-8

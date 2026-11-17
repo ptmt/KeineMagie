@@ -714,38 +714,23 @@ final class AppModel {
         guard session.translationOwnerValidated else { return }
         await drainTranslations(explicit: false)
     }
-    private(set) var shortcuts: [TranslationShortcut] = []
+    var shortcuts: [TranslationShortcut] = []
+    var shortcutJournal = TranslationProfileJournal()
+    var shortcutProfileStore = TranslationProfileStore()
+    var shortcutScope: (origin: String, owner: String)?
+    var shortcutSyncID: UUID?
+    var shortcutSyncIssue: String?
+    var shortcutStorageFailed = false
     var selectedShortcutID: String? {
         get { outbox.selectedShortcutID }
         set { loadTranslationOutbox(); outbox.selectedShortcutID = newValue; _ = saveTranslationOutbox() }
     }
-    private let shortcutStore = TranslationShortcutStore()
     var translationInstruction: String? {
         switch selectedShortcutID {
         case "friendly": AppL10n.text("shortcut.friendly.instruction")
         case "formal": AppL10n.text("shortcut.formal.instruction")
         default: shortcuts.first { $0.id.uuidString == selectedShortcutID }?.instruction
         }
-    }
-    func loadShortcuts() {
-        guard let owner = session.user?.id, session.phase == .signedIn else { shortcuts = []; selectedShortcutID = nil; return }
-        do { shortcuts = try shortcutStore.load(server: session.serverURL, owner: owner) }
-        catch { shortcuts = []; translatorError = AppL10n.text("shortcut.storage.error") }
-    }
-    func saveShortcut(id: UUID = UUID(), title: String, instruction: String) throws {
-        guard let owner = session.user?.id, session.canWrite else { throw APIError.missingToken }
-        let shortcut = try TranslationShortcut(id: id, title: title, instruction: instruction)
-        var updated = shortcuts
-        if let index = updated.firstIndex(where: { $0.id == id }) { updated[index] = shortcut } else { updated.append(shortcut) }
-        try shortcutStore.save(updated, server: session.serverURL, owner: owner)
-        shortcuts = updated
-    }
-    func deleteShortcut(_ id: UUID) throws {
-        guard let owner = session.user?.id, session.canWrite else { throw APIError.missingToken }
-        let updated = shortcuts.filter { $0.id != id }
-        try shortcutStore.save(updated, server: session.serverURL, owner: owner)
-        shortcuts = updated
-        if selectedShortcutID == id.uuidString { selectedShortcutID = nil }
     }
     private(set) var provider: ProviderStatus?
     private(set) var providerDiagnostic: String?
@@ -760,12 +745,13 @@ final class AppModel {
     private var refreshID: UUID?
     private var injectedClient: APIClient?
 
-    init(session: SessionController, client: APIClient, podcastClient: PodcastAPI? = nil, cache: ContentCache? = nil, outboxStore: TranslationOutboxStore? = nil) {
+    init(session: SessionController, client: APIClient, podcastClient: PodcastAPI? = nil, cache: ContentCache? = nil, outboxStore: TranslationOutboxStore? = nil, profileStore: TranslationProfileStore? = nil) {
         self.session = session
         self.injectedClient = client
         self.injectedPodcastClient = podcastClient
         if let cache { self.contentCache = cache }
         if let outboxStore { self.outboxStore = outboxStore }
+        if let profileStore { self.shortcutProfileStore = profileStore }
     }
 
     #if targetEnvironment(simulator)
@@ -996,6 +982,7 @@ final class AppModel {
         // signs in with Apple, or claims a real provider connection.
         if let mode = ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] {
             let fixture = SimulatorSessionFixture(mode: mode)
+            shortcutProfileStore = TranslationProfileStore(root: URL.applicationSupportDirectory.appendingPathComponent("UITestProfiles").appendingPathComponent(UUID().uuidString))
             outboxStore = TranslationOutboxStore(root: URL.applicationSupportDirectory.appendingPathComponent("UITestOutbox").appendingPathComponent(UUID().uuidString))
             if mode == "translation-delayed-store" || mode == "translation-delayed-store-failure" {
                 let probe = SimulatorTranslationJournalProbe(fail: mode.hasSuffix("failure"))
@@ -1004,6 +991,7 @@ final class AppModel {
             if let namespace = ProcessInfo.processInfo.environment["KM_SIMULATOR_CACHE_NAMESPACE"], UUID(uuidString: namespace) != nil {
                 let root = URL.applicationSupportDirectory.appendingPathComponent("UITestContentCache").appendingPathComponent(namespace)
                 contentCache = ContentCache(root: root)
+                shortcutProfileStore = TranslationProfileStore(root: root.appendingPathComponent("profiles"))
                 outboxStore = TranslationOutboxStore(root: root.appendingPathComponent("outbox"))
                 fixtureTransport = { request in try await fixture.send(request) }
                 session = SessionController(serverURL: "https://fixture.invalid", readToken: { "synthetic-session-not-a-credential" }, saveToken: { _ in }, readIdentity: { try SimulatorIdentityStore.read(root) }, saveIdentity: { try SimulatorIdentityStore.save($0, root: root) }, transport: { request in try await fixture.send(request) })
@@ -1027,6 +1015,7 @@ final class AppModel {
         #endif
     }
     func resetSessionContent() {
+        resetShortcuts()
         closeTranslationDiscussion(); discussionID = nil; discussionDrafts = [:]
         discussionHydratedGeneration = nil; followupError = nil; appliedProposalID = nil; localTranslation = nil
         outboxLease.invalidate()
@@ -1067,6 +1056,7 @@ final class AppModel {
         // Revoke against the OLD server before changing origin. Offline failure is reported, not hidden.
         outboxLease.invalidate()
         try outboxStore.remove(origin: session.serverURL, owner: session.user?.id)
+        purgeShortcuts()
         await session.logout()
         guard session.phase == .signedOut else { throw SettingsFailure.keychain }
         let warning = session.message
@@ -1076,6 +1066,7 @@ final class AppModel {
         if warning != nil { throw SettingsFailure.revocation }
     }
     func logout() async {
+        purgeShortcuts()
         if let target = invalidatedOutboxOwner {
             do { try outboxStore.remove(origin: target.origin, owner: target.owner); invalidatedOutboxOwner = nil }
             catch { outboxStorageError = true }

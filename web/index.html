@@ -40,17 +40,18 @@
 
         <div class="translation-panels">
           <div class="input-panel">
-            <div class="panel-top"><label for="source-text">Dein Text</label><button id="clear" disabled type="button" class="quiet-button">Leeren</button></div>
+            <div class="panel-top"><label class="sr-only" for="source-text">Dein Text</label><button id="clear" disabled type="button" class="quiet-button">Leeren</button></div>
             <textarea id="source-text" disabled name="text" placeholder="Text eingeben …" spellcheck="true" aria-describedby="input-count" lang="ru"></textarea>
             <div id="style-controls" class="style-controls">
               <span class="style-label sr-only">Stil</span><div id="style-chips" class="style-chips" role="group" aria-label="Übersetzungsstil"><button type="button" class="style-chip" disabled aria-pressed="true">Standard</button><button type="button" class="style-chip" disabled aria-pressed="false">Freundlich</button><button type="button" class="style-chip" disabled aria-pressed="false">Formell</button></div>
               <button id="add-prompt" disabled type="button" class="quiet-button" aria-label="Eigenen Stil hinzufügen" title="Eigener Stil">+</button><button id="edit-prompt" type="button" class="quiet-button" hidden>Bearbeiten</button>
             </div>
+            <div><button id="profile-sync-status" type="button" class="quiet-button" hidden></button><button id="profile-conflict-copy" type="button" class="quiet-button" hidden></button><button id="profile-conflict-remote" type="button" class="quiet-button" hidden></button></div>
             <div class="panel-bottom"><span id="input-count">0 / 8.000</span><span class="keyboard-hint">⌘ / Ctrl + Enter</span></div>
           </div>
           <div class="output-panel">
             <div id="result-skeleton" class="result-skeleton" aria-hidden="true" hidden><span></span><span></span><span></span></div>
-            <div class="panel-top"><span id="result-label">Übersetzung</span><div class="result-actions"><button id="edit-translation" type="button" class="quiet-button" disabled aria-label="Edit translation" title="Edit translation">✎</button><button id="finish-translation-edit" type="button" class="quiet-button" hidden>Done</button><button id="copy" type="button" class="quiet-button" disabled>Kopieren</button></div></div>
+            <div class="panel-top"><span id="result-label" class="sr-only">Übersetzung</span><div class="result-actions"><button id="edit-translation" type="button" class="quiet-button" disabled aria-label="Edit translation" title="Edit translation">✎</button><button id="finish-translation-edit" type="button" class="quiet-button" hidden>Done</button><button id="copy" type="button" class="quiet-button" disabled>Kopieren</button></div></div>
             <div id="result" class="translation-output" role="region" aria-labelledby="result-label" aria-live="polite" lang="de"></div>
             <textarea id="translation-editor" aria-labelledby="result-label" aria-describedby="result-caption" spellcheck="true" hidden></textarea>
             <div class="panel-bottom"><span id="result-caption"></span></div>

@@ -342,6 +342,7 @@ private struct TranslationResultView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("translation-output")
+        .accessibilityLabel("followup.translation")
         .accessibilityValue(Text(verbatim: pending ? AppL10n.text("outbox.quiet.sending") : ""))
         .task(id: confirmationID) {
             guard copied else { return }

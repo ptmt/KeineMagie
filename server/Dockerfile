@@ -17,6 +17,7 @@ COPY web/translator-followup.mjs web/translator-followup.css web/bootstrap.js we
 COPY web/coach.mjs web/coach-state.mjs web/coach-chat.mjs web/coach-presentation.mjs web/coach.css /app/web/
 COPY web/dictation.mjs web/dictation-state.mjs web/dictation-journal.mjs web/dictation-cache.mjs web/dictation-i18n.mjs web/dictation.css /app/web/
 ENV WEB_ASSET_DIR=/app/web
+COPY web/profile-sync.mjs /app/web/
 COPY --from=build --chown=65532:65532 /out/data /app/data
 COPY --from=build --chown=65532:65532 /out/cache /app/cache
 ENV HOST=0.0.0.0 PORT=8787 HISTORY_PATH=/app/data/history.json TTS_CACHE_DIR=/app/cache

@@ -112,6 +112,7 @@ func newHandler(cfg *serverConfig) (http.Handler, error) {
 	mux.HandleFunc("/health", withCORS(cfg.handleHealth))
 	mux.HandleFunc("/tts", withCORS(cfg.handleTTS))
 	mux.HandleFunc("/v1/translation-followups", cfg.handleTranslationFollowups)
+	mux.HandleFunc("/v1/translation-profiles", cfg.handleTranslationProfiles)
 	mux.HandleFunc("/v1/history", cfg.handleHistory)
 	mux.HandleFunc("/v1/history/", cfg.handleHistory)
 	mux.HandleFunc("/v1/translations", withCORS(func(w http.ResponseWriter, r *http.Request) { cfg.handleTranslations(history, w, r) }))

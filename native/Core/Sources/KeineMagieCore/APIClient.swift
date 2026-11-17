@@ -83,6 +83,17 @@ public struct APIClient: Sendable {
         return result
     }
     public func historyRequest() throws -> URLRequest { try request(path: "v1/translations", method: "GET") }
+    public func translationProfilesRequest(owner: String, operation: TranslationProfilePending? = nil) throws -> URLRequest {
+        guard !owner.isEmpty, operation == nil || ["PUT", "PATCH", "DELETE"].contains(operation!.method) else { throw APIError.invalidResponse }
+        var result = try request(path: "v1/translation-profiles", method: operation?.method ?? "GET")
+        result.setValue(owner, forHTTPHeaderField: "X-Translation-Owner")
+        if let operation { result.httpBody = try JSONEncoder().encode(operation.body); result.setValue("application/json", forHTTPHeaderField: "Content-Type") }
+        return result
+    }
+    public func translationProfiles(owner: String, operation: TranslationProfilePending? = nil) async throws -> TranslationProfileSnapshot {
+        try Task.checkCancellation()
+        return try JSONDecoder().decode(TranslationProfileSnapshot.self, from: await send(translationProfilesRequest(owner: owner, operation: operation))).validated()
+    }
     public func translationFollowupRequest(_ input: TranslationFollowupInput, owner: String) throws -> URLRequest {
         guard input.isValid, !owner.isEmpty else { throw APIError.invalidResponse }
         var result = try request(path: "v1/translation-followups", method: "POST")

@@ -1,10 +1,17 @@
 import Foundation
 
-/// Device-local instructions; never credentials, global prompts, or selected defaults.
+/// Custom translator instructions; never credentials, global prompts, or selected defaults.
 public struct TranslationShortcut: Codable, Identifiable, Equatable, Sendable {
     public let id: UUID
     public let title: String
     public let instruction: String
+    /// Server/web profiles share scalar limits; legacy decoding keeps its original
+    /// forty-Character contract so previously saved device data remains readable.
+    public init(syncedID: UUID, title: String, instruction: String) throws {
+        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, title.unicodeScalars.count <= 60,
+              !instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, instruction.unicodeScalars.count <= 1000 else { throw APIError.invalidResponse }
+        self.id = syncedID; self.title = title; self.instruction = instruction
+    }
     public init(id: UUID = UUID(), title: String, instruction: String) throws {
         let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let instruction = instruction.trimmingCharacters(in: .whitespacesAndNewlines)

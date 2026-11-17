@@ -1,6 +1,7 @@
 // Keep session bootstrap independent of the episode reader/module graph.
 function episodeLocation(pathname,hash) { return hash ? null : /^\/podcasts\/episodes\/([a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{12})$/.exec(pathname)?.[1] || null; }
 async function episodePath(job) { return (await import('./episode.mjs')).episodePath(job); }
+import { createProfileSync, readLegacyProfiles } from './profile-sync.mjs';
 import { mountTranslatorFollowup } from './translator-followup.mjs';
 import { mountCoach } from './coach.mjs';
 import { mountDictation } from './dictation.mjs';
@@ -41,6 +42,21 @@ function cancelAppleLogin({leaving = false} = {}) {
 function clearPairing() { pairingRun++; clearTimeout(pairingTimer); pairingTimer = null; $('browser-pairing').hidden = true; setText('pairing-code', ''); }
 
 let stylesOwner = null;
+let profileSync = null, profileTimer = null, selectedProfileID = null, editingProfileRevision = null;
+function scheduleProfileSync() {
+  clearTimeout(profileTimer);
+  const current = profileSync;
+  if (!current) return;
+  current.sync().catch(() => {}).finally(() => {
+    if (current === profileSync) profileTimer = setTimeout(() => { if (!document.hidden) scheduleProfileSync(); }, 30000);
+  });
+}
+function profileChanged() {
+  if (!profileSync) return;
+  savedPrompts = profileSync.list();
+  if (selectedProfileID) { selectedInstructions = savedPrompts.find(v => v.id === selectedProfileID)?.instructions || ''; if (!selectedInstructions) selectedProfileID = null; }
+  renderStyles();
+}
 let savedPrompts = [];
 let selectedInstructions = '';
 let editingPrompt = null;
@@ -77,10 +93,11 @@ const followup = mountTranslatorFollowup({host:$('translation-followup'),api,loc
   apply(item,text,source) { if(record?.id!==item.id)return; if(typeof source==='string'){appliedSource=source;$('source-text').value=source;$('source-text').lang=item.source_language;$('language-direction').value=`${item.source_language}-${item.target_language}`;} applyCurrentTranslation(text);showTranslationEditor(false);updateInput(); }
 });
 function canEditDraft() { return !!session?.user?.id && !busy; }
-function styleStore() {
+function legacyStyleStore() {
   // owner ID comes exclusively from the authenticated /v1/web/session response.
   return promptStore(window.localStorage, session.user.id);
 }
+function styleStore() { if (!profileSync) throw Error('Profile storage unavailable'); return profileSync; }
 function closePrompt() {
   $('prompt-dialog').close(); editingPrompt = null;
   $('prompt-name').value = ''; $('prompt-instructions').value = '';
@@ -89,30 +106,49 @@ function closePrompt() {
 function renderStyles() {
   const owner = session?.user?.id || null;
   if (owner !== stylesOwner) {
+    clearTimeout(profileTimer); profileSync?.stop(); profileSync = null; selectedProfileID = null;
     closePrompt(); selectedInstructions = ''; savedPrompts = []; stylesOwner = owner;
-    if (owner) { try { savedPrompts = styleStore().list(); } catch { /* blocked storage */ } }
+    if (owner) { try {
+      const legacy = readLegacyProfiles(window.localStorage, owner);
+      profileSync = createProfileSync({storage:window.localStorage, owner, origin:location.origin, legacy:()=>legacy,
+        request:(method,body)=>api.request('/v1/translation-profiles',{method,body,csrf:session?.user?.id === owner ? session.csrf_token : '',owner}),
+        changed:profileChanged, unauthorized:()=>handleUnauthorized({status:401})});
+      savedPrompts = profileSync.list();
+      profileSync.ready.then(profileChanged).catch(()=>{}); scheduleProfileSync();
+    } catch { savedPrompts = legacyStyleStore().list(); } }
   }
+  if ($('profile-sync-status')) $('profile-sync-status').hidden = !profileSync?.issue;
+  for (const id of ['profile-conflict-copy','profile-conflict-remote']) if ($(id)) $(id).hidden = profileSync?.issue !== 'conflict';
+  const notices = {de:['Stile noch nicht synchronisiert. Erneut versuchen.','Ein Stil wurde auf einem anderen Gerät geändert. Beide behalten oder die Serverversion verwenden.','Beide behalten','Serverversion verwenden'],en:['Styles not synced yet. Retry.','A style changed on another device. Keep both or use the server version.','Keep both','Use server version'],ru:['Стили ещё не синхронизированы. Повторить.','Стиль изменён на другом устройстве. Сохраните оба или используйте версию сервера.','Сохранить оба','Версия сервера'],fr:['Styles non synchronisés. Réessayer.','Un style a changé sur un autre appareil. Garder les deux ou la version du serveur.','Garder les deux','Version du serveur'],es:['Estilos sin sincronizar. Reintentar.','Un estilo cambió en otro dispositivo. Conserva ambos o usa la versión del servidor.','Conservar ambos','Versión del servidor']};
+  const notice = notices[getInterfaceLanguage()] || notices.en;
+  const privacy = {de:'Stile werden in deinem Konto zwischen App und Web synchronisiert. Offline-Änderungen warten auf eine Verbindung. Keine Geheimnisse eingeben.',en:'Styles sync through your account between app and web. Offline changes wait for a connection. Do not enter secrets.',ru:'Стили синхронизируются через аккаунт между приложением и сайтом. Изменения без сети отправятся после подключения. Не вводите секретные данные.',es:'Los estilos se sincronizan entre la app y la web mediante tu cuenta. Los cambios sin conexión esperan. No introduzcas secretos.',fr:'Les styles se synchronisent entre l’app et le web via votre compte. Les changements hors ligne attendent une connexion. Ne saisissez pas de secrets.'};
+  unbindInterfaceText($('prompt-privacy')); $('prompt-privacy').textContent = privacy[getInterfaceLanguage()] || privacy.en;
+  const profileLimits = {"en": "50 synced styles maximum. Delete a synced style to make room. Pending styles stay on this device.", "de": "Maximal 50 synchronisierte Stile. Lösche einen, um Platz zu schaffen. Ausstehende Stile bleiben auf diesem Gerät.", "ru": "Можно синхронизировать до 50 стилей. Удалите один, чтобы освободить место. Ожидающие стили остаются на устройстве.", "es": "Máximo 50 estilos sincronizados. Elimina uno para dejar espacio. Los pendientes permanecen en este dispositivo.", "fr": "50 styles synchronisés maximum. Supprimez-en un pour libérer de la place. Les styles en attente restent sur cet appareil."};
+  if ($('profile-sync-status')) $('profile-sync-status').textContent = profileSync?.issue === 'limit' ? profileLimits[getInterfaceLanguage()] || profileLimits.en : notice[profileSync?.issue === 'conflict' ? 1 : 0];
+  if ($('profile-conflict-copy')) $('profile-conflict-copy').textContent = notice[2];
+  if ($('profile-conflict-remote')) $('profile-conflict-remote').textContent = notice[3];
   $('style-controls').hidden = false;
   const choices = [{name:'Standard', instructions:''}, ...translationPresets, ...savedPrompts];
   if (selectedInstructions && !choices.some(item => item.instructions === selectedInstructions)) choices.push({name:'Aus Verlauf', instructions:selectedInstructions});
-  const signature=JSON.stringify([owner,savedPrompts,selectedInstructions,canEditDraft(),getInterfaceLanguage()]);
+  const signature=JSON.stringify([owner,savedPrompts,selectedProfileID,selectedInstructions,canEditDraft(),getInterfaceLanguage()]);
   if(signature===styleSignature)return;
   styleSignature=signature;
   $('style-chips').replaceChildren();
   for (const item of choices) {
     const button = document.createElement('button'); button.type = 'button'; button.className = 'style-chip';
     button.textContent = item.id === 'friendly' || item.id === 'formal' || !item.instructions || item.name === 'Aus Verlauf' && !item.id ? t(item.name) : item.name; button.disabled = !canEditDraft();
-    button.setAttribute('aria-pressed', String(selectedInstructions === item.instructions));
-    button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id) return; selectedInstructions = item.instructions; renderStyles(); });
+    button.setAttribute('aria-pressed', String(selectedProfileID ? selectedProfileID === item.id : selectedInstructions === item.instructions && !savedPrompts.includes(item)));
+    button.addEventListener('click', () => { if (!canEditDraft() || owner !== session?.user?.id) return; selectedProfileID = savedPrompts.some(v=>v.id===item.id) ? item.id : null; selectedInstructions = item.instructions; renderStyles(); });
     $('style-chips').append(button);
   }
   $('add-prompt').disabled = !canEditDraft();
-  $('edit-prompt').hidden = !savedPrompts.some(item => item.instructions === selectedInstructions);
+  $('edit-prompt').hidden = !savedPrompts.some(item => item.id === selectedProfileID);
   $('edit-prompt').disabled = !canEditDraft();
 }
 function openPrompt(item = null) {
   if (!canEditDraft()) return;
   editingPrompt = item?.id || null;
+  editingProfileRevision = profileSync?.revision(editingPrompt) ?? 0;
   $('prompt-name').value = item?.name || '';
   $('prompt-instructions').value = item?.instructions || '';
   $('delete-prompt').hidden = !item;
@@ -125,7 +161,7 @@ function updatePromptCount() {
   $('save-prompt').disabled = !canEditDraft() || !count || count > 1000 || !$('prompt-name').value.trim() || [...$('prompt-name').value].length > 60;
 }
 $('add-prompt').addEventListener('click', () => openPrompt());
-$('edit-prompt').addEventListener('click', () => openPrompt(savedPrompts.find(item => item.instructions === selectedInstructions)));
+$('edit-prompt').addEventListener('click', () => openPrompt(savedPrompts.find(item => item.id === selectedProfileID)));
 $('close-prompt').addEventListener('click', closePrompt);
 $('prompt-dialog').addEventListener('cancel', closePrompt);
 $('prompt-name').addEventListener('input', updatePromptCount);
@@ -133,18 +169,22 @@ $('prompt-instructions').addEventListener('input', updatePromptCount);
 $('prompt-form').addEventListener('submit', event => {
   event.preventDefault(); if (!canEditDraft() || !$('prompt-dialog').open) return;
   try {
-    const item = styleStore().save({id:editingPrompt || `custom-${crypto.randomUUID()}`, name:$('prompt-name').value, instructions:$('prompt-instructions').value});
+    const item = styleStore().save({id:editingPrompt || crypto.randomUUID().toUpperCase(), name:$('prompt-name').value, instructions:$('prompt-instructions').value},editingProfileRevision);
+    selectedProfileID = item.id;
     savedPrompts = styleStore().list(); selectedInstructions = item.instructions;
-    closePrompt(); renderStyles();
+    closePrompt(); renderStyles(); scheduleProfileSync();
   } catch { setText('prompt-error', 'Speichern nicht möglich. Name (1–60 Zeichen), Anweisungen (1–1.000 Zeichen) und Browser-Speicher prüfen. Maximal 50 eigene Stile.'); }
 });
 $('delete-prompt').addEventListener('click', () => {
   if (!canEditDraft() || !$('prompt-dialog').open || !editingPrompt) return;
-  try { styleStore().remove(editingPrompt); savedPrompts = styleStore().list(); selectedInstructions = ''; closePrompt(); renderStyles(); }
+  try { styleStore().remove(editingPrompt,editingProfileRevision); savedPrompts = styleStore().list(); selectedInstructions = ''; selectedProfileID = null; closePrompt(); renderStyles(); scheduleProfileSync(); }
   catch { setText('prompt-error', 'Löschen nicht möglich. Bitte den Browser-Speicher prüfen.'); }
 });
 
 // Learning settings use the existing owner-scoped server profile, never browser storage.
+$('profile-sync-status')?.addEventListener('click', scheduleProfileSync);
+$('profile-conflict-copy')?.addEventListener('click',()=>profileSync?.resolveConflict(true));
+$('profile-conflict-remote')?.addEventListener('click',()=>profileSync?.resolveConflict(false));
 let profileEpoch=0, profileOwner=null, profileLanguage='de', profileValue=null, profileLoading=false,profileFailed=false;
 function resetLearningProfile(){profileEpoch++;profileOwner=null;profileValue=null;profileLoading=false;profileFailed=false;$('learning-profile').hidden=true;$('profile-cefr').value='unknown';$('profile-cefr').disabled=true;$('profile-history').replaceChildren();setText('profile-error','');}
 function renderLearningProfile(){
@@ -253,7 +293,8 @@ function resetResult() {
   setText('result-caption', '');
   $('copy').disabled = true;
 }
-function clearPrivateData() {
+function clearPrivateData(purgeProfiles = true) {
+  if (purgeProfiles) { try { profileSync?.purge(); } catch { profileSync?.stop(); } }
   identityKnown = true; // Explicit logout/revocation, not a speculative guest.
   coach.identity(null);
   dictation.identity(null);
@@ -421,7 +462,7 @@ function restore({force = true, refreshProvider = false} = {}) {
       const newSession = await api.request('/v1/web/session', {signal:AbortSignal.timeout(sessionTimeout)}).catch(error => { if (error.status === 401) return null; throw error; });
       if (run !== generation) return;
       if (newSession && (!newSession.user?.id || !newSession.csrf_token)) throw new Error('Invalid session');
-      if (priorUser && priorUser !== newSession?.user?.id) clearPrivateData();
+      if (priorUser && priorUser !== newSession?.user?.id) clearPrivateData(!newSession);
       // Lean identity responses must not erase verified same-owner provider state.
       if (newSession && newSession.user.id === priorUser && !newSession.provider && session?.provider) newSession.provider = session.provider;
       if (newSession?.user?.id) cancelAppleLogin();
@@ -450,6 +491,7 @@ function renderRecord(item) {
   $('language-direction').value = `${item.source_language}-${item.target_language}`;
   $('source-text').value = item.text;
   selectedInstructions = typeof item.instructions === 'string' ? item.instructions : '';
+  selectedProfileID = null;
   $('source-text').lang = item.source_language;
   $('result').lang = item.target_language;
   setText('result', item.translation);
@@ -681,9 +723,9 @@ $('logout').addEventListener('click', async () => {
   } catch { setText('account-error', 'Lokale Inhalte entfernt, aber der Server-Widerruf ist nicht bestätigt. Bitte Verbindung erneut prüfen und nochmals abmelden.'); }
 });
 window.addEventListener('pagehide', () => cancelAppleLogin({leaving:true}));
-window.addEventListener('pageshow', event => { cancelAppleLogin(); if (event.persisted) { clearPrivateData(); identityKnown = false; restore(); } else renderConnection(); });
-window.addEventListener('online', () => restore({force:false}));
-document.addEventListener('visibilitychange', () => { if (document.hidden) podcasts.pause(); else restore({force:false}); });
+window.addEventListener('pageshow', event => { cancelAppleLogin(); if (event.persisted) { clearPrivateData(false); identityKnown = false; restore(); } else renderConnection(); });
+window.addEventListener('online', () => { restore({force:false}); scheduleProfileSync(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) podcasts.pause(); else { restore({force:false}); scheduleProfileSync(); } });
 updateInput(); restore();
 
 function renderBootstrapExpiry() { const expires=Number($('bootstrap-expiry').dataset.expires); if(expires)bindInterfaceText($('bootstrap-expiry'),'Gültig bis {time}. Danach „Verbindung erneut prüfen“.',{time:new Date(expires).toLocaleTimeString(getInterfaceLanguage(),{hour:'2-digit',minute:'2-digit'})}); }

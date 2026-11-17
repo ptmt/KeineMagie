@@ -6,6 +6,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 class TranslatorSurfaceTests(unittest.TestCase):
+    def test_redundant_headings_stay_hidden_but_input_and_output_keep_localized_ax_titles(self):
+        view = (ROOT / 'App/TranslatorView.swift').read_text()
+        self.assertIn('.accessibilityLabel("Text zum Übersetzen")', view)
+        self.assertIn('.accessibilityLabel("followup.translation")', view)
+        self.assertNotIn('header: { Text("Übersetzung")', view)
+        catalog = json.loads((ROOT / 'App/Localizable.xcstrings').read_text())['strings']
+        self.assertEqual(set(catalog['followup.translation']['localizations']), {'de', 'en', 'ru', 'es', 'fr'})
+
     def test_signed_in_route_is_translator_not_account_list(self):
         root = (ROOT / 'App/KeineMagieApp.swift').read_text()
         self.assertIn('MainTabsView(showSettings:', root)

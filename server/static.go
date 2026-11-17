@@ -23,7 +23,7 @@ func publicWeb(w http.ResponseWriter, r *http.Request) {
 		name = "index.html"
 	case "/episode.mjs", "/episode-view.mjs", "/episode-i18n.mjs", "/episode.css":
 		name = r.URL.Path[1:]
-	case "/translator-followup.mjs", "/translator-followup.css":
+	case "/profile-sync.mjs", "/translator-followup.mjs", "/translator-followup.css":
 		name = r.URL.Path[1:]
 	case "/coach.mjs", "/coach-state.mjs", "/coach-chat.mjs", "/coach-presentation.mjs", "/coach.css":
 		name = r.URL.Path[1:]
