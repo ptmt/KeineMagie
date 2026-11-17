@@ -193,17 +193,20 @@ func (cfg *serverConfig) coachSources(owner string) ([]coachSource, error) {
 			continue
 		}
 		seenJobs[m.JobID] = true
-		j, err := cfg.learningJob(owner, m.JobID)
+		var j podcastJob
+		// Capture source and relationships under the same source/learning locks.
+		// Recognition may append a newly starred segment between separate reads.
+		groups, err := cfg.passageTransaction(owner, m.JobID, func(_ *learningData, source podcastJob) error {
+			j = source
+			return nil
+		})
 		if errors.Is(err, errPodcastNotFound) {
 			continue
 		}
 		if err != nil {
 			return nil, err
 		}
-		groups, err := cfg.passageTransaction(owner, j.ID, nil)
-		if err != nil {
-			return nil, err
-		}
+
 		for _, g := range groups.Groups {
 			if len(sources) >= 6 {
 				break

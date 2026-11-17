@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
+	"time"
 )
 
 // Relationships only. Source array indices, quotes and timestamps are never rewritten.
@@ -56,6 +57,10 @@ func passageGroupsFor(owner string, j podcastJob, marks []learningPassage) []lea
 // Global podcast lock -> owner learning lock is the only nested lock order.
 // This fences source deletion/replacement against validation and durable acknowledgement.
 func (cfg *serverConfig) passageTransaction(owner, id string, mutate func(*learningData, podcastJob) error) (learningPassageGroups, error) {
+	return cfg.passageTransactionChecked(owner, id, mutate, nil)
+}
+
+func (cfg *serverConfig) passageTransactionChecked(owner, id string, mutate func(*learningData, podcastJob) error, authorize func() error) (learningPassageGroups, error) {
 	out := learningPassageGroups{Version: 1, JobID: id, Groups: []learningPassageGroup{}, FavoriteSegmentIDs: []int{}}
 	s := &podcastStore{lock: &historyStore{path: filepath.Join(filepath.Dir(cfg.historyPath), "podcasts", "jobs.json")}}
 	err := s.lock.locked(func() error {
@@ -74,6 +79,11 @@ func (cfg *serverConfig) passageTransaction(owner, id string, mutate func(*learn
 			return errPodcastNotFound
 		}
 		err = cfg.learningStore(owner).transaction(func(d *learningData) error {
+			if authorize != nil {
+				if err := authorize(); err != nil {
+					return err
+				}
+			}
 			if d.PassageGroupVersion > 1 {
 				return errors.New("unsupported passage group version")
 			}
@@ -134,7 +144,18 @@ func (cfg *serverConfig) learningPassageGroupsHTTP(w http.ResponseWriter, r *htt
 		writeError(w, 405, "method not allowed")
 		return
 	}
-	out, err := cfg.passageTransaction(owner, id, nil)
+	unauthorized := errors.New("session revoked")
+	out, err := cfg.passageTransactionChecked(owner, id, nil, func() error {
+		session, err := cfg.auth.store.lookup(bearerSession(r), time.Now())
+		if err != nil || session.UserID != owner || r.Context().Err() != nil {
+			return unauthorized
+		}
+		return nil
+	})
+	if errors.Is(err, unauthorized) {
+		writeError(w, 401, "authentication failed")
+		return
+	}
 	if errors.Is(err, errPodcastNotFound) {
 		writeError(w, 404, "podcast not found")
 		return

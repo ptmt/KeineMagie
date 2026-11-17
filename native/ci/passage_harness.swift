@@ -46,6 +46,33 @@ import KeineMagieCore
     }
     func release() { releases.forEach { $0.resume() }; releases = [] }
 }
+@Test @MainActor func cancelledPassageWriteNeverReachesTransport() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = PassageGate(); let model = try await gate.model(root)
+    await model.loadPassageGroups(gate.job)
+    let task = Task { await model.setPassage(gate.job, index: 0, favorite: true) }
+    task.cancel() // MainActor has not yielded; cancellation precedes entry.
+    await task.value
+    #expect(gate.calls.filter { $0.httpMethod == "PUT" }.isEmpty)
+    #expect(gate.stars.isEmpty)
+    #expect(model.passageWrites.isEmpty)
+}
+@Test @MainActor func supersededPassageReadStillRevokesSameOwnerOn401() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = PassageGate(); let model = try await gate.model(root)
+    await model.loadPassageGroups(gate.job)
+    gate.holdRead = true
+    let read = Task { await model.loadPassageGroups(gate.job) }
+    while gate.releases.isEmpty { await Task.yield() }
+    await model.setPassage(gate.job, index: 0, favorite: true)
+    gate.unauthorized = true
+    gate.release(); await read.value
+    #expect(model.episodeLearning.isEmpty)
+    #expect(gate.proof == nil)
+    #expect(!model.session.canWrite)
+}
 @Test @MainActor func passageMutationPersistsOfflineAndIsOwnerScoped() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }

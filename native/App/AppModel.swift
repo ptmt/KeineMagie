@@ -222,12 +222,16 @@ final class AppModel {
             passageErrors[job.id] = nil
             await persistLearning()
         } catch {
+            // Superseding/canceling a read only discards content, not same-session revocation.
+            if session.generation == version, session.phase == .signedIn, case APIError.http(401) = error {
+                _ = learningFailure(error); return
+            }
             guard current() else { return }
             if !learningFailure(error) { passageErrors[job.id] = AppL10n.text("episode.load.error") }
         }
     }
     func setPassage(_ job: PodcastJob, index: Int, favorite: Bool) async {
-        guard session.canWrite, job.segments.indices.contains(index), passageWrites[job.id] == nil,
+        guard !Task.isCancelled, session.canWrite, job.segments.indices.contains(index), passageWrites[job.id] == nil,
               episodeLearning[job.id]?.passageGroups != nil, let owner = session.user?.id else { return }
         let version = session.generation, request = UUID()
         passageWrites[job.id] = request
@@ -247,6 +251,9 @@ final class AppModel {
                 try await contentCache.save(data, dataset: "learning", session: lease, revision: cacheRevision)
             }
         } catch {
+            if session.generation == version, session.phase == .signedIn, case APIError.http(401) = error {
+                _ = learningFailure(error); return
+            }
             guard current() else { return }
             if !learningFailure(error) { passageErrors[job.id] = AppL10n.text("episode.passage.save.error") }
         }

@@ -58,6 +58,21 @@ Existing web star PUTs automatically update the same persisted groups. There is 
 - Web `node --test web/tests/*.test.mjs`: 113 passed, including group source-link compatibility.
 - Swift frontend parse of the changed views and `git diff --check` passed. Parsing is **not** iOS typechecking or runtime verification.
 
+## Independent review follow-up
+
+The independent review of `3562cc9` reproduced and fixed four issues with RED → GREEN regressions:
+
+- A group GET authenticated before waiting for the source/learning locks could return private groups and persist migration after revocation. GET now rechecks the request session and cancellation inside both locks before reconciliation; denied reads leave the exact ledger bytes unchanged.
+- Coach generation fetched the transcript and relationships separately. Concurrent recognition append plus a new star reproduced an index-out-of-range panic. Generation and group assessment now capture the transcript in the same transaction as the relationships. The concurrent append regression passed three consecutive runs and the race-enabled suite.
+- An already-canceled native star task still reached transport and changed server state while discarding its acknowledgement. It is now rejected before transport.
+- A superseded native group GET discarded HTTP 401 along with stale content, leaving the current owner writable and cached private content visible. Same-generation 401 now revokes identity even when the content request was canceled/superseded; different generations remain fenced.
+
+Additional review coverage checks the exact 1,800/1,801 **rune** boundary: oversized groups are omitted, never truncated or replaced by duplicate individual-member candidates. Existing grouping, deletion/recovery, auth/CSRF, idempotency and source immutability regressions remain green. No provider requests were made.
+
+Verification after the review fixes: full `go test -p 2 ./...`; `go test -race -p 2 -run 'TestPassage|Test.*Coverage|TestCoach' ./...`; `go vet ./...`; 61 Core XCTest cases (one dedicated-runner skip), 72 Swift Testing cases; all six actual-Go wire tests; **100** real-AppModel lifecycle tests; 113 Node unit tests. The lifecycle harness retains an unrelated pre-existing unnecessary-`await` warning. These are macOS unit/harness checks, not iOS target typechecking.
+
+Integration cautions: the concurrently dirty `candidate/coach-daily-chat` worktree was inspected read-only. It changes `server/coach.go` daily admission/receipt handling, native `AppModel.swift`/Core `Coach.swift`, localization, lifecycle fixtures, and `web/coach.mjs`. Preserve both its admission fences and this branch's atomic group-source resolution/legacy links rather than taking an entire side of any conflict. No combined-branch integration test was run. Row membership remains O(1), and this feature adds no pagination fetch loop. Backend reconciliation still scans all the owner's marked jobs per transaction; Coach can repeat that scan when many jobs yield only oversized/ineligible groups. This is a remaining scaling concern, not a claim of owner-wide constant-time reads.
+
 ## Explicit remaining release gates
 
 No Xcode build or simulator session was started: Coach and Translator workstreams are sharing the host and the parent requested one sequential slot. This is a unit-tested local candidate, **not simulator-approved or release-ready**.

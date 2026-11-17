@@ -105,11 +105,11 @@ func (cfg *serverConfig) coachAssessmentSource(owner string, turn coachTurn) (co
 		if len(parts) != 4 {
 			return s, invalid
 		}
-		groups, e := cfg.passageTransaction(owner, parts[1], nil)
-		if e != nil {
-			return s, e
-		}
-		j, e := cfg.learningJob(owner, parts[1])
+		var j podcastJob
+		groups, e := cfg.passageTransaction(owner, parts[1], func(_ *learningData, source podcastJob) error {
+			j = source
+			return nil
+		})
 		if e != nil {
 			return s, e
 		}
