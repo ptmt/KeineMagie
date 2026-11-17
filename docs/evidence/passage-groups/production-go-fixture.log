@@ -1,0 +1,6 @@
+=== RUN   TestNativePassageUIFixture
+PASSAGE_FIXTURE_READY 127.0.0.1:18879 synthetic-only
+    native_passage_ui_fixture_test.go:174: durable production handler reconstruction verified: 3 groups
+--- PASS: TestNativePassageUIFixture (608.87s)
+PASS
+ok  	diktat/server	609.203s

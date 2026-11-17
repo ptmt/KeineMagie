@@ -1,0 +1,94 @@
+Attributes: Application, 0x1091c35c0, pid: 35818, label: 'Keine Magie'
+Element subtree:
+ →Application, 0x1091c35c0, pid: 35818, label: 'Keine Magie'
+    Window (Main), 0x1091c3480, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x1091c3340, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x1091c3840, {{0.0, 0.0}, {375.0, 667.0}}
+          Other, 0x1091c3700, {{0.0, 0.0}, {375.0, 667.0}}
+            Other, 0x1091c3ac0, {{0.0, 0.0}, {375.0, 667.0}}
+              Other, 0x1091c3980, {{0.0, 0.0}, {375.0, 667.0}}
+                NavigationBar, 0x1091c3e80, {{0.0, 20.0}, {375.0, 54.0}}, identifier: 'Episode'
+                  Button, 0x1091c3c00, {{16.0, 20.0}, {44.0, 44.0}}, identifier: 'BackButton', label: 'Podcasts'
+                  StaticText, 0x1091c3d40, {{155.5, 31.5}, {63.5, 21.0}}, label: 'Episode'
+                Other, 0x1091c0280, {{0.0, 0.0}, {375.0, 667.0}}
+                  Other, 0x1091c1cc0, {{0.0, 0.0}, {375.0, 667.0}}
+                    Other, 0x1091c1e00, {{0.0, 0.0}, {375.0, 667.0}}
+                      Other, 0x1091c2300, {{0.0, 0.0}, {375.0, 667.0}}
+                        StaticText, 0x1091c26c0, {{16.0, 74.0}, {243.5, 20.5}}, identifier: 'podcast-detail-title', label: 'Synthetic passage acceptance'
+                        ScrollView, 0x1091c2580, {{0.0, 94.5}, {319.0, 44.0}}
+                          Other, 0x1091c2440, {{0.0, 94.5}, {423.0, 44.0}}
+                            Button, 0x1091c1a40, {{16.0, 94.5}, {65.0, 44.0}}, identifier: 'episode-section-summary', label: 'Summary'
+                            Button, 0x1091c1b80, {{97.0, 94.5}, {77.0, 44.0}}, identifier: 'episode-section-vocabulary', label: 'Vocabulary'
+                            Button, 0x1091c0140, {{190.0, 94.5}, {127.5, 44.0}}, identifier: 'episode-section-recommendations', label: 'Recommendations'
+                            Button, 0x1091c0000, {{333.5, 94.5}, {73.5, 44.0}}, identifier: 'episode-section-transcript', label: 'Transcript', Selected
+                        Button, 0x1091c30c0, {{323.0, 94.5}, {44.0, 44.0}}, identifier: 'episode-profile', label: 'Profile'
+                        StaticText, 0x1091c2940, {{16.0, 138.5}, {41.5, 14.5}}, label: '335:40'
+                        StaticText, 0x1091c2a80, {{317.5, 138.5}, {41.5, 14.5}}, label: '352:08'
+                        Slider, 0x1091c2f80, {{16.0, 159.5}, {343.0, 31.0}}, identifier: 'episode-timeline', label: 'Transcript time (mm:ss)', value: 20,140
+                        StaticText, 0x1091c2e40, {{16.0, 201.0}, {232.5, 14.5}}, label: 'Transcript navigation, not audio playback'
+                        Button, 0x1091c2d00, {{263.0, 219.5}, {44.0, 44.0}}, identifier: 'chevron.up', label: 'Previous match'
+                        Button, 0x1091c21c0, {{315.0, 219.5}, {44.0, 44.0}}, identifier: 'episode-next-match', label: 'Next match'
+                        TextField, 0x1091c2080, {{16.0, 230.5}, {239.0, 22.0}}, identifier: 'episode-search', placeholderValue: 'Search transcript', value: needle
+                        TextField, 0x1091c0f00, {{16.0, 278.5}, {313.0, 22.0}}, identifier: 'episode-time', label: 'Transcript time (mm:ss)', placeholderValue: '00:00', value: 335:40
+                        Button, 0x1091c03c0, {{337.0, 279.5}, {22.0, 20.5}}, identifier: 'episode-jump', label: 'Go'
+                        StaticText, 0x1091c0dc0, {{175.0, 315.5}, {25.0, 14.5}}, label: '2 / 2'
+                        CollectionView, 0x1091c0780, {{0.0, 330.0}, {375.0, 337.0}}
+                          Other, 0x1091c1900, {{0.0, -2063.5}, {375.0, 6974.0}}
+                          Cell, 0x1091c2bc0, {{0.0, 330.0}, {375.0, 106.0}}
+                            Other, 0x1091c1f40, {{0.0, 330.0}, {375.0, 106.0}}
+                              Other, 0x1091c2800, {{0.0, 330.0}, {375.0, 106.0}}
+                                Other, 0x10525ef80, {{0.0, 330.0}, {375.0, 106.0}}
+                                  Other, 0x10525f840, {{0.0, 330.0}, {375.0, 106.0}}
+                            Other, 0x10525f980, {{0.0, 330.0}, {375.0, 106.0}}
+                              Other, 0x10525fc00, {{0.0, 330.0}, {375.0, 106.0}}
+                                Other, 0x10525f700, {{0.0, 330.0}, {375.0, 106.0}}
+                                  StaticText, 0x10525fac0, {{16.0, 349.2}, {90.0, 14.5}}, identifier: 'episode-segment-2014', label: '335:40–335:48'
+                                  Image, 0x10525f200, {{115.0, 350.0}, {13.5, 13.0}}, identifier: 'episode-segment-2014', label: 'Favorite'
+                                  StaticText, 0x10525f0c0, {{16.0, 370.0}, {241.0, 20.5}}, identifier: 'episode-segment-2014', label: 'Synthetic segment 2014 needle'
+                                  StaticText, 0x10525f340, {{16.0, 396.5}, {112.5, 20.5}}, identifier: 'episode-segment-2014', label: 'Перевод 2014'
+                          Cell, 0x10525f5c0, {{0.0, 436.0}, {375.0, 105.5}}
+                            Other, 0x10525ee40, {{0.0, 436.0}, {375.0, 105.5}}
+                              Other, 0x10525d2c0, {{0.0, 436.0}, {375.0, 105.5}}
+                            Other, 0x10525d180, {{0.0, 436.0}, {375.0, 105.5}}
+                              Other, 0x1092c9f40, {{0.0, 436.0}, {375.0, 105.5}}
+                                Other, 0x1092c8280, {{0.0, 436.0}, {375.0, 105.5}}
+                                  StaticText, 0x1092c83c0, {{16.0, 455.0}, {90.0, 14.5}}, identifier: 'episode-segment-2015', label: '335:50–335:58'
+                                  StaticText, 0x1092c8640, {{16.0, 475.5}, {185.0, 20.5}}, identifier: 'episode-segment-2015', label: 'Synthetic segment 2015'
+                                  StaticText, 0x1092c8500, {{16.0, 502.0}, {112.0, 20.5}}, identifier: 'episode-segment-2015', label: 'Перевод 2015'
+                          Other, 0x1092c9040, {{16.0, 435.0}, {343.0, 1.0}}
+                          Cell, 0x1092c8a00, {{0.0, 541.5}, {375.0, 105.5}}
+                            Other, 0x1092c8b40, {{0.0, 541.5}, {375.0, 105.5}}
+                              Other, 0x1092c8780, {{0.0, 541.5}, {375.0, 105.5}}
+                            Other, 0x1092c8140, {{0.0, 541.5}, {375.0, 105.5}}
+                              Other, 0x1092c8000, {{0.0, 541.5}, {375.0, 105.5}}
+                                Other, 0x1092c9b80, {{0.0, 541.5}, {375.0, 105.5}}
+                                  StaticText, 0x1092c88c0, {{16.0, 560.5}, {90.0, 14.5}}, identifier: 'episode-segment-2016', label: '336:00–336:08'
+                                  StaticText, 0x1092c8c80, {{16.0, 581.0}, {185.5, 20.5}}, identifier: 'episode-segment-2016', label: 'Synthetic segment 2016'
+                                  StaticText, 0x1092c8dc0, {{16.0, 607.5}, {112.0, 20.5}}, identifier: 'episode-segment-2016', label: 'Перевод 2016'
+                          Other, 0x1092c9180, {{16.0, 540.5}, {343.0, 1.0}}
+                          Cell, 0x1092c92c0, {{0.0, 647.0}, {375.0, 105.5}}
+                            Other, 0x1092c8f00, {{0.0, 647.0}, {375.0, 105.5}}
+                              Other, 0x1092c9900, {{0.0, 647.0}, {375.0, 105.5}}
+                            Other, 0x1092c9540, {{0.0, 647.0}, {375.0, 105.5}}
+                              Other, 0x1092c9680, {{0.0, 647.0}, {375.0, 105.5}}
+                                Other, 0x1092c9400, {{0.0, 647.0}, {375.0, 105.5}}
+                                  StaticText, 0x1092c97c0, {{16.0, 666.0}, {90.0, 14.5}}, identifier: 'episode-segment-2017', label: '336:10–336:18'
+                                  StaticText, 0x1092c9a40, {{16.0, 686.5}, {184.0, 20.5}}, identifier: 'episode-segment-2017', label: 'Synthetic segment 2017'
+                                  StaticText, 0x1092c9e00, {{16.0, 713.0}, {111.0, 20.5}}, identifier: 'episode-segment-2017', label: 'Перевод 2017'
+                          Other, 0x1092c9cc0, {{16.0, 646.0}, {343.0, 1.0}}
+                          Other, 0x1092ca080, {{342.0, 330.0}, {30.0, 337.0}}, label: 'Vertical scroll bar, 17 pages', value: 33%
+                            Other, 0x1092cb980, {{369.0, 429.0}, {3.0, 36.0}}
+                          Other, 0x1092cb840, {{342.0, 330.0}, {30.0, 337.0}}, label: 'Vertical scroll bar, 17 pages', value: 33%
+                            Other, 0x1092cb700, {{369.0, 429.0}, {3.0, 36.0}}
+                Toolbar, 0x1092cb5c0, {{0.0, 0.0}, {375.0, 667.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                  Other, 0x1092cb200, {{0.0, 0.0}, {375.0, 667.0}}
+    Window, 0x1092ca940, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x1092cabc0, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x1092caa80, {{0.0, 0.0}, {375.0, 667.0}}
+Path to element:
+ →Application, 0x1091c35c0, pid: 35818, label: 'Keine Magie'
+Query chain:
+ →Find: Target Application 'de.keinemagie.app'
+  Output: {
+    Application, 0x1092cb480, pid: 35818, label: 'Keine Magie'
+  }

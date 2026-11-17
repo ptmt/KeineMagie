@@ -1,0 +1,57 @@
+Attributes: Application, 0x107eeed00, pid: 34172, label: 'Keine Magie'
+Element subtree:
+ →Application, 0x107eeed00, pid: 34172, label: 'Keine Magie'
+    Window (Main), 0x107eed680, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x107eed040, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x107eec000, {{0.0, 0.0}, {375.0, 667.0}}
+          Other, 0x107eec640, {{0.0, 0.0}, {375.0, 667.0}}
+            Other, 0x107eef700, {{0.0, 0.0}, {375.0, 667.0}}
+              Other, 0x107eecf00, {{0.0, 0.0}, {375.0, 667.0}}
+                NavigationBar, 0x107eefe80, {{0.0, 20.0}, {375.0, 54.0}}, identifier: 'Keine Magie'
+                  StaticText, 0x107eee1c0, {{139.0, 31.5}, {96.5, 21.0}}, label: 'Keine Magie'
+                  Button, 0x107eef340, {{319.0, 24.0}, {36.0, 36.0}}, label: 'Settings'
+                Other, 0x107eec280, {{0.0, 0.0}, {375.0, 667.0}}
+                  Other, 0x107eedcc0, {{0.0, 0.0}, {375.0, 667.0}}
+                    Other, 0x107eed180, {{0.0, 0.0}, {375.0, 667.0}}
+                      Other, 0x107eefd40, {{0.0, 0.0}, {375.0, 667.0}}
+                        ScrollView, 0x107eef480, {{0.0, 0.0}, {375.0, 667.0}}
+                          Other, 0x107eeee40, {{0.0, 0.0}, {375.0, 667.0}}
+                            Other, 0x107eeef80, {{0.0, 0.0}, {375.0, 114.0}}
+                          Other, 0x107eec780, {{0.0, 0.0}, {375.0, 667.0}}
+                          Other, 0x107eec500, {{0.0, 74.0}, {375.0, 488.0}}
+                            StaticText, 0x107eecdc0, {{24.0, 106.0}, {85.5, 20.5}}, label: 'Local draft'
+                            TextView, 0x107eeebc0, {{24.0, 126.5}, {327.0, 120.0}}, identifier: 'translator-input'
+                              Other, 0x107eecb40, {{318.0, 126.5}, {30.0, 120.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                Other, 0x107eef980, {{345.0, 211.5}, {3.0, 32.0}}
+                            StaticText, 0x107eef0c0, {{24.0, 246.5}, {327.0, 30.5}}, label: 'Not assigned to an account. Copy it before signing in; it is never sent automatically.'
+                            StaticText, 0x107eedf40, {{30.0, 299.8}, {128.5, 24.0}}, label: 'Translator'
+                              StaticText, 0x107eec3c0, {{30.0, 299.8}, {128.5, 24.0}}, label: 'Translator'
+                              Image, 0x107eef200, {{30.0, 301.0}, {24.0, 22.5}}, identifier: 'character.bubble', label: 'Character In A Speech Bubble'
+                            StaticText, 0x107eed900, {{32.0, 370.8}, {117.0, 24.0}}, label: 'Dictation'
+                              StaticText, 0x107eed7c0, {{32.0, 370.8}, {117.0, 24.0}}, label: 'Dictation'
+                              Image, 0x107eee300, {{32.0, 371.5}, {20.0, 22.5}}, identifier: 'waveform', label: 'Audio Waveform'
+                            StaticText, 0x107eed540, {{31.0, 441.8}, {120.5, 24.0}}, label: 'Podcasts'
+                              StaticText, 0x107eee080, {{31.0, 441.8}, {120.5, 24.0}}, label: 'Podcasts'
+                              Image, 0x107eeda40, {{31.0, 442.0}, {22.0, 23.0}}, identifier: 'headphones', label: 'Audiobook'
+                            StaticText, 0x107eee580, {{26.5, 513.0}, {99.5, 25.0}}, label: 'Coach'
+                              Image, 0x107eed2c0, {{26.5, 513.0}, {31.0, 25.0}}, identifier: 'bubble.left.and.bubble.right', label: 'Conversation'
+                              StaticText, 0x107eecc80, {{26.5, 513.0}, {99.5, 25.0}}, label: 'Coach'
+                          Other, 0x107eec140, {{342.0, 74.0}, {30.0, 351.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                            Other, 0x107eef840, {{369.0, 77.0}, {3.0, 286.0}}
+                          Other, 0x107eec8c0, {{342.0, 74.0}, {30.0, 351.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                            Other, 0x107eee440, {{369.0, 77.0}, {3.0, 286.0}}
+                        StaticText, 0x107eefc00, {{25.5, 457.0}, {321.0, 61.5}}, label: 'Unable to verify session. No connection established. Check your connection and server, then try again.'
+                        StaticText, 0x107eedb80, {{25.5, 458.5}, {16.5, 15.0}}, identifier: 'exclamationmark.triangle', label: 'Warning'
+                        StaticText, 0x107eef5c0, {{25.5, 535.5}, {185.5, 20.5}}, label: 'Session not verified'
+                        Image, 0x1078e5e00, {{25.5, 536.0}, {19.5, 18.0}}, identifier: 'wifi.exclamationmark', label: 'Wi-Fi Error'
+                        Button, 0x1078e5400, {{24.0, 572.0}, {175.0, 34.5}}, label: 'Verify session again'
+                        Button, 0x1078e4780, {{24.0, 622.5}, {272.5, 20.5}}, label: 'Sign out locally / attempt revocation'
+                Toolbar, 0x1078e6bc0, {{0.0, 0.0}, {375.0, 667.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                  Other, 0x1078e5a40, {{0.0, 0.0}, {375.0, 667.0}}
+Path to element:
+ →Application, 0x107eeed00, pid: 34172, label: 'Keine Magie'
+Query chain:
+ →Find: Target Application 'de.keinemagie.app'
+  Output: {
+    Application, 0x1078e7d40, pid: 34172, label: 'Keine Magie'
+  }

@@ -1,0 +1,81 @@
+{
+  "groups" : {
+    "favorite_segment_ids" : [
+      2012,
+      2014
+    ],
+    "groups" : [
+      {
+        "end" : 20128,
+        "id" : "pg_620f30bfa2c0ec934390d4b51e93c1fe2a0da38c2a4ed72ae65994e235e6bfc6",
+        "job_id" : "eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg",
+        "segment_ids" : [
+          2012
+        ],
+        "start" : 20120
+      },
+      {
+        "end" : 20148,
+        "id" : "pg_48b467df169397fae5b2b56eb615d4c06980148ef824039d52f3a36166985634",
+        "job_id" : "eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg",
+        "segment_ids" : [
+          2014
+        ],
+        "start" : 20140
+      }
+    ],
+    "job_id" : "eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg",
+    "revision" : 27,
+    "version" : 1
+  },
+  "requests" : [
+    {
+      "body" : "",
+      "method" : "GET",
+      "owner" : "",
+      "path" : "\/v1\/auth\/session",
+      "status" : 200
+    },
+    {
+      "body" : "",
+      "method" : "GET",
+      "owner" : "",
+      "path" : "\/v1\/podcasts",
+      "status" : 200
+    },
+    {
+      "body" : "",
+      "method" : "GET",
+      "owner" : "",
+      "path" : "\/v1\/podcasts\/subscriptions",
+      "status" : 200
+    },
+    {
+      "body" : "",
+      "method" : "GET",
+      "owner" : "XOSUS3HoXy-fVKZ3dzdWpgYOmJfggCcniDqADagaDoc",
+      "path" : "\/v1\/learning\/episodes\/eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\/passage-groups",
+      "response" : "{\"version\":1,\"revision\":25,\"job_id\":\"eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\",\"groups\":[],\"favorite_segment_ids\":[]}\n",
+      "status" : 200
+    },
+    {
+      "body" : "{\"favorite\":true}",
+      "method" : "PUT",
+      "owner" : "XOSUS3HoXy-fVKZ3dzdWpgYOmJfggCcniDqADagaDoc",
+      "path" : "\/v1\/learning\/episodes\/eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\/passages\/2012",
+      "response" : "{\"favorite\":true,\"job_id\":\"eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\",\"passage_groups\":{\"version\":1,\"revision\":26,\"job_id\":\"eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\",\"groups\":[{\"id\":\"pg_620f30bfa2c0ec934390d4b51e93c1fe2a0da38c2a4ed72ae65994e235e6bfc6\",\"job_id\":\"eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\",\"segment_ids\":[2012],\"start\":20120,\"end\":20128}],\"favorite_segment_ids\":[2012]},\"segment_id\":2012}\n",
+      "status" : 200
+    },
+    {
+      "body" : "{\"favorite\":true}",
+      "method" : "PUT",
+      "owner" : "XOSUS3HoXy-fVKZ3dzdWpgYOmJfggCcniDqADagaDoc",
+      "path" : "\/v1\/learning\/episodes\/eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\/passages\/2014",
+      "response" : "{\"favorite\":true,\"job_id\":\"eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\",\"passage_groups\":{\"version\":1,\"revision\":27,\"job_id\":\"eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\",\"groups\":[{\"id\":\"pg_620f30bfa2c0ec934390d4b51e93c1fe2a0da38c2a4ed72ae65994e235e6bfc6\",\"job_id\":\"eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\",\"segment_ids\":[2012],\"start\":20120,\"end\":20128},{\"id\":\"pg_48b467df169397fae5b2b56eb615d4c06980148ef824039d52f3a36166985634\",\"job_id\":\"eK3uG2Iz83lnO0k-zxfrIQBJdMxDxzdS4KUcCTwVQsg\",\"segment_ids\":[2014],\"start\":20140,\"end\":20148}],\"favorite_segment_ids\":[2012,2014]},\"segment_id\":2014}\n",
+      "status" : 200
+    }
+  ],
+  "segment_count" : 2113,
+  "source_sha256" : "852fb573f8a2507009249a8abd1a4fc8b4e3f0a521698f7348cbc7d5344800df",
+  "source_unchanged" : true
+}

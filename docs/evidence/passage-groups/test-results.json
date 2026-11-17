@@ -1,0 +1,65 @@
+{
+  "passage-ui-red": {
+    "result": "Failed",
+    "totalTestCount": 1,
+    "passedTests": 0,
+    "failedTests": 1,
+    "skippedTests": 0,
+    "startTime": 1794913146.611,
+    "finishTime": 1794913353.611
+  },
+  "passage-ui-red2": {
+    "result": "Failed",
+    "totalTestCount": 1,
+    "passedTests": 0,
+    "failedTests": 1,
+    "skippedTests": 0,
+    "startTime": 1794913421.475,
+    "finishTime": 1794913522.608
+  },
+  "passage-ui-green1": {
+    "result": "Passed",
+    "totalTestCount": 1,
+    "passedTests": 1,
+    "failedTests": 0,
+    "skippedTests": 0,
+    "startTime": 1794913548.681,
+    "finishTime": 1794913608.141
+  },
+  "passage-ui-full1": {
+    "result": "Failed",
+    "totalTestCount": 4,
+    "passedTests": 1,
+    "failedTests": 3,
+    "skippedTests": 0,
+    "startTime": 1794913736.959,
+    "finishTime": 1794914093.138
+  },
+  "passage-ui-full2": {
+    "result": "Failed",
+    "totalTestCount": 4,
+    "passedTests": 3,
+    "failedTests": 1,
+    "skippedTests": 0,
+    "startTime": 1794914201.517,
+    "finishTime": 1794914576.812
+  },
+  "passage-ui-final": {
+    "result": "Failed",
+    "totalTestCount": 4,
+    "passedTests": 3,
+    "failedTests": 1,
+    "skippedTests": 0,
+    "startTime": 1794914791.875,
+    "finishTime": 1794915157.117
+  },
+  "passage-ui-bridge-green": {
+    "result": "Passed",
+    "totalTestCount": 1,
+    "passedTests": 1,
+    "failedTests": 0,
+    "skippedTests": 0,
+    "startTime": 1794915232.141,
+    "finishTime": 1794915389.244
+  }
+}

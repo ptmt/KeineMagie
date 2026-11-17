@@ -137,14 +137,15 @@ struct EpisodeReaderView: View {
                 }
                 if !query.isEmpty { Text(matches.isEmpty ? AppL10n.text("episode.no.matches") : "\(max(0, match + 1)) / \(matches.count)").font(.caption).foregroundStyle(.secondary) }
             }.padding(.horizontal)
+            if let error = model.passageErrors[job.id] {
+                HStack {
+                    Text(verbatim: error).font(.caption).foregroundStyle(.secondary)
+                    Spacer(minLength: 8)
+                    Button("podcast.retry") { Task { await model.loadPassageGroups(job) } }.frame(minHeight: 44)
+                }.padding(.horizontal)
+            }
             ScrollViewReader { proxy in
                 List {
-                    if let error = model.passageErrors[job.id] {
-                        HStack {
-                            Text(verbatim: error).font(.caption).foregroundStyle(.secondary)
-                            Button("podcast.retry") { Task { await model.loadPassageGroups(job) } }.frame(minHeight: 44)
-                        }
-                    }
                     if let returnSection { Button("episode.return") { section = returnSection; self.returnSection = nil }.frame(minHeight: 44) }
                     if visible.lowerBound > 0 { Button("episode.previous.segments") { selected = max(0, visible.lowerBound - 70) }.frame(minHeight: 44) }
                     ForEach(Array(visible), id: \.self) { index in
@@ -159,7 +160,11 @@ struct EpisodeReaderView: View {
                             if let translation = segment.translation { highlighted(translation).foregroundStyle(.secondary).textSelection(.enabled) }
                         }.padding(.vertical, 4).listRowBackground(selected == index ? Color.accentColor.opacity(0.1) : nil)
                             .id(index).accessibilityIdentifier("episode-segment-\(index)")
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) { passageButton(index, starred: starred) }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                // Native swipe buttons can ignore SwiftUI disabled styling.
+                                // Do not offer a tappable no-op while offline or a write is pending.
+                                if canSavePassage { passageButton(index, starred: starred) }
+                            }
                             .contextMenu { passageButton(index, starred: starred) }
                             .accessibilityAction(named: Text(starred ? "episode.passage.unsave" : "episode.passage.save")) { savePassage(index, starred: starred) }
                     }

@@ -1,0 +1,57 @@
+Attributes: Application, 0x104a82bc0, pid: 33968, label: 'Keine Magie'
+Element subtree:
+ →Application, 0x104a82bc0, pid: 33968, label: 'Keine Magie'
+    Window (Main), 0x104a83840, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x104a81400, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x104a83700, {{0.0, 0.0}, {375.0, 667.0}}
+          Other, 0x104a812c0, {{0.0, 0.0}, {375.0, 667.0}}
+            Other, 0x104a83ac0, {{0.0, 0.0}, {375.0, 667.0}}
+              Other, 0x104a830c0, {{0.0, 0.0}, {375.0, 667.0}}
+                NavigationBar, 0x104a83980, {{0.0, 20.0}, {375.0, 54.0}}, identifier: 'Keine Magie'
+                  StaticText, 0x104a83d40, {{139.0, 31.5}, {96.5, 21.0}}, label: 'Keine Magie'
+                  Button, 0x104a83480, {{319.0, 24.0}, {36.0, 36.0}}, label: 'Settings'
+                Other, 0x104a83c00, {{0.0, 0.0}, {375.0, 667.0}}
+                  Other, 0x1078e6bc0, {{0.0, 0.0}, {375.0, 667.0}}
+                    Other, 0x1078e5a40, {{0.0, 0.0}, {375.0, 667.0}}
+                      Other, 0x1078e7d40, {{0.0, 0.0}, {375.0, 667.0}}
+                        ScrollView, 0x1078e5cc0, {{0.0, 0.0}, {375.0, 667.0}}
+                          Other, 0x1078e7980, {{0.0, 0.0}, {375.0, 667.0}}
+                            Other, 0x1078e52c0, {{0.0, 0.0}, {375.0, 114.0}}
+                          Other, 0x1078e6e40, {{0.0, 0.0}, {375.0, 667.0}}
+                          Other, 0x1078e5f40, {{0.0, 74.0}, {375.0, 488.0}}
+                            StaticText, 0x1078e48c0, {{24.0, 106.0}, {85.5, 20.5}}, label: 'Local draft'
+                            TextView, 0x1078e66c0, {{24.0, 126.5}, {327.0, 120.0}}, identifier: 'translator-input'
+                              Other, 0x1078e7700, {{318.0, 126.5}, {30.0, 120.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                Other, 0x1078e7e80, {{345.0, 211.5}, {3.0, 32.0}}
+                            StaticText, 0x1078e7ac0, {{24.0, 246.5}, {327.0, 30.5}}, label: 'Not assigned to an account. Copy it before signing in; it is never sent automatically.'
+                            StaticText, 0x1078e5680, {{30.0, 299.8}, {128.5, 24.0}}, label: 'Translator'
+                              StaticText, 0x1078e7840, {{30.0, 299.8}, {128.5, 24.0}}, label: 'Translator'
+                              Image, 0x1078e6580, {{30.0, 301.0}, {24.0, 22.5}}, identifier: 'character.bubble', label: 'Character In A Speech Bubble'
+                            StaticText, 0x1078e6f80, {{32.0, 370.8}, {117.0, 24.0}}, label: 'Dictation'
+                              StaticText, 0x1078e5b80, {{32.0, 370.8}, {117.0, 24.0}}, label: 'Dictation'
+                              Image, 0x1078e5540, {{32.0, 371.5}, {20.0, 22.5}}, identifier: 'waveform', label: 'Audio Waveform'
+                            StaticText, 0x1078e75c0, {{31.0, 441.8}, {120.5, 24.0}}, label: 'Podcasts'
+                              StaticText, 0x1078e5040, {{31.0, 441.8}, {120.5, 24.0}}, label: 'Podcasts'
+                              Image, 0x1078e6940, {{31.0, 442.0}, {22.0, 23.0}}, identifier: 'headphones', label: 'Audiobook'
+                            StaticText, 0x1078e6080, {{26.5, 513.0}, {99.5, 25.0}}, label: 'Coach'
+                              Image, 0x1078e6a80, {{26.5, 513.0}, {31.0, 25.0}}, identifier: 'bubble.left.and.bubble.right', label: 'Conversation'
+                              StaticText, 0x1078e6d00, {{26.5, 513.0}, {99.5, 25.0}}, label: 'Coach'
+                          Other, 0x1078e6300, {{342.0, 74.0}, {30.0, 451.5}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                            Other, 0x1078e7c00, {{369.0, 77.0}, {3.0, 422.5}}
+                          Other, 0x1078e70c0, {{342.0, 74.0}, {30.0, 451.5}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                            Other, 0x1078e6440, {{369.0, 77.0}, {3.0, 422.5}}
+                        StaticText, 0x1078e7200, {{25.5, 557.5}, {296.0, 19.5}}, label: 'Session expired. Please sign in again.'
+                        StaticText, 0x1078e7480, {{25.5, 559.0}, {16.5, 15.0}}, identifier: 'exclamationmark.triangle', label: 'Warning'
+                        Button, 0x1078e6800, {{24.0, 593.0}, {327.0, 50.0}}, label: 'Sign in with Apple'
+                Toolbar, 0x1078e5400, {{0.0, 0.0}, {375.0, 667.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                  Other, 0x1078e4780, {{0.0, 0.0}, {375.0, 667.0}}
+    Window, 0x1078e5e00, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x1085b4c80, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x1085b6080, {{0.0, 0.0}, {375.0, 667.0}}
+Path to element:
+ →Application, 0x104a82bc0, pid: 33968, label: 'Keine Magie'
+Query chain:
+ →Find: Target Application 'de.keinemagie.app'
+  Output: {
+    Application, 0x1085b6a80, pid: 33968, label: 'Keine Magie'
+  }

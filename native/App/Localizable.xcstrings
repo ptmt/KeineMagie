@@ -1,58 +1,69 @@
 {
   "sourceLanguage": "de",
   "strings" : {
-<<<<<<< HEAD
   "dictation.onboarding": {
-=======
-  "episode.passage.save": {
->>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
     "localizations": {
       "de": {
         "stringUnit": {
           "state": "translated",
-<<<<<<< HEAD
           "value": "Anhören → schreiben → prüfen. Füge einen Text hinzu, um zu beginnen."
-=======
-          "value": "Speichern"
->>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       },
       "en": {
         "stringUnit": {
           "state": "translated",
-<<<<<<< HEAD
           "value": "Listen → type → check. Add a text to begin."
-=======
-          "value": "Save"
->>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       },
       "ru": {
         "stringUnit": {
           "state": "translated",
-<<<<<<< HEAD
           "value": "Слушайте → пишите → проверяйте. Добавьте текст, чтобы начать."
-=======
-          "value": "Сохранить"
->>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       },
       "es": {
         "stringUnit": {
           "state": "translated",
-<<<<<<< HEAD
           "value": "Escucha → escribe → comprueba. Añade un texto para empezar."
-=======
-          "value": "Guardar"
->>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       },
       "fr": {
         "stringUnit": {
           "state": "translated",
-<<<<<<< HEAD
           "value": "Écoute → écris → vérifie. Ajoute un texte pour commencer."
-=======
+        }
+      }
+    }
+  },
+  "episode.passage.save": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Speichern"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Save"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сохранить"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Guardar"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
           "value": "Enregistrer"
         }
       }
@@ -122,7 +133,6 @@
         "stringUnit": {
           "state": "translated",
           "value": "Enregistrement non confirmé. Actualisez et réessayez."
->>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       }
     }

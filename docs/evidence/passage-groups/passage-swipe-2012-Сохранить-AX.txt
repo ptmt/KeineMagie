@@ -1,0 +1,88 @@
+Attributes: Application, 0x107deae40, pid: 34505, label: 'Keine Magie'
+Element subtree:
+ →Application, 0x107deae40, pid: 34505, label: 'Keine Magie'
+    Window (Main), 0x107deaf80, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x107deb0c0, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x107deb200, {{0.0, 0.0}, {375.0, 667.0}}
+          Other, 0x107deb340, {{0.0, 0.0}, {375.0, 667.0}}
+            Other, 0x107deb840, {{0.0, 0.0}, {375.0, 667.0}}
+              Other, 0x107deb980, {{0.0, 0.0}, {375.0, 667.0}}
+                NavigationBar, 0x107debc00, {{0.0, 20.0}, {375.0, 54.0}}, identifier: 'Эпизод'
+                  Button, 0x107de8280, {{16.0, 20.0}, {44.0, 44.0}}, identifier: 'BackButton', label: 'Подкасты'
+                  StaticText, 0x107de8640, {{149.5, 29.0}, {76.0, 26.0}}, label: 'Эпизод'
+                Other, 0x107de8500, {{0.0, 0.0}, {375.0, 667.0}}
+                  Other, 0x107de88c0, {{0.0, 0.0}, {375.0, 667.0}}
+                    Other, 0x107de8780, {{0.0, 0.0}, {375.0, 667.0}}
+                      Other, 0x107de8b40, {{0.0, 0.0}, {375.0, 667.0}}
+                        StaticText, 0x107de8a00, {{16.0, 74.0}, {320.5, 27.5}}, identifier: 'podcast-detail-title', label: 'Synthetic passage acceptance'
+                        ScrollView, 0x107de92c0, {{0.0, 101.5}, {319.0, 44.0}}
+                          Other, 0x107dea1c0, {{0.0, 101.5}, {523.0, 44.0}}
+                            Button, 0x107de9900, {{16.0, 101.5}, {76.5, 44.0}}, identifier: 'episode-section-summary', label: 'Резюме'
+                            Button, 0x107de9a40, {{108.5, 101.5}, {82.0, 44.0}}, identifier: 'episode-section-vocabulary', label: 'Словарь'
+                            Button, 0x107de83c0, {{206.5, 101.5}, {143.5, 44.0}}, identifier: 'episode-section-recommendations', label: 'Рекомендации'
+                            Button, 0x107de8140, {{366.0, 101.5}, {141.0, 44.0}}, identifier: 'episode-section-transcript', label: 'Расшифровка', Selected
+                        Button, 0x107deb480, {{323.0, 101.5}, {44.0, 44.0}}, identifier: 'episode-profile', label: 'Профиль'
+                        StaticText, 0x107deb700, {{16.0, 145.5}, {59.5, 21.5}}, label: '335:20'
+                        StaticText, 0x107deb5c0, {{299.5, 145.5}, {59.5, 21.5}}, label: '352:08'
+                        Slider, 0x107dead00, {{16.0, 173.5}, {343.0, 31.0}}, identifier: 'episode-timeline', label: 'Время расшифровки (мм:сс)', value: 20 120
+                        StaticText, 0x107debe80, {{16.0, 215.0}, {270.5, 44.5}}, label: 'Навигация по расшифровке, не воспроизведение аудио'
+                        Button, 0x107debd40, {{263.0, 263.5}, {44.0, 44.0}}, identifier: 'chevron.up', label: 'Предыдущее совпадение', Disabled
+                        Button, 0x107de8000, {{315.0, 263.5}, {44.0, 44.0}}, identifier: 'episode-next-match', label: 'Следующее совпадение', Disabled
+                        TextField, 0x107dea580, {{16.0, 271.5}, {239.0, 28.0}}, identifier: 'episode-search', placeholderValue: 'Поиск в расшифровке'
+                        TextField, 0x107deaa80, {{16.0, 319.0}, {244.0, 29.0}}, identifier: 'episode-time', label: 'Время расшифровки (мм:сс)', placeholderValue: '00:00', value: 335:20
+                        Button, 0x107deabc0, {{268.0, 320.0}, {91.0, 27.5}}, identifier: 'episode-jump', label: 'Перейти'
+                        CollectionView, 0x1078e7840, {{0.0, 355.5}, {375.0, 311.5}}
+                          Other, 0x1078e5540, {{0.0, -2096.5}, {375.0, 7466.5}}
+                          Cell, 0x1078e6f80, {{-105.5, 355.5}, {375.0, 126.5}}
+                            Other, 0x1078e5040, {{-105.5, 355.5}, {375.0, 126.5}}
+                            Other, 0x1078e5a40, {{-105.5, 355.5}, {375.0, 126.5}}
+                              Other, 0x1078e5f40, {{-105.5, 355.5}, {375.0, 126.5}}
+                                Other, 0x1078e5680, {{-105.5, 355.5}, {375.0, 126.5}}
+                                  Other, 0x1078e7c00, {{-105.5, 355.5}, {375.0, 126.5}}
+                            Other, 0x1078e6800, {{-105.5, 355.5}, {375.0, 126.5}}
+                              Other, 0x1078e5b80, {{-105.5, 355.5}, {375.0, 126.5}}
+                                Other, 0x1078e6e40, {{-105.5, 355.5}, {375.0, 126.5}}
+                                  StaticText, 0x1078e70c0, {{-89.5, 374.5}, {128.5, 21.5}}, identifier: 'episode-segment-2012', label: '335:20–335:28'
+                                  StaticText, 0x1078e6940, {{-89.5, 402.0}, {314.0, 27.5}}, identifier: 'episode-segment-2012', label: 'Synthetic segment 2012 needle'
+                                  StaticText, 0x1078e6580, {{-89.5, 435.5}, {148.0, 27.5}}, identifier: 'episode-segment-2012', label: 'Перевод 2012'
+                          Other, 0x1078e6300, {{0.0, 355.5}, {375.0, 126.5}}
+                            Other, 0x1078e7480, {{269.5, 375.0}, {105.5, 88.0}}
+                              Other, 0x1078e7200, {{269.5, 375.0}, {105.5, 88.0}}
+                                Other, 0x104a83480, {{279.5, 375.0}, {85.5, 88.0}}
+                                  Button, 0x104a82bc0, {{279.5, 382.0}, {85.0, 50.0}}, identifier: 'episode-star-2012', label: 'Сохранить'
+                                  StaticText, 0x104a83700, {{279.2, 435.8}, {85.5, 20.5}}, label: 'Сохранить'
+                          Cell, 0x104a830c0, {{0.0, 482.0}, {375.0, 126.5}}
+                            Other, 0x104a83c00, {{0.0, 482.0}, {375.0, 126.5}}
+                              Other, 0x104a81400, {{0.0, 482.0}, {375.0, 126.5}}
+                            Other, 0x104a83340, {{0.0, 482.0}, {375.0, 126.5}}
+                              Other, 0x104a83840, {{0.0, 482.0}, {375.0, 126.5}}
+                                Other, 0x104a83ac0, {{0.0, 482.0}, {375.0, 126.5}}
+                                  StaticText, 0x104a83980, {{16.0, 501.0}, {128.5, 21.5}}, identifier: 'episode-segment-2013', label: '335:30–335:38'
+                                  StaticText, 0x104a812c0, {{16.0, 528.5}, {242.5, 27.5}}, identifier: 'episode-segment-2013', label: 'Synthetic segment 2013'
+                                  StaticText, 0x104a83d40, {{16.0, 562.0}, {148.5, 27.5}}, identifier: 'episode-segment-2013', label: 'Перевод 2013'
+                          Cell, 0x107eefe80, {{0.0, 608.5}, {375.0, 126.5}}
+                            Other, 0x107eef200, {{0.0, 608.5}, {375.0, 126.5}}
+                              Other, 0x107eef980, {{0.0, 608.5}, {375.0, 126.5}}
+                            Other, 0x107eee1c0, {{0.0, 608.5}, {375.0, 126.5}}
+                              Other, 0x107eecf00, {{0.0, 608.5}, {375.0, 126.5}}
+                                Other, 0x107eec000, {{0.0, 608.5}, {375.0, 126.5}}
+                                  StaticText, 0x107eeef80, {{16.0, 627.5}, {128.5, 21.5}}, identifier: 'episode-segment-2014', label: '335:40–335:48'
+                                  StaticText, 0x107eecb40, {{16.0, 655.0}, {315.0, 27.5}}, identifier: 'episode-segment-2014', label: 'Synthetic segment 2014 needle'
+                                  StaticText, 0x107eed040, {{16.0, 688.5}, {148.5, 27.5}}, identifier: 'episode-segment-2014', label: 'Перевод 2014'
+                          Other, 0x107eef700, {{16.0, 607.5}, {343.0, 1.0}}
+                          Other, 0x107eec640, {{342.0, 355.5}, {30.0, 311.5}}, label: 'Вертикальная полоса прокрутки, 20 страниц', value: 31 %
+                            Other, 0x107eec280, {{369.0, 443.0}, {3.0, 36.0}}
+                          Other, 0x107eecc80, {{342.0, 355.5}, {30.0, 311.5}}, label: 'Вертикальная полоса прокрутки, 20 страниц', value: 31 %
+                            Other, 0x107eec8c0, {{369.0, 443.0}, {3.0, 36.0}}
+                Toolbar, 0x107eec140, {{0.0, 0.0}, {375.0, 667.0}}, identifier: 'Toolbar', label: 'Панель инструментов'
+                  Other, 0x107eedcc0, {{0.0, 0.0}, {375.0, 667.0}}
+    Window, 0x107eef5c0, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x107eeee40, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x107eefc00, {{0.0, 0.0}, {375.0, 667.0}}
+Path to element:
+ →Application, 0x107deae40, pid: 34505, label: 'Keine Magie'
+Query chain:
+ →Find: Target Application 'de.keinemagie.app'
+  Output: {
+    Application, 0x107eef480, pid: 34505, label: 'Keine Magie'
+  }

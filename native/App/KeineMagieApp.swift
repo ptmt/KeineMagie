@@ -19,7 +19,7 @@ struct RootView: View {
         NavigationStack {
             Group {
                 if model.session.phase == .signedIn {
-                    MainTabsView(showSettings: $showSettings).id(model.session.generation)
+                    MainTabsView(showSettings: $showSettings)
                 } else {
                     LoginGate()
                 }
@@ -35,6 +35,9 @@ struct RootView: View {
                 }
             }
         }
+        // Destination closures retain original job values independently of AppModel.
+        // Replace the owning stack at the identity boundary, not only its root tab.
+        .id(model.session.generation)
         .sheet(isPresented: $showSettings) { SettingsView() }
         .task {
             guard !started else { return }

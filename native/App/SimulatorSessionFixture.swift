@@ -82,6 +82,19 @@ actor SimulatorSessionFixture {
             }
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": records]), status: 200)
         }
+        // Explicit synthetic-only loopback transport; no production account or provider.
+        // Keep the real APIClient request path, body and expected-owner header intact.
+        if mode == "passage-http", let path = request.url?.path,
+           path == "/v1/auth/session" || path.hasPrefix("/v1/podcasts") || path.contains("/passage") {
+            var local = request
+            local.url = URL(string: "http://127.0.0.1:18879" + path)
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.urlCache = nil
+            let session = URLSession(configuration: configuration)
+            defer { session.invalidateAndCancel() }
+            let (data, response) = try await session.data(for: local)
+            return AuthResponse(data: data, status: (response as? HTTPURLResponse)?.statusCode ?? 500)
+        }
         if mode.hasPrefix("translation-followup") {
             if mode == "translation-followup-accessibility", followupRecord == nil {
                 followupRecord = ["id": "followup-synthetic", "created_at": "2026-11-16T12:00:00Z", "text": "Фрагмент", "translation": "Fragment", "source_language": "ru", "target_language": "de", "idioms": [], "patterns": [], "vocabulary": []]
