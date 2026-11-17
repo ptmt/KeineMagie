@@ -1,5 +1,13 @@
 # Focused Dictation UX — versioned playback implementation
 
+## Heading-only correction (2026-11-17)
+
+Starting HEAD verified: `b0405816c7676995277718b2262c55a35dcbaf17`; clean local candidate. Inspected the rendered DOM before editing. Removed only the visible Hint heading and About audio text. Full localized rules remain unchanged, with the existing aside accessible name and textarea `aria-describedby`. The existing native details/summary now uses a quiet ⓘ in the audio toolbar, a localized accessible name, and a 44px target; all privacy/cost/budget content remains closed until explicit opening. No playback, Check placement, localization strings or backend changes.
+
+Verification: **138 Node tests passed**, including red/green heading regressions. `web/tests/dictation_headings_browser.py` passed **20 rendered cases** (five locales × whole/sentences × legacy/policy), with exact full-rule text, no visible heading labels, keyboard Tab/Enter/Space disclosure, visible focus, closed/open content, no disclosure-triggered requests, unchanged Check location, no overflow and zero page errors. Russian policy whole screenshots were inspected: `docs/evidence/dictation-focused-ux/headings/ru-whole-mobile.png` and `ru-whole-desktop.png`; machine results are alongside them. Synthetic records only, real production module/CSS; this heading-only test makes no new playback claim.
+
+Local-only scoped commit; no push/deploy, provider inference, Xcode or edits to original dirty, combined/Profile or other worktrees.
+
 ## Independent review follow-up (2026-11-17)
 
 Reviewed implementation `ee89d5f816b3cc56e5805666eddb7c7c5eed64ad` against the focused UX and opt-in policy requirements. This follow-up is local only; user visual approval remains required before release, including the provisional top-right Check. No automatic checking was added.

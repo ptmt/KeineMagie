@@ -27,7 +27,7 @@ with sync_playwright() as p:
     prepare.click()
     play=page.locator('.dictation-player > button').first
     expect(play).to_be_enabled(timeout=10000)
-    expect(page.locator('.dictation-disclosure summary')).to_have_text('Audio details')
+    expect(page.locator('.dictation-disclosure summary')).to_have_accessible_name('Audio details')
     play.click()
     page.wait_for_function("() => document.querySelector('#dictation').textContent.includes('1 completed readings')",timeout=15000)
     page.screenshot(path=str(evidence/'whole-ended.png'),full_page=True)

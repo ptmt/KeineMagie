@@ -10,7 +10,10 @@ test('uncached exercise has one audio action, quiet audio details and secondary 
  assert.equal(controls.all().filter(e=>e.tagName==='BUTTON'&&!e.hidden).length,1);
  assert.doesNotMatch(f.host.textContent,/Via OpenAI API · paid/);
  const disclosure=f.host.all().find(e=>e.className==='dictation-disclosure');
- assert.equal(disclosure.querySelector('summary').textContent,'Audio details');
+ assert.ok(controls.all().includes(disclosure),'disclosure belongs to audio toolbar');
+ assert.equal(disclosure.querySelector('summary').getAttribute('aria-label'),'Audio details');
+ assert.equal(disclosure.querySelector('summary').textContent,'ⓘ');
+ assert.equal(disclosure.querySelector('span').getAttribute('aria-hidden'),'true');
  assert.match(disclosure.textContent,/sends the text to OpenAI/);
  const more=f.host.all().find(e=>e.className==='dictation-attempt-menu');
  assert.ok(more.all().includes(f.button('Delete attempt')));
@@ -24,6 +27,8 @@ test('mode guidance is separate from the draft and Check remains explicit above 
  const panel=f.host.all().find(e=>e.className==='dictation-work');
  const hint=panel.all().find(e=>e.className==='dictation-hint');
  assert.ok(hint,'distinct hint block');
+ assert.equal(hint.querySelector('strong'),null,'no visible hint heading');
+ assert.equal(hint.getAttribute('aria-label'),'Hint');
  const draft=panel.querySelector('textarea');
  assert.equal(draft.placeholder||'','');
  assert.equal(draft.getAttribute('aria-describedby'),hint.id);
