@@ -73,10 +73,87 @@ Verification after the review fixes: full `go test -p 2 ./...`; `go test -race -
 
 Integration cautions: the concurrently dirty `candidate/coach-daily-chat` worktree was inspected read-only. It changes `server/coach.go` daily admission/receipt handling, native `AppModel.swift`/Core `Coach.swift`, localization, lifecycle fixtures, and `web/coach.mjs`. Preserve both its admission fences and this branch's atomic group-source resolution/legacy links rather than taking an entire side of any conflict. No combined-branch integration test was run. Row membership remains O(1), and this feature adds no pagination fetch loop. Backend reconciliation still scans all the owner's marked jobs per transaction; Coach can repeat that scan when many jobs yield only oversized/ineligible groups. This is a remaining scaling concern, not a claim of owner-wide constant-time reads.
 
-## Explicit remaining release gates
+## Standalone native Release acceptance — November 17, 2026
 
-No Xcode build or simulator session was started: Coach and Translator workstreams are sharing the host and the parent requested one sequential slot. This is a unit-tested local candidate, **not simulator-approved or release-ready**.
+**Ready for parent integration, not deployment.** Acceptance implementation commit: `6103675b0e73063178bc5cc54727642b0777d997`, on reviewed `da6d678578d0d281e222b128aef77d6a28582780`. This does not contain the separate Coach/Translator integration `6d2b5631d6fe4fd38c3ee6ad4dc515ad09b7a45f`. No merge, remote write, backend deployment, real-user request, paid AI, or provider invocation was performed.
 
-During that slot, build/typecheck the iOS target, then exercise actual trailing swipe → Save → exact PUT → group GET → terminate/relaunch → persisted stars on the 2,113-row fixture. Verify adjacent/nonadjacent search matches, bridge and split, scroll/timeline/time jump, citations and return, back swipe, vertical scrolling, busy/error/revoked/offline-owner states, context menu, VoiceOver custom action, 44-point targets, Dynamic Type, and quiet icon rendering. Export and inspect real Release screenshots; no screenshots of this candidate currently exist. The supplied `img_89497f25a98b.jpg` was inspected as layout context only, not presented as candidate evidence.
+### Actual runtime and transport
 
-Parent integration/review should inspect shared-file conflicts in AppModel, Podcasts/EpisodeLearning/Coach core types, localization, Coach server source resolution, and the lifecycle runner. The original dirty main tree and concurrent sibling branches must remain untouched. No push/deploy is authorized here.
+- Xcode **27.2 (27B52)**, Release, Swift 6, ad-hoc simulator signing; successful actual iOS target build/typecheck, not only frontend parsing. Used `-jobs 2 -parallel-testing-enabled NO` and one exact destination. No test clones.
+- One task-owned **iPhone SE (3rd generation), iOS 27.2**, 375×667 points, UDID `5002FCC4-6475-4111-90F5-02BDE6A0931E`. Light baseline, dark main suite, five locales at ordinary Dynamic Type **XXXL** (`UICTContentSizeCategoryXXXL`, not Accessibility XXXL).
+- `native/ci/passage_ui_fixture_test.go` runs through a Go overlay against the real production `newHandler`, auth store, podcast store, learning transactions and API serialization. All files are generated under `t.TempDir`; the fixed loopback listener is `127.0.0.1:18879`. Only GET and passage PUT can reach the handler; unrelated mutations/provider operations are rejected. Synthetic auth tokens stay inside the fixture. Requests record method/path/body/expected-owner/status and passage response bodies, not Authorization headers.
+- The opt-in simulator `passage-http` mode forwards the real APIClient requests through URLSession to that loopback handler. The source fixture contains **2,113** original DE/RU segments and a real subscription/preparation relationship. Summary/vocabulary remain the existing synthetic in-memory fixture; no analysis generation is claimed.
+- Server-side GET after each gesture verifies the durable group snapshot independently of the UI. Source JSON and its SHA-256 remain identical. Teardown reconstructs the production handler/store and compares complete group snapshots byte-for-byte: **one Go integration fixture test passed**, retaining three groups. See `evidence/passage-groups/production-go-fixture.log`.
+
+### Passing acceptance cases
+
+Four distinct native XCTest cases have passing results on the final production source. No zero-test result is counted:
+
+1. **Native swipe / exact HTTP:** real trailing List swipe, visible Save, 50-point native button, exactly one PUT with `{"favorite":true}`, acknowledged original index 2012.
+2. **Bridge, split, navigation and owner cache:** save 2012 and 2014 as separate groups; search `needle` visits those nonadjacent original indices without grouping across 2013; save 2013 bridges; unsave 2013 splits; save/remove endpoint 2015 extends/shrinks; save last original index 2112. Exactly **seven PUTs and four app passage-group GETs**, with matching nonempty authenticated expected-owner headers and complete acknowledged response bodies. Original timeline jump, citation at 2012, Back to source, vertical List scrolling, two repeated library/reader returns, online terminate/relaunch, known-owner offline terminate/relaunch, and replacement-owner empty library pass. Library renders **Ready**, **Translated passages 2,113 / 2,113**, and **Starred passages: 3**. Offline retains stars but offers no swipe mutation; replacement owner cannot see the original episode.
+3. **Failed write / revocation:** injected HTTP 503 retains the confirmed star and visibly presents Retry at index 2012. Retry is a read, not a second write. A later actual loopback HTTP 401 purges the open reader immediately and leaves no private podcast tabs/content after offline cold relaunch. Three exact PUT attempts cover success, 503 and 401.
+4. **Five locale/context alternatives:** German, English, Russian, Spanish and French XXXL dark small-device runs each perform swipe Save and long-press context-menu Unsave, checking the correct short localized labels and real HTTP state. Menu hit targets measure **250×57 points** in every locale; swipe targets are at least 44 points. Screenshots and AX trees are exported and inspected.
+
+### Runtime defects found and fixed with failing UI regressions
+
+- **Offscreen mutation failure:** error/Retry was the first row of the bounded List, approximately 30 rows above selected index 2012. The failed-write test reproduced an invisible Retry while the star remained. Moved only that error row outside the scrolling List; the subsequent actual screenshot and test show it visible beside the selected passage.
+- **Misleading offline action:** native swipeActions exposed an enabled-looking Unsave despite `.disabled(!canSavePassage)`; the offline test failed its disabled assertion. Unavailable/pending swipe actions are now omitted, while model mutation guards and context/accessibility alternatives remain. The offline test verifies no offered swipe action and unchanged stars.
+- **Retained private destination after 401:** AppModel and disk were cleared, but the outer NavigationStack retained its pushed closure's original job value. The actual reader still displayed text after HTTP 401. Moved the generation `.id` boundary from only MainTabsView to the owning NavigationStack. The same real-HTTP regression now reaches the login gate immediately and remains private-data-free on offline cold launch. **Preserve this RootView change during integration.**
+
+### Exact run history and limits
+
+`evidence/passage-groups/test-results.json` contains xcresult-derived counts and times. All result bundles are under `/Users/tinyserve/.hermes/cache/scratch/`:
+
+| Bundle | Passed / executed | Interpretation |
+|---|---:|---|
+| `passage-ui-red.xcresult` | 0 / 1 | Setup failure: fixture source update used an expired worker claim; server never listened. Not a product RED or acceptance. |
+| `passage-ui-red2.xcresult` | 0 / 1 | Expected missing simulator HTTP forwarding; synthetic episode absent. |
+| `passage-ui-green1.xcresult` | 1 / 1 | First actual native swipe/HTTP GREEN, light mode. |
+| `passage-ui-full1.xcresult` | 1 / 4 | Reproduced invisible Retry/offline action; also corrected a test that confused login subject `learner` with opaque authenticated UserID. |
+| `passage-ui-full2.xcresult` | 3 / 4 | Grouping/cache/locales pass; real retained-destination 401 defect reproduced. |
+| `passage-ui-final.xcresult` | 3 / 4 | Final production fixes pass; coverage assertion alone expected `2113` instead of rendered locale-correct `2,113`. |
+| `passage-ui-bridge-green.xcresult` | 1 / 1 | Corrected display-string expectation and explicitly asserted four GETs; complete bridge/navigation/cache case passes. |
+
+The last two bundles jointly establish **4/4 distinct cases passing**, not a falsely reported single all-green full-suite run. Only the test's expected localized number and read-count assertion changed between them. No tests skipped in these native runs. The initial unmodified Release app build had no diagnostics; building the existing entire UITest target emits pre-existing actor-isolation warnings in unrelated test files. The Go overlay file intentionally does not typecheck by itself; it compiles and executes as part of the real server test package.
+
+Previous reviewed unit totals above remain prior evidence: 61 Core XCTest (one dedicated-fixture skip), 72 Swift Testing, six real-Go wire tests, 100 AppModel lifecycle tests, 113 Node tests and full/targeted Go race/vet. They were **not rerun as broad parallel suites during this UI slot**; no backend/Core/model algorithm changes were made here.
+
+### Durable visual evidence
+
+`docs/evidence/passage-groups/` commits **26 original runtime PNGs**, **25 AX text captures**, HTTP snapshots, fixture teardown result, run counts and a SHA-256 attachment manifest. Images are native XCTest/simulator captures, not composed mockups. Key captures:
+
+- `light-passage-swipe-2012-Save.png`, `passage-swipe-2012-Save.png`
+- `passage-nonadjacent-search.png`, `passage-original-citation.png`, `passage-last-original-index.png`
+- `passage-library-three-stars-not-groups.png`, `passage-cold-online.png`, `passage-cold-offline-owner-cache.png`
+- `passage-failed-write-retains-star.png`, `passage-401-purged.png`, `passage-revoked-offline-no-private-data.png`, `passage-different-owner-empty.png`
+- `passage-XXXL-{de,en,ru,es,fr}.png`, `passage-context-XXXL-{de,en,ru,es,fr}.png`, localized swipe captures.
+
+Inspection found readable short swipe/context actions and quiet secondary stars in the tested scope. Existing horizontally scrolling section labels are partially outside the narrow viewport; the French search placeholder truncates at XXXL. Context-menu dismissal can reposition the bounded viewport to nearby rows; no transcript identity/text or star target changes. This work does not redesign that existing reader layout. Actual VoiceOver spoken traversal/custom-action invocation, physical devices, Accessibility XXXL, edge-back gesture, sustained performance benchmarking and live authenticated services were not exercised. Context-menu non-swipe operation and exported AX labels/target sizes were exercised. Busy/coalescing/cancellation semantics retain prior AppModel harness coverage, not a new delayed-gesture stress test.
+
+### Reproduce without production data
+
+Generate `native/KeineMagie.xcodeproj` with `xcodegen generate`. Create a Go overlay mapping an otherwise nonexistent `server/native_passage_ui_fixture_test.go` to `native/ci/passage_ui_fixture_test.go`, then from `server` run:
+
+```sh
+KM_PASSAGE_UI_FIXTURE=1 go test -p 1 -overlay /absolute/overlay.json \
+  -run '^TestNativePassageUIFixture$' -count=1 -timeout=95m -v .
+```
+
+Wait for `PASSAGE_FIXTURE_READY` and successful `GET /_fixture/state`. On the assigned simulator only, run from `native`:
+
+```sh
+xcodebuild -quiet -project KeineMagie.xcodeproj -scheme KeineMagie \
+  -destination 'platform=iOS Simulator,id=ASSIGNED_UDID' -configuration Release \
+  -derivedDataPath /absolute/scratch-derived-data -resultBundlePath /absolute/result.xcresult \
+  -jobs 2 -parallel-testing-enabled NO \
+  -only-testing:KeineMagieUITests/PassageGroupsUITests \
+  CODE_SIGN_IDENTITY=- CODE_SIGNING_ALLOWED=YES test
+```
+
+Finish with `GET /_fixture/stop` so the Go test performs the independent durable reconstruction check; parse xcresult test counts and inspect exported attachments. The control paths are synthetic-loopback test infrastructure, never production endpoints. Reuse one simulator; do not run against any user's production cache/credentials.
+
+### Handoff and resource release
+
+Only owned simulator `5002FCC4-6475-4111-90F5-02BDE6A0931E` was shut down; the loopback Go server was stopped and passed. Final inspection showed no xcodebuild, swift-frontend or server.test process running, **45% memory free and 13 GiB disk available**; nine pre-existing booted devices were left untouched. The UI slot is free for AnyProgress. No other repository or original dirty entry was modified.
+
+Parent must review these three small runtime fixes and merge shared-file changes onto the separately prepared Coach/Translator candidate, then perform its one combined Release UI run. Keep atomic group-source resolution, prior auth/cancellation fences, this owning-stack identity reset, and both sibling features rather than taking an entire conflict side. No combined-branch integration test or deployment is claimed here.
