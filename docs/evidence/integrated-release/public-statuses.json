@@ -1,0 +1,14 @@
+{
+  "health": 200,
+  "v1/web/session": 401,
+  "v1/translation-profiles": 401,
+  "v1/learning/dictations/synthetic/playback": 401,
+  "v1/podcasts": 401,
+  "v1/podcasts/subscriptions": 401,
+  "v1/learning/coach": 401,
+  "v1/learning/dictations": 401,
+  "server/main.go": 404,
+  ".env": 404,
+  "run/secrets/dictation-openai.key": 404,
+  "app/data/dictations/paid-budget.json": 404
+}

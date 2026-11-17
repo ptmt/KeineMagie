@@ -1,0 +1,188 @@
+{
+  "app.mjs": {
+    "sha256": "1d644027542897106635b826d5b158ea0ba57750eef928cba674f1df00b83342",
+    "bytes": 69528,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "apple-sign-in-de.png": {
+    "sha256": "5dbc8ad730f76f5665a5ec09f7e9ad73cd8007aad82b04d99c57cedeff5e2fd2",
+    "bytes": 12523,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "apple-sign-in-en.png": {
+    "sha256": "d89a231a4b3a3ba0dc6b86b3e35ec2dbb8748af3b745ef2ecbd8f8239e9cdac2",
+    "bytes": 13232,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "apple-sign-in-es.png": {
+    "sha256": "5eb555f999acebbbf37b60fade5fd804ca2d265533e12aa4b375dc6960f860f0",
+    "bytes": 15317,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "apple-sign-in-fr.png": {
+    "sha256": "1ecdb24a8b11088c5593104999d08101fff6b3cee89ff2477a690f8d69252eb3",
+    "bytes": 13324,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "apple-sign-in-ru.png": {
+    "sha256": "a7e33bfb90122c4d4114690061f64700010357e18b8d1fabb9e612bb207deaf7",
+    "bytes": 11104,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "bootstrap.js": {
+    "sha256": "e97d531503a4f04adc0b0417713e60217e40cf88022496cde655c4a0f38c3e02",
+    "bytes": 5295,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "coach-chat.mjs": {
+    "sha256": "6d4ac6dfb470fd15cfd297b73e1f7dad8426d8a2897e696ec6997148cc8a21ee",
+    "bytes": 1540,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "coach-presentation.mjs": {
+    "sha256": "c1ac9141628b5b55a18611bf9cb5b888356c545f98f1926abb36e2189a9a3fca",
+    "bytes": 2017,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "coach-state.mjs": {
+    "sha256": "118f263373dc11df42e0be6f77b90ddea01429d333ce6e126e72213adb968613",
+    "bytes": 3719,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "coach.css": {
+    "sha256": "8eaa76004b9b70e05b58359492fb98812bf0c76e99d8afa7275e06158b0685df",
+    "bytes": 5359,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "coach.mjs": {
+    "sha256": "f74c28bc56a45c3f63319b2a1a6bc500360ea02c9b18ad0899716efd601dc6f1",
+    "bytes": 37954,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "core.mjs": {
+    "sha256": "ac4a28c1cfb46a2bbcd5708b5c300be9ed871319e516d07ae423eb431cb09b6c",
+    "bytes": 18750,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "dictation-cache.mjs": {
+    "sha256": "cd221b39774f95e627fe0e782888575e167b7025b3de49065b188ca359ad5982",
+    "bytes": 1785,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "dictation-i18n.mjs": {
+    "sha256": "efdb44fe2518488af92070151a6b0dcc210a764cce8090dc9d5d1d018d28f105",
+    "bytes": 23274,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "dictation-journal.mjs": {
+    "sha256": "57814a61bdd46b28d6f09c01cee030bb643a1c0e8eaf6730e201dafa27ebb159",
+    "bytes": 4671,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "dictation-playback.mjs": {
+    "sha256": "464a56803ca9e42fa59a1a3b18ce99b860f411e8dc8ca06c3ca4a2c741d8c4ca",
+    "bytes": 5296,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "dictation-state.mjs": {
+    "sha256": "7f16a823a081dc89ba86bfa36a7f7e93b4945c4dca4213d7ea217bbb781a8044",
+    "bytes": 431,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "dictation.css": {
+    "sha256": "84f2d52e1c5fb957face6583e644d299dd6498f72427ff445ce1fa1100cf9e68",
+    "bytes": 5453,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "dictation.mjs": {
+    "sha256": "1d57b1bb9afb110b53491a9f91b6cfac00e2f1ae0aec49283d7b0ba455bbe038",
+    "bytes": 26112,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "episode-i18n.mjs": {
+    "sha256": "688dece5027af759d06e3e404044c30ae43a6d4de3616d13e1e5aa11a3cca5db",
+    "bytes": 21852,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "episode-view.mjs": {
+    "sha256": "3dc3153b61f04ddce935f8588519e49fda50442a3edcb4d330d4da93ae71f669",
+    "bytes": 28353,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "episode.css": {
+    "sha256": "5fbcc6e0ab87a582cad8b3a717615423a16e18943a5442fdd8975f8962c37864",
+    "bytes": 7063,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "episode.mjs": {
+    "sha256": "3b656b900e02507e37ac544229be362c66b4f02fd55bef5e84b405f5f178a8f1",
+    "bytes": 4082,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "favicon.svg": {
+    "sha256": "5e089d1a95402447b6674402b80945b220a1ed93c9f482bef37fefa0d2874ecd",
+    "bytes": 252,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "i18n.mjs": {
+    "sha256": "9fdad201e83ae46c874b4cc65f99e07a4e5fa820136d73fe46dad67a3b750994",
+    "bytes": 40659,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "index.html": {
+    "sha256": "bb998e696d351753ea161563ad9ca3e86670003b7fcf9dc4765dedae2dcfa4ef",
+    "bytes": 14035,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "profile-sync.mjs": {
+    "sha256": "c72a014e3ad8216c0e85c5ebc0a9ba3bb0ca60f9a3c80f93fb98c8a80c328a80",
+    "bytes": 7565,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  },
+  "styles.css": {
+    "sha256": "2f80e7010ef6a6dae8da6658e3f83b6992a4ad0125c9173783c54456874caa2b",
+    "bytes": 22833,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "translator-followup.css": {
+    "sha256": "8d531a13a7e2ac1eb5f2bcac2abd8f3a0b47c97b37ee5b50c6b723844092c95d",
+    "bytes": 1800,
+    "no_store": true,
+    "cloudflare_dynamic": false
+  },
+  "translator-followup.mjs": {
+    "sha256": "779ea7cf382a01bbd572f6ce8c442d474a3a1afe65bf603461d99052bb315371",
+    "bytes": 13667,
+    "no_store": true,
+    "cloudflare_dynamic": true
+  }
+}

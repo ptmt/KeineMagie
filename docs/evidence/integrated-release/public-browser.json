@@ -1,0 +1,11 @@
+{
+  "statuses": {
+    "/health": 200,
+    "/v1/web/session": 401,
+    "/v1/learning/dictations": 401,
+    "/v1/learning/coach": 401,
+    "/v1/translations": 503
+  },
+  "page_errors": [],
+  "guest_only": true
+}

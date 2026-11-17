@@ -1,0 +1,184 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-11-17T21:02:04Z",
+  "event": "workflow_dispatch",
+  "headSha": "78e2ebf589cbee9f574b497892319afa255de121",
+  "jobs": [
+    {
+      "completedAt": "2026-11-17T21:10:46Z",
+      "conclusion": "success",
+      "databaseId": 134367488008,
+      "name": "validate",
+      "startedAt": "2026-11-17T21:05:02Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-17T21:05:06Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-17T21:05:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:05:09Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 2,
+          "startedAt": "2026-11-17T21:05:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:05:13Z",
+          "conclusion": "success",
+          "name": "Select and report stable Xcode",
+          "number": 3,
+          "startedAt": "2026-11-17T21:05:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:05:34Z",
+          "conclusion": "success",
+          "name": "Install Go for actual server-to-Swift wire contracts",
+          "number": 4,
+          "startedAt": "2026-11-17T21:05:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:07:20Z",
+          "conclusion": "success",
+          "name": "Validate CI configuration",
+          "number": 5,
+          "startedAt": "2026-11-17T21:05:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:08:17Z",
+          "conclusion": "success",
+          "name": "Swift core tests",
+          "number": 6,
+          "startedAt": "2026-11-17T21:07:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:08:29Z",
+          "conclusion": "success",
+          "name": "Install XcodeGen and generate project",
+          "number": 7,
+          "startedAt": "2026-11-17T21:08:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:10:38Z",
+          "conclusion": "success",
+          "name": "Unsigned simulator build",
+          "number": 8,
+          "startedAt": "2026-11-17T21:08:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:10:38Z",
+          "conclusion": "success",
+          "name": "Verify effective app export-compliance metadata",
+          "number": 9,
+          "startedAt": "2026-11-17T21:10:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:10:39Z",
+          "conclusion": "success",
+          "name": "Post Install Go for actual server-to-Swift wire contracts",
+          "number": 17,
+          "startedAt": "2026-11-17T21:10:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:10:40Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 18,
+          "startedAt": "2026-11-17T21:10:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:10:43Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 19,
+          "startedAt": "2026-11-17T21:10:40Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ptmt/KeineMagie/actions/runs/44175524773/job/134367488008"
+    },
+    {
+      "completedAt": "2026-11-17T21:17:35Z",
+      "conclusion": "success",
+      "databaseId": 134371110906,
+      "name": "testflight",
+      "startedAt": "2026-11-17T21:10:49Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-17T21:10:51Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-17T21:10:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:10:56Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 2,
+          "startedAt": "2026-11-17T21:10:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:11:03Z",
+          "conclusion": "success",
+          "name": "Select and report stable Xcode; generate project",
+          "number": 3,
+          "startedAt": "2026-11-17T21:10:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:17:27Z",
+          "conclusion": "success",
+          "name": "Manually sign, export, validate, and upload",
+          "number": 4,
+          "startedAt": "2026-11-17T21:11:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:17:27Z",
+          "conclusion": "success",
+          "name": "Remove signing material and restore keychain search list",
+          "number": 5,
+          "startedAt": "2026-11-17T21:17:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:17:29Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 10,
+          "startedAt": "2026-11-17T21:17:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:17:33Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-11-17T21:17:29Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ptmt/KeineMagie/actions/runs/44175524773/job/134371110906"
+    }
+  ],
+  "status": "completed",
+  "updatedAt": "2026-11-17T21:17:35Z"
+}

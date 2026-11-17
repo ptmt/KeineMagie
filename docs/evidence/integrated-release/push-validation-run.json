@@ -1,0 +1,127 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-11-17T20:58:33Z",
+  "event": "push",
+  "headSha": "78e2ebf589cbee9f574b497892319afa255de121",
+  "jobs": [
+    {
+      "completedAt": "2026-11-17T21:04:58Z",
+      "conclusion": "success",
+      "databaseId": 134363555677,
+      "name": "validate",
+      "startedAt": "2026-11-17T20:58:38Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-17T20:58:41Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-17T20:58:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:58:46Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 2,
+          "startedAt": "2026-11-17T20:58:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:58:51Z",
+          "conclusion": "success",
+          "name": "Select and report stable Xcode",
+          "number": 3,
+          "startedAt": "2026-11-17T20:58:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:59:08Z",
+          "conclusion": "success",
+          "name": "Install Go for actual server-to-Swift wire contracts",
+          "number": 4,
+          "startedAt": "2026-11-17T20:58:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:01:07Z",
+          "conclusion": "success",
+          "name": "Validate CI configuration",
+          "number": 5,
+          "startedAt": "2026-11-17T20:59:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:02:09Z",
+          "conclusion": "success",
+          "name": "Swift core tests",
+          "number": 6,
+          "startedAt": "2026-11-17T21:01:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:02:22Z",
+          "conclusion": "success",
+          "name": "Install XcodeGen and generate project",
+          "number": 7,
+          "startedAt": "2026-11-17T21:02:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:04:45Z",
+          "conclusion": "success",
+          "name": "Unsigned simulator build",
+          "number": 8,
+          "startedAt": "2026-11-17T21:02:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:04:45Z",
+          "conclusion": "success",
+          "name": "Verify effective app export-compliance metadata",
+          "number": 9,
+          "startedAt": "2026-11-17T21:04:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:04:46Z",
+          "conclusion": "success",
+          "name": "Post Install Go for actual server-to-Swift wire contracts",
+          "number": 17,
+          "startedAt": "2026-11-17T21:04:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:04:47Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 18,
+          "startedAt": "2026-11-17T21:04:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:04:53Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 19,
+          "startedAt": "2026-11-17T21:04:47Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ptmt/KeineMagie/actions/runs/44174906917/job/134363555677"
+    },
+    {
+      "completedAt": "2026-11-17T21:04:58Z",
+      "conclusion": "skipped",
+      "databaseId": 134367483969,
+      "name": "testflight",
+      "startedAt": "2026-11-17T21:04:59Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/ptmt/KeineMagie/actions/runs/44174906917/job/134367483969"
+    }
+  ],
+  "status": "completed",
+  "updatedAt": "2026-11-17T21:04:59Z"
+}

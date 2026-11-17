@@ -1,0 +1,6 @@
+2026-11-17T21:11:28.5417980Z Archiving build 2773.42.65 with manually validated signing
+2026-11-17T21:13:01.9663860Z ** ARCHIVE SUCCEEDED **
+2026-11-17T21:13:05.5930180Z ** EXPORT SUCCEEDED **
+2026-11-17T21:16:14.2413620Z No errors validating archive [temporary IPA path omitted].
+2026-11-17T21:17:26.6974790Z UPLOAD SUCCEEDED with no errors
+2026-11-17T21:17:26.7071730Z Apple upload command succeeded. Check App Store Connect processing and TestFlight availability.

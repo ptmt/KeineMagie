@@ -1,0 +1,109 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-11-17T20:58:34Z",
+  "event": "push",
+  "headSha": "78e2ebf589cbee9f574b497892319afa255de121",
+  "jobs": [
+    {
+      "completedAt": "2026-11-17T21:00:06Z",
+      "conclusion": "success",
+      "databaseId": 134363559541,
+      "name": "build",
+      "startedAt": "2026-11-17T20:58:37Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-17T20:58:40Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-17T20:58:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:58:42Z",
+          "conclusion": "success",
+          "name": "Checkout",
+          "number": 2,
+          "startedAt": "2026-11-17T20:58:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:58:47Z",
+          "conclusion": "success",
+          "name": "Set up Docker Buildx",
+          "number": 3,
+          "startedAt": "2026-11-17T20:58:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:58:48Z",
+          "conclusion": "success",
+          "name": "Log in to GHCR",
+          "number": 4,
+          "startedAt": "2026-11-17T20:58:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:58:49Z",
+          "conclusion": "success",
+          "name": "Extract metadata",
+          "number": 5,
+          "startedAt": "2026-11-17T20:58:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:59:57Z",
+          "conclusion": "success",
+          "name": "Build image",
+          "number": 6,
+          "startedAt": "2026-11-17T20:58:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:59:59Z",
+          "conclusion": "success",
+          "name": "Post Build image",
+          "number": 9,
+          "startedAt": "2026-11-17T20:59:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T20:59:59Z",
+          "conclusion": "success",
+          "name": "Post Log in to GHCR",
+          "number": 10,
+          "startedAt": "2026-11-17T20:59:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:00:03Z",
+          "conclusion": "success",
+          "name": "Post Set up Docker Buildx",
+          "number": 11,
+          "startedAt": "2026-11-17T20:59:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:00:03Z",
+          "conclusion": "success",
+          "name": "Post Checkout",
+          "number": 12,
+          "startedAt": "2026-11-17T21:00:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-17T21:00:04Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "startedAt": "2026-11-17T21:00:03Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ptmt/KeineMagie/actions/runs/44174908371/job/134363559541"
+    }
+  ],
+  "status": "completed",
+  "updatedAt": "2026-11-17T21:00:06Z"
+}

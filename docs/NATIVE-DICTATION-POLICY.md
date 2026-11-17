@@ -1,5 +1,9 @@
 # Native Dictation policy and focused practice integration
 
+## Release status
+
+Released November 17, 2026: web/backend and Apple upload use `78e2ebf589cbee9f574b497892319afa255de121`, a zero-tree-diff ancestry merge of reviewed `490656c334d4ddd6ee6172c10850c0bfda5858dc`. iOS **1.0 (2773.42.65)**, workflow **44175524773**, upload job **134371110906**, Apple `UPLOAD SUCCEEDED` **21:17:26.6974790Z**. Backend-first and public asset verification passed. Processing/tester availability are unverified. See `INTEGRATED-WEB-IOS-RELEASE.md` for exact image/digest, policy-safe recovery restrictions and evidence. The worker statements below describe the earlier local acceptance phase, not the final release status.
+
 ## Candidate and boundaries
 
 This candidate is based on `072476f6201d5238e69c08158a73134a91c93b64` (all approved web through `37bfd038`, translation profiles, Coach/Daily and passage groups). It lives only in `/Users/tinyserve/Projects/KeineMagie-native-dictation-final`, branch `integration/native-dictation-final`. Native implementation `6a8902d` was cherry-picked as `83807d0`; the onboarding/history-confirmation conflict was merged semantically. No other worktree was edited and nothing was pushed or published by this worker.

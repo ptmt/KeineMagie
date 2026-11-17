@@ -1,0 +1,12 @@
+{
+  "source_sha": "78e2ebf589cbee9f574b497892319afa255de121",
+  "reviewed_sha": "490656c334d4ddd6ee6172c10850c0bfda5858dc",
+  "source_tree_unchanged_after_ancestry_merge": true,
+  "container_id": "f7c8e37ee74da65d9781dd73bd8ebbf26129d08252e9c8b5f37f502e69f40d1d",
+  "image_id": "sha256:c7ee5112434d3d133d3803d9a0f7e6ca7eb212062a2c467ff96dcc0f8a57f1cc",
+  "oci_revision": "78e2ebf589cbee9f574b497892319afa255de121",
+  "started_at": "2026-11-17T21:01:09.829757208Z",
+  "registry_digest": "sha256:c7ee5112434d3d133d3803d9a0f7e6ca7eb212062a2c467ff96dcc0f8a57f1cc",
+  "arm64_manifest": "sha256:9d8f3edf7c3aedc4e3e26ffbe7b17f9db925fc07cdf1a48f1198755592a324e2",
+  "verified_at": "2026-11-17T21:18:37.833890+00:00"
+}
