@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-17",
+  "scope": "This worktree only; no push/deploy/Xcode/live AI/TTS",
+  "node": {"command": "node --test web/tests/*.test.mjs", "passed": 136, "failed": 0},
+  "go_full_unit": {"command": "go test ./...", "result": "PASS", "output": "ok diktat/server 100.579s"},
+  "go_full_race": {"command": "go test -race ./...", "result": "PASS", "output": "ok diktat/server 84.351s"},
+  "go_vet": {"command": "go vet ./...", "result": "PASS"},
+  "go_protocol": {"result": "PASS", "includes": ["strict versions", "owner/session/CSRF/media auth", "four starts and fifth rejection", "idempotency", "lease fencing", "reordered checkpoints", "draft and quota independence", "SIGKILL persistence", "failed atomic writes", "256 reservation bound", "cached new attempts"]},
+  "browser": {
+    "command": "/Users/tinyserve/.hermes/cache/scratch/coach-history-python/bin/python web/tests/dictation_policy_browser.py",
+    "result": "PASS",
+    "screenshots_generated": 10,
+    "new_screenshots_inspected": 2,
+    "media_completion_claim": true,
+    "audio_fixture": "Synthetic silent WAV only, actual HTMLMediaElement natural events and Go handlers with Range; no linguistic/provider claim.",
+    "includes": ["four starts/fifth rejection", "same ID retry", "process restart", "autoplay explicit Continue", "network failure resume", "tab fencing", "controlled three-second pauses", "explicit final replay", "typing persists", "no automatic check", "no automatic TTS", "five locales"],
+    "note": "Preparation baseline race corrected. An early rerun had one intermittent fetch error; three later runs passed with zero page errors, including final typing-persistence assertions."
+  },
+  "review_fixes": ["Bound canceled-chunk reservation history while retaining retries", "Ship new module in Docker and static allowlist", "Await explicit preparation completion before browser request baseline"],
+  "environment": "Initial coding subprocess sandbox blocked listeners, Chromium and git metadata. Parent tools successfully ran all final checks and local commit.",
+  "diff_check": "PASS",
+  "commit": "Local repository HEAD; no push or deployment"
+}

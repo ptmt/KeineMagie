@@ -1,0 +1,12 @@
+HISTORICAL subprocess sandbox failures — resolved via parent tools.
+Full Go unit/race/vet, actual browser suite and local commit succeeded.
+See verification.json and repository HEAD for final status.
+
+Full Go unit and race attempts:
+listen tcp6 [::1]:0: bind: operation not permitted
+
+Browser attempt (actual suite):
+bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer: Permission denied (1100)
+
+Local staging attempt:
+fatal: Unable to create /Users/tinyserve/Projects/KeineMagie/.git/worktrees/KeineMagie-dictation-focused-ux/index.lock: Operation not permitted

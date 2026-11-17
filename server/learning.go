@@ -186,7 +186,7 @@ func (cfg *serverConfig) handleLearning(w http.ResponseWriter, r *http.Request) 
 			writeError(w, 401, "authentication required")
 			return
 		}
-		if r.Method != "GET" && !newBrowserAuth(cfg).mutation(w, r, token) {
+		if r.Method != "GET" && r.Method != "HEAD" && !newBrowserAuth(cfg).mutation(w, r, token) {
 			return
 		}
 		r = r.Clone(r.Context())

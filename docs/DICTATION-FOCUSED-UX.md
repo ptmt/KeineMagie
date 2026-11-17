@@ -1,4 +1,48 @@
-# Focused Dictation UX — local visual-approval candidate
+# Focused Dictation UX — versioned playback implementation
+
+## Current implementation (2026-11-17)
+
+This section supersedes the presentation-only status below. Playback policy **1** is implemented and locally verified in this worktree. Full Go unit/race/vet and actual Chromium media verification passed through the parent tool environment after the coding subprocess sandbox blocked listeners and Chromium. New policy evidence is in `docs/evidence/dictation-focused-ux/policy/`; historical evidence below belongs to the earlier presentation implementation.
+
+- New web text submissions and explicit **New attempt** requests opt into immutable `playback_policy_version: 1`. Previously journaled create and New attempt requests keep their original policy/body on retry, including absent legacy versions. Absent version preserves legacy web/native attempts. Only the exact integer `1` is supported; null, zero, floats, strings and unknown versions are rejected. A mode change or relaunch never resets the policy ledger.
+- `POST /v1/learning/dictations/:attempt/playback` admits owner/attempt-scoped reservation IDs. Actions are `start`, `resume`, `progress`, `release`, `ended`, and explicit mode-change `cancel`. The request contains `id`, `client`, `step`, `fence`, and bounded `offset`; arbitrary fields/URLs are rejected. Admission requires an existing cached asset and never invokes synthesis.
+- Four **whole starts** are counted by the server, including the optional final whole replay. Duplicate IDs do not increment the count. Cancelled whole starts remain counted. Interrupted starts retain their identity and best-effort saved offset. The final replay can be started once, within the same four-start allowance; exhausting that allowance explains how to begin a new attempt.
+- The durable ledger has its own revision, separate from draft revision, draft mutation IDs, daily generation admission and monthly paid accounting. A 15-second lease permits one active reservation per attempt. The player checkpoints every four seconds, stops conservatively before lease expiry if renewal fails, and requires explicit Continue for recovery. Resume changes the fence; checkpoints also advance it so reordered offsets and old callbacks are rejected. A released or expired reservation remains resumable instead of admitting another start. A live lease held by another client prevents takeover.
+- The entire reservation history, cursor and active recovery position are committed under the existing identity/store locks with atomic rename and file/directory fsync before success. Storage retains its existing bounded size; reservation history is additionally capped at 256 identities per attempt, including canceled chunks, while retries/resumes remain available at capacity. This resource bound is separate from the four-whole-start policy and does not limit draft edits. Explicit new policy attempts hardlink owner-scoped cached assets, fsync the directory and keep independent drafts and playback ledgers. Removing the source attempt does not remove those hardlinks.
+- Whole mode has no Pause or seek control. Browser/OS interruption remains possible; offsets are untrusted recovery hints, and neither callbacks nor counters establish that someone heard the audio. This is playback admission, not DRM.
+- Sentence mode starts at the first sentence and continuously follows the existing sentence/chunk/repeated-sentence plan, with a three-second timer between entries. Labels describe passages, never word alignment. The final whole entry is excluded from the automatic chain and offered explicitly. Mode changes cancel the current reservation without refunding a whole start or resetting the sentence cursor.
+- Missing assets require explicit **Prepare audio**. In sentence mode, that gesture authorizes preparation of missing remaining plan assets (including the cached final whole asset if missing), sequentially within one cancellable scope. There is no generation on play, mode change, natural end, navigation, locale change or progress. Preparation notices and budget information stay in the closed About audio disclosure. The existing $10 monthly cap is unchanged.
+- Typing remains enabled during playback, checkpoint traffic and preparation. Ledger refreshes merge independently of pending typed drafts. Heartbeat-only changes update controls without rebuilding the textarea. Current passage, whole-start count and elapsed/asset timestamps provide status. Existing journal saves, draft conflicts and recovery/export remain in place.
+- New policy hints and status strings cover de/en/ru/es/fr. Legacy hints remain unchanged. Russian policy copy matches the task. The existing top-right **Check** remains provisional and explicit: it flushes the draft and invokes deterministic grading only on activation. No audio end checks a draft.
+- Browser cookie/session ownership and CSRF mutation checks remain in place, as does native bearer authentication. Media GET/HEAD revalidate sessions and ownership; HEAD is now correctly treated as a safe read without mutation CSRF. Range transport remains through `http.ServeContent`.
+
+### Verification and reproduction
+
+New implementation tests are in `server/dictation_playback*_test.go` and `web/tests/dictation-policy.test.mjs`. They cover strict policy admission, four starts/fifth rejection, same-ID retry, concurrent tabs, lease expiry/handoff, stale/reordered callbacks, draft/quota independence, sentence ordering/final-once, owner/session/media Range/HEAD checks, failed durable writes, cache reuse, and SIGKILL persistence. Node tests also exercise the player with a controlled clock, autoplay rejection/recovery, mode cancellation, owner changes, stale synthetic events and pending draft preservation. These are unit/handler tests; synthetic events are not browser completion evidence.
+
+`web/tests/dictation_policy_browser.py` and `dictation-policy-fixture.html` are provided for browser verification. They use the actual module/CSS, actual HTMLMediaElement, and real Go handlers via a test-only stdio bridge. The only audio bytes are explicitly synthetic silent WAVs. The suite is intended to exercise HTTP Range, natural media ends, four starts, restart, autoplay/network recovery, tab fencing, the three-second chain, final explicit replay and captures in all five locales. **The suite passed against real Go handlers and natural HTMLMediaElement events.** Ten captures cover whole and sentence modes in five locales; Russian whole and French sentence captures were visually inspected without clipping. The browser also verifies typing persists across whole listens without automatic Check. A preparation-baseline race in the test was fixed by waiting for Prepare to finish before recording paid POST count. One early rerun reported an intermittent fetch error; three subsequent runs, including the final expanded suite, passed with zero page errors.
+
+Commands (from the repository root, with a writable Go cache when needed):
+
+```sh
+node --test web/tests/*.test.mjs
+cd server
+go test ./...
+go test -race ./...
+go vet ./...
+# From the repository root, with the supplied Playwright interpreter:
+/Users/tinyserve/.hermes/cache/scratch/coach-history-python/bin/python web/tests/dictation_policy_browser.py
+```
+
+Executed results are recorded in `docs/evidence/dictation-focused-ux/policy/verification.json`. Initial subprocess sandbox restrictions were resolved by running verification through the parent tools. The SIGKILL test starts and kills a local child test process after a durable reservation. No acoustic, provider, live AI/TTS, Xcode, push or deployment validation was attempted.
+
+Final executed results: **136 Node tests passed**, full `go test ./...`, full `go test -race ./...`, and `go vet ./...` passed. Browser policy verification passed. Review additionally found and fixed a missing production static allowlist/Docker COPY entry for the new player module and unbounded canceled-chunk reservation history; both were reproduced with failing tests before fixes.
+
+Local staging and commit are performed through the parent tools; nothing is pushed or deployed. Check placement remains provisional pending user approval.
+
+The integration commit `277d7c3` was inspected read-only. Its Dictation delta mainly removes the focused presentation and evidence, while its other changes concern Coach/onboarding and other features. No integration files were copied wholesale, and no Coach/native files were edited.
+
+---
 
 ## User correction — presentation implemented; playback policy pending
 

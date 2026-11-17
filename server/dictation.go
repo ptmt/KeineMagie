@@ -13,23 +13,25 @@ import (
 )
 
 type dictationRecord struct {
-	ID          string                `json:"id"`
-	TextID      string                `json:"text_id,omitempty"`
-	MutationID  string                `json:"mutation_id,omitempty"`
-	Title       string                `json:"title"`
-	Text        string                `json:"text,omitempty"`
-	Language    string                `json:"language"`
-	Created     string                `json:"created"`
-	Mode        string                `json:"mode"`
-	Step        int                   `json:"step"`
-	Replays     int                   `json:"replays"`
-	Draft       string                `json:"draft"`
-	Revision    int                   `json:"revision"`
-	Checked     bool                  `json:"checked"`
-	Assisted    bool                  `json:"assisted"`
-	Plan        []dictationSegment    `json:"plan"`
-	Ready       []int                 `json:"ready"`
-	Differences []dictationDifference `json:"differences,omitempty"`
+	PlaybackPolicyVersion int                   `json:"playback_policy_version,omitempty"`
+	Playback              dictationPlayback     `json:"playback"`
+	ID                    string                `json:"id"`
+	TextID                string                `json:"text_id,omitempty"`
+	MutationID            string                `json:"mutation_id,omitempty"`
+	Title                 string                `json:"title"`
+	Text                  string                `json:"text,omitempty"`
+	Language              string                `json:"language"`
+	Created               string                `json:"created"`
+	Mode                  string                `json:"mode"`
+	Step                  int                   `json:"step"`
+	Replays               int                   `json:"replays"`
+	Draft                 string                `json:"draft"`
+	Revision              int                   `json:"revision"`
+	Checked               bool                  `json:"checked"`
+	Assisted              bool                  `json:"assisted"`
+	Plan                  []dictationSegment    `json:"plan"`
+	Ready                 []int                 `json:"ready"`
+	Differences           []dictationDifference `json:"differences,omitempty"`
 }
 type dictationData struct {
 	Items       []dictationRecord `json:"items"`
@@ -66,6 +68,13 @@ func (cfg *serverConfig) dictationTransaction(owner string, write bool, fn func(
 		}
 		if !write {
 			return nil
+		}
+		encoded, err := json.Marshal(d)
+		if err != nil {
+			return err
+		}
+		if len(encoded) > 8<<20 {
+			return errors.New("history limit")
 		}
 		return learningAtomicJSON(lock.path, d)
 	})
@@ -167,16 +176,22 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 			return
 		}
 		var in struct {
-			ID       string `json:"id"`
-			Title    string `json:"title"`
-			Text     string `json:"text"`
-			Language string `json:"language"`
+			ID                    string          `json:"id"`
+			Title                 string          `json:"title"`
+			Text                  string          `json:"text"`
+			Language              string          `json:"language"`
+			PlaybackPolicyVersion json.RawMessage `json:"playback_policy_version"`
 		}
 		if !learningDecode(w, r, &in) {
 			return
 		}
 		if !dictationID.MatchString(in.ID) || strings.TrimSpace(in.Title) == "" || runeCount(in.Title) > 80 || strings.TrimSpace(in.Text) == "" || runeCount(in.Text) > 1800 || len(dictationWords.FindAllString(in.Text, -1)) > 300 || in.Language != "de" {
 			writeError(w, 400, "Use German text up to 1800 characters / 300 words and a title up to 80 characters.")
+			return
+		}
+		policy, valid := dictationPolicy(in.PlaybackPolicyVersion)
+		if !valid {
+			writeError(w, 400, "unsupported playback policy")
 			return
 		}
 		plan := dictationPlan(in.Text)
@@ -190,7 +205,7 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 				return errDictationConflict
 			}
 			if v := dictationFind(d, in.ID); v != nil {
-				if v.Text != in.Text || v.Title != in.Title || v.Language != in.Language {
+				if v.Text != in.Text || v.Title != in.Title || v.Language != in.Language || v.PlaybackPolicyVersion != policy {
 					return errDictationConflict
 				}
 				out = *v
@@ -199,7 +214,7 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 			if len(d.Items) >= 30 {
 				return errors.New("history limit")
 			}
-			out = dictationRecord{ID: in.ID, TextID: in.ID, Title: in.Title, Text: in.Text, Language: in.Language, Created: time.Now().UTC().Format(time.RFC3339), Mode: "whole", Plan: plan, Ready: []int{}}
+			out = dictationRecord{PlaybackPolicyVersion: policy, Playback: dictationPlayback{Cursor: 1}, ID: in.ID, TextID: in.ID, Title: in.Title, Text: in.Text, Language: in.Language, Created: time.Now().UTC().Format(time.RFC3339), Mode: "whole", Plan: plan, Ready: []int{}}
 			d.Items = append(d.Items, out)
 			return nil
 		})
@@ -216,6 +231,10 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 	}
 	if len(parts) > 2 {
 		writeError(w, 404, "not found")
+		return
+	}
+	if action == "playback" && r.Method == "POST" {
+		cfg.dictationPlaybackHTTP(w, r, owner, id)
 		return
 	}
 	if action == "attempts" && r.Method == "POST" {

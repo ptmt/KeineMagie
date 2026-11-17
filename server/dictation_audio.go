@@ -42,7 +42,7 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	path := dictationAssetPath(cfg.dictationRoot(owner), id, index)
-	if r.Method == "GET" {
+	if r.Method == "GET" || r.Method == "HEAD" {
 		f, e := os.Open(path)
 		if e != nil {
 			writeError(w, 404, "Audio not prepared. Tap Prepare audio.")

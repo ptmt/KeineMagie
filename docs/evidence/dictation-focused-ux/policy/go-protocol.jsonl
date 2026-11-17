@@ -1,0 +1,33 @@
+{"Time":"2026-11-17T15:33:38.763574+01:00","Action":"start","Package":"diktat/server"}
+{"Time":"2026-11-17T15:33:39.022503+01:00","Action":"run","Package":"diktat/server","Test":"TestDictationPlaybackHTTPBridge"}
+{"Time":"2026-11-17T15:33:39.024107+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackHTTPBridge","Output":"=== RUN   TestDictationPlaybackHTTPBridge\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.024194+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackHTTPBridge","Output":"    dictation_playback_fixture_test.go:42: explicit synthetic stdio fixture only\n"}
+{"Time":"2026-11-17T15:33:39.024228+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackHTTPBridge","Output":"--- SKIP: TestDictationPlaybackHTTPBridge (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.024239+01:00","Action":"skip","Package":"diktat/server","Test":"TestDictationPlaybackHTTPBridge","Elapsed":0}
+{"Time":"2026-11-17T15:33:39.025886+01:00","Action":"run","Package":"diktat/server","Test":"TestDictationPlaybackSIGKILLPersistence"}
+{"Time":"2026-11-17T15:33:39.025907+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackSIGKILLPersistence","Output":"=== RUN   TestDictationPlaybackSIGKILLPersistence\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.186492+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackSIGKILLPersistence","Output":"--- PASS: TestDictationPlaybackSIGKILLPersistence (0.16s)\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.186572+01:00","Action":"pass","Package":"diktat/server","Test":"TestDictationPlaybackSIGKILLPersistence","Elapsed":0.16}
+{"Time":"2026-11-17T15:33:39.187147+01:00","Action":"run","Package":"diktat/server","Test":"TestDictationPlaybackConcurrentLeaseAndBudgets"}
+{"Time":"2026-11-17T15:33:39.187163+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackConcurrentLeaseAndBudgets","Output":"=== RUN   TestDictationPlaybackConcurrentLeaseAndBudgets\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.311796+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackConcurrentLeaseAndBudgets","Output":"--- PASS: TestDictationPlaybackConcurrentLeaseAndBudgets (0.13s)\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.311878+01:00","Action":"pass","Package":"diktat/server","Test":"TestDictationPlaybackConcurrentLeaseAndBudgets","Elapsed":0.13}
+{"Time":"2026-11-17T15:33:39.311907+01:00","Action":"run","Package":"diktat/server","Test":"TestDictationPlaybackSentencesFinalAndStrictInput"}
+{"Time":"2026-11-17T15:33:39.311925+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackSentencesFinalAndStrictInput","Output":"=== RUN   TestDictationPlaybackSentencesFinalAndStrictInput\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.596026+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackSentencesFinalAndStrictInput","Output":"--- PASS: TestDictationPlaybackSentencesFinalAndStrictInput (0.28s)\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.596076+01:00","Action":"pass","Package":"diktat/server","Test":"TestDictationPlaybackSentencesFinalAndStrictInput","Elapsed":0.28}
+{"Time":"2026-11-17T15:33:39.596092+01:00","Action":"run","Package":"diktat/server","Test":"TestDictationPlaybackAuthAndFailedCommit"}
+{"Time":"2026-11-17T15:33:39.596102+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackAuthAndFailedCommit","Output":"=== RUN   TestDictationPlaybackAuthAndFailedCommit\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.841815+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackAuthAndFailedCommit","Output":"--- PASS: TestDictationPlaybackAuthAndFailedCommit (0.25s)\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:39.841972+01:00","Action":"pass","Package":"diktat/server","Test":"TestDictationPlaybackAuthAndFailedCommit","Elapsed":0.25}
+{"Time":"2026-11-17T15:33:39.842018+01:00","Action":"run","Package":"diktat/server","Test":"TestDictationPlaybackCheckpointFencesAndCachedNewAttempt"}
+{"Time":"2026-11-17T15:33:39.84208+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackCheckpointFencesAndCachedNewAttempt","Output":"=== RUN   TestDictationPlaybackCheckpointFencesAndCachedNewAttempt\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:40.039799+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackCheckpointFencesAndCachedNewAttempt","Output":"--- PASS: TestDictationPlaybackCheckpointFencesAndCachedNewAttempt (0.20s)\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:40.03993+01:00","Action":"pass","Package":"diktat/server","Test":"TestDictationPlaybackCheckpointFencesAndCachedNewAttempt","Elapsed":0.2}
+{"Time":"2026-11-17T15:33:40.039962+01:00","Action":"run","Package":"diktat/server","Test":"TestDictationPlaybackPolicy"}
+{"Time":"2026-11-17T15:33:40.039979+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackPolicy","Output":"=== RUN   TestDictationPlaybackPolicy\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:40.474902+01:00","Action":"output","Package":"diktat/server","Test":"TestDictationPlaybackPolicy","Output":"--- PASS: TestDictationPlaybackPolicy (0.44s)\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:40.475+01:00","Action":"pass","Package":"diktat/server","Test":"TestDictationPlaybackPolicy","Elapsed":0.44}
+{"Time":"2026-11-17T15:33:40.475034+01:00","Action":"output","Package":"diktat/server","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-17T15:33:40.476874+01:00","Action":"output","Package":"diktat/server","Output":"ok  \tdiktat/server\t1.709s\n"}
+{"Time":"2026-11-17T15:33:40.47694+01:00","Action":"pass","Package":"diktat/server","Elapsed":1.713}

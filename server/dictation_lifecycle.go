@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
@@ -11,13 +12,19 @@ import (
 // Attempts retain their own draft and immutable source. No restart overwrites an attempt.
 func (cfg *serverConfig) dictationAttempt(w http.ResponseWriter, r *http.Request, owner, id string) {
 	var in struct {
-		ID string `json:"id"`
+		ID                    string          `json:"id"`
+		PlaybackPolicyVersion json.RawMessage `json:"playback_policy_version"`
 	}
 	if !learningDecode(w, r, &in) {
 		return
 	}
 	if !dictationID.MatchString(in.ID) {
 		writeError(w, 400, "invalid id")
+		return
+	}
+	policy, valid := dictationPolicy(in.PlaybackPolicyVersion)
+	if !valid {
+		writeError(w, 400, "unsupported playback policy")
 		return
 	}
 	var out dictationRecord
@@ -34,7 +41,7 @@ func (cfg *serverConfig) dictationAttempt(w http.ResponseWriter, r *http.Request
 			return errDictationConflict
 		}
 		if prior := dictationFind(d, in.ID); prior != nil {
-			if prior.TextID != textID {
+			if prior.TextID != textID || prior.PlaybackPolicyVersion != policy {
 				return errDictationConflict
 			}
 			out = *prior
@@ -43,7 +50,52 @@ func (cfg *serverConfig) dictationAttempt(w http.ResponseWriter, r *http.Request
 		if len(d.Items) >= 30 {
 			return errors.New("history limit")
 		}
-		out = dictationRecord{ID: in.ID, TextID: textID, Title: source.Title, Text: source.Text, Language: source.Language, Created: time.Now().UTC().Format(time.RFC3339), Mode: "whole", Plan: source.Plan, Ready: []int{}}
+		out = dictationRecord{PlaybackPolicyVersion: policy, Playback: dictationPlayback{Cursor: 1}, ID: in.ID, TextID: textID, Title: source.Title, Text: source.Text, Language: source.Language, Created: time.Now().UTC().Format(time.RFC3339), Mode: "whole", Plan: source.Plan, Ready: []int{}}
+		if policy == 1 {
+			seen := map[int]bool{}
+			for _, segment := range source.Plan {
+				if seen[segment.Asset] {
+					continue
+				}
+				seen[segment.Asset] = true
+				from := dictationAssetPath(cfg.dictationRoot(owner), source.ID, segment.Asset)
+				to := dictationAssetPath(cfg.dictationRoot(owner), in.ID, segment.Asset)
+				info, e := os.Stat(from)
+				if errors.Is(e, os.ErrNotExist) {
+					continue
+				}
+				if e != nil {
+					return e
+				}
+				if e = os.MkdirAll(filepath.Dir(to), 0700); e != nil {
+					return e
+				}
+				if e = os.Link(from, to); e != nil {
+					if !errors.Is(e, os.ErrExist) {
+						return e
+					}
+					existing, statErr := os.Stat(to)
+					if statErr != nil {
+						return statErr
+					}
+					if !os.SameFile(info, existing) {
+						return errDictationConflict
+					}
+				}
+				out.Ready = append(out.Ready, segment.Asset)
+			}
+			if len(out.Ready) > 0 {
+				dir, e := os.Open(filepath.Join(cfg.dictationRoot(owner), in.ID))
+				if e != nil {
+					return e
+				}
+				e = dir.Sync()
+				dir.Close()
+				if e != nil {
+					return e
+				}
+			}
+		}
 		d.Items = append(d.Items, out)
 		return nil
 	})
