@@ -117,6 +117,40 @@ final class PendingObservation: @unchecked Sendable {
     #expect(model.displayedTranslation == saved)
     #expect(gate.translationRequests.count == 1)
 }
+@Test @MainActor func backoffResumeNeverPublishesPendingOrPosts() async throws {
+    let gate = Gate(); let model = await fixture(gate)
+    gate.translationError = URLError(.notConnectedToInternet)
+    model.draft = "offline receipt"; await model.translate()
+    #expect(model.outbox.items.first?.state == .queued)
+    #expect(try #require(model.outbox.items.first?.nextAttempt) > Date())
+    let observation = PendingObservation()
+    withObservationTracking { _ = model.translationPending } onChange: { observation.record() }
+    await model.resumeTranslations()
+    #expect(!observation.didChange)
+    #expect(!model.translationPending)
+    #expect(gate.translationRequests.count == 1)
+}
+@Test @MainActor func dueResumePublishesPendingAndRetainsExactReceipt() async throws {
+    let gate = Gate(); let model = await fixture(gate)
+    model.translationForeground = false
+    model.draft = "  due e\u{301} 👩🏽‍💻\n"
+    await model.translate()
+    let receipt = try #require(model.outbox.items.first)
+    #expect(!model.translationPending)
+    #expect(gate.translationRequests.isEmpty)
+    model.translationForeground = true; gate.holdTranslation = true
+    let resumed = Task { await model.resumeTranslations() }
+    while gate.translationRelease == nil { await Task.yield() }
+    #expect(model.translationPending)
+    #expect(model.outbox.items.first?.id == receipt.id)
+    let persisted = try TranslationOutboxStore(root: gate.outboxRoot).load(origin: "https://synthetic.invalid", owner: gate.owner)
+    #expect(persisted.items.first?.state == .sending)
+    #expect(persisted.items.first?.text == receipt.text)
+    gate.translationRelease?.resume(); await resumed.value
+    #expect(!model.translationPending)
+    #expect(model.outbox.items.first?.state == .completed)
+    #expect(gate.translationRequests.count == 1)
+}
 @Test @MainActor func clearInputKeepsResultAndAcceptedReceiptWithoutOverwritingNewDraft() async throws {
     let gate = Gate(); let model = await fixture(gate)
     model.draft = "Hallo"; await model.translate()

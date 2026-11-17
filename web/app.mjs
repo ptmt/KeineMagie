@@ -72,6 +72,7 @@ $('translation-editor').addEventListener('keydown',event=>{if((event.metaKey||ev
 
 const followup = mountTranslatorFollowup({host:$('translation-followup'),api,locale:getInterfaceLanguage,unauthorized:handleUnauthorized,
   currentDraft:()=>record?{current_source:appliedSource ?? record.text,current_translation:currentOutput()}:null,
+  composerSource:()=>$('source-text').value,
   saved(item) { history = [item,...history.filter(existing=>existing.id!==item.id)]; renderHistory(); if(record?.id===item.id){record=item;} },
   apply(item,text,source) { if(record?.id!==item.id)return; if(typeof source==='string'){appliedSource=source;$('source-text').value=source;$('source-text').lang=item.source_language;$('language-direction').value=`${item.source_language}-${item.target_language}`;} applyCurrentTranslation(text);showTranslationEditor(false);updateInput(); }
 });

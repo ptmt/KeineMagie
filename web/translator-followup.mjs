@@ -38,7 +38,7 @@ export function createFollowupState({api,changed,saved,locale,currentDraft=()=>n
  return {identity,select,current,available:()=>ready,send,draft(value){const entry=current();if(!entry||entry.pending)return;entry.draft=value;entry.error=null;changed();},toggle(){const entry=current();if(entry){entry.open=!entry.open;changed();}},applied(index){const entry=current();if(entry){entry.applied=index;changed();}}};
 }
 
-export function mountTranslatorFollowup({host,api,locale,saved,apply,currentDraft,unauthorized,document=globalThis.document}) {
+export function mountTranslatorFollowup({host,api,locale,saved,apply,currentDraft,composerSource=()=>currentDraft?.()?.current_source,unauthorized,document=globalThis.document}) {
  const node=(tag,cls)=>{const el=document.createElement(tag);if(cls)el.className=cls;return el;};
  const toggle=node('button','quiet-button followup-toggle');toggle.type='button';toggle.id='clarify-translation';toggle.setAttribute('aria-controls','translation-discussion');
  const panel=node('section','followup-panel');panel.id='translation-discussion';
@@ -89,11 +89,11 @@ export function mountTranslatorFollowup({host,api,locale,saved,apply,currentDraf
   panel.setAttribute('aria-busy',String(!!entry.pending));
   const error=entry.error;status.textContent=error!==null?(error==='draft-limit'?l.draftLimit:error===429?l.quota:error===401?l.auth:error===409?l.conflict:l.error):entry.applied!==null?l.applied:turns.length>=6?l.limit:'';
   status.classList.toggle('error-state',error!==null);
-  const next=JSON.stringify([entry.record.id,turns,locale(),!!entry.pending,state.available(),entry.applied,currentDraft?.()?.current_source]);
+  const next=JSON.stringify([entry.record.id,turns,locale(),!!entry.pending,state.available(),entry.applied,composerSource()]);
   if(next===signature)return;signature=next;thread.replaceChildren();
   turns.forEach((turn,index)=>{
    const li=node('li'),who=node('strong'),question=node('p'),answerLabel=node('strong'),answer=node('p');who.textContent=l.you;question.textContent=turn.question;answerLabel.textContent=l.assistant;answer.textContent=turn.answer;li.append(who,question,answerLabel,answer);
-   if(turn.revised_text){const title=node('small'),revision=node('div','followup-revision'),use=node('button','quiet-button');title.textContent=l.revision;revision.textContent=turn.revised_text;revision.lang=entry.record.target_language;const source=turn.revised_source_text??turn.current_source??entry.record.text;const changesSource=typeof source==='string'&&source!==(currentDraft?.()?.current_source??entry.record.text);if(changesSource){const sourceTitle=node('small'),sourceText=node('div','followup-revision followup-source');sourceTitle.textContent=l.source;sourceText.textContent=source;sourceText.lang=entry.record.source_language;li.append(sourceTitle,sourceText);}use.textContent=changesSource?l.useBoth:l.use;use.type='button';use.dataset.revision=String(index);use.disabled=!!entry.pending||!state.available()||entry.applied===index;use.onclick=()=>{if(state.current()!==entry||!state.available())return;apply(entry.record,turn.revised_text,source);state.applied(index);};li.append(title,revision,use);}
+   if(turn.revised_text){const title=node('small'),revision=node('div','followup-revision'),use=node('button','quiet-button');title.textContent=l.revision;revision.textContent=turn.revised_text;revision.lang=entry.record.target_language;const source=turn.revised_source_text??turn.current_source??entry.record.text;const changesSource=typeof source==='string'&&source!==(composerSource()??entry.record.text);if(changesSource){const sourceTitle=node('small'),sourceText=node('div','followup-revision followup-source');sourceTitle.textContent=l.source;sourceText.textContent=source;sourceText.lang=entry.record.source_language;li.append(sourceTitle,sourceText);}use.textContent=changesSource?l.useBoth:l.use;use.type='button';use.dataset.revision=String(index);use.disabled=!!entry.pending||!state.available()||entry.applied===index;use.onclick=()=>{if(state.current()!==entry||!state.available())return;apply(entry.record,turn.revised_text,source);state.applied(index);};li.append(title,revision,use);}
    thread.append(li);
   });
  }
