@@ -77,8 +77,10 @@ final class DictationGoBridgeTests:XCTestCase {
         for expected in 2...4 {
             await controller.play();XCTAssertEqual(record.playback?.wholeStarts,expected)
             completed?(true)
-            for _ in 0..<2000 {if record.playback?.active == nil {break};try await Task.sleep(for:.milliseconds(1))}
+            for _ in 0..<2000 {if record.playback?.active == nil && !controller.busy && !controller.playing {break};try await Task.sleep(for:.milliseconds(1))}
             XCTAssertNil(record.playback?.active)
+            XCTAssertFalse(controller.busy)
+            XCTAssertFalse(controller.playing)
         }
         let before=plays;await controller.play();XCTAssertEqual(plays,before)
         do {_ = try await api.dictationPlayback(id:record.id,command:DictationPlaybackRequest(id:"fifth",client:"native",action:"start",step:0,fence:0));XCTFail("fifth admitted")}

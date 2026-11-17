@@ -13,6 +13,7 @@ class DictationPolicyUI(unittest.TestCase):
   self.assertIn('value.assisted || originalVisible == value.id',source)
   self.assertIn('TextField("", text:',source)
   self.assertNotIn('Button("Pause")',source)
+  self.assertNotIn(': "Pause"',source)
   self.assertNotIn('Text("dictation.paid.notice").font(.caption)',source)
   self.assertIn('DictationRules',source)
   self.assertIn('DictationAudioToolbar',source)

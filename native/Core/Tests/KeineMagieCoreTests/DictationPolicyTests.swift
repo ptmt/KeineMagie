@@ -40,6 +40,19 @@ final class DictationPolicyTests: XCTestCase {
         XCTAssertEqual(local.replays,0)
         XCTAssertEqual(local.segment?.kind,"whole") // Interrupted whole stays selected until cancellation.
     }
+    @MainActor func testUseServerConflictCannotRewindPlaybackLedger() throws {
+        let store=DictationDraftStore();var saved=Data();store.persist={saved=$0}
+        let original=try JSONDecoder().decode(DictationRecord.self,from:Self.wire)
+        try store.accept(original)
+        try store.markConflict(id:original.id,server:original)
+        let latest=try JSONDecoder().decode(DictationPlayback.self,from:Data(#"{"revision":9,"whole_starts":4,"cursor":2,"final_used":true}"#.utf8))
+        try store.acceptPlayback(id:original.id,policy:1,ledger:latest)
+        try store.useServer(original.id)
+        let cold=DictationDraftStore();try cold.restore(saved)
+        XCTAssertEqual(cold.record(original.id)?.playback?.wholeStarts,4)
+        XCTAssertEqual(cold.record(original.id)?.playback?.revision,9)
+        XCTAssertTrue(cold.record(original.id)?.policyExhausted == true)
+    }
     func testPlaybackRequestUsesExistingAuthenticatedRouteAndShortLeaseTimeout() throws {
         let api=PodcastAPI(endpoint:try ServerEndpoint("https://example.com"),token:"fixture")
         let request=try api.dictationRequest(id:"policy",action:"playback",method:"POST",body:Data("{}".utf8))

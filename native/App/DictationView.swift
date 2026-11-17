@@ -228,9 +228,9 @@ struct DictationView: View {
         let policy=value.playbackPolicyVersion == 1
         let assets=policy ? value.policyAssets : [segment.asset]
         let cached=assets.allSatisfy {value.ready.contains($0)}
-        let label=preparing ? "Preparing audio…" : !cached ? "Prepare audio" : policyPlayer?.waiting == true ? "dictation.pause" : player.playing ? (policy ? "dictation.listening" : "Pause") : policy && value.playback?.active != nil ? "dictation.resume" : segment.kind == "final" ? "Optional final reading" : "Play"
+        let label=preparing ? "Preparing audio…" : !cached ? "Prepare audio" : policyPlayer?.waiting == true ? "dictation.pause" : player.playing ? "dictation.listening" : policy && value.playback?.active != nil ? "dictation.resume" : segment.kind == "final" ? "Optional final reading" : "Play"
         return DictationAudioToolbar(label:label,identifier:cached ? "dictation-play" : "dictation-prepare",
-            disabled:busy || saving || !model.session.canWrite || (policy && (value.checked || value.policyExhausted || policyPlayer?.busy == true || policyPlayer?.waiting == true || player.playing)) || (value.playbackPolicyVersion != nil && !policy),
+            disabled:busy || saving || player.playing || !model.session.canWrite || (policy && (value.checked || value.policyExhausted || policyPlayer?.busy == true || policyPlayer?.waiting == true || player.playing)) || (value.playbackPolicyVersion != nil && !policy),
             preparing:preparing,primary:value.draft.isEmpty && !value.checked,rate:$player.rate,
             activate:{
                 if !cached {

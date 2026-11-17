@@ -97,7 +97,8 @@ import Observation
   state.entries[id]=entry;state.conflicts[id]=nil;try commit()
  }
  public func useServer(_ id:String) throws {
-  guard let server=state.conflicts[id] else{return}
+  guard var server=state.conflicts[id] else{return}
+  if let current=state.entries[id]?.local {server.preservePlayback(from:current)}
   state.entries[id]=Entry(acknowledged:server,local:server,pending:nil);state.conflicts[id]=nil;try commit()
  }
  public func flush(id:String,send: @escaping @MainActor (String, Data) async throws -> DictationRecord) async throws {

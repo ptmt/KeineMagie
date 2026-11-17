@@ -1,6 +1,1161 @@
 {
   "sourceLanguage": "de",
   "strings" : {
+  "dictation.budget.notice": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Das gemeinsame monatliche Audio-Budget der Anwendung beträgt 10 US-Dollar. Es gilt nicht pro Versuch; gespeicherte Wiedergaben verbrauchen es nicht."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "The application’s shared monthly audio budget is US$10, not per attempt. Playing saved audio does not use this budget."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Общий месячный бюджет приложения на аудио — 10 долларов США, не на каждую попытку. Прослушивание сохранённого аудио не расходует этот бюджет."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "El presupuesto mensual compartido de audio de la aplicación es de 10 USD, no por intento. Reproducir audio guardado no consume este presupuesto."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Le budget audio mensuel partagé de l’application est de 10 USD, et non par essai. Écouter l’audio enregistré ne consomme pas ce budget."
+        }
+      }
+    }
+  },
+  "dictation.limit": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Vier Starts verwendet. Für weitere starte einen neuen Versuch."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Four starts used. Start a new attempt for more."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Использованы 4 запуска. Для продолжения начните новую попытку."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Has usado los cuatro inicios. Inicia un nuevo intento para escuchar más."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Quatre démarrages utilisés. Commencez un nouvel essai pour continuer."
+        }
+      }
+    }
+  },
+  "dictation.policy.hint.whole": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Du kannst den Text viermal ohne Pausen anhören. Notiere beim ersten Mal alles, was du verstehst, auch einzelne Wörter oder Hinweise. Ergänze bei jedem weiteren Hören Wörter und Details."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "You can listen to the text four times, without pauses. First, write anything you catch, even individual words or clues. Add words and details each time you listen again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Текст можно прослушать 4 раза, без пауз. В первый раз запишите всё, что расслышали, хотя бы отдельные слова или подсказки. При каждом следующем прослушивании добавляйте слова и детали."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Puedes escuchar el texto cuatro veces, sin pausas. La primera vez, anota todo lo que entiendas, incluso palabras sueltas o pistas. Añade palabras y detalles en cada escucha."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Vous pouvez écouter le texte quatre fois, sans pauses. La première fois, notez tout ce que vous comprenez, même des mots isolés ou des indices. Ajoutez des mots et des détails à chaque écoute."
+        }
+      }
+    }
+  },
+  "dictation.policy.hint.sentences": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Höre den Text mit Pausen zwischen den Abschnitten. Schreibe beim Hören. Am Ende kannst du den ganzen Text noch einmal hören, wenn einer der vier Starts übrig ist."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Listen to the text with pauses between passages. Write as you listen. At the end, you can replay the whole text once, with one of the four starts remaining."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Слушайте текст с паузами между фрагментами. Записывайте на ходу. В конце можно ещё раз послушать текст целиком, если остался один из четырёх запусков."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Escucha el texto con pausas entre fragmentos. Escribe mientras escuchas. Al final, puedes escuchar el texto completo una vez más si queda uno de los cuatro inicios disponible."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Écoutez le texte avec des pauses entre les passages. Écrivez en écoutant. À la fin, vous pouvez réécouter le texte entier une fois, avec un des quatre démarrages restants."
+        }
+      }
+    }
+  },
+  "dictation.listens": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Starts des ganzen Textes: {n} von {total}"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Whole-text starts: {n} of {total}"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Запуски всего текста: {n} из {total}"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Inicios del texto completo: {n} de {total}"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Démarrages du texte entier : {n} sur {total}"
+        }
+      }
+    }
+  },
+  "dictation.policy.step": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Abschnitt {n} von {total}"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Passage {n} of {total}"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Фрагмент {n} из {total}"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Fragmento {n} de {total}"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Passage {n} sur {total}"
+        }
+      }
+    }
+  },
+  "dictation.pause": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Schreibpause · 3 Sekunden"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Writing pause · 3 seconds"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Пауза для записи · 3 секунды"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Pausa para escribir · 3 segundos"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Pause pour écrire · 3 secondes"
+        }
+      }
+    }
+  },
+  "dictation.listening": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Wiedergabe läuft"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Listening"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Воспроизведение"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Reproduciendo"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lecture en cours"
+        }
+      }
+    }
+  },
+  "dictation.resume": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Fortsetzen"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Continue"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Продолжить"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Continuar"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Continuer"
+        }
+      }
+    }
+  },
+  "dictation.continue": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Wiedergabe unterbrochen. Zum Fortsetzen tippen."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Playback interrupted. Choose Continue."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Воспроизведение прервано. Нажмите «Продолжить»."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Reproducción interrumpida. Pulsa Continuar."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lecture interrompue. Choisissez Continuer."
+        }
+      }
+    }
+  },
+  "dictation.playback.conflict": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Wiedergabe auf einem anderen Gerät oder Limit erreicht. Aktualisiere den Versuch und setze nach Freigabe fort."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Playback is active elsewhere or the limit was reached. Reopen the attempt and continue after release."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Воспроизведение на другом устройстве или достигнут лимит. Откройте попытку снова и продолжите после освобождения."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Reproducción activa en otro dispositivo o límite alcanzado. Abre el intento y continúa cuando se libere."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lecture active ailleurs ou limite atteinte. Rouvrez l’essai et continuez après sa libération."
+        }
+      }
+    }
+  },
+  "Hint": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Hinweis"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Hint"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Подсказка"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Consejo"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Conseil"
+        }
+      }
+    }
+  },
+  "dictation.hint.whole": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Höre den ganzen Text. Notiere beim ersten Mal alles, was du verstehst, auch einzelne Wörter. Ergänze bei jedem weiteren Hören Wörter und Details."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Listen to the whole text. First, note anything you catch, even a few words. Add more words and details each time you listen again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Слушайте текст целиком. В первый раз запишите всё, что удалось расслышать, хотя бы отдельные слова. При каждом повторе добавляйте слова и детали."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Escucha el texto completo. La primera vez, anota lo que entiendas, aunque sean palabras sueltas. Añade más palabras y detalles en cada repetición."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Écoutez le texte entier. La première fois, notez ce que vous comprenez, même quelques mots. Ajoutez des mots et des détails à chaque nouvelle écoute."
+        }
+      }
+    }
+  },
+  "dictation.hint.sentences": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Höre die Sätze und längeren Abschnitte einzeln. Schreibe beim Hören und wähle dann Weiter. Am Ende kannst du den ganzen Text noch einmal hören."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Listen to sentences and longer passages one at a time. Write as you listen, then choose Next. At the end, you can listen to the whole text again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Слушайте предложения и длинные фрагменты по очереди. Записывайте на ходу, затем нажимайте «Далее». В конце можно ещё раз послушать текст целиком."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Escucha las frases y los fragmentos largos uno a uno. Escribe mientras escuchas y pulsa Siguiente. Al final, puedes volver a escuchar el texto completo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Écoutez les phrases et les passages longs un à un. Écrivez en écoutant, puis choisissez Suivant. À la fin, vous pouvez réécouter le texte entier."
+        }
+      }
+    }
+  },
+  "Audio preparation failed. Try again.": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio-Vorbereitung fehlgeschlagen. Erneut versuchen."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio preparation failed. Try again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Не удалось подготовить аудио. Попробуйте ещё раз."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "No se pudo preparar el audio. Inténtalo de nuevo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Échec de la préparation audio. Réessayez."
+        }
+      }
+    }
+  },
+  "Audio unavailable. Try playing again.": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio nicht verfügbar. Erneut abspielen."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio unavailable. Try playing again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Аудио недоступно. Попробуйте включить снова."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio no disponible. Intenta reproducirlo de nuevo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio indisponible. Réessayez la lecture."
+        }
+      }
+    }
+  },
+  "Saved audio unavailable. Prepare it again.": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Gespeichertes Audio nicht verfügbar. Erneut vorbereiten."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Saved audio unavailable. Prepare it again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сохранённое аудио недоступно. Подготовьте его заново."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio guardado no disponible. Prepáralo de nuevo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio enregistré indisponible. Préparez-le à nouveau."
+        }
+      }
+    }
+  },
+  "Practice mode": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Übungsmodus"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Practice mode"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Режим диктанта"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Modo de práctica"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mode de dictée"
+        }
+      }
+    }
+  },
+  "Listen, then write": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Anhören, dann aufschreiben"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Listen, then write"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Послушайте, затем запишите"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Escucha y después escribe"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Écoutez, puis écrivez"
+        }
+      }
+    }
+  },
+  "Via OpenAI API · paid": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Über OpenAI API · kostenpflichtig"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Via OpenAI API · paid"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Через OpenAI API · платно"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "API de OpenAI · de pago"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "API OpenAI · payant"
+        }
+      }
+    }
+  },
+  "Audio details": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio-Details"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio details"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Об аудио"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Detalles del audio"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Détails audio"
+        }
+      }
+    }
+  },
+  "Preparing audio…": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Audio wird vorbereitet…"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Preparing audio…"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Подготовка аудио…"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Preparando audio…"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Préparation audio…"
+        }
+      }
+    }
+  },
+  "Play": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Anhören"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Play"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Слушать"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Escuchar"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Écouter"
+        }
+      }
+    }
+  },
+  "Replay": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Erneut anhören"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Replay"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Повторить"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Repetir"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Réécouter"
+        }
+      }
+    }
+  },
+  "Show original": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Original zeigen"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Show original"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Показать оригинал"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mostrar original"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Afficher l’original"
+        }
+      }
+    }
+  },
+  "Showing the original counts as help for this attempt. Continue?": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Das Original zählt als Hilfe für diesen Versuch. Fortfahren?"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Showing the original counts as help for this attempt. Continue?"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Просмотр оригинала будет учтён как помощь в этой попытке. Продолжить?"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Ver el original cuenta como ayuda en este intento. ¿Continuar?"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Afficher l’original compte comme une aide pour cet essai. Continuer ?"
+        }
+      }
+    }
+  },
+  "More options": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Weitere Optionen"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "More options"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Другие действия"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Más opciones"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Plus d’options"
+        }
+      }
+    }
+  },
+  "Resolve conflict": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Konflikt lösen"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Resolve conflict"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Разрешить конфликт"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Resolver conflicto"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Résoudre le conflit"
+        }
+      }
+    }
+  },
+  "Compare your draft with the server version.": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Vergleiche deinen Entwurf mit der Serverversion."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Compare your draft with the server version."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сравните свой черновик с версией на сервере."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Compara tu borrador con la versión del servidor."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Compare ton brouillon avec la version du serveur."
+        }
+      }
+    }
+  },
+  "Rebase and retry": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Auf Serverstand setzen und erneut speichern"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Rebase and retry"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Применить поверх серверной версии"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Aplicar sobre el servidor y reintentar"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Rebaser et réessayer"
+        }
+      }
+    }
+  },
+  "Use server version": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Serverversion verwenden"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Use server version"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Использовать версию сервера"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Usar versión del servidor"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Utiliser la version du serveur"
+        }
+      }
+    }
+  },
+  "Dismiss recovery": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Wiederherstellung schließen"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Dismiss recovery"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Закрыть восстановление"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Descartar recuperación"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Fermer la récupération"
+        }
+      }
+    }
+  },
+  "Deleted on another device. Your draft is available to export.": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Auf einem anderen Gerät gelöscht. Du kannst deinen Entwurf exportieren."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Deleted on another device. Your draft is available to export."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Удалено на другом устройстве. Ваш черновик можно экспортировать."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Eliminado en otro dispositivo. Puedes exportar tu borrador."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Supprimé sur un autre appareil. Tu peux exporter ton brouillon."
+        }
+      }
+    }
+  },
   "shortcut.sync.limit": {
     "extractionState": "manual",
     "localizations": {
