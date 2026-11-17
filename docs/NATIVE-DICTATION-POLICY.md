@@ -20,16 +20,22 @@ Shared merge seams are `DictationView.swift`, `Dictation.swift`, `DictationDraft
 
 ## Verification and evidence
 
-Final coherent Release UI gate: **in progress; not yet accepted**.
+Final application-source revision: `04e84f61096d3bcc7b63ad0866776eb2d0a10341`. On November 17, 2026, the rebuilt coherent Release UI run passed **33/33, zero failures, zero skips**, and the same built Release app passed **6/6, zero failures, zero skips** on the reused small device. These runs include the final keyboard fix; they supersede the interrupted and pre-fix runs. The evidence/documentation commit changes no application source.
 
-Scratch evidence root: `/Users/tinyserve/.hermes/cache/scratch/dictation-final/`. The final command/result bundle is `coherent-command.json` / `coherent-release-final.xcresult`. One isolated iPhone 17 simulator (`93E1113F-6736-4CCB-827D-0E2F1C3876EA`, iOS 27.2), two build jobs, parallel testing disabled. No other simulator is controlled.
+Scratch evidence root: `/Users/tinyserve/.hermes/cache/scratch/dictation-final/`. Final bundles are `coherent-release-reviewed.xcresult` and `small-release-reviewed.xcresult`, both with valid result metadata and exit 0. Commands are retained in `coherent-command.json` and `small-command.json`. Only the existing iPhone 17 `93E1113F-6736-4CCB-827D-0E2F1C3876EA` and SE `56A70197-59DE-4410-9E76-25272244E9C8` were used sequentially, with two build jobs and parallel testing disabled. Neither a simulator nor a clone was created or deleted; the preserved pair was untouched.
 
-Completed non-UI checks:
+The full run covers inherited profile migration/conflict/offline/owner-replacement behavior, Coach/Daily, saved passage groups, translation result/history/follow-up controls, all five Dictation lifecycle tests and all policy UI tests. The small-device run repeats the four policy UI tests plus five-locale profile editing and translation footers. Exact result counts are in `docs/evidence/native-dictation-final/reviewed-summary.json` and `small-reviewed-summary.json`.
 
-- Full Go race suite: 562 passing and 15 explicitly skipped test records, zero failures; `go vet ./...` passed.
-- Swift Core final suite: 78 XCTest cases including two opt-in skips, plus 79 Swift Testing cases; no failures. Dedicated actual-Go bridge and podcast wire paths run separately rather than counting generic skips as passes.
-- Actual AppModel harness: 113 cases passed. Native Python discovery with the actual Release Info.plist: 58 tests passed before the final conflict-ledger patch; final-tree rerun is tracked separately.
-- Source/localization guardrails, parser and `git diff --check` are not claimed as pixel or interaction proof.
+The final screenshot index records 189 actual native PNGs: final normal and small suites plus the separate 3/3 pre-keyboard-fix dark suite. Source revisions are explicit per entry; that older dark suite is supplementary, not final-code keyboard evidence. Twenty-four selected native PNGs from that index and four clearly synthetic browser captures are retained in the repository; twelve earlier recovery PNGs remain separately labeled in the older index. Final light/dark practice, maximum Dynamic Type keyboard, explicit final-reading state, coach keyboard, profile conflict/editor, passage search and paired preview screenshots were directly inspected. No material issue remained in those inspected states. Browser review used the actual web module with synthetic read-only data at 390×844 and 1280×900: untitled rules, info disclosure, original in ellipsis and top-right Check agree with native hierarchy. Opening disclosures issued no additional requests; no horizontal overflow was observed at mobile width. This does not claim production authenticated browser acceptance.
+
+Completed non-UI checks (real executions during this continuation):
+
+- Full Go race suite: 562 passing and 15 explicitly skipped test records, zero failures; `go vet ./...` passed (combined tracked process exit 0). Server/web sources remain unchanged from the approved integrated base.
+- Swift Core: 78 XCTest cases including two opt-in skips, plus 79 Swift Testing cases; no failures. Dedicated actual-Go and podcast wire paths ran separately rather than counting opt-in skips as passes.
+- Actual Go-handler native bridge: 1/1 passed; admission, same-reservation recovery, cold draft/count restore, fifth-start denial, old-client PUT policy retention, cached attempt inheritance and actual auth revocation are exercised. Actual podcast JSON → Swift: 6/6 passed.
+- Native Python discovery against the rebuilt Release Info.plist: 58 tests passed, zero skips; embedded AppModel harness: 113 cases passed.
+- Web Node suite with the real Go profile bridge enabled: 166/166, zero skips. The real-Go fixture passed; the native two-AppModel profile wire test also ran explicitly in the 113-case harness. Separate Coach two-independent-client Go-store verification passed, including its explicit wire test in the 113-case harness. These are overlapping harness runs, not additive unique-case totals.
+- Release shell scripts passed `bash -n`; both app Info.plists passed `plutil -lint`. Source/localization guardrails and `git diff --check` are not claimed as pixel or interaction proof.
 
 ## Findings retained rather than relabeled
 
@@ -38,10 +44,15 @@ Completed non-UI checks:
 - The expanded sentence probe failed because its test entered sentence mode first but expected a whole-text start. The server correctly starts sentence mode at its sentence cursor. The corrected test explicitly listens to a whole text before changing modes, then requires the continuous sequence to stop before a separately requested final reading. No production protocol was changed to satisfy the mistaken expectation.
 - Review found a saved conflict snapshot could rewind the local playback ledger through Use server. A new cold-restore regression failed first, then passed after preserving the latest ledger during conflict resolution. An initial coherent invocation was interrupted before completion to include this fix; it is not counted as acceptance.
 - The Go bridge test initially waited only for `active == nil`, which publishes before the controller clears its busy flag. Under concurrent build load it issued subsequent Play calls too early. It now waits for the acknowledged ledger **and** idle controller and asserts both; the server's four-start/fifth-denial assertions are retained.
+- The disk-exhausted `coherent-release-final.xcresult` lacks `Info.plist` and remains invalid, not a pass. Parent-authorized disk recovery unblocked fresh runs; this worker did not delete any simulator. Earlier failed/interrupted result bundles and fixture state were preserved.
+- The first small-device recovery failed during fixture availability/history-limit investigation. Existing synthetic histories were archived and fixtures restarted with fresh isolated storage, without altering production admission limits or weakening assertions. Both subsequent pre-fix and final-source small runs passed 6/6.
+- Pixel review found maximum Dynamic Type could leave the last typed draft line behind the keyboard even while Check was hittable. The strengthened test failed with text bottom 616 greater than allowed 582. A minimum-line-count-only change still failed and was discarded. Commit `04e84f6` uses focus-aware scroll anchoring to expose the draft; the same assertion passed 1/1, then in both final full and SE runs. Normal draft line limits remain unchanged.
 - Xcode reports the inherited warning about synchronous AVAudioSession activation/deactivation on the main thread. This work does not claim that warning resolved.
 
 ## Provider and release safety
 
 No live provider tests or new paid generation were performed. Native audio acceptance uses only the already-authorized exact-source `Heute scheint die Sonne.` WAV through the existing test-only cache injector. The application USD 10 ceiling, private persistent acceptance hold and one-shot marker are untouched. The fixture extends only its test lifetime through a scratch Go overlay; production protocol/authentication/limits are unchanged.
 
-Parent review of the final candidate is mandatory before any push/release. Full UI result, exported inspected screenshots, final source/evidence SHA and simulator cleanup must be recorded before this gate is called complete.
+Local acceptance is complete and the candidate is ready for the parent's authorized web+iOS CI release. Nothing was pushed, deployed or uploaded by this worker. Production deployment, device signing/archive/export and TestFlight processing are not claimed by simulator acceptance; the parent must verify those release outputs separately.
+
+The original worktree's 304 recorded file hashes and exact expanded porcelain status still match the preintegration manifest. Both reused simulators are shut down, and all four task-owned fixture/browser-server listeners are closed. After exporting evidence and retaining the built Info.plist, only the task's regenerable DerivedData Build and compiler/cache directories were removed; logs, result bundles, screenshots, fixture histories and source remain. Disk free space after cleanup was 112.2 GiB. The original simulator pool and preserved pair were not changed.

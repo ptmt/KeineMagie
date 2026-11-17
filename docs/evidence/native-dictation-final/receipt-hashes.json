@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/core-recovery.log",
+    "sha256": "7d8adb105fa9fde7816d51b38e8fe5a7c0c961eb5a1d758c29744fcfdaab2de3"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/native-ci-built-recovery.log",
+    "sha256": "4ebb45f9ea6c707ac9cbd781ac5f7a50628fe796b242e9f262a2ec0157c0ae6f"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/native-bridge-recovery.log",
+    "sha256": "d3d8d9bbbb389af352c31beec7558c8ef34bc1c0739ea527f5f883a890d37524"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/podcast-wire-recovery.log",
+    "sha256": "b75b5aca8856417083aac6a98d0f26bcecd8005b11f687bb4a750150f804dc1c"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/go-recovery.jsonl",
+    "sha256": "2ac6164391c71b5c7d6c4cef807dccc740883b8a8ed7585c3a396c44cfb7e13d"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/go-vet-recovery.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

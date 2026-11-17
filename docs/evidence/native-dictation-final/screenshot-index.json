@@ -1,0 +1,1462 @@
+[
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion()",
+    "name": "incorrect-reduced.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/9B76658F-B786-4BB3-9B70-01A20B2A54D4.png",
+    "sha256": "ed0daedac20f121614fb4d026eac079962abd5de14b1246a3272bc8c88f34e51",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion()",
+    "name": "checking-static-b.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/6FB05941-DD56-428F-B173-9BEC4765D4CA.png",
+    "sha256": "8ead9883bb115aab470544012f25a2340a61987404ea8d5c041c8d18588e3423",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion()",
+    "name": "checking-static-a.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/AE6479D4-22A5-4A09-AF64-5C4B5567C84C.png",
+    "sha256": "8ead9883bb115aab470544012f25a2340a61987404ea8d5c041c8d18588e3423",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion()",
+    "name": "incorrect-normal.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D7E1103D-D04A-4464-9089-FB4552AA88D9.png",
+    "sha256": "7a05a77cc6be542a4340842c0cdf69cfb4f31c702cee8137e0ce20692158545a",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion()",
+    "name": "checking-animated-b.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/C67CE12C-C61B-4347-BB42-85DCF717A3C6.png",
+    "sha256": "22f2a3952db5e03c23417b664156dbf80d44ce6e9f76c4fbe60111a97c2a864a",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion()",
+    "name": "checking-animated-a.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/801964C3-76B6-49B5-A45B-59895874F89B.png",
+    "sha256": "9ec616798e412350f3b9cf3c1ca0d942f13a5c0d1e61807b3cd73b38361b92fc",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard()",
+    "name": "daily-native-keyboard.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D217C394-1263-4862-A57C-99EB3ED33B06.png",
+    "sha256": "928267f88ff8b64e51829b28c88b4911627c5774886a0d70dc08a66c9169b2ef",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/recovery-attachments/daily-native-keyboard.png"
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard()",
+    "name": "daily-native-green-success.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/9FD66F0E-43EC-444D-9206-C5A1DE37B3D7.png",
+    "sha256": "2f24744a1eb01b75190e47f5c3f4d338df8bfc1bed2860cb697c8b42b47a15ae",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard()",
+    "name": "daily-native-exercise-targets.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/3C8941E8-29BA-4F8D-8AB6-341628B50E36.png",
+    "sha256": "fec34ab20123ddcbc9ebe815ebc5309604d368b3f9a0ef6fd4e87248144321ca",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testDictationPullRefreshChangesActualHistoryWithoutAudio()",
+    "name": "daily-dictation-pull-refresh-3.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/BF4A8E66-74F6-42EC-89D4-0BB6BCFD17C9.png",
+    "sha256": "9987219137f9d193adc07b5c351e2c7d0db8596caa074b0130009a8fd6837180",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testDictationPullRefreshChangesActualHistoryWithoutAudio()",
+    "name": "daily-dictation-pull-refresh-2.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/A7A89493-0FBB-46F2-B4CE-7C9F75FAD46A.png",
+    "sha256": "9f9f2572c269dd5a1d2f10edeb6b7809579566a3824a807107ff677c8b2f515f",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testEmptyDictationHasPrimaryCreateAndNoRefresh()",
+    "name": "daily-dictation-saved-create-draft.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/0103F965-C6C2-403F-89DA-A98571EA6A36.png",
+    "sha256": "5f8ff0c29b596f4a632818b347522097d1c8c8148987dd5f96505913a20df059",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testEmptyDictationHasPrimaryCreateAndNoRefresh()",
+    "name": "daily-dictation-existing-create.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/29B11740-E4E2-4797-97EC-2531505F703C.png",
+    "sha256": "aba107b05871e5a150ad9f7cc69541cc7d95bee68618fcae9f511e549296ad92",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testEmptyDictationHasPrimaryCreateAndNoRefresh()",
+    "name": "daily-dictation-empty.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/431D6A2B-53E5-450F-94B1-0E87475E5920.png",
+    "sha256": "11552b3f4195f1fa35711d1710b15d6e0c8cb13862291b1e1ddf7c127c0637fb",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachDailyCandidateUITests/testManualOlderReadingSurvivesEntryReadback()",
+    "name": "daily-manual-history-return.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F9D40222-9638-4D22-85CF-C7F8ADC5253B.png",
+    "sha256": "12def9c1fb01ae6e3d99042c9fdcfdeba85285407cc856ae1aaba88a1654b149",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachUITests/testBackgroundReturnConsultsServerAdmissionAndKeepsDraft()",
+    "name": "coach-background-draft.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/A1163F21-EFF4-440D-82B6-29449830B354.png",
+    "sha256": "afaa14f463073dc6ca783fe30f7022999112a72d349214bba5c176319dd8ffe8",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "name": "coach-compact-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/C9764255-3EA6-4694-822A-5F3C97C9C7FE.png",
+    "sha256": "a2af9c318c0417f2e768793d6eb9f3aaf30f3018c33d0420b2a3e2cc83c21937",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "name": "coach-compact-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/6A1E7497-D4D5-4A29-93F5-843DC1D92029.png",
+    "sha256": "5ed0d158483d3220680bfd2dda65a302ebe7c220b5fc512f31cdadbd504adb56",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "name": "coach-compact-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/A7FC871D-3964-47EF-A7D2-0A3089842FBF.png",
+    "sha256": "8947be9b15b6f863ae210ed92f541b4031f142f3b3d27364507927ffb0359e2b",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "name": "coach-compact-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/524214FA-E550-446A-A9C6-3389BA9BAF47.png",
+    "sha256": "94e379a88b700ca760d4eebe3117a37c34647db0c2845fa758cf48191e1cfc7f",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "name": "coach-compact-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/5998D8EB-7D44-4E03-82AF-7B4F5CCF1293.png",
+    "sha256": "430a654871f26e1a0dc208be28b048c7e0c769ab24e6ec7a217d84f00530b5d7",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testContinuousSentencesStopBeforeExplicitFinalReading()",
+    "name": "en-Dark-final-used-shared-limit.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D6490242-DEF5-4CA4-8F10-8F9EEA970F85.png",
+    "sha256": "6ab22573ee51709923f68fb13eca4dcbae2fe06299d98807a4c3319d08102918",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testContinuousSentencesStopBeforeExplicitFinalReading()",
+    "name": "en-Dark-final-awaits-explicit-tap.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/91C7577E-6F38-41B6-B41C-70957195DBF9.png",
+    "sha256": "64fcee9d047ba80781abd4404730d74519ae1edc4dfbc5caf66766a083025f73",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/recovery-attachments/en-Dark-final-awaits-explicit-tap.png"
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "fr-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/40F59720-F7FB-4C0C-BE9E-EBBB90E63918.png",
+    "sha256": "dd009f961095a5c91bcf0807ed231f6048307d446f4ef7754c14a93a28782636",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "es-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/3AF5E8AE-F84E-4D46-A42C-175F4E2C51B0.png",
+    "sha256": "aa39752b0c029394c1d09a1b12941e8c9f887cc375bf2b239142c22b501b42a8",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "ru-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/3317DCCA-0B9D-41ED-91CF-644C95826C72.png",
+    "sha256": "9069faabfd8d010e11308d5dc687e918442692d54417129f771a977f83e9957f",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "en-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F2724413-E733-43CB-8762-54F1A1193D9B.png",
+    "sha256": "12c6a70e4174a86dcacb875bc78b78c02ad215b3b6596d736d814df6ebb51745",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "de-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/C11AF746-55F1-40B5-A7CF-68547E608262.png",
+    "sha256": "865c86e8281a60ee12ded77943c5c859050b3d85908097d0f3b3e808cc734fb0",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-original-explicit.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D3CB5926-1CC6-4BB3-8107-0746B3091FB5.png",
+    "sha256": "bd0b31e41d18e0cac8de38e9de35e00c081685481c807a6742c439ade3dca57c",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-sentences.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/895E9603-9464-400C-94D0-73537B399FB2.png",
+    "sha256": "cc7d38b2833d4f4fbb3810408f174c5534fbdbacbe5401342fb3138c43f18b96",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/recovery-attachments/ru-Dark-sentences.png"
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-exhausted.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/4B9D521C-F973-4F74-904E-89D0691B44BE.png",
+    "sha256": "2dfcf7b75a57309296d337bb18ab41f333b07cf30174b9e771ec34de644485b5",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-play-requested-inspect-state.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/EAF5AF1B-288F-482A-A285-F9E854AC8589.png",
+    "sha256": "2dc7251a8663d65b024b3f41d24fdca1dcad2f21f45f59f1efd118b833a59202",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-ready.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/5FE96927-673F-468B-9C2C-377E60C11EFC.png",
+    "sha256": "f5a69c94282b338a7c875ad1882f34f13c5e2fe002fc286ecb211f804933d781",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-reveal-menu.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/4CA1D04F-4878-476A-93D6-1AB1AD664CA0.png",
+    "sha256": "7359e1c0feca32f6ddb10192f8bd0a517b4cf74fa07ed73673be29cd2654a7f6",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/recovery-attachments/ru-Dark-reveal-menu.png"
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-unprepared.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/CB5C5D8C-A947-4CB5-BF0F-1AC6BDF1EA8B.png",
+    "sha256": "c395e59c5cc847c1e707090422a4953b0a382c23ee938fba83758e13bccda7ed",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/recovery-attachments/ru-Dark-unprepared.png"
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-original-explicit.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/218E3CEF-99CF-473F-B7B8-7DAE221039F4.png",
+    "sha256": "5f6dc46ffb5fa5259dc1405516d4c7cde403b9117363fe51587f79b956d2f174",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-sentences.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/DA1F8098-FCC2-46B2-8A90-2DE0E71C116D.png",
+    "sha256": "1a9fc5b4891b34ce83b80b34a5d8ab91d66faf997eada187a55f68ffbc4288f0",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-exhausted.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F273795B-AB19-4737-B3D6-0420E8B938B3.png",
+    "sha256": "110260c6d3704ced4e656272c5e76147da15baecb2cb7449112cda1789c9e45b",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-play-requested-inspect-state.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F6B4A1E5-B219-403F-8AF6-BB0DE4088675.png",
+    "sha256": "06b18f6a679b3fd3663d665e5e05327905069ea18ebccadba343c631148856d1",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-ready.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/6FCD3A80-B77A-48AC-9647-771D18BFE411.png",
+    "sha256": "f97773aa0a20650ec4521c62525415bac8992c307cb6cca26a2c4a18fd643ecf",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-reveal-menu.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/FC942B93-B9EF-48FA-9162-6DD0CFBA39E7.png",
+    "sha256": "5c76102ca7a0603b784cc3a51a3d34c9a4f2d63f06be67c0dcb67f53c7837273",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-unprepared.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/EDC1A297-6A64-4752-BA2A-9A5B19AEAEB7.png",
+    "sha256": "099329a6f3459bf3a0e2ef44b127a19190a5a0360768794ac3069405e1cf50f8",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/recovery-attachments/ru-Light-unprepared.png"
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationPolicyUITests/testLargeTypeKeyboardAndCheckGeometry()",
+    "name": "en-Dark-accessibility-keyboard.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/70B303D2-03FE-40B8-A618-B0414AF9DBD2.png",
+    "sha256": "06e22d4745e763c441449cdca78ec62e47624b9895570f4a64de949a449a6872",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationUITests/testInterruptedRealDownloadCannotStartLatePlayback()",
+    "name": "native-interrupted-real-download.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D9ACAD5E-98F1-4942-ACAE-F7940712A3CB.png",
+    "sha256": "1786fbd4255376a6ac4c1f56dc9c5ab22b622634f03dd4f3993bcd1a1403176d",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationUITests/testLogoutDuringRealDownloadRejectsLateAudio()",
+    "name": "native-logout-real-download.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F836B1D2-3FB3-451C-84C4-F99FE89489FB.png",
+    "sha256": "1e9a8592ed5077bddb276c108f792afffc06cdff1ecedfa2c02242bd17494cf0",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationUITests/testPendingDraftSurvivesImmediateRelaunch()",
+    "name": "native-durable-relaunch.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/6D61E6C5-849C-438B-AA7B-78D9CEC1E57E.png",
+    "sha256": "f9bdacf455947a95fc525e724870124dd8f17bc859777042e5779a90ac43ed09",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationUITests/testRealLocalWholeAndSentenceAudio()",
+    "name": "native-check-real-backend.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D30A019A-029F-4D42-89CB-BEB78359822D.png",
+    "sha256": "7700aded2ca517029f38aea56a3b4969d16a179b015a46074e381bcf852bc9ea",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationUITests/testRealLocalWholeAndSentenceAudio()",
+    "name": "native-sentences-real-audio.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/BF75DEE8-87EC-497F-8438-CF5A02C84EA7.png",
+    "sha256": "daa7cfe3fe1778d38433d71df4bfcf1544de5983aec36b944d45148843f5b14a",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "DictationUITests/testRealLocalWholeAndSentenceAudio()",
+    "name": "native-whole-real-audio.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/89DFEB8D-85D2-4221-9769-2C3503D6A698.png",
+    "sha256": "691c172edacc0a94cdc2b53350e06ae5c67ae00539a675e3b26ff51de259c7b6",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-different-owner-empty.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/09EAA1E4-4BC8-4665-BCB5-C07687A153D9.png",
+    "sha256": "e60aaa2f56722acae5d3dc3780a400f7c79d80f88716775b73b3007b7afc10e2",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-cold-offline-owner-cache.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F2BD9325-8925-4178-B51B-8616477CA1DF.png",
+    "sha256": "b1e833670c439786bbd5c63edda4010c8d3ebca3ffc6d2e49dd522aa40408f64",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-cold-online.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/AF604E49-12F2-4DFD-8B78-558EB71BA325.png",
+    "sha256": "b1e833670c439786bbd5c63edda4010c8d3ebca3ffc6d2e49dd522aa40408f64",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-library-three-stars-not-groups.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/EF33668A-36E6-4FBA-A9F6-68AD15607F94.png",
+    "sha256": "da112ad1316114b0d601bb13ece3bafb4ed86bad41f011a076d891e784a02e52",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-library-three-stars-not-groups.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/CB9F36FC-C1EE-4A93-A696-C9719ABE6848.png",
+    "sha256": "da112ad1316114b0d601bb13ece3bafb4ed86bad41f011a076d891e784a02e52",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-original-citation.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/654B36D1-2E18-472D-9977-515F44774D22.png",
+    "sha256": "20ff7cd53989ebfae9bc545b5d6da6bc2b4b6dafff3b7ee4500977a751abbe05",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-last-original-index.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/FD9912F8-C503-471D-BCA7-13184BCFA458.png",
+    "sha256": "bdcdd5eda8145bbebf04d5bd171eaa7bd2b291f29c8cf8d697e350fd510a5aec",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-swipe-2112-Save.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/6B8E18A3-8036-48AA-A5F3-B916A3332F72.png",
+    "sha256": "13cd97b0c1e53a55959e1616f40aaf3539c22b38fe0fd75a9602c4aca711bd83",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-swipe-2015-Unsave.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/16A40EC1-E2E9-4608-918A-AD0EB177AD51.png",
+    "sha256": "2c566dcd58788732bf0094c5bfa470f194a3b9e208add66654cb6021b286c1a6",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-swipe-2015-Save.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D63E7F42-ED6D-4B5C-8D85-D02D5EE5D5C4.png",
+    "sha256": "19881accdb3d91fe51fac733dc1e9142d0f32df2d7b62850da489bd704ea864c",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-swipe-2013-Unsave.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/8AA5D3E1-C225-4A09-A335-F00E05BE287D.png",
+    "sha256": "59fb61673c961208e10d193298433f71d4744e94e729a692929d62856f324a96",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-swipe-2013-Save.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/99EB557F-EE1F-4333-B54D-10A74887DF3C.png",
+    "sha256": "45f23b7cb799762cde8ed84da59f355bd0c0c6f6ff75bc90378d48b1bc0c99d0",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-nonadjacent-search.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/C91319CE-ADF1-4857-9598-39A5DBFD93E2.png",
+    "sha256": "332a61378a9ef7087f7bd9607eb3eb8b6481c3a1e360cdc6ba947097d431d27c",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-swipe-2014-Save.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/C683F8D1-6FF1-4997-818A-DE9C9A0A53CB.png",
+    "sha256": "4cb937ad7a6791963484c33f92b7847b4124cd5ff35169046e55ac1011b854d8",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+    "name": "passage-swipe-2012-Save.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/A070661C-6A7D-4DC9-9479-A7B307D88FC8.png",
+    "sha256": "282dfc28a8601e4d64291aef8de71d16dfc681a755139bc95f2bd4412d0b8b30",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+    "name": "passage-revoked-offline-no-private-data.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/3884768E-049B-467C-ABD7-56B14C9B8948.png",
+    "sha256": "86bad9f8dfda99d1b3b888d004cf989967e143c49a6e14a091afad385b1dc71e",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+    "name": "passage-401-purged.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/2D222329-B755-4C2E-A5B7-2237C9C1B5DB.png",
+    "sha256": "03681675b75f689dc45e07005c6005fc796efe5d45ebf8f96d1545e44c9f3c0c",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+    "name": "passage-swipe-2012-Unsave.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/25088AC1-5C9F-4EA7-BE86-82A31FB6E0D4.png",
+    "sha256": "b125655b4c5a8d45f05a02a5287fb5f6498c063ee586d9b4269d99eabfe15f96",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+    "name": "passage-failed-write-retains-star.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/FCAD6F98-FBA7-4B3C-B66A-145ECE308D3F.png",
+    "sha256": "3abb88dc5ca8c0c4601ba4e545a83bb5c4c0755f396f1486047cf9f5562e84e4",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+    "name": "passage-swipe-2012-Unsave.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/B6C78AB6-B36E-4B95-98E0-68C1ED8DC440.png",
+    "sha256": "426b0baef98763f85b7b90eb94f76c3c8334729f56dd2806024bba7e070e8984",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+    "name": "passage-swipe-2012-Save.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/BB1F34BC-9E5D-44DD-A8FC-88E703FCA480.png",
+    "sha256": "782fb67b8a5d43c3132e5c5ea81688b539823c713e6941773aa6e9701540b56d",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-XXXL-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/8826DF9B-B391-462B-ACC8-68C439BD9C33.png",
+    "sha256": "f4c7f507536b77c0866428c5e62b0282e3e88d90280bfc1b2fc47dfb6adf425f",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-context-XXXL-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/DD9A2198-046B-4A56-BA28-9A3654509861.png",
+    "sha256": "48f147215246a4b5a52a98ff4b8ab88aa0abf93cd9cf5ceb15997371146e54a8",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-swipe-2012-Enregistrer.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/56829FAB-4EB4-467C-8DBB-1699C43AE441.png",
+    "sha256": "fc10720594b55d4e366cd4d5bd0446d82183f5eebf9c968d5c9aab4802245905",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-XXXL-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/809A68CE-928E-4118-AF66-7817DE453448.png",
+    "sha256": "d6ada1ea8589c108d2534c77665e90f64f22f267e3e4297c5884de25bdc00bcc",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-context-XXXL-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/C45D9A46-B705-4B29-B5CF-65C1E0FCA0C5.png",
+    "sha256": "7c8b656df62fa6d771bdf85a431b9e26c033f952fb108ff387790da01937f527",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-swipe-2012-Guardar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/EEE82ADF-2056-4FED-A901-B3EC59943985.png",
+    "sha256": "ed321f2899c4bcc003fec98cd3942c6184666b40faadf71b92026fbf7c305da4",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-XXXL-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/9C7294EE-1FA6-4CC2-A148-07276216DD17.png",
+    "sha256": "f536523bfdabd0c3351f1a499277ffaa8f2265cb3a4da553ee80339bded4617e",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-context-XXXL-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/918129BE-43CC-492A-94EC-780011416243.png",
+    "sha256": "a8886548baf9de2b54acddc1c964119e6e898ee8f6b00b56a050acab545e633a",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-swipe-2012-\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/713D563D-E614-4F45-80EA-50B98DA71741.png",
+    "sha256": "e235af9772aef5e779ee91d27c77d13c1842170eb6e3c45f5c1588cb450d0534",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-XXXL-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/EAB8B7FA-00CB-4625-BC96-863ED446EDE8.png",
+    "sha256": "433fda3f1758bf931bde95704f196660f0f75ab8db21cafeb66f6758471cb23e",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-context-XXXL-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D13F3115-E2F5-4A03-9C5F-2CFDB89930D5.png",
+    "sha256": "a86b8a56b8a1deea0365898a3768e98fff146a73b49156eee6245b5888f2aee4",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-swipe-2012-Save.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/3F7E7F6D-3551-4C00-B738-33F59EED5CC5.png",
+    "sha256": "40eb76138182f5594be11723eef90b4a6c6c16a1e8ce4a27266aa9e47be365b8",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-XXXL-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/0F309A75-1B8A-41AC-BC18-D3BC4FA135C3.png",
+    "sha256": "e004523ad403439bf80013fb5becb54a23ba9b4231726db163bfa6d875d9eb4b",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-context-XXXL-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/9F0C94BC-55E3-44B2-A570-D6532F3FA9C7.png",
+    "sha256": "c08f75f088c5cb0a8cd132720e789efd6b33f94ab4c58ac5e659b77681587cbc",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "name": "passage-swipe-2012-Speichern.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/CD8E3CD0-4DE4-419A-80B0-32E49BAE34CE.png",
+    "sha256": "fec145bb65666bb2d7fc278b35070414539b36993210759cb3c6c72687bb574a",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "PassageGroupsUITests/testNativeSwipeUsesProductionHTTP()",
+    "name": "passage-swipe-2012-Save.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/74374593-E3D2-4159-867B-F8C8F28A9E12.png",
+    "sha256": "904a88bec73463d8aa3da66c7ef287e31f7e77928bb7687fc2b448bdcf161ca2",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+    "name": "followup-applied-pair.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/39B54C09-F47C-40AF-B160-4116F4D1716E.png",
+    "sha256": "33af4271398dbeb285aba96d2f49c82512fc518c89f3c058a112b2294ca32bd4",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+    "name": "followup-paired-preview.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/319E60C2-5152-467E-AADA-727FC8F4FBB0.png",
+    "sha256": "6cb528d24b7919b3c603c2f248dbd7b8bc60a1771ba5c61b654d418929a9a8ee",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+    "name": "followup-small-keyboard.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F7A4C79D-B575-4D6D-9CA2-4DDB5A518AD3.png",
+    "sha256": "831dc32bb215786c09f74dd3c00d3903ebbd756a1aaa23abba0d9f0f068c1d6b",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F21159C0-DDCB-4F99-B62D-61C989F44423.png",
+    "sha256": "479f9f6a758eadf0af03cc91a7997a7659129c6dd06158fe27b3367e571decd8",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/A6A483F2-DEBF-4B65-B904-8BF6E8D633AA.png",
+    "sha256": "dd07db8a2f07566cd7cd3b7d16abea40b12056c71a6f28bb7e77f3db63a70230",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/2D391DFA-6743-48EA-B414-9BDDF4BCB50C.png",
+    "sha256": "d6b22c47d6783022affb24ab4d86da02e4477a5493342c1fc7cb35b0f567c962",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/DFF52CD5-6A9A-467B-B4E6-466B048ABC7C.png",
+    "sha256": "a786d96901536545f66a7fbe68a21e2850524d2d5a21e735a8a543e7b69a7273",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/E9657C50-0566-42C1-B6D6-7C7E401D9A8B.png",
+    "sha256": "9cc288a1c24d51333a83f03768ba4b7c110d4102ec875afe8e28d51f219aac35",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/recovery-attachments/profiles-editor-keyboard-large-ru.png"
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/49D17E87-FA17-4855-AE2F-77B02C7A890D.png",
+    "sha256": "78d3f5b9d26957d06203f1ea3376f92de4cbdec9153177e2f831149421f99685",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/33068CAB-30EF-4853-8545-9EE41E85BC8E.png",
+    "sha256": "44b18970b8bbf8d6703f2a7514e34a5c75fbbe43a979f946e6946a9a22579d67",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/2B1F2D54-46D0-4E4D-A63D-EF32A74A1182.png",
+    "sha256": "2c348e75fe2376fde18710bab493585d881615053db6f19d168391b559b8a35e",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D54DAD8F-D588-4D27-B2EF-E14D4ED4A1B5.png",
+    "sha256": "2f9710d1c43244eca85bb985762216f0972f4cf6b5fa7e83cc03d97d18c0712d",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/606ECC02-19D1-4BD0-98EB-B97A07F958BA.png",
+    "sha256": "0ab853cedcd9149fc2e19b5753b1159cfc29aa6115ae07d667b5a38540071bd4",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testMigrationConflictOfflineRelaunchAndRemoteDeletion()",
+    "name": "profiles-remote-delete-normal.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D807E807-DF64-468D-BC7C-63023E308D63.png",
+    "sha256": "d1616db898374915a553eb7ad78f03f82b95214dbee11a423918d4c47c86171d",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testMigrationConflictOfflineRelaunchAndRemoteDeletion()",
+    "name": "profiles-offline-cold-editor.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/353908E2-336D-429A-A171-CF40FEFCAD02.png",
+    "sha256": "ef54d4e1ae104710299a7eac277858100f00dbdca24b2815216a7b04d898e7d3",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testMigrationConflictOfflineRelaunchAndRemoteDeletion()",
+    "name": "profiles-explicit-conflict.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/04DB041B-768F-4E06-BA3E-919FBCC65D66.png",
+    "sha256": "3ec5399eba4e089d2a5e3b7b170956856ed87391767e40a0516e0f370a55e77b",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/recovery-attachments/profiles-explicit-conflict.png"
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testMigrationConflictOfflineRelaunchAndRemoteDeletion()",
+    "name": "profiles-incoming-keeps-keyboard-editor.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/80A31BF1-9E23-49BE-A43E-E4F419F90C37.png",
+    "sha256": "3cdb689a1dbaa434c8daa5f01aecc4b30a1aa436cd81659ef49693ccd502e64d",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testRevokedOwnerPurgesJournalAndColdOfflineContent()",
+    "name": "profiles-revoked-offline-no-private-journal.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/60592C3D-8F3F-4EBD-B088-C7A9F89E435D.png",
+    "sha256": "c628ed8f6871a51ab29db4076279050738fd6442855326b1bff3cc764224fa62",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationProfileSyncUITests/testRevokedOwnerPurgesJournalAndColdOfflineContent()",
+    "name": "profiles-revoked-owner.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/B0BEED79-AEEF-4DD7-BE49-8CE8A16B6344.png",
+    "sha256": "c226b96e1c103085fdb0259f970204ededb140265d12e2a03c6f6382e66743ad",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testClarifyIsInsideResultFooterAndClearKeepsOutput()",
+    "name": "result-footer-after-navigation.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/4066F19C-556C-4A72-A769-52E58E9BE1DD.png",
+    "sha256": "b5172514e8e1c8d8ea94a15a0f4ab66c7c777a337c462eea8c8a9053ebb09246",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testClarifyIsInsideResultFooterAndClearKeepsOutput()",
+    "name": "result-cleared-discussion.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/4DC527ED-BFCD-474F-9308-C1C94FE9A94E.png",
+    "sha256": "274f849f907febcdccc758cec25765b30b82144919977dbc3811d50b8a0952e9",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testClarifyIsInsideResultFooterAndClearKeepsOutput()",
+    "name": "result-footer.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/511C45FA-FE58-4B7F-91BE-ED2E8F9C5940.png",
+    "sha256": "eddf1bbc5aa9f82399c0b5378fd22374ee7ea0b62e6704c474dc84527f7f1c83",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "name": "history-controls-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/1DF78399-814F-41BA-9AA1-9D35D39C1637.png",
+    "sha256": "bbc9dbb51e5fa562e184dda4b0c5dbbe3dbfe35d4fb23072b820c78e8d1143e8",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "name": "history-controls-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/5E5564E1-3524-423B-AAF6-4346E6D110F3.png",
+    "sha256": "e86f8263fa8aac1e0cbac1ab14ace0463ef2f963da04c1f23f35f837d8812f73",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "name": "history-controls-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/C76B5428-E0F9-4CDB-BA99-AD5299009245.png",
+    "sha256": "f8a8aad2e08ad8c3242478fb678e77ac196ef66d146415f84fc6ac1cbe7ad835",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "name": "history-controls-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/9CAF9479-E4E4-4543-8405-FE25CF699B70.png",
+    "sha256": "032aefbaf7141228a1b813c33b47cb1325b9d4d25c62597bfa617903fe55d57a",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "name": "history-controls-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/72199C39-CDCA-423C-85E0-F475188E9DE7.png",
+    "sha256": "01fa4f906d5c2ac6af066f11feb014ef9d91ede5a8429949e351260b10e49b14",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testHistoryCopiesExactUnicodeAndOpensEachRecordWithoutChangingDraft()",
+    "name": "history-discussion-2.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/D709C09D-EEC8-42D0-A23F-16AA4AF6C7BD.png",
+    "sha256": "ae99cb1c32b10408990543a3238fd414c502d5ddbe2c56e9cb076b3681fee438",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testHistoryCopiesExactUnicodeAndOpensEachRecordWithoutChangingDraft()",
+    "name": "history-discussion-1.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/5EA9BD28-5899-4DC2-8CBE-BE583CD0D8D5.png",
+    "sha256": "c9583d6e4900e965b3dd79009cba1bc8591880253855ac0ed2527cf71778f5f3",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testHistoryDarkLargeText()",
+    "name": "history-controls-ru-dark-large.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/8F5265CE-DBD9-4941-AFB7-400C4A76BBF9.png",
+    "sha256": "7f322d03d7620c88e1edc027448d1338dcabbd03ec97ca60b8fe5eac8a5c8df8",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-ru-large-dark.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/32B65DB9-4D59-4809-BC79-D36CA05B3950.png",
+    "sha256": "9fb5c5b1bda4a7d77d08f1c69aaec147e3d6744b1bbc071bd2955f4a35758f89",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-fr-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/18497F05-7ACB-4558-9EB0-E9B0163CF1A1.png",
+    "sha256": "a97d90cebe2349f81a64e9a2f15022e367f6da4dcb55e53e76bdf726b1cb4daa",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-es-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/B9E7FB37-FB59-482A-8F8D-82A005BA5A2C.png",
+    "sha256": "43a48f0ce091893559196f4b0d8bcb19ad11c0fe5f6bc396224b5cd366e5583c",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-ru-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/59390D10-7727-4E9B-BFDE-4D3CDD07FDE7.png",
+    "sha256": "e9f3b043f551ec3b6db7ec82da6a9fa2ad35b060d5804fb94162d1c1b3d7d916",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-de-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/10A8FFAA-BEAA-4719-A9FA-791966FB5EED.png",
+    "sha256": "0b344ec9627aafed26b1672706f7a2922fd59b0e1ecb934c6de8319b1beaca68",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-en-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/280313D6-0EB3-460D-BA00-C56185E562E9.png",
+    "sha256": "37cd0a534988015502e54d9931385eaf740bea7698f5c5ee73ae5fc827c29339",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslationResultControlsUITests/testStylesInsideSourceFooter()",
+    "name": "source-footer.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/3D913002-6026-4676-8441-D9951164994D.png",
+    "sha256": "128c603c30535c747fc18178328363d2afec4c231a6246e227851e10155d7add",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "navigation-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/24432B75-E824-440B-9247-47622DA6C9F3.png",
+    "sha256": "9ed976ce0e1ff146e544dc9f8f5756790532ebfe54f553ec6d8dbb2db252e4f9",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "keyboard-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/27AC9409-29AB-4F91-95A3-1A729F9FD12C.png",
+    "sha256": "1bd67e925a2ece24a2c6ed8b1e653ce0ea66b737cbc295486259b0b7c0996403",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-ready-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/0E1B8357-9D03-4AA5-8C66-08DBE6658E50.png",
+    "sha256": "81243238881b22ca3a6ba6ab0aa30735d32b1776416477c0e8f465ee7691c3ad",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-pending-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/4E47C8CC-6761-4486-B11D-FC06B4813BD1.png",
+    "sha256": "81243238881b22ca3a6ba6ab0aa30735d32b1776416477c0e8f465ee7691c3ad",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "navigation-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/57448EF2-0240-4B01-A385-46774DCF50F0.png",
+    "sha256": "822421d1e5243e1507009424f7ddcfeeffaf3cc06a30f948f7ec680b345db1a2",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "keyboard-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/2E3EC835-DA11-415B-9464-D6814BCD9234.png",
+    "sha256": "4c2bb8208d5a264df2a1cb6f63d8b58f9732f80c16de27271ac6514a511a4bdb",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-ready-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/632B510E-F59E-4FDA-8252-884CCDA032D5.png",
+    "sha256": "b9240028a3d494fb73b83fd0380336339be18bd6eb6f371a323966e7fc7ab688",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-pending-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/9958B3CE-FC2A-4DB7-958A-088DD381B23C.png",
+    "sha256": "b9240028a3d494fb73b83fd0380336339be18bd6eb6f371a323966e7fc7ab688",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "navigation-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/C21214DB-021B-46AD-ABED-C2BD499C64FD.png",
+    "sha256": "bab0799a30e2d874692488e4003fb82ea158d4348b5a31cbed1d3666da79fdd7",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "keyboard-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/CA02DEAF-6686-4618-9CBD-1FC93DA86881.png",
+    "sha256": "2c97be2ddadbacaa3dd03ec40fd6d44c64c7cc98a9b417cb84c7bd16586bd8d9",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-ready-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F5F999C7-887F-459D-87C5-BFD8914B16DE.png",
+    "sha256": "6df9013fa829dd3216850c10d4b93a53976f4815b2f16f1129b3993024004dd0",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-pending-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/E8904514-37C1-4EEF-B183-E1DF615E916F.png",
+    "sha256": "6df9013fa829dd3216850c10d4b93a53976f4815b2f16f1129b3993024004dd0",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "navigation-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/707272AA-A30E-4B7F-B6F9-8045588AA1E4.png",
+    "sha256": "fa242158ae1c3c2b1d6600fe92eadaa02cf31973a0eed6e596f76488cc059a5c",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "keyboard-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/53A8C569-E21B-41F3-9B41-CBF9B7B76A41.png",
+    "sha256": "bd36d9e15df1e587b86067d366776f145220672601c65d1e81f2c10a65823438",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-ready-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/15A74FC7-0A66-4A63-9151-202C97E4AC08.png",
+    "sha256": "23719c1c4f78106c96b2134a7d735d523024d1630cc2905335d68da342f93fe0",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-pending-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/F3D4E7E6-667E-4465-9D6C-5C0F94F5224D.png",
+    "sha256": "23719c1c4f78106c96b2134a7d735d523024d1630cc2905335d68da342f93fe0",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "navigation-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/70FAA5CD-CB6E-4866-86D1-8D880FF571BD.png",
+    "sha256": "92af56af20ad6fb5efa16949408d11ff41797abfd8f002d5d05e65a172582103",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "keyboard-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/04282292-D946-486F-A0AF-39DD5727D4E1.png",
+    "sha256": "743b33b9d7f73d4f9e1cf5b84638afd75ab9d3a508409fa6a39ef64cbb846f23",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-ready-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/2FEFAA7F-B556-44B0-981B-6811E482B81A.png",
+    "sha256": "bfa673c9b2b0c00f2736020d676b18a2e000c8a416bdd6c7fbc93e31e89ffc9b",
+    "included": false
+  },
+  {
+    "suite": "recovery-attachments",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "name": "provider-pending-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/recovery-attachments/480D8320-D818-44FC-9737-EEA0A613F28A.png",
+    "sha256": "bfa673c9b2b0c00f2736020d676b18a2e000c8a416bdd6c7fbc93e31e89ffc9b",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testContinuousSentencesStopBeforeExplicitFinalReading()",
+    "name": "en-Dark-final-used-shared-limit.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/DFD621CF-3E53-4331-82AC-4C24368056F1.png",
+    "sha256": "0d4861973051f3569302a0e958c9d7bf1674a32576261fb171dad38e76017f6c",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testContinuousSentencesStopBeforeExplicitFinalReading()",
+    "name": "en-Dark-final-awaits-explicit-tap.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/03D412FB-0193-4B11-9DE1-23B08E979520.png",
+    "sha256": "2efe34773b88378b5bf98f64c453ff5e444e267b36c0883ba1139f15105244d1",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "fr-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/1D4439C9-8BA4-49D6-A77B-88DA64695D5A.png",
+    "sha256": "5d77243083fb4074a2c5521fd316fe498036d43d79311e4497a6225ffbb42a28",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "es-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/24272012-EF36-42AB-835B-DD3BB04BD748.png",
+    "sha256": "ab723fe293f4eacc7ac9f907899b27635d0cad55ed60bee745014f4fe097b2d5",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "ru-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/7E55084F-7BA1-403B-BEFC-470EA9C736BB.png",
+    "sha256": "d28e0558b714948615ed6da03e8311203715253f48744cceb5cca37830810df6",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "en-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/AFE6EA6D-DEA5-40B1-A1DC-51C7C6DB4035.png",
+    "sha256": "bb487f244898bfa0164801fbc9f36f3df8f194d308af66928f973551304265e1",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+    "name": "de-Dark-rules-toolbar.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/3861351E-A912-4805-B352-1DE4AD9C0398.png",
+    "sha256": "f8cad544272ab147bdfb5f160c4be9d0ed0f1b246d0c39ee81645ee678bdf038",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-original-explicit.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/C8D63614-A558-4771-8C8A-BB80EF4A895F.png",
+    "sha256": "ee19c60261d2538cc4fdc94aebe05e7c5001152d10d7186932609a1ab1350eec",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-sentences.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/E103E1F7-8DF9-4E32-A125-08732FE8C8C4.png",
+    "sha256": "5576b4579c776d4f7bd3cf17b4f1c26a76d1cac7ad0143c21ce312614ebff77b",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-exhausted.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/628D03DD-7517-4D1C-B981-A50EA5D0066F.png",
+    "sha256": "adf47ccebf0922462f2f25c1982d9eb9996549776706125df96362c26f8a2ccb",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-play-requested-inspect-state.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/F698CB66-9820-4ABF-BAB0-8BE66AF68A93.png",
+    "sha256": "8ffdf3cf6e9fa4f1ad615a0fa1bed099ef7ca1526a998c7e9a3bf86201affce2",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-ready.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/F05947B7-F3CD-4657-AD94-13E086E7AAA7.png",
+    "sha256": "894a903d356cb69dc6bf5a289cb8f8c9024d0be09dfcb7b95814ecaff65c58d2",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-reveal-menu.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/2A85E0EF-9A28-4B9E-B9F7-87076F13AEE3.png",
+    "sha256": "f776697f495ae801250144774f4bcb97d7e2d0a446dbc45bf7dac90545d34f34",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Dark-unprepared.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/1703689D-2E63-445E-8179-BD2785990BAD.png",
+    "sha256": "d9b4068674a6c2a6f15fa1e440643cc09a93e260ac7c64a97d852ec57b05a45a",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/small-verified-attachments/ru-Dark-unprepared.png"
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-original-explicit.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/B8C06140-E5F5-4764-9BEC-AA51040BA95C.png",
+    "sha256": "814449e986b4a65a536533f448bc01851c621d40dc0dddb2ae9a433e35726712",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-sentences.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/9A58A5FB-BBFD-46DE-ACEE-D429B155D82C.png",
+    "sha256": "7d00b434e855ec065e74a8457e8f2f22f30cd592425a99821aabca05959ff74c",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-exhausted.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/3FA0E943-6E18-4CA4-B2EE-8F0282AEAE27.png",
+    "sha256": "414dc6861d22aba2624dab9a64037739efec5611d204c2e9765dc0e3ddc6c28b",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-play-requested-inspect-state.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/5F2A1CA1-541E-4EFC-AC92-7A343441D4F4.png",
+    "sha256": "98d0e39e780cabb25efd63bfad5ed432ade35fc894609cce62a1122dbbb08830",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-ready.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/BE98E641-C141-4B1E-8CB3-B2257E063DB3.png",
+    "sha256": "f94e6f6dfb56144b923fad4ec94634ce1c921e6ddae42caeebef9c696f0fcc68",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-reveal-menu.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/9AD96217-4D56-4E63-8717-EE927A2DC49D.png",
+    "sha256": "effb255d5f6b12b7bd28dec28b4603401f156a3ef97210d23763ef14e6e0ff8f",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+    "name": "ru-Light-unprepared.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/DEAF3239-C2AE-4A0C-BBD8-E9D6B15C68CF.png",
+    "sha256": "6789b82bed6e60f37e006ea4dcfc7e843819128bca94b14a0ac755f9735e8590",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/small-verified-attachments/ru-Light-unprepared.png"
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "DictationPolicyUITests/testLargeTypeKeyboardAndCheckGeometry()",
+    "name": "en-Dark-accessibility-keyboard.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/932B58A5-10AE-42BA-AF09-71BC976C3934.png",
+    "sha256": "407e9685fde19023680d4f1f6e2a83d5b60fe2baf58b4e308843954fa6268ab0",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/small-verified-attachments/en-Dark-accessibility-keyboard.png"
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/CA60BF34-9DAD-4F3A-9C00-27F7A3252B7E.png",
+    "sha256": "bf132a4b94ddc3ee6bc220d7dfdb509b9bf2b36cdde44afac522026752ab5650",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-fr.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/434765C7-2A37-4AF7-B20D-F8932D04F7CD.png",
+    "sha256": "1fb56b6560638626e2fb3a9721e5113a44e6374f7aacfa5b96a7b23b0a3fec64",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/B9F33F83-0222-41BF-96D9-09F52B07EC99.png",
+    "sha256": "15f99efc94192e6ff38d1963833d80d74ba454b4dc01e5217eb5fb6443af15a8",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-es.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/04E78DF2-137F-4610-BD9F-96C8FF79495C.png",
+    "sha256": "33bd4cea90ee541de6e16888d906320980b7c8fa69334d368288f7064fbc7b9a",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/681AA17A-7FFD-4CEF-A871-9244551B735E.png",
+    "sha256": "990d93fc716058e297b7b72434b56b79995acc8310155fca97f64f43ecd3c444",
+    "included": true,
+    "includedPath": "docs/evidence/native-dictation-final/small-verified-attachments/profiles-editor-keyboard-large-ru.png"
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-ru.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/85EB6BD1-7FAB-48EF-ABE2-49E78C3DA9BF.png",
+    "sha256": "e72632a734231758edc78ec53da668d5fff310ee419270b9576c90160c935945",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/12C5A9CE-0605-41AB-A44E-F6921C26CE72.png",
+    "sha256": "a1accc06c56f3457ce71c3f594f81681a37754c6595d9d22f7cbaa9049291358",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-en.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/33E7A5C9-DC2D-4A3F-BE9A-DEBABA0D2E00.png",
+    "sha256": "da2c2287418a201da6e9c64ed66f2ab7990a8b24c05418bc7151f7c523fce5df",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-editor-keyboard-large-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/BE129F02-8D54-4F03-906A-2BE997A4F03B.png",
+    "sha256": "61c8df09a091dc8e4cb13c53ade78398048eab92f29cf814545d4ee7c6a9df2f",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+    "name": "profiles-translator-large-de.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/30F034DD-334B-4B74-9A9F-7D9699C075CE.png",
+    "sha256": "10ad61f9f7b73ec8e99b35c557902a94adb5d301dfb3b2add88a9a2a68648d48",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-ru-large-dark.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/5DD017D6-C202-4206-B3DE-4F5F22A20947.png",
+    "sha256": "2b09b9b73a06b29d18c3c08779ef4168b6f59844ee01b2b13c46a91f7ded540c",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-fr-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/A8AB060A-6E15-4845-BED4-EA2A7497EE1A.png",
+    "sha256": "566c9d5cbaa960fa17540b35e8bf5882cf18033953b6816e3794107a265e76e1",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-es-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/B951AEBE-EC33-4CB0-80BF-C8E7BF831750.png",
+    "sha256": "f906f34efe958a538d5aa01fa58fbe77cab46ba009121541978ee7f74144e3d5",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-ru-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/B7C5C114-B714-402F-A9C0-664DB97FBAA3.png",
+    "sha256": "41994796eb30d96d865e029252efa5b88723636b53765192e3bfa8133465188a",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-de-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/12AA0ED2-197C-4E29-B6EC-36111F1093DD.png",
+    "sha256": "d543bf6e30e0ca549f3c563a127b181221d9305d1edb9a91310bcb8579d53c20",
+    "included": false
+  },
+  {
+    "suite": "small-verified-attachments",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "name": "result-footer-en-light.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/small-verified-attachments/1A1AAE3D-81CD-45D3-9344-F5342BB6CD20.png",
+    "sha256": "0a8e7bb8453816dfd18b8f7592ef4cfe0d3a6abf7d80fbc766f0e4ddc47d0674",
+    "included": false
+  }
+]

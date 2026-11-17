@@ -1,0 +1,56 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "modelName" : "iPhone 17",
+        "osBuildNumber" : "24B8117",
+        "osVersion" : "27.2",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 0,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "KeineMagie · Built with macOS 27.2.1",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1794946230.101,
+  "passedTests" : 0,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-native-dictation-final/native/App/DictationView.swift"
+    }
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1794946183.028,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertLessThanOrEqual failed: (\"615.9999999999998\") is greater than (\"582.0\") - The complete typed fixture and caret must remain above the keyboard at maximum Dynamic Type",
+      "targetName" : "KeineMagieUITests",
+      "testIdentifier" : 1,
+      "testIdentifierString" : "DictationPolicyUITests/testLargeTypeKeyboardAndCheckGeometry()",
+      "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationPolicyUITests/testLargeTypeKeyboardAndCheckGeometry",
+      "testName" : "testLargeTypeKeyboardAndCheckGeometry()"
+    }
+  ],
+  "title" : "Test - KeineMagie",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 1
+}

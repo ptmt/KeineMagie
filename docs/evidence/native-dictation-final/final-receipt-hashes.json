@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/core-reviewed.log",
+    "sha256": "b6aca0b9214857ab5677817b00fd83cc59d8a994d08f2ccf350b532beea0b628"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/native-ci-reviewed.log",
+    "sha256": "6cc03668114c1cc95a57c55ec32ac225da230dc5ebef705a9ee9a7d2189b3343"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/native-bridge-recovery.log",
+    "sha256": "d3d8d9bbbb389af352c31beec7558c8ef34bc1c0739ea527f5f883a890d37524"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/podcast-wire-recovery.log",
+    "sha256": "b75b5aca8856417083aac6a98d0f26bcecd8005b11f687bb4a750150f804dc1c"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/go-recovery.jsonl",
+    "sha256": "2ac6164391c71b5c7d6c4cef807dccc740883b8a8ed7585c3a396c44cfb7e13d"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/go-vet-recovery.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/web-with-wire-reviewed.log",
+    "sha256": "371d69c05b8c0e1241b16aed93e19b31fe1c729b6a5968191a9f4251fc2e7cf7"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/appmodel-profile-wire-reviewed.log",
+    "sha256": "1078638037f7e8f7e0732184afaba2bae325a8eaef39860715cd2f34d2fa85a9"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/coach-two-client-reviewed.log",
+    "sha256": "f661e91342df88bdfddcc92dfe426957870c9a0b50c2e394308e0030fadddae0"
+  },
+  {
+    "path": "/Users/tinyserve/.hermes/cache/scratch/dictation-final/profile-wire-server.log",
+    "sha256": "10bd84458c900c4a068b7de0e16607e81f44a9b730a72828caf049219b1327e8"
+  }
+]
