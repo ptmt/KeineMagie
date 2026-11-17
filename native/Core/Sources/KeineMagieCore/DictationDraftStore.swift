@@ -44,7 +44,7 @@ import Observation
  public func editAdd(title:String,original:String) throws { state.add.title=title;state.add.original=original;try commit() }
  public func pendingCreate() throws -> Data {
   if let body=state.add.pending { try commit();return body }
-  let body=try JSONEncoder().encode(["id":state.add.id,"title":state.add.title,"text":state.add.original,"language":"de"])
+  let body=try JSONEncoder().encode(DictationCreateRequest(id:state.add.id,title:state.add.title,text:state.add.original))
   state.add.pending=body;try commit();return body
  }
  public func rejectCreate() throws { state.add.pending=nil;state.add.id=UUID().uuidString;try commit() }
@@ -53,18 +53,28 @@ import Observation
  }
  public func pendingAttempt(source:String) throws -> Data {
   if let body=state.attempts[source] { try commit();return body }
-  let body=try JSONEncoder().encode(["id":UUID().uuidString]);state.attempts[source]=body;try commit();return body
+  let body=try JSONEncoder().encode(DictationAttemptRequest(id:UUID().uuidString));state.attempts[source]=body;try commit();return body
  }
  public func finishAttempt(source:String,value:DictationRecord) throws {
   try accept(value);state.attempts[source]=nil;try commit()
  }
  public func accept(_ value:DictationRecord) throws {
+  var value=value
+  if let old=state.entries[value.id]?.local {value.preservePlayback(from:old)}
   guard state.recovered[value.id]==nil else { return }
+  try acceptPlayback(id:value.id,policy:value.playbackPolicyVersion,ledger:value.playback)
   if let old=state.entries[value.id],old.pending != nil || !same(old.local,old.acknowledged) {return}
   state.entries[value.id]=Entry(acknowledged:value,local:value,pending:nil);try commit()
  }
+ /// Independent ledger revisions must never overwrite typed/offline draft state.
+ public func acceptPlayback(id:String,policy:Int?,ledger:DictationPlayback?) throws {
+  guard var entry=state.entries[id],let ledger,ledger.revision >= (entry.local.playback?.revision ?? -1) else {return}
+  entry.local.playbackPolicyVersion=policy;entry.acknowledged.playbackPolicyVersion=policy
+  entry.local.playback=ledger;entry.acknowledged.playback=ledger
+  state.entries[id]=entry;try commit()
+ }
  public func edit(id:String,draft:String) throws { guard var entry=state.entries[id] else{return};entry.local.draft=draft;state.entries[id]=entry;try commit() }
- public func update(_ value:DictationRecord) throws {guard var entry=state.entries[value.id] else{return};entry.local=value;state.entries[value.id]=entry;try commit()}
+ public func update(_ value:DictationRecord) throws {guard var entry=state.entries[value.id] else{return};var value=value;value.preservePlayback(from:entry.local);entry.local=value;state.entries[value.id]=entry;try commit()}
  public func remove(_ id:String) throws {state.entries[id]=nil;state.conflicts[id]=nil;state.attempts[id]=nil;try commit()}
  public func reconcile(_ remote:[DictationRecord]) throws {
   let ids=Set(remote.map(\.id))
@@ -108,6 +118,7 @@ import Observation
     let result=try await send(id,body)
     guard generation==epoch,var latest=state.entries[id] else{return}
     latest.acknowledged=result;latest.local.revision=result.revision;latest.pending=nil;state.entries[id]=latest
+    try acceptPlayback(id:id,policy:result.playbackPolicyVersion,ledger:result.playback)
     try commit()
    }
   }

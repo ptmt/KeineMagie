@@ -8,12 +8,15 @@ import KeineMagieCore
  defer {try? FileManager.default.removeItem(at:root)}
  let gate=CoachGate();let model=try await gate.model(root)
  try model.hydrateDictations()
- let value=try JSONDecoder().decode(DictationRecord.self,from:Data(#"{"id":"one","title":"Test","language":"de","created":"now","mode":"whole","step":0,"replays":0,"draft":"","revision":0,"checked":false,"assisted":false,"plan":[{"kind":"whole","asset":0}],"ready":[]}"#.utf8))
+ let value=try JSONDecoder().decode(DictationRecord.self,from:Data(#"{"id":"one","title":"Test","language":"de","created":"now","mode":"whole","step":0,"replays":0,"draft":"","revision":0,"checked":false,"assisted":false,"plan":[{"kind":"whole","asset":0}],"ready":[],"playback_policy_version":1,"playback":{"revision":7,"whole_starts":4,"cursor":1,"final_used":false}}"#.utf8))
  try model.dictationDrafts.accept(value);try model.dictationDrafts.edit(id:"one",draft:"last character Ω")
  gate.offline=true
  let restored=try await gate.model(root);try restored.hydrateDictations()
  #expect(!restored.session.canWrite)
  #expect(restored.dictationDrafts.record("one")?.draft=="last character Ω")
+ #expect(restored.dictationDrafts.record("one")?.playbackPolicyVersion==1)
+ #expect(restored.dictationDrafts.record("one")?.playback?.wholeStarts==4)
+ #expect(restored.dictationDrafts.record("one")?.policyExhausted==true)
  #expect(gate.calls.isEmpty)
  restored.resetSessionContent()
  #expect(restored.dictationDrafts.record("one")==nil)

@@ -184,14 +184,21 @@ public struct PodcastAPI: Sendable {
     }
     public func dictationRequest(id: String = "", action: String = "", method: String = "GET", body: Data? = nil) throws -> URLRequest {
         guard id.isEmpty || id.range(of: "^[A-Za-z0-9_-]{1,80}$", options: .regularExpression) != nil,
-              action.isEmpty || ["check", "reveal", "attempts"].contains(action) || action.range(of: "^audio/(0|[1-9][0-9]{0,2})$", options: .regularExpression) != nil else { throw APIError.invalidResponse }
+              action.isEmpty || ["check", "reveal", "attempts", "playback"].contains(action) || action.range(of: "^audio/(0|[1-9][0-9]{0,2})$", options: .regularExpression) != nil else { throw APIError.invalidResponse }
         var r = try request(method: method)
         r.url = endpoint.url(path: "v1/learning/dictations" + (id.isEmpty ? "" : "/" + id) + (action.isEmpty ? "" : "/" + action))
         r.cachePolicy = .reloadIgnoringLocalCacheData
         r.timeoutInterval = method == "POST" && action.hasPrefix("audio/") ? 250 : 50
+        if action == "playback" {r.timeoutInterval=8}
         r.httpBody = body
         if body != nil { r.setValue("application/json", forHTTPHeaderField: "Content-Type") }
         return r
+    }
+    public func dictationPlayback(id: String, command: DictationPlaybackRequest) async throws -> DictationPlayback {
+        try Task.checkCancellation()
+        let data=try await send(dictationRequest(id:id,action:"playback",method:"POST",body:JSONEncoder().encode(command)))
+        try Task.checkCancellation()
+        return try JSONDecoder().decode(DictationPlayback.self,from:data)
     }
     public func dictations() async throws -> DictationHistory {
         let data = try await send(dictationRequest())
@@ -210,8 +217,8 @@ public struct PodcastAPI: Sendable {
     public func dictationAudio(id: String, index: Int, prepare: Bool) async throws -> Data {
         let r = try dictationRequest(id: id, action: "audio/\(index)", method: prepare ? "POST" : "GET", body: prepare ? Data("{}".utf8) : nil)
         let response = try await transport(r)
-        try Task.checkCancellation()
         guard response.status == 200 else { throw APIError.http(response.status) }
+        try Task.checkCancellation()
         guard response.data.count <= 16 << 20 else { throw APIError.invalidResponse }
         return response.data
     }

@@ -14,17 +14,24 @@ final class DictationUITests: XCTestCase {
   let play=app.buttons["dictation-play"]
   expectation(for:NSPredicate(format:"enabled == true"),evaluatedWith:play);waitForExpectations(timeout:60)
   play.tap()
-  XCTAssertTrue(app.staticTexts["1 completed readings · 3 suggested, repeat as often as you like."].waitForExistence(timeout:30))
+  XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].waitForExistence(timeout:30))
+  expectation(for:NSPredicate(format:"enabled == true"),evaluatedWith:play);waitForExpectations(timeout:30)
   shot(app,"native-whole-real-audio")
   play.tap()
-  XCTAssertTrue(app.staticTexts["2 completed readings · 3 suggested, repeat as often as you like."].waitForExistence(timeout:15))
+  XCTAssertTrue(app.staticTexts["Whole-text starts: 2 of 4"].waitForExistence(timeout:15))
+  expectation(for:NSPredicate(format:"enabled == true"),evaluatedWith:play);waitForExpectations(timeout:30)
   app.segmentedControls["dictation-mode"].buttons["By sentences"].tap()
-  let next=app.buttons["dictation-next"];XCTAssertTrue(next.waitForExistence(timeout:5));next.tap()
-  prepare.tap();expectation(for:NSPredicate(format:"enabled == true"),evaluatedWith:play);waitForExpectations(timeout:60);play.tap();app.buttons["dictation-pause"].tap()
+  XCTAssertFalse(app.buttons["dictation-next"].exists)
+  if prepare.waitForExistence(timeout:5) {prepare.tap()}
+  expectation(for:NSPredicate(format:"enabled == true"),evaluatedWith:play);waitForExpectations(timeout:60);play.tap()
+  XCTAssertFalse(app.buttons["dictation-pause"].exists)
   shot(app,"native-sentences-real-audio")
   let draft=app.textFields["dictation-draft"].exists ? app.textFields["dictation-draft"] : app.textViews["dictation-draft"]
   draft.tap();draft.typeText("Heute scheint die Sonne.")
   app.swipeUp();let check=app.buttons["dictation-check"];XCTAssertTrue(check.waitForExistence(timeout:5));check.tap()
+  XCTAssertTrue(app.staticTexts["Exact text comparison, not a language-level assessment."].waitForExistence(timeout:10))
+  XCTAssertFalse(app.staticTexts["dictation-revealed"].exists)
+  app.buttons["dictation-menu"].tap();app.buttons["dictation-reveal"].tap()
   XCTAssertTrue(app.staticTexts["dictation-revealed"].waitForExistence(timeout:10));shot(app,"native-check-real-backend")
  }
  @MainActor func testPendingDraftSurvivesImmediateRelaunch() throws {
@@ -62,7 +69,7 @@ final class DictationUITests: XCTestCase {
   let app=try launchDelayedAudio("interruption")
   app.buttons["dictation-play"].tap()
   try await Task.sleep(for:.seconds(9))
-  XCTAssertTrue(app.staticTexts["0 completed readings · 3 suggested, repeat as often as you like."].exists)
+  XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].exists)
   XCTAssertTrue(app.buttons["dictation-play"].isEnabled)
   app.segmentedControls["dictation-mode"].buttons["By sentences"].tap()
   app.segmentedControls["dictation-mode"].buttons["Whole text"].tap()

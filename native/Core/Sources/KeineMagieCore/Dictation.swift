@@ -3,12 +3,22 @@ public struct DictationSegment: Codable, Sendable { public let kind: String; pub
 public struct DictationDifference: Codable, Sendable { public let kind: String; public let original: String; public let written: String }
 public enum DictationEvent: Sendable { case whole, sentences, next, ended, pause }
 public struct DictationRecord: Codable, Sendable, Identifiable {
+ public var playbackPolicyVersion: Int?
+ public var playback: DictationPlayback?
+ enum CodingKeys: String, CodingKey {
+  case id, title, language, created, text, mode, step, replays, draft, revision, checked, assisted, plan, ready, differences
+  case playbackPolicyVersion = "playback_policy_version", playback
+ }
  public let id: String; public let title: String; public let language: String; public let created: String
  public var text: String?; public var mode: String; public var step: Int; public var replays: Int; public var draft: String; public var revision: Int
  public var checked: Bool; public var assisted: Bool; public let plan: [DictationSegment]; public var ready: [Int]; public let differences: [DictationDifference]?
- public var segment: DictationSegment? { let index = mode == "whole" ? 0 : step; return plan.indices.contains(index) ? plan[index] : nil }
+ public var segment: DictationSegment? { let index = playbackPolicyVersion == 1 ? policyStep : (mode == "whole" ? 0 : step); return plan.indices.contains(index) ? plan[index] : nil }
  public mutating func transition(_ event: DictationEvent) {
   guard !checked else { return }
+  if playbackPolicyVersion != nil {
+   if event == .whole {mode="whole"};if event == .sentences {mode="sentences"}
+   return
+  }
   switch event {
   case .whole, .sentences: mode = event == .whole ? "whole" : "sentences"; step = 0; replays = 0
   case .next: if mode == "sentences" { step = min(step + 1, max(0, plan.count - 1)) }

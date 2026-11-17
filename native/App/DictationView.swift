@@ -4,16 +4,18 @@ import KeineMagieCore
 
 @MainActor @Observable final class DictationPlayer: NSObject, AVAudioPlayerDelegate {
     var playing = false
-    var rate: Float = 1
-    var finished: (() -> Void)?
+    var rate: Float = 1 {didSet {player?.rate=rate}}
+    var finished: ((Bool) -> Void)?
+    var position: Double {player?.currentTime ?? 0}
     private var player: AVAudioPlayer?
     private var generation = 0
-    func play(_ data: Data) throws {
+    func play(_ data: Data, offset: Double = 0) throws {
         stop()
         try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
         try AVAudioSession.sharedInstance().setActive(true)
         let next = try AVAudioPlayer(data: data)
         next.enableRate = true; next.rate = rate; next.delegate = self
+        next.currentTime=min(max(0,offset),max(0,next.duration-0.01))
         guard next.prepareToPlay(), next.play() else { throw APIError.invalidResponse }
         player = next; playing = true
     }
@@ -24,7 +26,14 @@ import KeineMagieCore
         Task { @MainActor [weak self] in
             guard let self, let current = self.player, ObjectIdentifier(current) == completedPlayer else { return }
             self.playing = false
-            if flag { self.finished?() }
+            self.finished?(flag)
+        }
+    }
+    nonisolated func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        let failedPlayer=ObjectIdentifier(player)
+        Task { @MainActor [weak self] in
+            guard let self,let current=self.player,ObjectIdentifier(current)==failedPlayer else {return}
+            self.playing=false;self.finished?(false)
         }
     }
 }
@@ -49,6 +58,12 @@ struct DictationView: View {
     @State private var saveFence = DictationSaveFence()
     @State private var draftVersion = 0
     @State private var confirmDelete = false
+    @State private var confirmReveal = false
+    @State private var originalVisible: String?
+    @State private var preparing = false
+    @State private var policyPlayer: DictationPlaybackController?
+    @AccessibilityFocusState private var menuAXFocused: Bool
+    @FocusState private var menuFocused: Bool
     var body: some View {
         Group {
             if let value = record { practice(value) }
@@ -76,6 +91,7 @@ struct DictationView: View {
                             }
                         }.accessibilityIdentifier("dictation-resume-create")
                     }
+
                     ForEach(items) { item in
                         Button { if let cached = model.dictationDrafts.record(item.id) { record = cached }; perform { api, current in let value = try await api.dictation(id: item.id); if current() { try accept(value) } } } label: {
                             VStack(alignment: .leading) { Text(item.title); Text(AppL10n.text(item.checked ? "Checked" : "In progress")).font(.caption).foregroundStyle(.secondary) }
@@ -96,7 +112,13 @@ struct DictationView: View {
         .onChange(of: phase) { _, next in if next != .active { cancelTransport();save() } }
         .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in cancelTransport() }
         .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)) { _ in cancelTransport() }
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.mediaServicesWereResetNotification)) { _ in cancelTransport() }
+        .onChange(of: record?.id) { _, _ in _=policyPlayer?.suspend();policyPlayer=nil;player.stop();originalVisible=nil }
         .onDisappear { cancelTransport();player.stop();save() }
+        .confirmationDialog("Showing the original counts as help for this attempt. Continue?", isPresented:$confirmReveal,titleVisibility:.visible) {
+            Button("Show original") {action("reveal")}
+            Button("Cancel",role:.cancel) {menuAXFocused=true;menuFocused=true}
+        }
         .confirmationDialog("Delete this attempt and its draft?", isPresented: $confirmDelete) {
             Button("Delete attempt", role: .destructive) {
                 guard let value = record else { return }
@@ -140,37 +162,45 @@ struct DictationView: View {
     private func practice(_ value: DictationRecord) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Button("History") { player.stop(); save { record = nil; load() } }
-                Text(value.title).font(.headline)
-                HStack {
+                Button { cancelTransport();save { record = nil; load() } } label: {Label("History",systemImage:"chevron.left").frame(minHeight:44)}.buttonStyle(.plain).foregroundStyle(.secondary)
+                HStack(alignment:.firstTextBaseline) {
+                    Text(value.title).font(.headline).frame(maxWidth:.infinity,alignment:.leading)
+                    Menu {
                     Button("New attempt") { save { perform { api,current in
                         let body = try model.dictationDrafts.pendingAttempt(source:value.id)
                         let next = try await api.dictation(id:value.id,action:"attempts",method:"POST",body:body)
                         guard current() else { return };try model.dictationDrafts.finishAttempt(source:value.id,value:next);record = model.dictationDrafts.record(next.id)
                     } } }.disabled(busy || saving || !model.session.canWrite)
-                    Button("Delete attempt") { confirmDelete = true }.disabled(busy || saving || !model.session.canWrite)
+                    Button("Delete attempt",role:.destructive) { confirmDelete = true }.disabled(busy || saving || !model.session.canWrite)
+                    if !(value.text != nil && (value.assisted || originalVisible == value.id)) {
+                        Button("Show original") {
+                            if value.checked {originalVisible=value.id;menuAXFocused=true;menuFocused=true}
+                            else {confirmReveal = true}
+                        }.disabled(busy || saving).accessibilityIdentifier("dictation-reveal")
+                    }
+                    } label: {Label("More options", systemImage: "ellipsis").labelStyle(.iconOnly).frame(width:44,height:44)}
+                    .accessibilityIdentifier("dictation-menu").accessibilityFocused($menuAXFocused).focused($menuFocused)
                 }
                 Picker("Mode", selection: Binding(get:{record?.mode ?? "whole"},set:{ mode in transition(mode == "whole" ? .whole : .sentences) })) {
                     Text("Whole text").tag("whole"); Text("By sentences").tag("sentences")
-                }.pickerStyle(.segmented).disabled(value.checked || busy || saving).accessibilityIdentifier("dictation-mode")
+                }.pickerStyle(.segmented).disabled(value.checked || busy || saving || policyPlayer?.busy == true).accessibilityIdentifier("dictation-mode")
+                DictationRules(record:value)
                 if value.assisted { Text("With hint · assisted").font(.caption) }
                 if let segment = value.segment {
-                    Text(AppL10n.text(stage(segment.kind))).font(.callout)
-                    Text(value.mode == "whole" ? AppL10n.text("readings").replacingOccurrences(of:"{n}",with:String(value.replays)) : AppL10n.text("step").replacingOccurrences(of:"{n}",with:String(value.step+1)).replacingOccurrences(of:"{total}",with:String(value.plan.count))).font(.caption).foregroundStyle(.secondary)
-                    ViewThatFits(in: .horizontal) {
-                        HStack { playback(value, segment) }
-                        VStack(alignment: .leading) { playback(value, segment) }
+                    if value.playbackPolicyVersion == 1 {
+                        Text(AppL10n.text("dictation.listens").replacingOccurrences(of:"{n}",with:String(value.playback?.wholeStarts ?? 0)).replacingOccurrences(of:"{total}",with:"4")).font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("dictation-starts")
+                        if value.mode == "sentences" {Text(AppL10n.text("dictation.policy.step").replacingOccurrences(of:"{n}",with:String(value.policyStep)).replacingOccurrences(of:"{total}",with:String(max(1,value.plan.count-1)))).font(.caption).foregroundStyle(.secondary)}
                     }
-                    Picker("Speed", selection: $player.rate) { Text(verbatim: "0.75×").tag(Float(0.75));Text(verbatim: "1×").tag(Float(1));Text(verbatim: "1.25×").tag(Float(1.25)) }.pickerStyle(.segmented).accessibilityIdentifier("dictation-speed")
-                    if !value.checked && value.mode == "sentences" && value.step < value.plan.count - 1 { Button("Next") { transition(.next) }.disabled(busy || saving).accessibilityIdentifier("dictation-next") }
+                    playback(value,segment)
+                    if value.playbackPolicyVersion == 1 && (value.playback?.wholeStarts ?? 0) >= 4 {Text("dictation.limit").font(.footnote).foregroundStyle(.secondary)}
+                    if value.playbackPolicyVersion == nil && !value.checked && value.mode == "sentences" && value.step < value.plan.count - 1 { Button("Next") { transition(.next) }.disabled(busy || saving).accessibilityIdentifier("dictation-next") }
                 }
-                TextField("What you heard", text: Binding(get:{record?.draft ?? ""},set:{ draft in
-                    record?.draft = String(draft.prefix(2400));if let record { do { try model.dictationDrafts.update(record) } catch { self.error = AppL10n.text("Not saved. Retry before leaving.") } };draftVersion += 1;saveTask?.cancel();saveTask = Task { try? await Task.sleep(for:.milliseconds(700));if !Task.isCancelled { save() } }
-                }),axis:.vertical).lineLimit(6...14).autocorrectionDisabled().textInputAutocapitalization(.never).padding(12).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius:8)).disabled(value.checked || busy).accessibilityIdentifier("dictation-draft")
                 if !value.checked {
-                    HStack { Button("Check") { action("check") }.disabled(value.draft.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || busy || saving).accessibilityIdentifier("dictation-check")
-                        Button("Show original · mark assisted") { action("reveal") }.disabled(busy || saving) }
+                    HStack { Spacer(); Button("Check") { action("check") }.buttonStyle(.borderedProminent).tint(.primary).foregroundStyle(Color(uiColor:.systemBackground)).frame(minHeight:44).disabled(value.draft.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || busy || saving).accessibilityIdentifier("dictation-check") }
                 }
+                TextField("", text: Binding(get:{record?.draft ?? ""},set:{ draft in
+                    record?.draft = String(draft.prefix(2400));if let record { do { try model.dictationDrafts.update(record) } catch { self.error = AppL10n.text("Not saved. Retry before leaving.") } };draftVersion += 1;saveTask?.cancel();saveTask = Task { try? await Task.sleep(for:.milliseconds(700));if !Task.isCancelled { save() } }
+                }),axis:.vertical).lineLimit(6...14).autocorrectionDisabled().textInputAutocapitalization(.never).padding(12).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius:8)).overlay(RoundedRectangle(cornerRadius:8).stroke(.quaternary,lineWidth:1)).disabled(value.checked || (busy && !preparing)).accessibilityLabel("What you heard").accessibilityIdentifier("dictation-draft")
                 if let server = model.dictationDrafts.conflict(value.id) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Draft conflict").font(.headline)
@@ -183,37 +213,97 @@ struct DictationView: View {
                         }
                     }.accessibilityIdentifier("dictation-conflict")
                 }
-                if let text = value.text { Text("Original").font(.headline); Text(text).textSelection(.enabled).accessibilityIdentifier("dictation-revealed") }
+                if let text = value.text, value.assisted || originalVisible == value.id { Text("Original").font(.headline); Text(text).textSelection(.enabled).accessibilityIdentifier("dictation-revealed") }
                 if value.checked {
                     Text("Exact text comparison, not a language-level assessment.").font(.caption)
                     if value.differences?.isEmpty != false { Text("Matches the original.") }
                     ForEach(Array((value.differences ?? []).enumerated()), id: \.offset) { _, d in Text(verbatim: "\(AppL10n.text(d.kind)): \(d.original.isEmpty ? "—" : d.original) → \(d.written.isEmpty ? "—" : d.written)").font(.callout) }
                 }
-                if busy { HStack { ProgressView(); Button("Cancel") { cancelTransport();player.stop() } } }
+                if busy && !preparing { ProgressView() }
                 if let error { Text(error).font(.footnote).foregroundStyle(.secondary) }
             }.padding()
         }.scrollDismissesKeyboard(.interactively)
     }
-    @ViewBuilder private func playback(_ value: DictationRecord, _ segment: DictationSegment) -> some View {
-        Text("dictation.paid.notice").font(.caption).foregroundStyle(.secondary)
-        Button("Prepare audio") { perform { api, current in
-            _ = try await api.dictationAudio(id:value.id,index:segment.asset,prepare:true)
-            guard current() else { return }
-            record?.ready.append(segment.asset)
-        } }.disabled(busy || value.ready.contains(segment.asset)).accessibilityIdentifier("dictation-prepare")
-        Button("Play / repeat") { perform { api, current in
-            let data = try await api.dictationAudio(id:value.id,index:segment.asset,prepare:false)
-            try Task.checkCancellation()
-            guard current(), phase == .active, model.session.canWrite else { return }
-            try player.play(data)
-            player.finished = { if current() { transition(.ended) } }
-        } }.disabled(busy || !value.ready.contains(segment.asset)).accessibilityIdentifier("dictation-play")
-        Button("Pause") { player.pause() }.accessibilityIdentifier("dictation-pause")
+    private func playback(_ value: DictationRecord, _ segment: DictationSegment) -> some View {
+        let policy=value.playbackPolicyVersion == 1
+        let assets=policy ? value.policyAssets : [segment.asset]
+        let cached=assets.allSatisfy {value.ready.contains($0)}
+        let label=preparing ? "Preparing audio…" : !cached ? "Prepare audio" : policyPlayer?.waiting == true ? "dictation.pause" : player.playing ? (policy ? "dictation.listening" : "Pause") : policy && value.playback?.active != nil ? "dictation.resume" : segment.kind == "final" ? "Optional final reading" : "Play"
+        return DictationAudioToolbar(label:label,identifier:cached ? "dictation-play" : "dictation-prepare",
+            disabled:busy || saving || !model.session.canWrite || (policy && (value.checked || value.policyExhausted || policyPlayer?.busy == true || policyPlayer?.waiting == true || player.playing)) || (value.playbackPolicyVersion != nil && !policy),
+            preparing:preparing,primary:value.draft.isEmpty && !value.checked,rate:$player.rate,
+            activate:{
+                if !cached {
+                    perform { api,current in
+                        preparing=true
+                        defer {if current() {preparing=false}}
+                        for asset in assets where !value.ready.contains(asset) {
+                            guard current() else {return}
+                            _ = try await api.dictationAudio(id:value.id,index:asset,prepare:true)
+                            guard current() else {return}
+                            record?.ready.append(asset)
+                            if let record {try model.dictationDrafts.update(record)}
+                        }
+                        save()
+                    }
+                } else if policy {
+                    let controller=policyController(value)
+                    Task {await controller?.play()}
+                } else if player.playing {player.pause()}
+                else {
+                    perform {api,current in
+                        let data=try await api.dictationAudio(id:value.id,index:segment.asset,prepare:false)
+                        guard current(),phase == .active else {return}
+                        try player.play(data)
+                        player.finished={success in if current(),success {transition(.ended)}}
+                    }
+                }
+            },cancel:{cancelTransport();save()})
     }
-    private func cancelTransport() { task?.cancel();task=nil;epoch += 1;busy=false;player.pause() }
-    private func stage(_ kind: String) -> String { ["whole":"Listen to the whole text","sentence":"Listen to the sentence","chunk":"Listen to this part","sentence_repeat":"Listen to the sentence again","final":"Optional final reading"][kind] ?? "Listen" }
-    private func transition(_ event: DictationEvent) { player.stop();record?.transition(event);if let record { do { try model.dictationDrafts.update(record) } catch { self.error = AppL10n.text("Not saved. Retry before leaving.") } };save() }
-    private func clear() { epoch += 1;saveFence.reset();task?.cancel();saveTask?.cancel();player.stop();items=[];record=nil;title="";original="";error=nil;busy=false;saving=false;loaded=false;historyConfirmed=false;showAdd=false }
+
+    private func policyController(_ value:DictationRecord) -> DictationPlaybackController? {
+        if let policyPlayer {return policyPlayer}
+        guard let api=try? model.podcastAPI() else {return nil}
+        let generation=model.session.generation,id=value.id
+        let controller=DictationPlaybackController(
+            read:{record?.id == id ? record : nil},refresh:{try await api.dictation(id:id)},
+            send:{try await api.dictationPlayback(id:id,command:$0)},
+            audio:{try await api.dictationAudio(id:id,index:$0,prepare:false)},
+            publish:{ledger in
+                guard record?.id == id,model.session.generation == generation else {throw CancellationError()}
+                try model.dictationDrafts.acceptPlayback(id:id,policy:1,ledger:ledger)
+                record?.playback=ledger
+            },play:{data,offset,completion in
+                guard phase == .active else {throw CancellationError()}
+                try player.play(data,offset:offset);player.finished=completion
+            },stop:{let offset=player.position;player.stop();return offset},
+            authorized:{model.session.generation == generation && model.session.canWrite && record?.id == id},
+            failed:{failure in
+                guard model.session.generation == generation else {return}
+                if case APIError.http(401)=failure {model.session.rejectUnauthorized();model.resetSessionContent();clear()}
+                else if case APIError.http(404)=failure {
+                    if let asset=record?.segment?.asset {record?.ready.removeAll {$0 == asset}}
+                    if let record {try? model.dictationDrafts.update(record)}
+                    error=AppL10n.text("Saved audio unavailable. Prepare it again.")
+                } else if case APIError.http(409)=failure {error=AppL10n.text("dictation.playback.conflict")}
+                else {error=AppL10n.text("dictation.continue")}
+            },ownerCurrent:{model.session.generation == generation},position:{player.position})
+        policyPlayer=controller
+        return controller
+    }
+    private func cancelTransport() { _=policyPlayer?.suspend();task?.cancel();task=nil;epoch += 1;busy=false;preparing=false;player.pause() }
+    private func transition(_ event: DictationEvent) {
+        if let value=record,value.playbackPolicyVersion == 1,event == .whole || event == .sentences {
+            let controller=policyController(value)
+            perform {_,current in
+                try await controller?.cancel()
+                guard current() else {return}
+                record?.transition(event)
+                if let record {try model.dictationDrafts.update(record)}
+            }
+        } else {player.stop();record?.transition(event);if let record {do {try model.dictationDrafts.update(record)} catch {self.error=AppL10n.text("Not saved. Retry before leaving.")}};save()}
+    }
+    private func clear() { _=policyPlayer?.suspend();policyPlayer=nil;originalVisible=nil;preparing=false;epoch += 1;saveFence.reset();task?.cancel();saveTask?.cancel();player.stop();items=[];record=nil;title="";original="";error=nil;busy=false;saving=false;loaded=false;historyConfirmed=false;showAdd=false }
     private func saveAddForm() { do { try model.dictationDrafts.editAdd(title:title,original:original) } catch { self.error=AppL10n.text("Not saved. Retry before leaving.") } }
     private func accept(_ value: DictationRecord) throws { try model.dictationDrafts.accept(value);record = model.dictationDrafts.record(value.id) }
     private func load() {
@@ -249,14 +339,17 @@ struct DictationView: View {
         }
     }
     private func action(_ action: String) {
-        player.stop();guard let value=record else{return}
+        guard let value=record else{return}
+        let controller=value.playbackPolicyVersion == 1 ? policyController(value) : nil
         guard model.dictationDrafts.conflict(value.id)==nil else {self.error=AppL10n.text("Draft conflict");return}
         perform { api, current in
+            if let controller {try await controller.cancel()} else {player.stop()}
+            guard current() else {return}
             try model.dictationDrafts.update(value)
             try await model.dictationDrafts.flush(id:value.id) { id,body in try await api.dictation(id:id,method:"PUT",body:body) }
             guard current() else { return }; record = model.dictationDrafts.record(value.id)
             let checked = try await api.dictation(id:value.id,action:action,method:"POST",body:JSONEncoder().encode(["revision":record?.revision ?? value.revision]))
-            if current() { try accept(checked) }
+            if current() { try accept(checked);if action == "reveal" {originalVisible=value.id;menuAXFocused=true;menuFocused=true} }
         }
     }
     private func resolveConflict(id:String,api:PodcastAPI,current: @escaping @MainActor () -> Bool) async {
@@ -280,12 +373,13 @@ struct DictationView: View {
         let generation=model.session.generation,current=epoch
         busy=true;error=nil
         task=Task { @MainActor in
-            defer { if epoch==current {busy=false} }
+            defer { if epoch==current {busy=false;if record != nil {save()} } }
             guard !Task.isCancelled,generation == model.session.generation,current == epoch,model.session.canWrite else{return}
             do { try await operation(api, { !Task.isCancelled && generation == model.session.generation && current == epoch && model.session.canWrite }) }
-            catch { if epoch==current && generation==model.session.generation && model.session.canWrite && !Task.isCancelled {
-                if case APIError.http(401) = error { model.session.rejectUnauthorized();model.resetSessionContent();clear() }
-                else if case APIError.http(409) = error,let id=record?.id { await resolveConflict(id:id,api:api,current:{ epoch==current && generation==model.session.generation }) }
+            catch {
+                if case APIError.http(401) = error,generation==model.session.generation {model.session.rejectUnauthorized();model.resetSessionContent();clear()}
+                else if epoch==current && generation==model.session.generation && model.session.canWrite && !Task.isCancelled {
+                if case APIError.http(409) = error,let id=record?.id { await resolveConflict(id:id,api:api,current:{ epoch==current && generation==model.session.generation }) }
                 else if case APIError.http(404) = error,let id=record?.id {
                     do {try model.dictationDrafts.reconcileDeleted(id);record=nil;items.removeAll{$0.id==id}}
                     catch {self.error=AppL10n.text("Not saved. Retry before leaving.")}

@@ -1,0 +1,82 @@
+import XCTest
+
+/// Pending simulator acceptance: uses the isolated cached-audio Go fixture only.
+/// Captures must be exported and inspected; compilation is not visual acceptance.
+final class DictationPolicyUITests: XCTestCase {
+    @MainActor func testFocusedRussianLightAndDarkPolicyStates() throws {
+        for theme in ["Light","Dark"] {
+            let app=try launch(locale:"ru",theme:theme)
+            let prepare=app.buttons["dictation-prepare"]
+            XCTAssertTrue(prepare.waitForExistence(timeout:15))
+            XCTAssertTrue(app.staticTexts["dictation-rules"].exists)
+            XCTAssertFalse(app.buttons["dictation-pause"].exists)
+            XCTAssertFalse(app.staticTexts["dictation-revealed"].exists)
+            capture(app,"ru-\(theme)-unprepared")
+            app.buttons["dictation-menu"].tap()
+            XCTAssertTrue(app.buttons["dictation-reveal"].waitForExistence(timeout:3))
+            capture(app,"ru-\(theme)-reveal-menu")
+            app.tap() // Dismiss only: opening the menu must not reveal or prepare.
+            XCTAssertFalse(app.staticTexts["dictation-revealed"].exists)
+            prepare.tap()
+            let play=app.buttons["dictation-play"]
+            XCTAssertTrue(play.waitForExistence(timeout:60))
+            waitEnabled(play)
+            capture(app,"ru-\(theme)-ready")
+            for count in 1...4 {
+                play.tap()
+                XCTAssertTrue(app.staticTexts["Запуски всего текста: \(count) из 4"].waitForExistence(timeout:15))
+                if count == 1 {capture(app,"ru-\(theme)-play-requested-inspect-state")}
+                waitForEndOrExhaustion(app)
+                if count < 4 {waitEnabled(play)}
+            }
+            XCTAssertFalse(play.isEnabled)
+            XCTAssertTrue(app.buttons["dictation-check"].exists)
+            XCTAssertFalse(app.staticTexts["dictation-revealed"].exists)
+            capture(app,"ru-\(theme)-exhausted")
+            app.segmentedControls["dictation-mode"].buttons.element(boundBy:1).tap()
+            capture(app,"ru-\(theme)-sentences")
+            app.terminate()
+        }
+    }
+    @MainActor func testLargeTypeKeyboardAndCheckGeometry() throws {
+        let app=try launch(locale:"en",theme:"Dark",large:true)
+        let draft=app.textFields["dictation-draft"]
+        XCTAssertTrue(draft.waitForExistence(timeout:15))
+        app.swipeUp()
+        draft.tap();draft.typeText("My draft stays here")
+        let check=app.buttons["dictation-check"]
+        XCTAssertGreaterThanOrEqual(check.frame.height,44)
+        XCTAssertLessThanOrEqual(check.frame.maxY,draft.frame.minY)
+        XCTAssertFalse(app.staticTexts["dictation-revealed"].exists)
+        capture(app,"en-Dark-accessibility-keyboard")
+    }
+    @MainActor private func launch(locale:String,theme:String,large:Bool=false) throws -> XCUIApplication {
+        let url=URL(fileURLWithPath:"/Users/tinyserve/.hermes/cache/scratch/diktat-fixture/fixture.json")
+        guard let data=try? Data(contentsOf:url),let info=try JSONSerialization.jsonObject(with:data) as? [String:String],let token=info["native"] else {throw XCTSkip("Start isolated Go cached-audio fixture; never use production")}
+        let app=XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="dictation-local"
+        app.launchEnvironment["KM_DICTATION_FIXTURE_TOKEN"]=token
+        app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"]=UUID().uuidString
+        app.launchArguments=["-AppleLanguages","(\(locale))","-AppleLocale",locale,"-AppleInterfaceStyle",theme]
+        if large {app.launchArguments += ["-UIPreferredContentSizeCategoryName","UICTContentSizeCategoryAccessibilityXXXL"]}
+        app.launch()
+        let tab=app.tabBars.buttons[locale == "ru" ? "Диктант" : "Dictation"]
+        XCTAssertTrue(tab.waitForExistence(timeout:15));tab.tap()
+        app.buttons["dictation-add"].tap()
+        let title=app.textFields["dictation-title"];XCTAssertTrue(title.waitForExistence(timeout:5));title.tap();title.typeText("Ein Spaziergang im Park")
+        let original=app.textViews["dictation-original"];original.tap();original.typeText("Heute scheint die Sonne.")
+        app.buttons["dictation-create"].tap()
+        return app
+    }
+    @MainActor private func waitEnabled(_ element:XCUIElement) {
+        expectation(for:NSPredicate(format:"enabled == true"),evaluatedWith:element);waitForExpectations(timeout:40)
+    }
+    @MainActor private func waitForEndOrExhaustion(_ app:XCUIApplication) {
+        // The final state is disabled by policy; wait for its listening label to leave.
+        let play=app.buttons["dictation-play"]
+        expectation(for:NSPredicate(format:"label != %@","Воспроизведение"),evaluatedWith:play);waitForExpectations(timeout:40)
+    }
+    @MainActor private func capture(_ app:XCUIApplication,_ name:String) {
+        let attachment=XCTAttachment(screenshot:app.screenshot());attachment.name=name;attachment.lifetime = .keepAlways;add(attachment)
+    }
+}
