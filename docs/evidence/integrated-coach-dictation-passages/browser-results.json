@@ -1,0 +1,22 @@
+[
+  {
+    "name": "episode_tabs_browser",
+    "exit": 0
+  },
+  {
+    "name": "episode_tabs_compat_browser",
+    "exit": 0
+  },
+  {
+    "name": "episode_tabs_lifecycle_browser",
+    "exit": 0
+  },
+  {
+    "name": "episode_tabs_owner_browser",
+    "exit": 0
+  },
+  {
+    "name": "followup_browser",
+    "exit": 0
+  }
+]

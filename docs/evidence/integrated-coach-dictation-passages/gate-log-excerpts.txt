@@ -1,0 +1,79 @@
+## go-race
+ok  	diktat/server	211.119s
+
+## go-vet
+[No output; exit status in initial-gates.json]
+
+## node
+ℹ tests 135
+ℹ pass 135
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+
+## core
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.030 (0.031) seconds
+	 Executed 13 tests, with 0 failures (0 unexpected) in 0.055 (0.057) seconds
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.043 (0.044) seconds
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.004 (0.005) seconds
+	 Executed 13 tests, with 0 failures (0 unexpected) in 0.009 (0.011) seconds
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.005 (0.005) seconds
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+	 Executed 6 tests, with 1 test skipped and 0 failures (0 unexpected) in 0.004 (0.005) seconds
+	 Executed 64 tests, with 1 test skipped and 0 failures (0 unexpected) in 0.156 (0.166) seconds
+	 Executed 64 tests, with 1 test skipped and 0 failures (0 unexpected) in 0.156 (0.194) seconds
+✔ Test run with 72 tests in 1 suite passed after 0.173 seconds.
+
+## lifecycle
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.007) seconds
+✔ Test run with 106 tests in 0 suites passed after 0.476 seconds.
+Ran 1 test in 40.210s
+OK
+
+## daily
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.015) seconds
+✔ Test run with 16 tests in 0 suites passed after 0.102 seconds.
+
+## wire
+ok  	diktat/server	2.157s
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.012 (0.013) seconds
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.012 (0.013) seconds
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.012 (0.023) seconds
+
+## coach-wire
+ok  	diktat/server	0.439s
+Decoded Go handler: assessment.json, turns=1, observations=1
+Decoded Go handler: exercise.json, turns=1, observations=0
+Decoded Go handler: failed.json, turns=1, observations=0
+Decoded Go handler: initial.json, turns=0, observations=0
+Decoded Go handler: legacy.json, turns=1, observations=0
+Decoded Go handler: offer.json, turns=1, observations=0
+Decoded Go handler: pending.json, turns=1, observations=0
+Decoded Go handler: progress.json, turns=2, observations=0
+Decoded Go handler: reset.json, turns=1, observations=0
+
+## two-clients
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.007) seconds
+✔ Test run with 106 tests in 0 suites passed after 0.596 seconds.
+Ran 1 test in 24.161s
+OK
+ok  	diktat/server	26.320s
+
+## python-final-with-built-plist
+ok  	diktat/server	0.709s
+Decoded Go handler: assessment.json, turns=1, observations=1
+Decoded Go handler: exercise.json, turns=1, observations=0
+Decoded Go handler: failed.json, turns=1, observations=0
+Decoded Go handler: initial.json, turns=0, observations=0
+Decoded Go handler: legacy.json, turns=1, observations=0
+Decoded Go handler: offer.json, turns=1, observations=0
+Decoded Go handler: pending.json, turns=1, observations=0
+Decoded Go handler: progress.json, turns=2, observations=0
+Decoded Go handler: reset.json, turns=1, observations=0
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.006) seconds
+✔ Test run with 106 tests in 0 suites passed after 0.285 seconds.
+Ran 54 tests in 20.233s
+OK

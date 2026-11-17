@@ -36,7 +36,21 @@ class TabsAndShortcutsTests(unittest.TestCase):
 
     def test_identity_epoch_resets_tabs_and_account_local_content(self):
         source = (ROOT / 'App/KeineMagieApp.swift').read_text()
-        self.assertIn('MainTabsView(showSettings: $showSettings).id(model.session.generation)', source)
+        # Reset the owning stack: resetting only its root tabs leaves pushed
+        # destinations holding private job values after an authenticated 401.
+        stack = source.index('NavigationStack {')
+        opening = source.index('{', stack)
+        depth = 1
+        closing = opening
+        while depth:
+            closing += 1
+            depth += (source[closing] == '{') - (source[closing] == '}')
+        self.assertIn('MainTabsView(showSettings: $showSettings)', source[opening:closing])
+        suffix = '\n'.join(line for line in source[closing + 1:].splitlines()
+                           if not line.strip().startswith('//')).lstrip()
+        self.assertTrue(suffix.startswith('.id(model.session.generation)'),
+                        'The owner epoch must replace the NavigationStack itself')
+        self.assertNotIn('MainTabsView(showSettings: $showSettings).id(', source)
         self.assertIn('model.resetSessionContent(); model.loadShortcuts()', source)
 
 if __name__ == '__main__':

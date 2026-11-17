@@ -14,6 +14,20 @@ final class TranslationResultControlsUITests: XCTestCase {
     @MainActor private func capture(_ app: XCUIApplication, _ name: String) {
         let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
+    @MainActor private func revealEntireControl(_ control: XCUIElement, in app: XCUIApplication) {
+        let top = app.navigationBars.firstMatch.frame.maxY + 8
+        let bottom = app.keyboards.firstMatch.exists ? app.keyboards.firstMatch.frame.minY - 8 : app.tabBars.firstMatch.frame.minY
+        for _ in 0..<6 {
+            let frame = control.frame
+            if frame.minY >= top && frame.maxY <= bottom { break }
+            let shift = frame.minY < top ? top - frame.minY : bottom - frame.maxY
+            let start = app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: app.frame.width - 4, dy: (top + bottom) / 2))
+            let end = start.withOffset(CGVector(dx: 0, dy: max(-140, min(140, shift))))
+            start.press(forDuration: 0.1, thenDragTo: end)
+        }
+        XCTAssertGreaterThanOrEqual(control.frame.minY, top - 1)
+        XCTAssertLessThanOrEqual(control.frame.maxY, bottom + 1)
+    }
     @MainActor func testClarifyIsInsideResultFooterAndClearKeepsOutput() {
         let app = launch()
         let input = app.textViews["translator-input"]
@@ -63,6 +77,7 @@ final class TranslationResultControlsUITests: XCTestCase {
                 let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.15))
                 start.press(forDuration: 0.1, thenDragTo: end)
             }
+            revealEntireControl(clarify, in: app)
             let output = app.otherElements["translation-output"]
             XCTAssertTrue(output.frame.insetBy(dx: -0.1, dy: -0.1).contains(clarify.frame))
             XCTAssertGreaterThanOrEqual(clarify.frame.height, 43.9)
@@ -138,6 +153,7 @@ final class TranslationResultControlsUITests: XCTestCase {
         let clarify = app.buttons["history-clarify-followup-synthetic"]
         for _ in 0..<5 { if clarify.isHittable { break }; app.swipeUp() }
         XCTAssertTrue(clarify.isHittable)
+        revealEntireControl(clarify, in: app)
         XCTAssertEqual(clarify.frame.width, 44, accuracy: 1)
         XCTAssertGreaterThan(clarify.frame.minX, app.frame.midX)
         capture(app, "history-controls-ru-dark-large")

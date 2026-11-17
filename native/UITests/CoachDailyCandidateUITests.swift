@@ -70,6 +70,28 @@ final class CoachDailyCandidateUITests: XCTestCase {
         XCTAssertEqual(last.frame.minY, reading.minY, accuracy: 2)
         shot(app, "daily-manual-history-return")
     }
+    @MainActor func testDictationPullRefreshChangesActualHistoryWithoutAudio() {
+        let app = launch("dictation-refresh", tab: "Dictation")
+        defer { app.terminate() }
+        XCTAssertTrue(app.buttons["dictation-empty-create"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.buttons["Refresh"].exists)
+        for read in 2...3 {
+            // Pull from inside the actual short history row. A generic full-List
+            // swipe can start in its empty background and never cross the refresh threshold.
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.2))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.8))
+            start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.5)
+            let row = app.buttons["dictation-row"]
+            XCTAssertTrue(row.waitForExistence(timeout: 8))
+            let title = "Synthetic refreshed dictation · read \(read)"
+            let changed = NSPredicate(format: "label CONTAINS %@", title)
+            expectation(for: changed, evaluatedWith: row)
+            waitForExpectations(timeout: 8)
+            XCTAssertFalse(app.buttons["dictation-empty-create"].exists)
+            XCTAssertFalse(app.buttons["Refresh"].exists)
+            shot(app, "daily-dictation-pull-refresh-\(read)")
+        }
+    }
     @MainActor func testEmptyDictationHasPrimaryCreateAndNoRefresh() {
         let app = launch("dictation-empty", tab: "Dictation")
         XCTAssertTrue(app.staticTexts["No dictations yet."].waitForExistence(timeout: 8))

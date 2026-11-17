@@ -1,0 +1,301 @@
+{
+  "devices": [
+    {
+      "architecture": "arm64",
+      "deviceId": "2EE207BC-1449-4CF9-B0E3-439F59B487F8",
+      "deviceName": "KeineMagie combined repair owned",
+      "modelName": "iPhone SE (3rd generation)",
+      "osBuildNumber": "24B8117",
+      "osVersion": "27.2",
+      "platform": "iOS Simulator"
+    }
+  ],
+  "testNodes": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "duration": "45s",
+                  "durationInSeconds": 45.613613963127136,
+                  "name": "testCheckingIntervalsNormalAndReducedMotion()",
+                  "nodeIdentifier": "CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "12s",
+                  "durationInSeconds": 12.845308065414429,
+                  "name": "testCheckSkipTargetsAndSuccessKeyboard()",
+                  "nodeIdentifier": "CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "children": [
+                    {
+                      "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                      "nodeType": "Runtime Warning",
+                      "sourceLocation": {
+                        "filePath": "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/native/App/DictationView.swift",
+                        "lineNumber": 21
+                      }
+                    }
+                  ],
+                  "duration": "25s",
+                  "durationInSeconds": 25.593196988105774,
+                  "name": "testDictationPullRefreshChangesActualHistoryWithoutAudio()",
+                  "nodeIdentifier": "CoachDailyCandidateUITests/testDictationPullRefreshChangesActualHistoryWithoutAudio()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachDailyCandidateUITests/testDictationPullRefreshChangesActualHistoryWithoutAudio",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "children": [
+                    {
+                      "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                      "nodeType": "Runtime Warning",
+                      "sourceLocation": {
+                        "filePath": "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/native/App/DictationView.swift",
+                        "lineNumber": 21
+                      }
+                    }
+                  ],
+                  "duration": "15s",
+                  "durationInSeconds": 15.00738799571991,
+                  "name": "testEmptyDictationHasPrimaryCreateAndNoRefresh()",
+                  "nodeIdentifier": "CoachDailyCandidateUITests/testEmptyDictationHasPrimaryCreateAndNoRefresh()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachDailyCandidateUITests/testEmptyDictationHasPrimaryCreateAndNoRefresh",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "19s",
+                  "durationInSeconds": 19.309394001960754,
+                  "name": "testManualOlderReadingSurvivesEntryReadback()",
+                  "nodeIdentifier": "CoachDailyCandidateUITests/testManualOlderReadingSurvivesEntryReadback()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachDailyCandidateUITests/testManualOlderReadingSurvivesEntryReadback",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                }
+              ],
+              "name": "CoachDailyCandidateUITests",
+              "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachDailyCandidateUITests",
+              "nodeType": "Test Suite",
+              "result": "Passed"
+            },
+            {
+              "children": [
+                {
+                  "duration": "17s",
+                  "durationInSeconds": 17.365400075912476,
+                  "name": "testBackgroundReturnConsultsServerAdmissionAndKeepsDraft()",
+                  "nodeIdentifier": "CoachUITests/testBackgroundReturnConsultsServerAdmissionAndKeepsDraft()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachUITests/testBackgroundReturnConsultsServerAdmissionAndKeepsDraft",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "1m 3s",
+                  "durationInSeconds": 63.219560980796814,
+                  "name": "testFiveLocaleCompactFeedback()",
+                  "nodeIdentifier": "CoachUITests/testFiveLocaleCompactFeedback()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachUITests/testFiveLocaleCompactFeedback",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                }
+              ],
+              "name": "CoachUITests",
+              "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachUITests",
+              "nodeType": "Test Suite",
+              "result": "Passed"
+            },
+            {
+              "children": [
+                {
+                  "duration": "2m 19s",
+                  "durationInSeconds": 139.31428396701813,
+                  "name": "testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+                  "nodeIdentifier": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "38s",
+                  "durationInSeconds": 38.879343032836914,
+                  "name": "testFailedWriteRetainsStateAndRevocationPurges()",
+                  "nodeIdentifier": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "1m 54s",
+                  "durationInSeconds": 114.60411202907562,
+                  "name": "testFiveLocaleXXXLContextMenu()",
+                  "nodeIdentifier": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/PassageGroupsUITests/testFiveLocaleXXXLContextMenu",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "17s",
+                  "durationInSeconds": 17.831755995750427,
+                  "name": "testNativeSwipeUsesProductionHTTP()",
+                  "nodeIdentifier": "PassageGroupsUITests/testNativeSwipeUsesProductionHTTP()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/PassageGroupsUITests/testNativeSwipeUsesProductionHTTP",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                }
+              ],
+              "name": "PassageGroupsUITests",
+              "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/PassageGroupsUITests",
+              "nodeType": "Test Suite",
+              "result": "Passed"
+            },
+            {
+              "children": [
+                {
+                  "duration": "33s",
+                  "durationInSeconds": 33.01220500469208,
+                  "name": "testClearDuringPendingTranslationKeepsAcceptedSnapshotAndKeyboard()",
+                  "nodeIdentifier": "TranslationCopyUITests/testClearDuringPendingTranslationKeepsAcceptedSnapshotAndKeyboard()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationCopyUITests/testClearDuringPendingTranslationKeepsAcceptedSnapshotAndKeyboard",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "1m 13s",
+                  "durationInSeconds": 73.28510391712189,
+                  "name": "testOneTapCopiesExactCompletedTranslationInAllLocales()",
+                  "nodeIdentifier": "TranslationCopyUITests/testOneTapCopiesExactCompletedTranslationInAllLocales()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationCopyUITests/testOneTapCopiesExactCompletedTranslationInAllLocales",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                }
+              ],
+              "name": "TranslationCopyUITests",
+              "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationCopyUITests",
+              "nodeType": "Test Suite",
+              "result": "Passed"
+            },
+            {
+              "children": [
+                {
+                  "duration": "17s",
+                  "durationInSeconds": 17.647722005844116,
+                  "name": "testCompactKeyboardSendPreviewAndApplyPair()",
+                  "nodeIdentifier": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                }
+              ],
+              "name": "TranslationFollowupUITests",
+              "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests",
+              "nodeType": "Test Suite",
+              "result": "Passed"
+            },
+            {
+              "children": [
+                {
+                  "duration": "16s",
+                  "durationInSeconds": 16.241434931755066,
+                  "name": "testClarifyIsInsideResultFooterAndClearKeepsOutput()",
+                  "nodeIdentifier": "TranslationResultControlsUITests/testClarifyIsInsideResultFooterAndClearKeepsOutput()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationResultControlsUITests/testClarifyIsInsideResultFooterAndClearKeepsOutput",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "1m 6s",
+                  "durationInSeconds": 66.37943911552429,
+                  "name": "testHistoryActionsTrailingAllLocales()",
+                  "nodeIdentifier": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "17s",
+                  "durationInSeconds": 17.00635302066803,
+                  "name": "testHistoryCopiesExactUnicodeAndOpensEachRecordWithoutChangingDraft()",
+                  "nodeIdentifier": "TranslationResultControlsUITests/testHistoryCopiesExactUnicodeAndOpensEachRecordWithoutChangingDraft()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationResultControlsUITests/testHistoryCopiesExactUnicodeAndOpensEachRecordWithoutChangingDraft",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "12s",
+                  "durationInSeconds": 12.922996997833252,
+                  "name": "testHistoryDarkLargeText()",
+                  "nodeIdentifier": "TranslationResultControlsUITests/testHistoryDarkLargeText()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationResultControlsUITests/testHistoryDarkLargeText",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "1m 35s",
+                  "durationInSeconds": 95.70502710342407,
+                  "name": "testResultFooterAllLocalesIncludingLargeType()",
+                  "nodeIdentifier": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                },
+                {
+                  "duration": "6s",
+                  "durationInSeconds": 6.323210000991821,
+                  "name": "testStylesInsideSourceFooter()",
+                  "nodeIdentifier": "TranslationResultControlsUITests/testStylesInsideSourceFooter()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationResultControlsUITests/testStylesInsideSourceFooter",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                }
+              ],
+              "name": "TranslationResultControlsUITests",
+              "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationResultControlsUITests",
+              "nodeType": "Test Suite",
+              "result": "Passed"
+            },
+            {
+              "children": [
+                {
+                  "duration": "2m 43s",
+                  "durationInSeconds": 163.82394099235535,
+                  "name": "testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+                  "nodeIdentifier": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
+                }
+              ],
+              "name": "TranslatorInitialGeometryUITests",
+              "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorInitialGeometryUITests",
+              "nodeType": "Test Suite",
+              "result": "Passed"
+            }
+          ],
+          "name": "KeineMagieUITests",
+          "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+          "nodeType": "UI test bundle",
+          "result": "Passed"
+        }
+      ],
+      "name": "KeineMagie",
+      "nodeType": "Test Plan",
+      "result": "Passed"
+    }
+  ],
+  "testPlanConfigurations": [
+    {
+      "configurationId": "1",
+      "configurationName": "Test Scheme Action"
+    }
+  ]
+}

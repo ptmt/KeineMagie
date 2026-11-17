@@ -1,0 +1,29 @@
+{
+  "tracked_files_scanned": 650,
+  "conflict_markers_found": 0,
+  "duplicate_safe_json_files_parsed": 22,
+  "catalog_keys": 409,
+  "catalog_locale_entries": {
+    "de": 409,
+    "en": 409,
+    "ru": 409,
+    "es": 409,
+    "fr": 409
+  },
+  "catalog_sha256": "3250920dd27a1a13249966223c39d424a8a25c55adea5d42841e88b01cd605d6",
+  "three_way_semantic_merge_matches": true,
+  "original_saved_file_hashes_verified": 304,
+  "original_expanded_status_unchanged": true,
+  "owned_simulator": "2EE207BC-1449-4CF9-B0E3-439F59B487F8",
+  "owned_simulator_state": "Shutdown",
+  "fixture_port_18879_closed": true,
+  "native_preserved_pngs": 30,
+  "browser_preserved_pngs": 3,
+  "final_ui_passed": 21,
+  "final_ui_failed": 0,
+  "final_ui_skipped": 0,
+  "python_final_returncode": 0,
+  "python_final_log": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/python-final-with-built-plist.log",
+  "real_ai_tts_calls_authorized": false,
+  "release_authorized": false
+}

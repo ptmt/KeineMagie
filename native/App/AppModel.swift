@@ -991,8 +991,9 @@ final class AppModel {
 
     init() {
         #if targetEnvironment(simulator)
-        // Explicit simulator-only, in-memory fixture. Never reads/writes Keychain,
-        // contacts a server, signs in with Apple, or claims a provider connection.
+        // Explicit simulator-only synthetic transport; optional acceptance modes
+        // use loopback fixtures. Never reads/writes Keychain, contacts production,
+        // signs in with Apple, or claims a real provider connection.
         if let mode = ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"] {
             let fixture = SimulatorSessionFixture(mode: mode)
             outboxStore = TranslationOutboxStore(root: URL.applicationSupportDirectory.appendingPathComponent("UITestOutbox").appendingPathComponent(UUID().uuidString))

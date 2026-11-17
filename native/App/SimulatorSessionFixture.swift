@@ -39,6 +39,7 @@ actor SimulatorSessionFixture {
     private var coachProgressShown = false
     private var coachEntryCount = 0
     private var validations = 0
+    private var dictationHistoryReads = 0
     private var profileLevels: [String: String] = [:]
     private var podcastRefreshed = false
     private var overviewState = "transcribing"
@@ -187,6 +188,14 @@ actor SimulatorSessionFixture {
         if mode == "translation-outbox-status", request.url?.path == "/v1/auth/session", validations > 0 { try await Task.sleep(for: .seconds(15)) }
         if mode == "dictation-empty", request.url?.path == "/v1/learning/dictations", request.httpMethod == "GET" {
             return AuthResponse(data: Data(#"{"items":[],"tts_available":true,"languages":["de"]}"#.utf8), status: 200)
+        }
+        if mode == "dictation-refresh", request.url?.path == "/v1/learning/dictations", request.httpMethod == "GET" {
+            dictationHistoryReads += 1
+            let read = dictationHistoryReads
+            if read > 1 { try await Task.sleep(for: .milliseconds(500)) }
+            let record: [String: Any] = ["id": "synthetic-refreshed-dictation", "title": "Synthetic refreshed dictation · read \(read)", "language": "de", "created": "2026-11-17T12:00:00Z", "mode": "whole", "step": 0, "replays": 0, "draft": "", "revision": read, "checked": false, "assisted": false, "plan": [], "ready": []]
+            let items: [[String: Any]] = read > 1 ? [record] : []
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": items, "tts_available": false, "languages": ["de"]]), status: 200)
         }
         if mode == "dictation-local", let path = request.url?.path, path.hasPrefix("/v1/learning/dictations"),
            let token = ProcessInfo.processInfo.environment["KM_DICTATION_FIXTURE_TOKEN"] {

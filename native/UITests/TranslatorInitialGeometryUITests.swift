@@ -42,7 +42,19 @@ final class TranslatorInitialGeometryUITests: XCTestCase {
             same(before,snapshot(app,"provider-ready-"+locale,locale:locale))
             let editor=app.textViews["translator-input"];editor.tap();editor.typeText("Synthetic geometry draft")
             same(before,snapshot(app,"keyboard-"+locale,locale:locale))
-            app.tabBars.buttons.element(boundBy:3).tap();app.tabBars.buttons.element(boundBy:0).tap()
+            XCTAssertEqual(editor.value as? String,"Synthetic geometry draft")
+            // On small phones the keyboard covers the tab bar even though its
+            // stale AX buttons still exist. Dismiss through the real List before
+            // tapping; otherwise XCTest types keyboard characters at tab coordinates.
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.45))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.88))
+            start.press(forDuration: 0.1, thenDragTo: end)
+            expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.keyboards.firstMatch)
+            waitForExpectations(timeout: 5)
+            let coach = app.tabBars.buttons.element(boundBy:3)
+            XCTAssertTrue(coach.isHittable); coach.tap()
+            XCTAssertTrue(app.textFields["coach-composer"].waitForExistence(timeout: 5))
+            app.tabBars.buttons.element(boundBy:0).tap()
             same(before,snapshot(app,"navigation-"+locale,locale:locale))
             XCTAssertEqual(editor.value as? String,"Synthetic geometry draft")
             app.terminate()

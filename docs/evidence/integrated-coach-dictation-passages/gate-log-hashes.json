@@ -1,0 +1,52 @@
+[
+  {
+    "name": "go-race",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/go-race.log",
+    "sha256": "ba3315f8130b36fdad01a888d96c0582d0c2c8d75143c9b270af7294408d5720"
+  },
+  {
+    "name": "go-vet",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/go-vet.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "node",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/node.log",
+    "sha256": "576f2bd65908d27d3faaf6f86bb667475b9eb589c005d597bbce79954e99b2ff"
+  },
+  {
+    "name": "core",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/core.log",
+    "sha256": "a91c17980d8f62753e35008b19f62d2150be17e64bdabc10f628ee4ef9b18c26"
+  },
+  {
+    "name": "lifecycle",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/lifecycle.log",
+    "sha256": "a990491b8bd8c28239734dc8c2e8b1d154a00fd99702365d27924bfcbdde828b"
+  },
+  {
+    "name": "daily",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/daily.log",
+    "sha256": "17f3d93f7cb2984d4a97d149c23de29f9d7f9bee6e94dfe7a8d66c0a3621c2ab"
+  },
+  {
+    "name": "wire",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/wire.log",
+    "sha256": "8b4efe1705e2a6e8826502a424e44afdced5bab97a0a39a7950f8c52a63815ab"
+  },
+  {
+    "name": "coach-wire",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/coach-wire.log",
+    "sha256": "2b506947c80090c25ec969ef86580362a580a8e83a6c76de69275375cac0970a"
+  },
+  {
+    "name": "two-clients",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/two-clients.log",
+    "sha256": "f18b3dcb0f2ae6de1e82a4e0ea84aaf35dce3f5ef4787e1a19a9feaeceeb64ad"
+  },
+  {
+    "name": "python-final-with-built-plist",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/python-final-with-built-plist.log",
+    "sha256": "fdfbce04755b2f5450c41fcebf5de172b0b3a13c4f8d752a860b772a1b69206d"
+  }
+]

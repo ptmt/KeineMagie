@@ -1,0 +1,134 @@
+[
+  {
+    "name": "go-race",
+    "exit": 0,
+    "seconds": 214.32,
+    "command": [
+      "go",
+      "test",
+      "./...",
+      "-race",
+      "-count=1",
+      "-timeout=240s"
+    ]
+  },
+  {
+    "name": "go-vet",
+    "exit": 0,
+    "seconds": 0.76,
+    "command": [
+      "go",
+      "vet",
+      "./..."
+    ]
+  },
+  {
+    "name": "node",
+    "exit": 0,
+    "seconds": 1.65,
+    "command": [
+      "node",
+      "--test",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/account.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/apple.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/coach-actions.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/coach-chat.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/coach-mount.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/coach-presentation.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/coach.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/core.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/dictation-cache.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/dictation-i18n.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/dictation-journal.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/dictation-mount.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/dictation.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/directions.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/episode-analysis.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/episode.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/i18n.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/layout.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/pairing.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/podcast-overview.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/podcasts.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/prompts.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/quota.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/redesign.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/shell.test.mjs",
+      "/Users/tinyserve/Projects/KeineMagie-coach-dictation-passages/web/tests/translator-followup.test.mjs",
+      "native/ci/dictation_onboarding.test.mjs"
+    ]
+  },
+  {
+    "name": "core",
+    "exit": 0,
+    "seconds": 28.3,
+    "command": [
+      "swift",
+      "test",
+      "--package-path",
+      "native/Core",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "name": "lifecycle",
+    "exit": 0,
+    "seconds": 40.38,
+    "command": [
+      "python3",
+      "native/ci/test_connection_lifecycle.py"
+    ]
+  },
+  {
+    "name": "daily",
+    "exit": 0,
+    "seconds": 22.66,
+    "command": [
+      "python3",
+      "native/ci/test_coach_daily_ux.py"
+    ]
+  },
+  {
+    "name": "wire",
+    "exit": 0,
+    "seconds": 11.88,
+    "command": [
+      "python3",
+      "native/ci/verify_podcast_wire.py"
+    ]
+  },
+  {
+    "name": "coach-wire",
+    "exit": 0,
+    "seconds": 7.64,
+    "command": [
+      "python3",
+      "native/ci/test_coach_wire.py"
+    ]
+  },
+  {
+    "name": "two-clients",
+    "exit": 0,
+    "seconds": 28.89,
+    "command": [
+      "python3",
+      "native/ci/verify_coach_two_clients.py"
+    ]
+  },
+  {
+    "name": "python",
+    "exit": 1,
+    "seconds": 28.47,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "native/ci",
+      "-p",
+      "test_*.py"
+    ]
+  }
+]

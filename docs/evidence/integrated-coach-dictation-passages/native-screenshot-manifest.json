@@ -1,0 +1,332 @@
+[
+  {
+    "file": "passage-swipe-xxxl-de.png",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "attachment": "passage-swipe-2012-Speichern_0_15FB4F94-27CC-47AC-ACB0-D0FE25FC303B.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/AD70FAE2-BFC5-45A5-93F5-B1B6C59C5CD0.png",
+    "sha256": "b25b78b5e5a237f089bef0711fd141cda676b97bac0885ea4bb41e056c020cf8",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "coach-compact-de.png",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "attachment": "coach-compact-de_0_DC2DD6C4-5A80-46AD-852E-71509CCD7122.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/0923D5CE-BD4C-439B-8202-5A623AF8B58A.png",
+    "sha256": "ab80dc9d4d6d36ecfed2e48e1d483dbcc7b77fd3dd07a4e446e8a57614a408e7",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "history-controls-de.png",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "attachment": "history-controls-de_0_4B85E995-9E83-4EB0-9013-DAE9E7029D0E.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/C5C391EE-1B95-4340-A54D-0FCDC6269635.png",
+    "sha256": "f5fadabcdf6774841bd4540851f870e51b89082b205a8ffccaba5d33590bf37f",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "result-footer-de-dark.png",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "attachment": "result-footer-de-light_0_BA98554D-5D4A-4C3E-A2F0-EB6597209C67.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/BBBC90A2-059C-41F5-934C-B752E65F158D.png",
+    "sha256": "407d31fec8b8580d11a6c34db6d94d2a996568a73c205afe8671ab5ce5f3214d",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "passage-swipe-xxxl-en.png",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "attachment": "passage-swipe-2012-Save_0_ADB0B070-D43F-408E-A261-22441A039D5B.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/C2E23E32-BBB9-4F4F-BE58-42D5E6E1D7B8.png",
+    "sha256": "d6e0116c84c6e00d34c2efc3ac15f44e8dae8d2de3543ddef42e61673e7cbd87",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "coach-compact-en.png",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "attachment": "coach-compact-en_0_E5E1FB04-FA67-4D88-9587-F17DD345E2C0.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/531E4B76-073A-4305-8D1A-0AED293785D0.png",
+    "sha256": "3d189c74a1fe97187bfbb42c78d4c684228825eb0133082eee9ad00b01cd1df2",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "history-controls-en.png",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "attachment": "history-controls-en_0_C79EC9CD-142D-40BA-9815-CF727A9B0FE5.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/B957645D-BCB1-4411-8570-A669F0A33529.png",
+    "sha256": "9d2a9c33301e98a19dc37b1064f9701e93cce2d716ad459442ba264a97a83543",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "result-footer-en-dark.png",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "attachment": "result-footer-en-light_0_DF3B2172-3B9F-43F5-BC3E-8B8779DAB0FB.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/12AF2304-765F-4DFE-AAC6-BB69ACCD5CD7.png",
+    "sha256": "763c6512ff2177c6a51c926c3d19506c889c8a029f7197b7b16c570b5e2e1d6a",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "passage-swipe-xxxl-ru.png",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "attachment": "passage-swipe-2012-Сохранить_0_08A8F6DF-0552-4782-A3BC-F2B6DC908268.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/30670F04-3160-4EA0-A861-CB6F66BF9F98.png",
+    "sha256": "1db8cbff7fb2b2678dc2c46d168a2e50c19ebbd757d460920de6876e3a01f94e",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "coach-compact-ru.png",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "attachment": "coach-compact-ru_0_7B019865-578A-42D4-B723-AFF2B53674B2.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/0AF8A31E-586F-4E86-905B-BC718EB95390.png",
+    "sha256": "dfbbbcd4bf950dda7f38476e6148b24049cfe2a036a0c4c84d345ee89be6025a",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "history-controls-ru.png",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "attachment": "history-controls-ru_0_F42C9D25-4722-46B9-B5A3-D0D95F572ADB.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/8F9AFCBA-3550-42BD-8A9D-B1D5E1C44CC9.png",
+    "sha256": "a734314db3d50a14573ab2b52192499f8e2862fc942d94484723239c1e0a0526",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "result-footer-ru-dark.png",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "attachment": "result-footer-ru-light_0_4A7B75BF-93B6-4B16-A439-D611DDE21181.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/3A40E7A1-75A3-41C7-B509-8B6DDCAE9C6F.png",
+    "sha256": "fcccf004aa62226db2d752adff4b095f463e2660225dba22703b91c9d38e8645",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "passage-swipe-xxxl-es.png",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "attachment": "passage-swipe-2012-Guardar_0_AF8E53CE-E841-4D9B-90DE-865FFC4FD9FC.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/236258A1-D33E-489B-9858-C0687A747059.png",
+    "sha256": "4416fe80e2fcc217fefb7678beefaaacb460be879b19edd76f17102b92ab32ff",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "coach-compact-es.png",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "attachment": "coach-compact-es_0_3E8A5B31-9031-49C0-951B-6F93B7D55E78.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/50084038-2D8B-4FBD-B75D-0E7D93E90BA1.png",
+    "sha256": "0ca4ea6903a3aa0097d73247aa6ca788a393a5b0435a899a5dae950512978a77",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "history-controls-es.png",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "attachment": "history-controls-es_0_CE02FF24-B3EC-477A-BF58-C7DD599513C8.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/A3AE1C7E-EB28-4027-B32E-DC0615205B6A.png",
+    "sha256": "c7516baf34fa4d1bcd1b6dd58f5b70c39271bcc2150c45edff7ef18f7bd91c45",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "result-footer-es-dark.png",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "attachment": "result-footer-es-light_0_120850BA-E5EA-44F5-BED0-9ABCA4253771.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/1037480D-F28C-41FC-AACB-D959501CF0C9.png",
+    "sha256": "a87431059086c7a1ae097df84f2550e297f7f679852dba88a94f8a7cfa60c388",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "passage-swipe-xxxl-fr.png",
+    "test": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+    "attachment": "passage-swipe-2012-Enregistrer_0_F0E78C7F-9912-48CD-A8BC-B78AD76684B8.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/89C240D0-49F8-4436-B0AF-4B424A35ABD2.png",
+    "sha256": "97ab67662e3723e9de7051474ad7adad58728dbbd2258931cad462b06e454a80",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "coach-compact-fr.png",
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "attachment": "coach-compact-fr_0_44E28AD1-0897-42C4-BC43-6FEA808D7ECC.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/9C3B3BC4-DA25-4721-AAE7-693E9BA866DF.png",
+    "sha256": "ca67e929e63831adf93f6bcdfc3939a4195300ec23eb23e7b8f23cb729be1137",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "history-controls-fr.png",
+    "test": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+    "attachment": "history-controls-fr_0_40DB9D01-F9CE-48F6-9F3A-0BB1835D4016.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/A899666B-EA96-43A7-ACB9-437F4C683D33.png",
+    "sha256": "65fcaaa907b94ff6ceee848a75b5beb359a08f72db3553403943a8fad58f96af",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "result-footer-fr-dark.png",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "attachment": "result-footer-fr-light_0_43D4ED7A-35FB-4572-86B2-FEA2F61173D9.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/F8186588-81F5-41A7-8B35-0B477E8FCD8E.png",
+    "sha256": "b69925d206c3ceed5db6e7e0a51a96dba440a4cbc98013c42d09293421ab594b",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "result-footer-ru-large-dark.png",
+    "test": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+    "attachment": "result-footer-ru-large-dark_0_A575BBE0-60A0-4604-8D91-008757F1B86F.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/6F509725-A106-447F-B613-B31DDCADB382.png",
+    "sha256": "7c14de8b1ae99b023abf5142fc08680b1bfa51d5e35777784db6b1073e41510a",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "history-controls-ru-dark-large.png",
+    "test": "TranslationResultControlsUITests/testHistoryDarkLargeText()",
+    "attachment": "history-controls-ru-dark-large_0_98509F70-1A95-4766-8F16-3116CD19A92B.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/6F1D55A1-0B17-47B2-862F-7FA160152D16.png",
+    "sha256": "40ccabe20a62184ca1ae6963f7113f2c0bc638ad21191a28f1ff8ff25ae5384f",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "daily-dictation-empty.png",
+    "test": "CoachDailyCandidateUITests/testEmptyDictationHasPrimaryCreateAndNoRefresh()",
+    "attachment": "daily-dictation-empty_0_99FA7F4D-F998-4465-968B-D0E09717DD23.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/7AFDEA1E-B6D7-44DA-8D97-9965CE1AC517.png",
+    "sha256": "7bac27ddec814ae274a8eba85179f72ca1b521e4cc5bc5434ba58edad2b7ff91",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "daily-dictation-pull-refresh-3.png",
+    "test": "CoachDailyCandidateUITests/testDictationPullRefreshChangesActualHistoryWithoutAudio()",
+    "attachment": "daily-dictation-pull-refresh-3_0_A524A79F-5FED-445A-B63E-069984EC05F7.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/7F94CE55-3DA8-4FCD-B62E-D14F2BF95CDA.png",
+    "sha256": "6cc1e649e12bf39b5a2056c1f628d6435cb876fca53e4adfcefcda51d8927be6",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "daily-native-keyboard.png",
+    "test": "CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard()",
+    "attachment": "daily-native-keyboard_0_91705A0D-BA06-4FCA-923A-2ABC5C589466.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/A6878CA0-91D8-4EB5-9298-ACBD489D1152.png",
+    "sha256": "2087e4c684f145243340c6a469e3d5caa8a61124fbb3ce72adaa2238ac5741d0",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "passage-401-purged.png",
+    "test": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+    "attachment": "passage-401-purged_0_BF8EF487-8406-4BC9-B29C-8579A908E46C.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/80B0DAD7-8FB1-44E6-9ECD-970B4A243E85.png",
+    "sha256": "d77bd8743ffd7da2b2726bcee8ecf426180713e4e90efecc29fb175aa227d731",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "passage-failed-write-retains-star.png",
+    "test": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+    "attachment": "passage-failed-write-retains-star_0_765F561B-135F-41E6-A552-4733574E5850.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/5FE1FADE-8ED0-4CF6-A750-0A3E21082BFD.png",
+    "sha256": "8348aab67f538a2c5a3dd06110e8297b934ba30f32a84325f596fdce182d1dce",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "followup-applied-pair.png",
+    "test": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+    "attachment": "followup-applied-pair_0_2581F4C0-7C2D-47EB-AEA3-6114E2893A4A.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/9AF55560-B9AD-49A2-8AEE-8749DC742162.png",
+    "sha256": "9fe9cdf60cd1bb0e85108c378c2d2351a64f849ee48419fb7908a55bc531e4df",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "navigation-fr.png",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "attachment": "navigation-fr_0_8E22E60C-E622-422E-8EEB-025C992CCD44.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/88C67E93-9BAC-4E36-B302-17122368DE43.png",
+    "sha256": "480683abae7f4ff655077e2e2019f9db46a2e9ea43323b887c8f9ac9b959eb83",
+    "dimensions": [
+      750,
+      1334
+    ]
+  },
+  {
+    "file": "keyboard-fr.png",
+    "test": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+    "attachment": "keyboard-fr_0_8EC3492F-2640-4256-AF42-6B6EC9DD6D68.png",
+    "source": "/Users/tinyserve/.hermes/cache/scratch/km-integration-repair-evidence/final-combined/attachments/742F63F7-8AD9-4F2B-ABA1-478BDEC9EB80.png",
+    "sha256": "ca9335faea9143e4908a9c5517abbdfe18b498f7e5a2717c60ec26ff9909cc04",
+    "dimensions": [
+      750,
+      1334
+    ]
+  }
+]
