@@ -5,7 +5,7 @@ export async function episodePath(job) {
   return `/podcasts/episodes/${slug}-${hash}`;
 }
 export function episodeLocation(pathname, hash) {
-  if (hash) return null;
+  if (hash && !/^#(?:episode-)?(summary|vocabulary|words|recommendations|transcript)$/.test(hash)) return null;
   return /^\/podcasts\/episodes\/([a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{12})$/.exec(pathname)?.[1] || null;
 }
 export function transcriptTimeIndex(segments, value) {

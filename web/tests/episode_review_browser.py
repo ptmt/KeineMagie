@@ -31,7 +31,7 @@ try:
     assert page.locator('.section-nav a').count()==4
     assert page.locator('.section-nav a').evaluate_all('(es)=>es.every(e=>{const r=e.getBoundingClientRect(),p=e.parentElement.getBoundingClientRect();return r.left>=p.left&&r.right<=p.right+.5})'), (locale,width)
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(locale,width)
-    page.locator('.episode-nav a').last.focus();page.keyboard.press('Enter')
+    page.locator('.episode-nav [role=tab]').last.focus();page.keyboard.press('Enter')
     page.locator('#episode-find').fill('Guten Morgen')
     assert '/ 2113 ' in page.locator('#episode-find-count').inner_text()
     page.locator('#episode-find').press('Enter')
@@ -44,13 +44,13 @@ try:
     if width in [320,1440]:
      page.evaluate('scrollTo(0,0)');page.screenshot(path=str(evidence/f'after-{locale}-{width}.png'))
   page.locator('[data-interface-language]').first.select_option('en');page.set_viewport_size({'width':1440,'height':1000})
-  page.locator('.episode-nav a').last.click();page.locator('#episode-find').fill('Guten Morgen')
+  page.locator('.episode-nav [role=tab]').last.click();page.locator('#episode-find').fill('Guten Morgen')
   page.evaluate("document.styleSheets[0].insertRule('.episode-reader .episode-nav{flex-wrap:wrap!important;width:160px!important}',0)")
   page.wait_for_timeout(50);page.locator('#episode-find').press('Enter')
   page.wait_for_timeout(100)
   assert page.locator('.episode-find').evaluate('(e)=>Math.abs(e.getBoundingClientRect().top-document.querySelector(".episode-nav").getBoundingClientRect().bottom)<2'), ('wrapped nav height must drive sticky toolbar offset',page.evaluate("({nav:document.querySelector('.episode-nav').getBoundingClientRect().toJSON(),toolbar:document.querySelector('.episode-find').getBoundingClientRect().toJSON(),style:document.querySelector('.episode-reader').getAttribute('style')})"))
   page.evaluate('document.styleSheets[0].deleteRule(0)');page.locator('#episode-find').fill('')
-  page.locator('.episode-nav a').first.click();page.locator('.episode-citation').first.click()
+  page.locator('.episode-nav [role=tab]').first.click();page.locator('.episode-citation').first.click()
   page.evaluate('window.reviewScrollCalls=0;window.reviewScrollStacks=[];window.reviewOriginalScroll=window.scrollTo;window.scrollTo=(...args)=>{window.reviewScrollCalls++;window.reviewScrollStacks.push(new Error().stack);return window.reviewOriginalScroll(...args)};void 0')
   page.locator('#episode-segment-2012 .episode-quote summary').click()
   draft=page.locator('#episode-segment-2012 .episode-quote input');draft.fill('Guten')
@@ -60,7 +60,7 @@ try:
    assert draft.input_value()=='Guten' and draft.evaluate('(e)=>e.selectionStart===1&&e.selectionEnd===3')
   page.wait_for_timeout(100);assert page.evaluate('window.reviewScrollCalls')==0,('locale redraw must not replay permalink scroll',page.evaluate('window.reviewScrollStacks'))
   page.evaluate('window.scrollTo=window.reviewOriginalScroll')
-  page.locator('.episode-nav a').last.click()
+  page.locator('.episode-nav [role=tab]').last.click()
   page.locator('#episode-time').fill('0:00');page.locator('.episode-time-jump button').click()
   assert page.evaluate('document.activeElement.id')=='episode-segment-0'
   original=page.url;page.locator('#episode-time').fill('0:60');page.locator('.episode-time-jump button').click();assert page.url==original
@@ -100,7 +100,7 @@ try:
   STATE['signed']=True;STATE['owner']='review-final'
   for query in ['?section=transcript&segment=2012','?section=%3Cimg%20src=x%20onerror=alert(1)%3E&segment=0','?section=transcript&segment=99999999999999999999','?section=summary&topic=%22%5D%3Cscript%3E&next=https%3A%2F%2Fevil.invalid']:
    page.goto(origin+PATH+query);page.locator('.episode-reader').wait_for();page.wait_for_timeout(100)
-   assert page.url.startswith(origin+PATH) and page.locator('.episode-nav a').count()==4
+   assert page.url.startswith(origin+PATH) and page.locator('.episode-nav [role=tab]').count()==4
    assert page.locator('.episode-reader script,.episode-reader img[src="x"]').count()==0
    if 'segment=2012' in query:page.wait_for_function("() => document.activeElement.id==='episode-segment-2012'")
   page.locator('.episode-breadcrumb a').first.click();page.wait_for_timeout(100)
@@ -114,7 +114,7 @@ try:
   assert 'Synthetic summary:' not in page.locator('#episode-summary').inner_text()
   assert page.locator('#episode-summary button:enabled').count()==1,'missing analysis offers explicit generation, never generated text'
   JOB['segments']=[{'start':0,'end':3,'text':'Literal <script>alert(1)</script> & Unicode Ж','translation':''}]
-  page.reload();page.locator('.podcast-segments>li').wait_for()
+  page.reload();page.locator('#episode-tab-transcript').click();page.locator('.podcast-segments>li').wait_for()
   assert page.locator('[data-transcript-text="text"]').inner_text()==JOB['segments'][0]['text']
   assert page.locator('.episode-pending').count()==1 and page.locator('.episode-reader script').count()==0
   assert not [c for c in STATE['calls'] if c[0]=='POST' and c[1].endswith('/analysis')]
