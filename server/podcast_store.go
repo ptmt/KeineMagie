@@ -351,6 +351,30 @@ func (s *podcastStore) mutate(owner, id, action string, now time.Time) (podcastJ
 				if e = s.write(d); e != nil {
 					return e
 				}
+				// Deletion is durable first. Keep the source lock until relationships
+				// are removed so an in-flight star cannot resurrect this source.
+				learning := &learningStore{lock: &historyStore{path: filepath.Join(filepath.Dir(filepath.Dir(s.lock.path)), "learning", sessionHash(owner)+".json")}}
+				if e = learning.transaction(func(ld *learningData) error {
+					marks := []learningPassage{}
+					for _, m := range ld.Passages {
+						if m.JobID != id {
+							marks = append(marks, m)
+						}
+					}
+					groups := []learningPassageGroup{}
+					for _, g := range ld.PassageGroups {
+						if g.JobID != id {
+							groups = append(groups, g)
+						}
+					}
+					if len(marks) != len(ld.Passages) || len(groups) != len(ld.PassageGroups) {
+						ld.PassageRevision++
+					}
+					ld.Passages, ld.PassageGroups = marks, groups
+					return nil
+				}, true); e != nil {
+					return e
+				}
 				_ = os.Remove(s.mediaPath(job))
 				_ = os.Remove(s.mediaPath(job) + ".partial")
 				if _, e := os.Stat(s.mediaRoot()); e == nil {

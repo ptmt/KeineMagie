@@ -20,7 +20,7 @@ def main():
         }}))
         env = dict(os.environ, KM_PODCAST_WIRE_DIR=directory)
         subprocess.run(["go", "test", "-overlay", str(overlay), "-run", "^TestNativePodcastWireFixture$", "-count=1", "-v", "."], cwd=ROOT / "server", env=env, check=True)
-        subprocess.run(["swift", "test", "--package-path", str(ROOT / "native/Core"), "--filter", "PodcastWireShapeTests"], env=env, check=True)
+        subprocess.run(["swift", "test", "--jobs", "2", "--package-path", str(ROOT / "native/Core"), "--filter", "PodcastWireShapeTests"], env=env, check=True)
 
 
 if __name__ == "__main__":

@@ -59,7 +59,40 @@ public struct LearningVocabulary: Codable, Sendable, Identifiable {
     public var citation: LearningCitation { LearningCitation(segmentID: segmentID, quote: quote) }
 }
 public struct EpisodeLearning: Codable, Sendable {
+    public var passageGroups: PassageGroups?
     public var analysis: LearningAnalysis?
     public var vocabulary: [LearningVocabulary]?
     public init() {}
+}
+
+public struct PassageGroup: Codable, Sendable, Identifiable {
+    public let id: String
+    public let jobID: String
+    public let segmentIDs: [Int]
+    public let start: Double
+    public let end: Double
+    enum CodingKeys: String, CodingKey { case id, jobID = "job_id", segmentIDs = "segment_ids", start, end }
+}
+public struct PassageGroups: Codable, Sendable {
+    public let version: Int
+    public let revision: UInt64
+    public let jobID: String
+    public let groups: [PassageGroup]
+    public let favoriteSegmentIDs: [Int]
+    // Built once on decode, not once per SwiftUI row/render.
+    public let starredIDs: Set<Int>
+    enum CodingKeys: String, CodingKey { case version, revision, jobID = "job_id", groups, favoriteSegmentIDs = "favorite_segment_ids" }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        version = try c.decode(Int.self, forKey: .version)
+        revision = try c.decode(UInt64.self, forKey: .revision)
+        jobID = try c.decode(String.self, forKey: .jobID)
+        groups = try c.decode([PassageGroup].self, forKey: .groups)
+        favoriteSegmentIDs = try c.decode([Int].self, forKey: .favoriteSegmentIDs)
+        starredIDs = Set(favoriteSegmentIDs)
+        guard version == 1, starredIDs.count == favoriteSegmentIDs.count,
+              favoriteSegmentIDs.allSatisfy({ $0 >= 0 }),
+              groups.flatMap(\.segmentIDs) == favoriteSegmentIDs,
+              groups.allSatisfy({ g in g.jobID == jobID && !g.segmentIDs.isEmpty && zip(g.segmentIDs, g.segmentIDs.dropFirst()).allSatisfy { $1 == $0 + 1 } }) else { throw APIError.invalidResponse }
+    }
 }

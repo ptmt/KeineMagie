@@ -30,4 +30,11 @@ func TestPassageBrowserMutationRequiresOriginAndCSRF(t *testing.T) {
 			t.Fatalf("CSRF status=%d want=%d", w.Code, tc.want)
 		}
 	}
+	groups := readGroups(t, h, token, j.ID)
+	if len(groups.Groups) != 1 || len(groups.FavoriteSegmentIDs) != 1 {
+		t.Fatal("legacy web star did not update groups")
+	}
+	if w := authCall(h, "GET", "/v1/learning/episodes/"+j.ID+"/passage-groups", "", browser); w.Code != 401 {
+		t.Fatal("browser bearer bypass", w.Code)
+	}
 }

@@ -32,11 +32,17 @@ public struct PodcastSegment: Codable, Sendable, Identifiable {
 }
 /// Durable passage counts from the owner-scoped batch library, never playback or vocabulary.
 public struct PodcastCoverage: Codable, Sendable {
+    public let passageRevision: UInt64?
     public let recognizedSegments: Int?
     public let translatedSegments: Int?
     public let favoritePassages: Int?
     public var knownTotal: Int? { recognizedSegments.flatMap { $0 > 0 ? $0 : nil } }
+    public func favoritePassageCount(groups: PassageGroups?) -> Int? {
+        if let groups, groups.revision > (passageRevision ?? 0) { return groups.favoriteSegmentIDs.count }
+        return favoritePassages
+    }
     enum CodingKeys: String, CodingKey {
+        case passageRevision = "passage_revision"
         case recognizedSegments = "recognized_segments", translatedSegments = "translated_segments", favoritePassages = "favorite_passages"
     }
 }
@@ -258,6 +264,35 @@ public struct PodcastAPI: Sendable {
         return response.data
     }
     public enum LearningResource: Sendable { case analysis(String), vocabulary(String, String), profile(String) }
+    public func passageRequest(id: String, segment: Int? = nil, favorite: Bool? = nil, owner: String) throws -> URLRequest {
+        guard id.range(of: "^[A-Za-z0-9_-]{20,128}$", options: .regularExpression) != nil,
+              !owner.isEmpty, !owner.contains(where: { $0.isNewline }),
+              (segment == nil && favorite == nil) || (segment.map { $0 >= 0 } == true && favorite != nil) else { throw APIError.invalidResponse }
+        var r = try request(method: segment == nil ? "GET" : "PUT")
+        r.url = endpoint.url(path: "v1/learning/episodes/" + id + (segment.map { "/passages/\($0)" } ?? "/passage-groups"))
+        r.cachePolicy = .reloadIgnoringLocalCacheData
+        r.setValue(owner, forHTTPHeaderField: "X-Passage-Owner")
+        if let favorite {
+            r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            r.httpBody = try JSONEncoder().encode(["favorite": favorite])
+        }
+        return r
+    }
+    public func passageGroups(id: String, owner: String) async throws -> PassageGroups {
+        let data = try await send(passageRequest(id: id, owner: owner))
+        try Task.checkCancellation()
+        let value = try JSONDecoder().decode(PassageGroups.self, from: data)
+        guard value.jobID == id else { throw APIError.invalidResponse }
+        return value
+    }
+    public func setPassage(id: String, segment: Int, favorite: Bool, owner: String) async throws -> PassageGroups {
+        let data = try await send(passageRequest(id: id, segment: segment, favorite: favorite, owner: owner))
+        try Task.checkCancellation()
+        struct Reply: Decodable { let passage_groups: PassageGroups }
+        let value = try JSONDecoder().decode(Reply.self, from: data).passage_groups
+        guard value.jobID == id, value.starredIDs.contains(segment) == favorite else { throw APIError.invalidResponse }
+        return value
+    }
     public func learningRequest(resource: LearningResource, assessment: String? = nil) throws -> URLRequest {
         var path: String
         var query: [URLQueryItem] = []

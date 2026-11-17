@@ -100,6 +100,32 @@ func (cfg *serverConfig) coachAssessmentSource(owner string, turn coachTurn) (co
 				break
 			}
 		}
+	} else if strings.HasPrefix(x.SourceID, "passage-group:") {
+		parts := strings.Split(x.SourceID, ":")
+		if len(parts) != 4 {
+			return s, invalid
+		}
+		groups, e := cfg.passageTransaction(owner, parts[1], nil)
+		if e != nil {
+			return s, e
+		}
+		j, e := cfg.learningJob(owner, parts[1])
+		if e != nil {
+			return s, e
+		}
+		for _, g := range groups.Groups {
+			if g.ID != parts[3] || strconv.Itoa(g.SegmentIDs[0]) != parts[2] {
+				continue
+			}
+			text := []string{}
+			for _, index := range g.SegmentIDs {
+				if index >= len(j.Segments) {
+					return s, invalid
+				}
+				text = append(text, j.Segments[index].Text)
+			}
+			s = coachSource{x.SourceID, strings.Join(text, " "), j.SourceLanguage}
+		}
 	} else if strings.HasPrefix(x.SourceID, "passage:") {
 		parts := strings.Split(x.SourceID, ":")
 		if len(parts) != 3 {

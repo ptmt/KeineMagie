@@ -843,6 +843,7 @@ enum AppL10n { static func text(_ key:String) -> String { key } }
         (p/'Tests/LifecycleTests/LifecycleTests.swift').write_text(HARNESS)
         (p/'Tests/LifecycleTests/DatasetTests.swift').write_text((ROOT/'ci/dataset_harness.swift').read_text())
         (p/'Tests/LifecycleTests/LearningTests.swift').write_text((ROOT/'ci/learning_harness.swift').read_text())
+        (p/'Tests/LifecycleTests/PassageTests.swift').write_text((ROOT/'ci/passage_harness.swift').read_text())
         (p/'Tests/LifecycleTests/CoachTests.swift').write_text((ROOT/'ci/coach_harness.swift').read_text())
         (p/'Tests/LifecycleTests/DictationTests.swift').write_text((ROOT/'ci/dictation_harness.swift').read_text())
         (p/'Tests/LifecycleTests/FollowupTests.swift').write_text((ROOT/'ci/followup_harness.swift').read_text())
@@ -861,7 +862,7 @@ import KeineMagieCore
  func clear() { cleared = true; record = nil; items = [] }
 ''' + resolver + '}')
         (p/'Tests/LifecycleTests/CoachTwoClientTests.swift').write_text((ROOT/'ci/coach_two_client_harness.swift').read_text())
-        subprocess.run(['swift','test','--package-path',temp],check=True)
+        subprocess.run(['swift','test','--jobs','2','--package-path',temp],check=True)
 
 class ConnectionLifecycleTests(unittest.TestCase):
     def test_real_app_model_with_synthetic_transport(self):

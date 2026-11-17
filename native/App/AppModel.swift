@@ -204,6 +204,60 @@ final class AppModel {
         }
     }
     private(set) var episodeLearning: [String: EpisodeLearning] = [:]
+    private(set) var passageErrors: [String: String] = [:]
+    private(set) var passageWrites: [String: UUID] = [:]
+    private var passageReads: [String: UUID] = [:]
+    func loadPassageGroups(_ job: PodcastJob) async {
+        guard session.phase == .signedIn, passageReads[job.id] == nil, passageWrites[job.id] == nil else { return }
+        let version = session.generation, request = UUID()
+        passageReads[job.id] = request
+        defer { if passageReads[job.id] == request { passageReads[job.id] = nil } }
+        func current() -> Bool { !Task.isCancelled && session.generation == version && session.phase == .signedIn && passageReads[job.id] == request }
+        await hydrateLearning()
+        guard current(), session.canWrite, let owner = session.user?.id else { return }
+        do {
+            let value = try await podcastAPI().passageGroups(id: job.id, owner: owner)
+            guard current(), passageWrites[job.id] == nil else { return }
+            applyPassageGroups(value, job: job)
+            passageErrors[job.id] = nil
+            await persistLearning()
+        } catch {
+            guard current() else { return }
+            if !learningFailure(error) { passageErrors[job.id] = AppL10n.text("episode.load.error") }
+        }
+    }
+    func setPassage(_ job: PodcastJob, index: Int, favorite: Bool) async {
+        guard session.canWrite, job.segments.indices.contains(index), passageWrites[job.id] == nil,
+              episodeLearning[job.id]?.passageGroups != nil, let owner = session.user?.id else { return }
+        let version = session.generation, request = UUID()
+        passageWrites[job.id] = request
+        passageReads[job.id] = nil // An older read cannot undo an acknowledged mutation.
+        passageErrors[job.id] = nil
+        defer { if passageWrites[job.id] == request { passageWrites[job.id] = nil } }
+        func current() -> Bool { !Task.isCancelled && session.generation == version && session.phase == .signedIn && passageWrites[job.id] == request }
+        do {
+            let value = try await podcastAPI().setPassage(id: job.id, segment: index, favorite: favorite, owner: owner)
+            guard current() else { return }
+            applyPassageGroups(value, job: job)
+            // Persist the acknowledged snapshot through the existing revocable owner lease.
+            // Busy lasts through disk durability; unlike routine refresh, surface cache failure.
+            if let lease = cacheSession() {
+                let data = try JSONEncoder().encode(LearningSnapshot(episodes: episodeLearning, profiles: learningProfiles))
+                cacheRevision += 1
+                try await contentCache.save(data, dataset: "learning", session: lease, revision: cacheRevision)
+            }
+        } catch {
+            guard current() else { return }
+            if !learningFailure(error) { passageErrors[job.id] = AppL10n.text("episode.passage.save.error") }
+        }
+    }
+    private func applyPassageGroups(_ groups: PassageGroups, job: PodcastJob) {
+        guard groups.jobID == job.id, groups.favoriteSegmentIDs.allSatisfy(job.segments.indices.contains) else { return }
+        var value = episodeLearning[job.id] ?? EpisodeLearning()
+        guard groups.revision >= (value.passageGroups?.revision ?? 0) else { return }
+        value.passageGroups = groups
+        episodeLearning[job.id] = value
+    }
     private(set) var learningErrors: [String: String] = [:]
     private(set) var learningProfiles: [String: LearningProfile] = [:]
     private var learningRequests: [String: UUID] = [:]
@@ -987,6 +1041,7 @@ final class AppModel {
         cancelChatGPT()
         learningHydratedGeneration = nil
         learningRequests = [:]; profileRequests = [:]; profileWrites = []
+        passageReads = [:]; passageWrites = [:]; passageErrors = [:]
         episodeLearning = [:]; learningProfiles = [:]; learningErrors = [:]
         podcasts.reset(); historyPhase = .idle; historyLoadError = nil
         input = ""

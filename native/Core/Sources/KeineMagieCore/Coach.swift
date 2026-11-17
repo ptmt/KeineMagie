@@ -141,6 +141,7 @@ public enum CoachSourceTarget: Equatable, Sendable {
         let parts = source.split(separator: ":", omittingEmptySubsequences: false).map(String.init)
         guard parts.count >= 2, parts[1].range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil else { return nil }
         if parts.count == 2, parts[0] == "translation" { self = .translation(parts[1]); return }
+        if parts.count == 4, parts[0] == "passage-group", parts[3].range(of: "^pg_[a-f0-9]{64}$", options: .regularExpression) != nil, parts[2].range(of: "^(0|[1-9][0-9]{0,3})$", options: .regularExpression) != nil, let index = Int(parts[2]) { self = .passage(parts[1], index); return }
         if parts.count == 3, parts[0] == "passage", parts[2].range(of: "^(0|[1-9][0-9]{0,3})$", options: .regularExpression) != nil, let index = Int(parts[2]) { self = .passage(parts[1], index); return }
         return nil
     }

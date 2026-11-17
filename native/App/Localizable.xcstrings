@@ -1,36 +1,128 @@
 {
   "sourceLanguage": "de",
   "strings" : {
+<<<<<<< HEAD
   "dictation.onboarding": {
+=======
+  "episode.passage.save": {
+>>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
     "localizations": {
       "de": {
         "stringUnit": {
           "state": "translated",
+<<<<<<< HEAD
           "value": "Anhören → schreiben → prüfen. Füge einen Text hinzu, um zu beginnen."
+=======
+          "value": "Speichern"
+>>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       },
       "en": {
         "stringUnit": {
           "state": "translated",
+<<<<<<< HEAD
           "value": "Listen → type → check. Add a text to begin."
+=======
+          "value": "Save"
+>>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       },
       "ru": {
         "stringUnit": {
           "state": "translated",
+<<<<<<< HEAD
           "value": "Слушайте → пишите → проверяйте. Добавьте текст, чтобы начать."
+=======
+          "value": "Сохранить"
+>>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       },
       "es": {
         "stringUnit": {
           "state": "translated",
+<<<<<<< HEAD
           "value": "Escucha → escribe → comprueba. Añade un texto para empezar."
+=======
+          "value": "Guardar"
+>>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       },
       "fr": {
         "stringUnit": {
           "state": "translated",
+<<<<<<< HEAD
           "value": "Écoute → écris → vérifie. Ajoute un texte pour commencer."
+=======
+          "value": "Enregistrer"
+        }
+      }
+    }
+  },
+  "episode.passage.unsave": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Entfernen"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Unsave"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Убрать"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Quitar"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Retirer"
+        }
+      }
+    }
+  },
+  "episode.passage.save.error": {
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Speichern nicht bestätigt. Aktualisieren und erneut versuchen."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Save not confirmed. Refresh and try again."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сохранение не подтверждено. Обновите и повторите."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "No se confirmó el guardado. Actualiza e inténtalo de nuevo."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Enregistrement non confirmé. Actualisez et réessayez."
+>>>>>>> 3562cc9 (feat(podcasts): persist adjacent passage groups and native swipe stars)
         }
       }
     }

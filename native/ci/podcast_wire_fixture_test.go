@@ -29,7 +29,11 @@ func TestNativePodcastWireFixture(t *testing.T) {
  jobs[0].Coverage = &coverage
  foreign, err := store.subscriptions("another-owner")
  if err != nil || len(foreign) != 0 { t.Fatal("owner isolation failed") }
+ marks := []learningPassage{}
+ for _, index := range []int{2012,2013,2112} { marks = append(marks, learningPassage{JobID:job.ID,SegmentID:index,Quote:job.Segments[index].Text}) }
+ groups := learningPassageGroups{Version:1,Revision:1,JobID:job.ID,Groups:passageGroupsFor(job.Owner,job,marks),FavoriteSegmentIDs:[]int{2012,2013,2112}}
  for name, value := range map[string]any{
+  "passage-groups.json": groups,
   "subscriptions.json": map[string]any{"items": subs},
   "library.json": map[string]any{"items": jobs, "worker_available": false},
   "empty-subscription.json": podcastSubscription{ID: "synthetic-empty-feed-001", URL: sub.URL, Title: "Empty feed"},

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // A passage is one recognizer segment, not necessarily one linguistic sentence.
@@ -15,10 +16,11 @@ type learningPassage struct {
 	Quote     string `json:"quote"`
 }
 type podcastCoverage struct {
-	Recognized  int   `json:"recognized_segments"`
-	Translated  int   `json:"translated_segments"`
-	Favorites   int   `json:"favorite_passages"`
-	FavoriteIDs []int `json:"favorite_segment_ids,omitempty"`
+	PassageRevision uint64 `json:"passage_revision"`
+	Recognized      int    `json:"recognized_segments"`
+	Translated      int    `json:"translated_segments"`
+	Favorites       int    `json:"favorite_passages"`
+	FavoriteIDs     []int  `json:"favorite_segment_ids,omitempty"`
 }
 
 func coverageFor(j podcastJob, marks []learningPassage) podcastCoverage {
@@ -48,6 +50,7 @@ func (cfg *serverConfig) podcastCoverage(owner string, jobs []podcastJob) error 
 		}
 		for i := range jobs {
 			c := coverageFor(jobs[i], byJob[jobs[i].ID])
+			c.PassageRevision = d.PassageRevision
 			jobs[i].Coverage = &c
 		}
 		return nil
@@ -64,28 +67,34 @@ func (cfg *serverConfig) learningPassageHTTP(w http.ResponseWriter, r *http.Requ
 	if !learningDecode(w, r, &in) {
 		return
 	}
-	j, e := cfg.learningJob(owner, id)
-	if errors.Is(e, errPodcastNotFound) {
-		writeError(w, 404, "podcast not found")
-		return
-	}
-	if e != nil {
-		writeError(w, 503, "podcast store unavailable")
-		return
-	}
 	index, e := strconv.Atoi(raw)
-	if e != nil || strconv.Itoa(index) != raw || index < 0 || index >= len(j.Segments) || in.Favorite == nil {
+	if e != nil || strconv.Itoa(index) != raw || index < 0 || in.Favorite == nil {
 		writeError(w, 400, "invalid passage")
 		return
 	}
-	e = cfg.learningStore(owner).transaction(func(d *learningData) error {
+	invalid := errors.New("invalid passage")
+	unauthorized := errors.New("session revoked")
+	out, e := cfg.passageTransaction(owner, id, func(d *learningData, j podcastJob) error {
+		session, err := cfg.auth.store.lookup(bearerSession(r), time.Now())
+		if err != nil || session.UserID != owner || r.Context().Err() != nil {
+			return unauthorized
+		}
+		if index >= len(j.Segments) {
+			return invalid
+		}
 		kept := []learningPassage{}
+		found := false
 		for _, m := range d.Passages {
-			if m.JobID != id || m.SegmentID != index {
+			if m.JobID == id && m.SegmentID == index {
+				if *in.Favorite && !found && m.Quote == j.Segments[index].Text {
+					kept = append(kept, m)
+					found = true
+				}
+			} else {
 				kept = append(kept, m)
 			}
 		}
-		if *in.Favorite {
+		if *in.Favorite && !found {
 			if len(kept) >= 10000 {
 				return errors.New("passage limit")
 			}
@@ -93,10 +102,22 @@ func (cfg *serverConfig) learningPassageHTTP(w http.ResponseWriter, r *http.Requ
 		}
 		d.Passages = kept
 		return nil
-	}, true)
+	})
+	if errors.Is(e, errPodcastNotFound) {
+		writeError(w, 404, "podcast not found")
+		return
+	}
+	if errors.Is(e, invalid) {
+		writeError(w, 400, "invalid passage")
+		return
+	}
+	if errors.Is(e, unauthorized) {
+		writeError(w, 401, "authentication failed")
+		return
+	}
 	if e != nil {
 		writeError(w, 503, "could not save passage")
 		return
 	}
-	writeJSON(w, 200, map[string]any{"job_id": id, "segment_id": index, "favorite": *in.Favorite})
+	writeJSON(w, 200, map[string]any{"job_id": id, "segment_id": index, "favorite": *in.Favorite, "passage_groups": out})
 }

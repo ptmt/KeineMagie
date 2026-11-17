@@ -36,6 +36,11 @@ final class PodcastWireShapeTests: XCTestCase {
         XCTAssertEqual(library.items.first?.coverage?.knownTotal, 2113)
         XCTAssertEqual(library.items.first?.coverage?.translatedSegments, 0)
         XCTAssertEqual(library.items.first?.coverage?.favoritePassages, 1)
+        let groups = try JSONDecoder().decode(PassageGroups.self, from: Data(contentsOf: root.appendingPathComponent("passage-groups.json")))
+        XCTAssertEqual(groups.groups.map(\.segmentIDs), [[2012, 2013], [2112]])
+        XCTAssertEqual(groups.starredIDs, [2012, 2013, 2112])
+        XCTAssertEqual(groups.groups.first?.start, library.items[0].segments[2012].start)
+        XCTAssertEqual(groups.groups.first?.end, library.items[0].segments[2013].end)
         let empty = try JSONDecoder().decode(PodcastSubscription.self, from: Data(contentsOf: root.appendingPathComponent("empty-subscription.json")))
         XCTAssertTrue(empty.episodes.isEmpty)
     }

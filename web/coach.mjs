@@ -22,7 +22,7 @@ export function coachShowsInstruction(turn){
 export function coachSourceLink(id){
  const translation=/^translation:([A-Za-z0-9_-]{1,128})$/.exec(id||'');
  if(translation)return '/?translation='+encodeURIComponent(translation[1])+'#translator';
- const passage=/^passage:([A-Za-z0-9_-]{1,128}):(0|[1-9][0-9]{0,3})$/.exec(id||'');
+ const passage=/^passage:([A-Za-z0-9_-]{1,128}):(0|[1-9][0-9]{0,3})$/.exec(id||'') || /^passage-group:([A-Za-z0-9_-]{1,128}):(0|[1-9][0-9]{0,3}):pg_[a-f0-9]{64}$/.exec(id||'');
  return passage?'/?section=transcript&segment='+passage[2]+'#podcasts/job/'+encodeURIComponent(passage[1]):null;
 }
 export function mountCoach({host,api,locale,unauthorized,account,document:doc=globalThis.document}){

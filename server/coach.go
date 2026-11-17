@@ -186,8 +186,13 @@ func (cfg *serverConfig) coachSources(owner string) ([]coachSource, error) {
 		return nil, e
 	}
 	// Reserve room for both kinds rather than allowing translation history to mask passages.
+	seenJobs := map[string]bool{}
 	for i := len(marks) - 1; i >= 0 && len(sources) < 6; i-- {
 		m := marks[i]
+		if seenJobs[m.JobID] {
+			continue
+		}
+		seenJobs[m.JobID] = true
 		j, err := cfg.learningJob(owner, m.JobID)
 		if errors.Is(err, errPodcastNotFound) {
 			continue
@@ -195,8 +200,19 @@ func (cfg *serverConfig) coachSources(owner string) ([]coachSource, error) {
 		if err != nil {
 			return nil, err
 		}
-		if m.SegmentID >= 0 && m.SegmentID < len(j.Segments) && j.Segments[m.SegmentID].Text == m.Quote {
-			add(fmt.Sprintf("passage:%s:%d", m.JobID, m.SegmentID), m.Quote, j.SourceLanguage)
+		groups, err := cfg.passageTransaction(owner, j.ID, nil)
+		if err != nil {
+			return nil, err
+		}
+		for _, g := range groups.Groups {
+			if len(sources) >= 6 {
+				break
+			}
+			text := []string{}
+			for _, index := range g.SegmentIDs {
+				text = append(text, j.Segments[index].Text)
+			}
+			add(fmt.Sprintf("passage-group:%s:%d:%s", j.ID, g.SegmentIDs[0], g.ID), strings.Join(text, " "), j.SourceLanguage)
 		}
 	}
 	for _, v := range items {

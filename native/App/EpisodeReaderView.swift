@@ -47,6 +47,7 @@ struct EpisodeReaderView: View {
         .navigationTitle("podcast.episode").navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showProfile) { LearningProfileView(initialLanguage: job.sourceLanguage) }
         .task(id: "\(job.id)-\(model.session.generation)-\(model.session.canWrite)") { await model.loadEpisodeLearning(job) }
+        .task(id: "passages-\(job.id)-\(model.session.generation)-\(model.session.canWrite)") { await model.loadPassageGroups(job) }
     }
     private var learningList: some View {
         List {
@@ -138,16 +139,29 @@ struct EpisodeReaderView: View {
             }.padding(.horizontal)
             ScrollViewReader { proxy in
                 List {
+                    if let error = model.passageErrors[job.id] {
+                        HStack {
+                            Text(verbatim: error).font(.caption).foregroundStyle(.secondary)
+                            Button("podcast.retry") { Task { await model.loadPassageGroups(job) } }.frame(minHeight: 44)
+                        }
+                    }
                     if let returnSection { Button("episode.return") { section = returnSection; self.returnSection = nil }.frame(minHeight: 44) }
                     if visible.lowerBound > 0 { Button("episode.previous.segments") { selected = max(0, visible.lowerBound - 70) }.frame(minHeight: 44) }
                     ForEach(Array(visible), id: \.self) { index in
                         let segment = job.segments[index]
+                        let starred = learning?.passageGroups?.starredIDs.contains(index) == true
                         VStack(alignment: .leading, spacing: 6) {
-                            Text(EpisodeNavigation.timestamp(segment.start) + "–" + EpisodeNavigation.timestamp(segment.end)).font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                            HStack {
+                                Text(EpisodeNavigation.timestamp(segment.start) + "–" + EpisodeNavigation.timestamp(segment.end)).font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                                if starred { Image(systemName: "star.fill").font(.caption).foregroundStyle(.secondary).accessibilityLabel(Text("episode.favorite")) }
+                            }
                             highlighted(segment.text).textSelection(.enabled)
                             if let translation = segment.translation { highlighted(translation).foregroundStyle(.secondary).textSelection(.enabled) }
                         }.padding(.vertical, 4).listRowBackground(selected == index ? Color.accentColor.opacity(0.1) : nil)
                             .id(index).accessibilityIdentifier("episode-segment-\(index)")
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) { passageButton(index, starred: starred) }
+                            .contextMenu { passageButton(index, starred: starred) }
+                            .accessibilityAction(named: Text(starred ? "episode.passage.unsave" : "episode.passage.save")) { savePassage(index, starred: starred) }
                     }
                     if visible.upperBound < job.segments.count { Button("episode.next.segments") { selected = visible.upperBound }.frame(minHeight: 44) }
                     if job.segments.isEmpty { Text("episode.no.transcript").foregroundStyle(.secondary) }
@@ -158,6 +172,7 @@ struct EpisodeReaderView: View {
         }.onChange(of: query) { _, _ in match = -1 }
     }
     private func highlighted(_ value: String) -> Text {
+        // Search only highlights original rows; it never changes group adjacency.
         guard !query.isEmpty else { return Text(value) }
         var text = AttributedString(value)
         var start = value.startIndex
@@ -173,6 +188,19 @@ struct EpisodeReaderView: View {
         editing = false
         match = match < 0 ? (delta < 0 ? values.count - 1 : 0) : (match + delta + values.count) % values.count
         selected = values[match]
+    }
+    private var canSavePassage: Bool {
+        model.session.canWrite && learning?.passageGroups != nil && model.passageWrites[job.id] == nil
+    }
+    private func savePassage(_ index: Int, starred: Bool) {
+        guard canSavePassage else { return }
+        Task { await model.setPassage(job, index: index, favorite: !starred) }
+    }
+    private func passageButton(_ index: Int, starred: Bool) -> some View {
+        Button { savePassage(index, starred: starred) } label: {
+            Label(starred ? "episode.passage.unsave" : "episode.passage.save", systemImage: starred ? "star.slash" : "star")
+                .frame(minHeight: 44)
+        }.tint(.gray).disabled(!canSavePassage).accessibilityIdentifier("episode-star-\(index)")
     }
 }
 

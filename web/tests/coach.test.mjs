@@ -11,6 +11,8 @@ test('obvious cloze omits only redundant instructions, not useful context',()=>{
 test('source links are local, exact, and reject malformed identifiers',()=>{
  assert.equal(coachSourceLink('translation:original'),'/?translation=original#translator');
  assert.equal(coachSourceLink('passage:job_A:12'),'/?section=transcript&segment=12#podcasts/job/job_A');
+ assert.equal(coachSourceLink('passage-group:job_A:12:pg_'+'a'.repeat(64)),'/?section=transcript&segment=12#podcasts/job/job_A');
+ assert.equal(coachSourceLink('passage-group:job_A:12:bad'),null);
  for(const id of ['translation:../foreign','passage:job:01','passage:job:-1','https://foreign','translation:'])assert.equal(coachSourceLink(id),null);
 });
 import {createCoachState} from '../coach-state.mjs';

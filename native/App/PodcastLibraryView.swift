@@ -167,7 +167,7 @@ struct PodcastLibraryView: View {
                             Text(verbatim: AppL10n.text("podcast.coverage.translated", translated, total))
                                 .font(.caption).foregroundStyle(.secondary)
                         }
-                        if let count = coverage.favoritePassages {
+                        if let count = coverage.favoritePassageCount(groups: job.flatMap { model.episodeLearning[$0.id]?.passageGroups }) {
                             Text(verbatim: AppL10n.text("podcast.coverage.starred", count))
                                 .font(.caption).foregroundStyle(.secondary)
                         }

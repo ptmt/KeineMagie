@@ -87,6 +87,9 @@ APP = [
 ('coach.review', 'Beobachtung prüfen', 'Review observation', 'Проверить наблюдение', 'Revisar observación', 'Vérifier l’observation'),
 ('coach.error', 'Coach nicht verfügbar. Verbindung prüfen und erneut versuchen.', 'Coach unavailable. Refresh your connection and try again.', 'Тренер недоступен. Проверьте соединение и повторите.', 'Entrenador no disponible. Revisa la conexión e inténtalo de nuevo.', 'Coach indisponible. Vérifie la connexion et réessaie.'),
 
+('episode.passage.save', 'Speichern', 'Save', 'Сохранить', 'Guardar', 'Enregistrer'),
+('episode.passage.unsave', 'Entfernen', 'Unsave', 'Убрать', 'Quitar', 'Retirer'),
+('episode.passage.save.error', 'Speichern nicht bestätigt. Aktualisieren und erneut versuchen.', 'Save not confirmed. Refresh and try again.', 'Сохранение не подтверждено. Обновите и повторите.', 'No se confirmó el guardado. Actualiza e inténtalo de nuevo.', 'Enregistrement non confirmé. Actualisez et réessayez.'),
 ('episode.language','Sprache','Language','Язык','Idioma','Langue'),
 ('episode.summary','Zusammenfassung','Summary','Резюме','Resumen','Résumé'),
 ('episode.vocabulary','Wortschatz','Vocabulary','Словарь','Vocabulario','Vocabulaire'),
