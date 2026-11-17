@@ -58,4 +58,23 @@ Relative to the evidence root:
 - `result-controls-keyboard-shots/result-footer-ru-large-dark.png`: final large-type result/footer above the keyboard after scrolling.
 - `result-controls-entry/before-peak.png` and `result-controls-entry/after-11.png`: actual before/after flicker evidence.
 
-No remaining ambiguity about Friendly/Formal placement. The interpretation that clearing input should **keep** the last translation follows the task's explicit instruction; no clear-history behavior was added. Independent parent review and any release authorization remain outside this local candidate.
+No remaining ambiguity about Friendly/Formal placement. The interpretation that clearing input should **keep** the last translation follows the task's explicit instruction; no clear-history behavior was added. Any release authorization remains outside this local candidate.
+
+## Independent review and released-main integration
+
+Reviewed native `9ddd23bfd18ee7bdade1df47a1f369ec93b9ab86` and web `9c1dd5ffcb9185e4f2a8a63d7c5b4d611664459d` against `5d532e9`. Found and fixed one web behavior regression: the new saved-source request anchor was also being used to decide whether Apply changes the composer. After clearing or editing the composer, a nullable-source proposal therefore displayed translation-only Apply while restoring/replacing source text. A separate `composerSource` callback now controls preview/label/render invalidation; followup requests remain anchored to the saved/applied pair. The actual Chromium regression failed on the original candidate, then passed with the fix, including composer edits after the proposal appeared.
+
+Added real-AppModel backoff and due-receipt regressions. Backoff resume publishes no pending change and performs no additional POST. Due resume publishes pending, preserves the exact receipt, and has a durable attempted snapshot before held transport. Reopening that journal correctly normalizes an interrupted send to `needsDecision`; an initial reviewer test incorrectly expected `sending` and was corrected without changing production behavior. Existing immediate acceptance, suspended persistence, revoked lease, owner/401 purge and paired nullable-source tests also passed.
+
+After parent authorization, fetched and locally merged released main `16fdc165e4381099cb994c4057d05c577d8e8602` (web-tabs source `ade5e02ff9217fdc1b38616633c039432d296b67`) in merge `960dfa6a0efc0ed3343ffb381ea37243a887df6c`. All seven web-tabs `app.mjs` additions are retained. No Coach or passage-group branch was merged. No remote push, deployment or Apple upload was performed.
+
+Post-integration independent execution:
+
+- **101 real-AppModel tests passed**, including the two additional resume regressions; **54 native Python tests ran, 53 passed and 1 skipped**. Log: `independent-native-ci-final.log`.
+- **72 Core tests passed** (`independent-core.log`).
+- **113 Node tests passed** (`independent-web-unit.log`). An earlier wrong test glob ran zero tests and is not counted.
+- **37 actual Chromium followup checks passed** (`independent-integrated-browser.log`); RED/GREEN logs retained as `independent-web-preview-red.log` and `independent-web-preview-green.log`.
+- Integrated episode-tabs browser suite passed: 10 locale/width cases, keyboard, history/search, legacy links/citations, single-panel accessibility and zero AI POSTs (`independent-integrated-tabs.log`).
+- Native production files remain identical to native candidate `9ddd23b`; inspected existing baseline skeleton, later candidate still, light source/result footers and large Russian keyboard captures. No new native UI run, simulator use or new animation proof is claimed; the simulator slot belongs to the parallel passage-group task. Existing video analysis and timing limitations above remain applicable. An attempted independent video-analysis re-execution required tool approval and is not counted as new evidence.
+
+No remaining material issue found in this reviewed scope. Parent release decision and any final release-specific checks remain outstanding. All logs are under the durable evidence root above; no credentials, private history, paid AI or TTS were used.

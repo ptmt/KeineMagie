@@ -144,7 +144,9 @@ final class PendingObservation: @unchecked Sendable {
     #expect(model.translationPending)
     #expect(model.outbox.items.first?.id == receipt.id)
     let persisted = try TranslationOutboxStore(root: gate.outboxRoot).load(origin: "https://synthetic.invalid", owner: gate.owner)
-    #expect(persisted.items.first?.state == .sending)
+    // A freshly loaded journal treats interrupted sends as uncertain, never replayable.
+    #expect(persisted.items.first?.state == .needsDecision)
+    #expect(persisted.items.first?.attempts == 1)
     #expect(persisted.items.first?.text == receipt.text)
     gate.translationRelease?.resume(); await resumed.value
     #expect(!model.translationPending)
