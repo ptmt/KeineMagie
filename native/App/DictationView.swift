@@ -41,6 +41,7 @@ import KeineMagieCore
 struct DictationView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var phase
+    @Environment(\.dynamicTypeSize) private var textSize
     @Binding var showAdd: Bool
     @State private var items: [DictationRecord] = []
     @State private var record: DictationRecord?
@@ -64,6 +65,7 @@ struct DictationView: View {
     @State private var policyPlayer: DictationPlaybackController?
     @AccessibilityFocusState private var menuAXFocused: Bool
     @FocusState private var menuFocused: Bool
+    @FocusState private var draftFocused: Bool
     var body: some View {
         Group {
             if let value = record { practice(value) }
@@ -160,6 +162,7 @@ struct DictationView: View {
         }
     }
     private func practice(_ value: DictationRecord) -> some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Button { cancelTransport();save { record = nil; load() } } label: {Label("History",systemImage:"chevron.left").frame(minHeight:44)}.buttonStyle(.plain).foregroundStyle(.secondary)
@@ -196,11 +199,11 @@ struct DictationView: View {
                     if value.playbackPolicyVersion == nil && !value.checked && value.mode == "sentences" && value.step < value.plan.count - 1 { Button("Next") { transition(.next) }.disabled(busy || saving).accessibilityIdentifier("dictation-next") }
                 }
                 if !value.checked {
-                    HStack { Spacer(); Button("Check") { action("check") }.buttonStyle(.borderedProminent).tint(.primary).foregroundStyle(Color(uiColor:.systemBackground)).frame(minHeight:44).disabled(value.draft.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || busy || saving).accessibilityIdentifier("dictation-check") }
+                    HStack { Spacer(); Button("Check") { action("check") }.buttonStyle(.borderedProminent).tint(.primary).foregroundStyle(Color(uiColor:.systemBackground)).frame(minHeight:44).disabled(value.draft.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || busy || saving).accessibilityIdentifier("dictation-check") }.id("dictation-draft-header")
                 }
                 TextField("", text: Binding(get:{record?.draft ?? ""},set:{ draft in
                     record?.draft = String(draft.prefix(2400));if let record { do { try model.dictationDrafts.update(record) } catch { self.error = AppL10n.text("Not saved. Retry before leaving.") } };draftVersion += 1;saveTask?.cancel();saveTask = Task { try? await Task.sleep(for:.milliseconds(700));if !Task.isCancelled { save() } }
-                }),axis:.vertical).lineLimit(6...14).autocorrectionDisabled().textInputAutocapitalization(.never).padding(12).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius:8)).overlay(RoundedRectangle(cornerRadius:8).stroke(.quaternary,lineWidth:1)).disabled(value.checked || (busy && !preparing)).accessibilityLabel("What you heard").accessibilityIdentifier("dictation-draft")
+                }),axis:.vertical).lineLimit(6...14).focused($draftFocused).autocorrectionDisabled().textInputAutocapitalization(.never).padding(12).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius:8)).overlay(RoundedRectangle(cornerRadius:8).stroke(.quaternary,lineWidth:1)).disabled(value.checked || (busy && !preparing)).accessibilityLabel("What you heard").accessibilityIdentifier("dictation-draft")
                 if let server = model.dictationDrafts.conflict(value.id) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Draft conflict").font(.headline)
@@ -223,6 +226,14 @@ struct DictationView: View {
                 if let error { Text(error).font(.footnote).foregroundStyle(.secondary) }
             }.padding()
         }.scrollDismissesKeyboard(.interactively)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { _ in
+            // A six-line accessibility-sized field is taller than the keyboard viewport.
+            // Keep its explicit Check action and the first editable lines together.
+            if draftFocused && textSize.isAccessibilitySize {
+                proxy.scrollTo("dictation-draft-header", anchor: .top)
+            }
+        }
+        }
     }
     private func playback(_ value: DictationRecord, _ segment: DictationSegment) -> some View {
         let policy=value.playbackPolicyVersion == 1

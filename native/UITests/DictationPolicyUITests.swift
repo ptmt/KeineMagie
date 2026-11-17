@@ -94,6 +94,12 @@ final class DictationPolicyUITests: XCTestCase {
         XCTAssertLessThanOrEqual(check.frame.maxY,draft.frame.minY)
         XCTAssertFalse(app.staticTexts["dictation-revealed"].exists)
         capture(app,"en-Dark-accessibility-keyboard")
+        XCTAssertEqual(draft.value as? String,"My draft stays here")
+        let keyboard=app.keyboards.firstMatch
+        XCTAssertTrue(keyboard.exists)
+        let font=UIFont.preferredFont(forTextStyle:.body,compatibleWith:UITraitCollection(preferredContentSizeCategory:.accessibilityExtraExtraExtraLarge))
+        let textHeight=("My draft stays here" as NSString).boundingRect(with:CGSize(width:draft.frame.width-24,height:1000),options:.usesLineFragmentOrigin,attributes:[.font:font],context:nil).height
+        XCTAssertLessThanOrEqual(draft.frame.minY+12+ceil(textHeight),keyboard.frame.minY-8,"The complete typed fixture and caret must remain above the keyboard at maximum Dynamic Type")
     }
     @MainActor private func launch(locale:String,theme:String,large:Bool=false) throws -> XCUIApplication {
         let url=URL(fileURLWithPath:"/Users/tinyserve/.hermes/cache/scratch/dictation-final/fixture/fixture.json")
