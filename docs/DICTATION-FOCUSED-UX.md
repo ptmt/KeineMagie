@@ -1,5 +1,26 @@
 # Focused Dictation UX — versioned playback implementation
 
+## Independent review follow-up (2026-11-17)
+
+Reviewed implementation `ee89d5f816b3cc56e5805666eddb7c7c5eed64ad` against the focused UX and opt-in policy requirements. This follow-up is local only; user visual approval remains required before release, including the provisional top-right Check. No automatic checking was added.
+
+Two issues were reproduced with failing tests and minimally corrected:
+- The counter/exhaustion copy said “listens” although the durable ledger counts authorized **starts**, including canceled or failed playback. All five locales now label starts. Sentence hints qualify the optional final whole replay by the remaining shared four-start allowance rather than promising an unavailable fifth start. The user's whole-mode teaching hint remains intact.
+- A checked policy attempt displayed an enabled Play button although both the player and server reject new playback. The policy action is now disabled on checked attempts (including unnecessary preparation); legacy behavior is unchanged.
+
+Independent executed verification on the follow-up:
+- Full Node suite: **138 passed, zero failures** (original reviewed SHA: 136 passed).
+- Fresh `go test -count=1 ./...`, `go test -race -count=1 ./...`, and `go vet ./...`: passed. The final Go runs took 248.279s and 117.993s respectively on the shared host. A file-write helper's automatic Go lint timed out; explicit gofmt and the full test/race/vet commands subsequently succeeded.
+- Real Chromium / Go-handler policy suite: passed again. Added real HTMLMediaElement pause → Continue with unchanged reservation/one start, stable paused position, textarea focus through natural end, History return with preserved draft, and unchanged explicit preparation count. Existing four natural whole ends/fifth rejection, restart, network/autoplay recovery, tab fencing, timed sentence chain/final-once, Range and five-locale captures also passed. Only synthetic silent WAVs and isolated fixture identities were used.
+- Presentation correction, focused lifecycle, five-locale preparation geometry, and legacy real-media browser suites: all passed with zero page errors. These are explicitly legacy fixtures, not policy acceptance substitutes. Keyboard Check stayed explicit.
+- New Go served-module-graph test traverses Dictation imports through the real public handler and checks MIME and Docker packaging. Old `e8ed89` HTML is byte-identical to current HTML; booting it with current modules in the actual local signed-out app produced 14 successful module responses and zero page errors. This is a guest/bootstrap compatibility check, not authenticated production acceptance.
+- Visually inspected regenerated policy Russian whole and French sentence screenshots: persistent compact hints, no prominent paid line or footer Check, visible provisional header Check, no horizontal clipping. The full-page mobile screenshots extend beyond the viewport; no claim is made that every control fits above the fold. Cost/privacy and unchanged $10 shared monthly budget remain under closed About audio.
+
+The reviewed server retains legacy absent-policy requests, immutable opt-in versions, independent draft/playback revisions, four-start admission, resumable fenced leases, bounded 256-reservation history, owner/revocation checks, and failed-write/no-success behavior. Direct cached media and OS pause remain possible: this is admission policy, not DRM. Old **clients** writing to this server preserve the policy fields; rolling back to a pre-policy **server binary** is not supported and could discard unknown JSON fields on a later write. Retain the policy-aware server when rolling back the web UI.
+
+Integration: apply the three candidate commits in order (`eb20d83`, `41c7765`, `ee89d5f`) plus this review follow-up; do not copy whole files from this branch over combined `277d7c3`. Preserve combined/Profile changes in `web/dictation.mjs`, localization, `server/learning.go`, static routes and Docker module lists. The common ancestor with combined is `b52c48d`, not `e8ed89`; shared files require semantic conflict review and a fresh combined suite. Combined/Profile worktrees and the original dirty worktree were not modified. No provider inference, credentials, personal drafts, Xcode, remote push or deployment were used.
+
+
 ## Current implementation (2026-11-17)
 
 This section supersedes the presentation-only status below. Playback policy **1** is implemented and locally verified in this worktree. Full Go unit/race/vet and actual Chromium media verification passed through the parent tool environment after the coding subprocess sandbox blocked listeners and Chromium. New policy evidence is in `docs/evidence/dictation-focused-ux/policy/`; historical evidence below belongs to the earlier presentation implementation.

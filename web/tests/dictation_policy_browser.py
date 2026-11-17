@@ -10,7 +10,7 @@ repo=Path(__file__).resolve().parents[2]
 out=repo/'docs/evidence/dictation-focused-ux/policy'
 out.mkdir(parents=True,exist_ok=True)
 with tempfile.TemporaryDirectory(prefix='dictation-policy-') as tmp:
- env=dict(os.environ,GOCACHE='/private/tmp/dictation-playback-go-cache',DICTATION_PLAYBACK_BRIDGE=tmp)
+ env=dict(os.environ,DICTATION_PLAYBACK_BRIDGE=tmp)
  binary=Path(tmp)/'fixture.test'
  subprocess.run(['go','test','-c','-o',str(binary)],cwd=repo/'server',env=env,check=True,capture_output=True)
  def start():
@@ -73,6 +73,23 @@ with tempfile.TemporaryDirectory(prefix='dictation-policy-') as tmp:
    page.wait_for_function("events.some(e=>e.event==='ended')")
    assert len([c for c in page.evaluate('calls') if c['path'].endswith('/check')])==0
    create('network');page.get_by_role('button',name='Prepare audio',exact=True).click();abort_media=True;page.get_by_role('button',name='Play',exact=True).click();expect(page.get_by_role('button',name='Continue',exact=True)).to_be_visible();before=state('network')['playback']['active']['id'];page.get_by_role('button',name='Continue',exact=True).click();assert state('network')['playback']['active']['id']==before;page.wait_for_function("events.some(e=>e.event==='ended')");assert state('network')['playback']['whole_starts']==1
+   create('paused');page.get_by_role('button',name='Prepare audio',exact=True).click()
+   expect(page.get_by_role('button',name='Play',exact=True)).to_be_enabled()
+   paid_before=page.evaluate("calls.filter(c=>c.method==='POST'&&c.path.includes('/audio/')).length")
+   page.get_by_role('button',name='Play',exact=True).click();page.wait_for_function('fixtureAudio.currentTime>.1')
+   paused_id=state('paused')['playback']['active']['id'];page.evaluate('fixtureAudio.pause()')
+   paused_time=page.evaluate('fixtureAudio.currentTime');page.wait_for_timeout(200)
+   assert page.evaluate('fixtureAudio.currentTime')==paused_time
+   expect(page.get_by_role('button',name='Continue',exact=True)).to_be_visible()
+   draft=page.get_by_role('textbox',name='What you heard',exact=True);draft.fill('Pause recovery draft')
+   page.get_by_role('button',name='Continue',exact=True).click();draft.focus()
+   assert state('paused')['playback']['active']['id']==paused_id
+   page.wait_for_function("events.some(e=>e.event==='ended')");expect(draft).to_be_focused()
+   assert state('paused')['playback']['whole_starts']==1
+   page.get_by_role('button',name='History',exact=True).click()
+   page.get_by_role('button',name='Synthetic paused · In progress',exact=True).click()
+   expect(page.get_by_role('textbox',name='What you heard',exact=True)).to_have_value('Pause recovery draft')
+   assert page.evaluate("calls.filter(c=>c.method==='POST'&&c.path.includes('/audio/')).length")==paid_before
    create('sentences');page.get_by_role('button',name='By sentences',exact=True).click();page.get_by_role('button',name='Prepare audio',exact=True).click()
    expect(page.get_by_role('button',name='Play',exact=True)).to_be_enabled()
    prepared=page.evaluate("calls.filter(c=>c.method==='POST'&&c.path.includes('/audio/')).length")
