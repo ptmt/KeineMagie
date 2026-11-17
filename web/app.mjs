@@ -185,6 +185,12 @@ const dictation = mountDictation({host:$('dictation'),api,locale:getInterfaceLan
 const sectionLinks = [...document.querySelectorAll('.section-nav a')];
 let activeSection = 'translator';
 function renderRoute(focus = false) {
+  // Legacy reader fragments belong to the episode, not the application router.
+  const legacy=/^#(?:episode-)?(summary|vocabulary|words|recommendations|transcript)$/.exec(location.hash);
+  if(legacy&&episodeLocation(location.pathname,'')){
+    const url=new URL(location.href);url.searchParams.set('section',legacy[1]==='words'?'vocabulary':legacy[1]);url.hash='';
+    window.history.replaceState(window.history.state,'',url.pathname+url.search);
+  }
   // Keep the existing DOM and all requests alive when changing sections.
   // #main belongs to the skip link, not the section router.
   if (location.hash === '#main') return;
@@ -703,6 +709,7 @@ function mountPodcasts({api, account, unauthorized}) {
   let renderSignature='', reader=null;
   let resolvedPermalink=null, resolving=null, routeFlight=null, routeKey=null;
   async function openRoute(hash) {
+    episodeView?.routeChanged?.();
     const permalink=episodeLocation(location.pathname,hash);
     const key=`${session?.user?.id||''}:${location.pathname}:${hash}`;
     if(routeFlight&&routeKey===key)return routeFlight;
