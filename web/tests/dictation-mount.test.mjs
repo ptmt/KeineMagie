@@ -87,7 +87,7 @@ test('media error probes 401 and clears identity while playback keeps its click 
   return path.endsWith('/one')?record():{items:[record()]};
  }});
  await f.start();await f.click('Test one · In progress');
- await f.click('Play / repeat');
+ await f.click('Play');
  const audio=f.media[0];
  assert.equal(audio.src,'/v1/learning/dictations/one/audio/0');
  assert.equal(audio.plays,1);
@@ -109,7 +109,7 @@ test('media 401 is detected even when play rejects before the media error event'
  }});
  await f.start();await f.click('Test one · In progress');
  f.media[0].playError=Error('media load failed');
- await f.click('Play / repeat');
+ await f.click('Play');
  assert.equal(f.unauthorized,0,'play rejection alone does not prove an expired session');
  await f.media[0].onerror();await tick();
  assert.equal(f.unauthorized,1);

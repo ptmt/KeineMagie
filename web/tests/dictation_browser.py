@@ -18,7 +18,7 @@ with sync_playwright() as p:
  page.get_by_role('button',name='Prepare audio',exact=True).wait_for()
  assert source not in page.locator('#dictation').inner_text()
  started=time.monotonic();page.get_by_role('button',name='Prepare audio',exact=True).click()
- play=page.get_by_role('button',name='Play / repeat',exact=True)
+ play=page.locator('.dictation-player > button').first
  from playwright.sync_api import expect
  expect(play).to_be_enabled(timeout=60000)
  latency=time.monotonic()-started
@@ -34,7 +34,7 @@ with sync_playwright() as p:
  page.get_by_role('button',name='History',exact=True).click()
  page.reload();page.get_by_role('button',name='German · real Piper fixture · In progress',exact=True).first.click()
  expect(page.get_by_role('textbox',name='What you heard')).to_have_value('Dr. Müller geht heute in die Stadt.')
- page.get_by_role('button',name='Check',exact=True).click();page.locator('.dictation-original').wait_for()
+ page.get_by_role('button',name='Check',exact=True).click();page.get_by_role('button',name='Show original',exact=True).click();page.locator('.dictation-original').wait_for()
  assert page.locator('.dictation-original').text_content()==source
  page.set_viewport_size({'width':390,'height':844});page.screenshot(path=str(EVIDENCE/'mobile-check.png'),full_page=True)
  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')

@@ -25,10 +25,9 @@ with sync_playwright() as p:
     prepare.wait_for()
     assert source not in page.locator('#dictation').inner_text()
     prepare.click()
-    play=page.get_by_role('button',name='Play / repeat',exact=True)
+    play=page.locator('.dictation-player > button').first
     expect(play).to_be_enabled(timeout=10000)
-    details=page.locator('#dictation small')
-    assert details.nth(1).bounding_box()['y'] >= details.nth(0).bounding_box()['y'] + details.nth(0).bounding_box()['height'], 'paid notice and counter share one line'
+    expect(page.locator('.dictation-disclosure summary')).to_have_text('Audio details')
     play.click()
     page.wait_for_function("() => document.querySelector('#dictation').textContent.includes('1 completed readings')",timeout=15000)
     page.screenshot(path=str(evidence/'whole-ended.png'),full_page=True)
@@ -48,6 +47,8 @@ with sync_playwright() as p:
     page.get_by_role('button',name='Cached accepted OpenAI WAV · In progress',exact=True).first.click()
     expect(draft).to_have_value(source)
     page.get_by_role('button',name='Check',exact=True).click()
+    expect(page.locator('.dictation-original')).to_have_count(0)
+    page.get_by_role('button',name='Show original',exact=True).click()
     expect(page.locator('.dictation-original')).to_have_text(source)
     page.screenshot(path=str(evidence/'checked.png'),full_page=True)
     page.get_by_role('button',name='New attempt',exact=True).click()
@@ -56,6 +57,7 @@ with sync_playwright() as p:
     page.get_by_role('textbox',name='What you heard').fill('second attempt')
     page.wait_for_timeout(1200)
     page.once('dialog',lambda dialog:dialog.accept())
+    page.locator('.dictation-attempt-menu summary').click()
     page.get_by_role('button',name='Delete attempt',exact=True).click()
     expect(page.get_by_role('button',name='Add text',exact=True)).to_be_visible()
     assert not errors, errors

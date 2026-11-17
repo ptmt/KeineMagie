@@ -53,12 +53,14 @@ async def main():
         await page.route('**/v1/learning/dictations/*/audio/*', preparation_route)
         await page.get_by_role('button', name='Prepare audio', exact=True).click()
         await asyncio.wait_for(preparing.wait(), 10)
+        await page.get_by_role('button', name='Cancel preparation', exact=True).click()
+        await expect(page.get_by_role('button', name='Prepare audio', exact=True)).to_be_enabled()
         await page.get_by_role('button', name='By sentences', exact=True).click()
         await page.get_by_role('button', name='Whole text', exact=True).click()
         await page.get_by_role('button', name='By sentences', exact=True).click()
         await page.get_by_role('button', name='Next', exact=True).click()
         release_preparation.set()
-        await expect(page.get_by_role('button', name='Play / repeat', exact=True)).to_be_disabled()
+        await expect(page.get_by_role('button', name='Prepare audio', exact=True)).to_be_enabled()
         await page.unroute_all(behavior='ignoreErrors')
 
         async def ready_route(route):
@@ -68,7 +70,7 @@ async def main():
                 await route.continue_()
         await page.route('**/v1/learning/dictations/*/audio/*', ready_route)
         await page.get_by_role('button', name='Prepare audio', exact=True).click()
-        await expect(page.get_by_role('button', name='Play / repeat', exact=True)).to_be_enabled()
+        await expect(page.get_by_role('button', name='Play', exact=True)).to_be_enabled()
         await page.unroute_all(behavior='ignoreErrors')
         downloading = asyncio.Event()
         release_download = asyncio.Event()
@@ -82,7 +84,7 @@ async def main():
             else:
                 await route.continue_()
         await page.route('**/v1/learning/dictations/*/audio/*', download_route)
-        await page.get_by_role('button', name='Play / repeat', exact=True).click()
+        await page.get_by_role('button', name='Play', exact=True).click()
         await asyncio.wait_for(downloading.wait(), 10)
         await page.get_by_role('button', name='Profile', exact=True).click()
         await page.locator('#logout').click()
