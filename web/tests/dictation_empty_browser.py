@@ -19,7 +19,7 @@ try:
   page.on('pageerror',lambda e:errors.append(str(e)))
   page.add_init_script("localStorage.setItem('keinemagie:interface-language:v1','en')")
   page.goto(f'http://127.0.0.1:{server.server_port}/#dictation')
-  expect(page.get_by_role('button',name='Add text',exact=True)).to_be_enabled()
+  expect(page.locator('#dictation button').filter(has_text='Add text')).to_be_enabled()
   expect(page.locator('#dictation [role=status]')).to_have_text('')
   expect(page.locator('#dictation')).to_contain_text('No dictations yet.',timeout=1500)
   evidence=Path(os.environ['TMPDIR'])/'km-web-incident';evidence.mkdir(exist_ok=True)
@@ -27,7 +27,7 @@ try:
   for locale,label in [('de','Noch keine Diktate.'),('ru','Диктантов пока нет.'),('es','Aún no hay dictados.'),('fr','Pas encore de dictées.'),('en','No dictations yet.')]:
    page.locator('#interface-language-header').select_option(locale)
    expect(page.locator('#dictation')).to_contain_text(label)
-  page.get_by_role('button',name='Add text',exact=True).focus();page.keyboard.press('Enter')
+  page.locator('#dictation button').filter(has_text='Add text').focus();page.keyboard.press('Enter')
   expect(page.get_by_role('dialog')).to_be_visible()
   page.keyboard.press('Escape');expect(page.get_by_role('dialog')).not_to_be_visible()
   Empty.malformed=True

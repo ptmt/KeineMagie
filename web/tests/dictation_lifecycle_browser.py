@@ -33,7 +33,7 @@ async def main():
         errors = []
         page.on('pageerror', lambda error: errors.append(str(error)))
         await page.goto(info['url'] + '/#dictation')
-        await page.get_by_role('button', name='Add text', exact=True).click()
+        await page.locator('#dictation header').get_by_role('button', name='Add text', exact=True).click()
         await page.get_by_role('textbox', name='Title', exact=True).fill('Lifecycle fence')
         await page.get_by_role('textbox', name='Original text', exact=True).fill('Heute scheint die Sonne. Morgen regnet es.')
         await page.get_by_role('button', name='Save text', exact=True).click()

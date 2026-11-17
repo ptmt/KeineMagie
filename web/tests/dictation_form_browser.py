@@ -19,7 +19,7 @@ with sync_playwright() as playwright:
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.goto(info['url'] + '/#dictation')
     title = 'Create retry ' + uuid.uuid4().hex[:8]
-    page.get_by_role('button', name='Add text', exact=True).click()
+    page.locator('#dictation header').get_by_role('button', name='Add text', exact=True).click()
     page.get_by_role('textbox', name='Title', exact=True).fill(title)
     page.get_by_role('textbox', name='Original text', exact=True).fill('   ')
     page.get_by_role('button', name='Save text', exact=True).click()
@@ -43,7 +43,7 @@ with sync_playwright() as playwright:
     expect(page.locator('#dictation [role="status"]')).to_contain_text('Could not save. Retry.')
     page.unroute('**/v1/learning/dictations', lost_ack)
     page.reload()
-    page.get_by_role('button', name='Add text', exact=True).click()
+    page.locator('#dictation header').get_by_role('button', name='Add text', exact=True).click()
     expect(page.get_by_role('textbox', name='Title', exact=True)).to_have_value(title)
     expect(page.get_by_role('textbox', name='Title', exact=True)).to_be_disabled()
     page.get_by_role('button', name='Save text', exact=True).click()

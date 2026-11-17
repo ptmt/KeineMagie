@@ -1,5 +1,7 @@
 # Coach daily entry, chat, and Dictation empty state — local candidate
 
+> Local combined integration is now recorded in [COACH-DAILY-TRANSLATOR-INTEGRATION.md](COACH-DAILY-TRANSLATOR-INTEGRATION.md): fresh reviewed Translator base plus only the two Coach commits, full code/unit/browser gates passed, passage groups excluded, integrated native UI and release still pending. Earlier candidate-only evidence below is historical and is not a combined native-UI signoff.
+
 ## Authorization and isolation
 
 The latest request explicitly authorizes an actual AI exercise on authenticated, visible Coach entry, at most once per owner local calendar day. This supersedes earlier free five-hour-offer/no-entry-inference policy **for updated clients opting in with `time_zone`**. Explicit practice remains available. It does not authorize background generation, paid OpenAI TTS fallback, deployment, or release.
