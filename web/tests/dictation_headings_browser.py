@@ -62,7 +62,7 @@ with sync_playwright() as p:
                 expect(details.locator('p').first).not_to_be_visible()
                 assert page.evaluate('calls.length') == count
                 expect(page.locator('.dictation-input-header > button')).to_have_count(1)
-                expect(page.locator('.dictation-answer-actions > button')).to_have_count(1)
+                expect(page.locator('.dictation-answer-actions > button')).to_have_count(0)
                 assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                 if policy and mode == 'whole' and locale == 'ru':
                     summary.evaluate('e=>e.blur()')

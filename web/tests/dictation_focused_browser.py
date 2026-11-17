@@ -8,10 +8,12 @@ with sync_playwright() as p:
  b=p.chromium.launch();ctx=b.new_context(viewport={'width':1280,'height':900},reduced_motion='reduce');page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  ctx.route('**/*',lambda route:route.continue_() if route.request.url.startswith('http://127.0.0.1:8876/') else route.abort())
  def shot(name):page.screenshot(path=str(OUT/(name+'.png')),full_page=True)
- def click(name):page.get_by_role('button',name=name,exact=True).click()
+ def click(name):
+  if name=='Show original':page.locator('.dictation-attempt-menu summary').click()
+  page.get_by_role('button',name=name,exact=True).click()
  page.goto(BASE+'?empty');expect(page.get_by_text('Listen → type → check.',exact=False)).to_be_visible();shot('after-empty')
  page.get_by_role('button',name='Add text',exact=True).last.click();page.get_by_role('textbox',name='Title',exact=True).fill('Ein Spaziergang im Park');page.get_by_role('textbox',name='Original text',exact=True).fill('Heute scheint die Sonne. Wir gehen in den Park.');click('Save text')
- expect(page.get_by_role('button',name='Prepare audio',exact=True)).to_be_visible();expect(page.get_by_text('Audio details',exact=True)).to_be_visible();expect(page.get_by_text('Via OpenAI API · paid',exact=True)).to_have_count(0)
+ expect(page.get_by_role('button',name='Prepare audio',exact=True)).to_be_visible();expect(page.locator('.dictation-disclosure summary')).to_have_accessible_name('Audio details');expect(page.get_by_text('Via OpenAI API · paid',exact=True)).to_have_count(0)
  assert page.evaluate("calls.filter(x=>x.path.includes('/audio/')).length")==0
  shot('after-unprepared-desktop');page.set_viewport_size({'width':390,'height':844});shot('after-unprepared-mobile')
  original_rect=page.locator('.dictation-work textarea').bounding_box();page.evaluate('fixture.delay=800');click('Prepare audio');expect(page.get_by_role('button',name='Preparing audio…')).to_be_disabled()

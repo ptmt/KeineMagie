@@ -34,7 +34,7 @@ with sync_playwright() as p:
  page.get_by_role('button',name='History',exact=True).click()
  page.reload();page.get_by_role('button',name='German · real Piper fixture · In progress',exact=True).first.click()
  expect(page.get_by_role('textbox',name='What you heard')).to_have_value('Dr. Müller geht heute in die Stadt.')
- page.get_by_role('button',name='Check',exact=True).click();page.get_by_role('button',name='Show original',exact=True).click();page.locator('.dictation-original').wait_for()
+ page.get_by_role('button',name='Check',exact=True).click();page.locator('.dictation-attempt-menu summary').click();page.get_by_role('button',name='Show original',exact=True).click();page.locator('.dictation-original').wait_for()
  assert page.locator('.dictation-original').text_content()==source
  page.set_viewport_size({'width':390,'height':844});page.screenshot(path=str(EVIDENCE/'mobile-check.png'),full_page=True)
  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')

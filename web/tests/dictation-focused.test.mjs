@@ -17,6 +17,8 @@ test('uncached exercise has one audio action, quiet audio details and secondary 
  assert.match(disclosure.textContent,/sends the text to OpenAI/);
  const more=f.host.all().find(e=>e.className==='dictation-attempt-menu');
  assert.ok(more.all().includes(f.button('Delete attempt')));
+ assert.ok(more.all().includes(f.button('Show original')),'original is only in the existing attempt menu');
+ assert.equal(f.host.all().filter(e=>e.className==='dictation-attempt-menu').length,1);
  assert.equal(f.requests.filter(r=>r.method==='POST').length,0);
  f.controller.identity(null);
 });

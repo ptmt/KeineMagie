@@ -48,6 +48,7 @@ with sync_playwright() as p:
     expect(draft).to_have_value(source)
     page.get_by_role('button',name='Check',exact=True).click()
     expect(page.locator('.dictation-original')).to_have_count(0)
+    page.locator('.dictation-attempt-menu summary').click()
     page.get_by_role('button',name='Show original',exact=True).click()
     expect(page.locator('.dictation-original')).to_have_text(source)
     page.screenshot(path=str(evidence/'checked.png'),full_page=True)

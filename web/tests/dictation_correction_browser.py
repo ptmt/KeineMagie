@@ -18,7 +18,7 @@ with sync_playwright() as p:
         expect(hint).to_be_visible()
         expect(page.locator('.dictation-disclosure')).not_to_have_attribute('open','')
         expect(page.locator('.dictation-disclosure summary')).not_to_contain_text('OpenAI')
-        expect(page.locator('.dictation-answer-actions button')).to_have_count(1)
+        expect(page.locator('.dictation-answer-actions button')).to_have_count(0)
         expect(page.locator('.dictation-input-header button')).to_have_count(1)
         draft=page.locator('.dictation-work textarea')
         assert draft.get_attribute('placeholder') is None
