@@ -1,0 +1,110 @@
+{
+  "base": "4cf23d02b138c6c38dda19981e52b285772059d0",
+  "sourceHashes": {
+    "native/App/DictationPracticeComponents.swift": "cbac61b7025f9bc9320e572c93c41a4c1971e49c559bf5f819b808caa5263090",
+    "native/UITests/DictationPlayerUITests.swift": "4e3c12ebf44cf2e40c375ecc96c61fa4fdf76fd8c1a7b1ad742001a14740a40f",
+    "native/ci/test_dictation_global_player.py": "2f6ac8785a82e7f5369c8951e0df43d6ab2bd17c43499dcb21695d773aa36d59"
+  },
+  "protectedOriginalHashes": 304,
+  "protectedOriginalStatusMatches": true,
+  "summaries": {
+    "normal": {
+      "result": "Passed",
+      "totalTestCount": 6,
+      "passedTests": 6,
+      "failedTests": 0,
+      "skippedTests": 0
+    },
+    "small": {
+      "result": "Passed",
+      "totalTestCount": 3,
+      "passedTests": 3,
+      "failedTests": 0,
+      "skippedTests": 0
+    }
+  },
+  "structuralTests": 4,
+  "screenshots": [
+    {
+      "file": "docs/screenshots/dictation-player-minimal/normal-global-Dark-coach-playing.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/normal-final-shots/7E1BCAA6-C679-4939-BA44-C3FB12578EE1.png",
+      "sha256": "90cdb29f26eadc65a89a249ae497e583bbc4bec0e526d3fc477a6c9bcaeda1ad"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/normal-global-Light-coach-playing.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/normal-final-shots/8A30253D-09E9-469B-9B5B-06F573EAB49D.png",
+      "sha256": "80f5a561d95fbdf415e2e9492abdc320525785555d4aa64d05e9d03b1102d6bc"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/normal-layout-Dark-expanded-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/normal-final-shots/D53C7EE0-5D25-4692-B488-91A107B7D116.png",
+      "sha256": "19f171e7380f4ced2ddd006f3172de2aca1c9646b2b3d0a1d32896f56913d2d8"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/normal-layout-Dark-localized-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/normal-final-shots/ED56BC19-F3FE-44EC-AFDC-EB66A438018C.png",
+      "sha256": "955d1bb19f4616871ce3835e5054c6b74fe5eae7279ba68648448e532e151237"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/normal-layout-Light-expanded-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/normal-final-shots/F4440E17-B0FF-4CD5-B2BF-48FEDC51E2E2.png",
+      "sha256": "0108e625f1d9fde3d09804256e6f4a522b9016d5eec2c4d645b774d591d0d53b"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/normal-layout-Light-localized-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/normal-final-shots/AF341B2C-0236-4DEB-B85A-C5F9CAD24A57.png",
+      "sha256": "36b67954a8cd0bddd2ad4f0280e87a3cfc06ac0d4e969cc96bb70217bbfa519d"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/normal-layout-Dark-minimal-ready.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/normal-final-shots/21A39F6B-9904-49E0-8719-F9CCC4AEBAB6.png",
+      "sha256": "770c7e702901bbe8c463b59b13765bc9f700a3577c9f9fa4e6603916e64f1360"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/normal-layout-Light-minimal-ready.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/normal-final-shots/746DD1D9-3565-40A4-921F-8A49ECB61BA3.png",
+      "sha256": "5a159026531626846975b202d3ca69c51fe846b5158f8112d4e4d5254cc8c194"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/small-global-Dark-coach-playing.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/small-final-shots/70FDEB69-7482-4850-ABA4-CDAC6034E2B6.png",
+      "sha256": "cd25ed7d5a6918a85ebaa6c476cbc0188c7a4c79ed6721b05fadf0a035bda3ca"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/small-global-Light-coach-playing.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/small-final-shots/F09BA723-4A26-448C-A463-AB7F3FA1691E.png",
+      "sha256": "e2fec0a6576a6d419f4d2ea74fc5a1f9f00b0a83c598b57dfb2a14ee3eb9b94a"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/small-layout-Dark-expanded-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/small-final-shots/71DB9655-5581-4394-8E5C-740545547E1A.png",
+      "sha256": "5925e0ed9e6bdd7fc7130eeaaab28ca5b165b92ede2d1ef94970afe844a9b1f1"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/small-layout-Dark-localized-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/small-final-shots/821B64BA-33F2-44E9-A4F0-000BAA749082.png",
+      "sha256": "4d915af8f7329c1e99079d9527f804d998f5c8711e1ccdd01a569d564775a3ec"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/small-layout-Light-expanded-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/small-final-shots/E97857E7-F2D1-482F-9330-412666FDF37F.png",
+      "sha256": "481ce11c2cb48901012a74aae13ce4ba2428df6d7277ae2db824a228deee8488"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/small-layout-Light-localized-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/small-final-shots/448C59DC-E615-4066-A6AC-3AFF6D9B932A.png",
+      "sha256": "b463ec810e9cc1a16bfaf8321bd69a34d953cf65ae909f0ad18cec34288a4cb3"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/small-layout-Dark-minimal-ready.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/small-final-shots/AEC18127-4024-427B-852B-0766FECCE254.png",
+      "sha256": "51698412fc74ff0cb81099f4b9e2538c3ce988d56cb17fed6afa083f6274904c"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-minimal/small-layout-Light-minimal-ready.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-minimal/small-final-shots/C9D1C9EB-DEFE-44C9-9752-D96A73AA7444.png",
+      "sha256": "528708210493edb989cb9855e514858264ba611de5a3964c5915e1e080c16c4d"
+    }
+  ],
+  "scope": "Local Release simulator fixture; no push, release, production API or paid provider operations."
+}

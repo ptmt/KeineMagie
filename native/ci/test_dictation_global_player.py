@@ -21,18 +21,22 @@ class GlobalDictationOwnership(unittest.TestCase):
         self.assertNotIn('.ultraThinMaterial', accessory)
         self.assertNotIn('Slider(', accessory)
 
-    def test_compact_full_width_timeline_and_no_mini_player_info(self):
+    def test_minimal_single_row_without_progress_or_clocks(self):
         accessory = (ROOT / 'App/DictationPracticeComponents.swift').read_text()
-        toolbar = accessory.split('struct DictationAudioToolbar:', 1)[1].split('struct DictationAudioInformation:', 1)[0]
-        timeline = toolbar.split('TimelineView(', 1)[1]
-        self.assertNotIn('DictationAudioInformation()', toolbar)
-        self.assertIn('ZStack(alignment:.bottom)', toolbar)
-        self.assertIn('.multilineTextAlignment(.center)', toolbar)
-        self.assertIn('}.frame(height:44).buttonStyle(.plain)', toolbar)
-        self.assertIn('ProgressView(value:snapshot?.fraction', timeline)
-        self.assertIn('}.frame(maxWidth:.infinity)', timeline)
-        self.assertNotIn('.frame(width:', timeline)
-        self.assertIn('.allowsHitTesting(false)', timeline)
+        compact = accessory.split('private var compactBody:', 1)[1].split('private var expandedPlayer:', 1)[0]
+        self.assertNotIn('ProgressView(', compact)
+        self.assertNotIn('TimelineView(', compact)
+        self.assertNotIn('clock(', compact)
+        self.assertNotIn('dictation-elapsed', compact)
+        self.assertNotIn('dictation-remaining', compact)
+        self.assertNotIn('DictationAudioInformation()', compact)
+        self.assertNotIn('padding(.leading,44)', compact)
+        self.assertIn('alignment:.leading', compact)
+        self.assertIn('Button(action:open)', compact)
+        self.assertIn('frame(width:44,height:44)', compact)
+        details = accessory.split('private var expandedPlayer:', 1)[1]
+        self.assertIn('ProgressView(value:snapshot?.fraction', details)
+        self.assertIn('dictation-expanded-elapsed', details)
         self.assertIn('DictationAudioInformation()', (ROOT / 'App/DictationView.swift').read_text())
 
     def test_tab_navigation_never_interrupts_or_prepares(self):

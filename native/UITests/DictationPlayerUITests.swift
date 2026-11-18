@@ -1,10 +1,11 @@
 import XCTest
 import AVFoundation
+import UIKit
 
 /// Run only with Fixtures/generate_dictation_player_wav.py and the existing Go
 /// local fixture. These are interaction/geometry tests, not screenshot acceptance.
 final class DictationPlayerUITests: XCTestCase {
-    @MainActor func testCenteredTitleAndFullWidthTimeline() throws {
+    @MainActor func testMinimalLeftTitleWithoutTimeline() throws {
         for theme in ["Light", "Dark"] {
             let app = try launch(theme:theme)
             let title = app.navigationBars.firstMatch.identifier
@@ -12,13 +13,13 @@ final class DictationPlayerUITests: XCTestCase {
             wait(app.buttons["dictation-play"], "enabled == true")
             app.tabBars.buttons["Coach"].tap()
             assertBarGeometry(app, title:title)
-            XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String,"0:00", "Navigation does not admit playback")
-            capture(app,"layout-\(theme)-centered-ready")
+            XCTAssertEqual(clock(app),"0:00", "Navigation does not admit playback")
+            capture(app,"layout-\(theme)-minimal-ready")
             app.buttons["dictation-player-open"].press(forDuration:1)
             let faster = app.buttons["1.25×"]
             if !faster.exists { app.buttons["Speed"].tap() }
             XCTAssertTrue(faster.waitForExistence(timeout:5)); faster.tap()
-            XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String,"0:00","Speed menu must not admit playback")
+            XCTAssertEqual(clock(app),"0:00","Speed menu must not admit playback")
             app.terminate()
         }
     }
@@ -34,6 +35,11 @@ final class DictationPlayerUITests: XCTestCase {
             let body = app.buttons["dictation-player-open"]
             capture(app,"layout-\(theme)-localized-accessibility")
             body.tap()
+            XCTAssertEqual(app.navigationBars.firstMatch.identifier,title)
+            XCTAssertEqual(clock(app),"0:00","Body navigation never admits playback, including maximum text size")
+            app.tabBars.buttons["Coach"].tap()
+            body.press(forDuration:1)
+            app.buttons["dictation-player-details"].tap()
             let fullTitle = app.staticTexts["dictation-expanded-title"]
             XCTAssertTrue(fullTitle.waitForExistence(timeout:5))
             XCTAssertEqual(fullTitle.label,title)
@@ -46,7 +52,8 @@ final class DictationPlayerUITests: XCTestCase {
             XCTAssertLessThanOrEqual(done.frame.maxX,app.frame.maxX)
             capture(app,"layout-\(theme)-expanded-accessibility")
             done.tap()
-            XCTAssertTrue(body.waitForExistence(timeout:5)); body.tap()
+            XCTAssertTrue(body.waitForExistence(timeout:5)); body.press(forDuration:1)
+            app.buttons["dictation-player-details"].tap()
             app.buttons["dictation-expanded-open"].tap()
             XCTAssertTrue(app.textFields["dictation-draft"].waitForExistence(timeout:5))
             XCTAssertEqual(app.navigationBars.firstMatch.identifier,title)
@@ -57,27 +64,54 @@ final class DictationPlayerUITests: XCTestCase {
     @MainActor private func assertBarGeometry(_ app:XCUIApplication, title:String) {
         let bar = app.otherElements["dictation-player"]
         XCTAssertLessThanOrEqual(bar.frame.height,48,"Content must fit inside the actual 48pt native glass accessory; overflowing AX frames can hide the track")
-        let visibleTitle = app.staticTexts[title].firstMatch
-        let titleText = visibleTitle.exists ? visibleTitle : app.buttons["dictation-player-open"]
-        XCTAssertEqual(titleText.label,title)
-        XCTAssertEqual(titleText.frame.midX + (visibleTitle.exists ? 0 : 22),bar.frame.midX,accuracy:2,"Title label is centered in the bar; its navigation target also includes the empty leading area")
-        let elapsed = app.staticTexts["dictation-elapsed"].frame
-        let remaining = app.staticTexts["dictation-remaining"].frame
-        XCTAssertGreaterThan(remaining.maxX-elapsed.minX,bar.frame.width*0.88,"Timeline endpoints must span almost the whole bar")
-        XCTAssertEqual(elapsed.minX-bar.frame.minX,bar.frame.maxX-remaining.maxX,accuracy:2,"Timeline horizontal insets must balance")
+        let body = app.buttons["dictation-player-open"]
+        let titleText = body.staticTexts["dictation-player-title"]
+        XCTAssertEqual(body.label,title)
+        XCTAssertTrue(titleText.exists)
+        // SwiftUI merges the label's AX frame with its source icon. Measure the
+        // actual title ink, not that combined accessibility bounding rectangle.
+        assertLeadingTitlePixels(app,body:body)
+        XCTAssertEqual(titleText.frame.midY,bar.frame.midY,accuracy:2,"One vertically centered row")
+        XCTAssertFalse(bar.progressIndicators.firstMatch.exists)
+        XCTAssertFalse(app.staticTexts["dictation-elapsed"].exists)
+        XCTAssertFalse(app.staticTexts["dictation-remaining"].exists)
+        XCTAssertFalse(app.otherElements["dictation-timeline"].exists)
         XCTAssertFalse(bar.buttons["dictation-audio-info"].exists)
-        let timeline = app.otherElements["dictation-timeline"].frame
-        XCTAssertGreaterThan(timeline.width,bar.frame.width*0.88,"Progress row must not return to a trailing column")
-        XCTAssertEqual(timeline.minX,elapsed.minX,accuracy:1)
-        XCTAssertEqual(timeline.maxX,remaining.maxX,accuracy:1)
-        XCTAssertGreaterThanOrEqual(app.buttons["dictation-play"].frame.minX,app.buttons["dictation-player-open"].frame.maxX,"One quiet trailing transport; navigation remains a separate target")
-        XCTAssertGreaterThanOrEqual(elapsed.height,14,"Clocks must be readable caption text, not tiny caption2")
-        XCTAssertFalse(app.buttons["dictation-speed"].exists,"Speed belongs in the title context menu, not a competing primary-row control")
-        let receipt = XCTAttachment(string:"bar=\(bar.frame); title=\(titleText.frame); timeline=\(timeline); elapsed=\(elapsed); remaining=\(remaining)")
+        let play = app.buttons["dictation-play"]
+        XCTAssertGreaterThanOrEqual(play.frame.minX,body.frame.maxX)
+        XCTAssertEqual(play.frame.midY,body.frame.midY,accuracy:1)
+        XCTAssertGreaterThanOrEqual(play.frame.width,44)
+        XCTAssertGreaterThanOrEqual(play.frame.height,44)
+        XCTAssertFalse(app.buttons["dictation-speed"].exists)
+        let receipt = XCTAttachment(string:"bar=\(bar.frame); title=\(titleText.frame); body=\(body.frame); transport=\(play.frame)")
         receipt.name="player-layout-geometry"; receipt.lifetime = .keepAlways; add(receipt)
-        XCTAssertGreaterThanOrEqual(app.buttons["dictation-play"].frame.width,44)
-        XCTAssertGreaterThanOrEqual(app.buttons["dictation-play"].frame.height,44)
         XCTAssertFalse(app.sliders.firstMatch.exists)
+    }
+
+    @MainActor private func assertLeadingTitlePixels(_ app:XCUIApplication,body:XCUIElement) {
+        guard let image = UIImage(data:app.screenshot().pngRepresentation)?.cgImage else { return XCTFail("Missing native screenshot") }
+        let scale = CGFloat(image.width) / app.frame.width
+        let expectedX = body.frame.minX + 34 // 24pt icon + 10pt gap
+        let crop = CGRect(x:expectedX * scale,y:(body.frame.midY - 10) * scale,
+                          width:(body.frame.maxX - expectedX) * scale,height:20 * scale).integral
+        guard let title = image.cropping(to:crop) else { return XCTFail("Missing title pixels") }
+        let width = title.width, height = title.height
+        var pixels = [UInt8](repeating:0,count:width * height * 4)
+        guard let context = CGContext(data:&pixels,width:width,height:height,bitsPerComponent:8,bytesPerRow:width * 4,
+                                      space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue) else { return XCTFail("Cannot decode screenshot") }
+        context.draw(title,in:CGRect(x:0,y:0,width:width,height:height))
+        let lightBackground = pixels[0] > 128
+        let firstInk = (0..<width).first { x in
+            (0..<height).filter { y in
+                let i = (y * width + x) * 4
+                let luminance = (Int(pixels[i]) + Int(pixels[i+1]) + Int(pixels[i+2])) / 3
+                return lightBackground ? luminance < 80 : luminance > 180
+            }.count >= Int(scale * 2)
+        }
+        XCTAssertNotNil(firstInk,"Native screenshot must contain title ink")
+        if let firstInk {
+            XCTAssertLessThanOrEqual(CGFloat(firstInk) / scale,4,"Title ink must begin beside the source icon, never centered in the remaining bar")
+        }
     }
 
     @MainActor func testNativeBackSwipeDraftAndGlobalAccessory() throws {
@@ -120,34 +154,33 @@ final class DictationPlayerUITests: XCTestCase {
 
     @MainActor func testDecodedWAVClockSequenceAndExplicitFinal() throws {
         let app = try launch()
-        let remaining = app.staticTexts["dictation-remaining"]
         XCTAssertFalse(app.otherElements["dictation-player"].exists, "No permanent empty accessory before explicit preparation")
         XCTAssertTrue(app.buttons["dictation-audio-info"].exists, "Cost/details remain available before explicit preparation")
         app.buttons["dictation-prepare"].tap()
         let play = app.buttons["dictation-play"]
         wait(play, "enabled == true")
-        wait(remaining, "value == '0:08'")
+        waitClock(app,"0:08",remaining:true)
         play.tap()
         XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].waitForExistence(timeout: 10))
-        wait(app.staticTexts["dictation-elapsed"], "value != '0:00'")
-        XCTAssertNotEqual(remaining.value as? String,"0:08")
+        waitClock(app,"0:00",different:true)
+        XCTAssertNotEqual(clock(app,remaining:true),"0:08")
         capture(app,"player-real-elapsed-remaining-advancing")
-        wait(remaining, "value == '0:00'")
-        XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String, "0:08")
+        waitClock(app,"0:00",remaining:true)
+        XCTAssertEqual(clock(app), "0:08")
         XCTAssertFalse(app.buttons["dictation-pause"].exists)
         app.segmentedControls["dictation-mode"].buttons["By sentences"].tap()
         wait(play, "enabled == true")
-        wait(remaining, "value == '0:19'") // 8 + real 3-second gap + 8-second repeat.
+        waitClock(app,"0:19",remaining:true) // 8 + real 3-second gap + 8-second repeat.
         play.tap()
         wait(play, "label == 'Optional final reading' AND enabled == true")
-        XCTAssertEqual(remaining.value as? String, "0:00")
-        XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String, "0:19")
+        XCTAssertEqual(clock(app,remaining:true), "0:00")
+        XCTAssertEqual(clock(app), "0:19")
         capture(app,"player-sentences-natural-end-including-gap")
         XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].exists)
         play.tap()
         XCTAssertTrue(app.staticTexts["Whole-text starts: 2 of 4"].waitForExistence(timeout: 5))
         wait(play, "label == 'Optional final reading' AND enabled == false")
-        XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String, "0:08")
+        XCTAssertEqual(clock(app), "0:08")
     }
 
     @MainActor func testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt() async throws {
@@ -157,14 +190,13 @@ final class DictationPlayerUITests: XCTestCase {
         let play = app.buttons["dictation-play"]
         wait(play, "enabled == true")
         play.tap()
-        wait(app.staticTexts["dictation-elapsed"], "value == '0:01'")
+        waitClock(app,"0:01",different:false)
         capture(app,"global-dictation-playing")
         app.tabBars.buttons["Translator"].tap()
         XCTAssertTrue(app.otherElements["dictation-player"].exists)
-        let elapsed = app.staticTexts["dictation-elapsed"]
-        let before = elapsed.value as? String
+        let before = clock(app)
         try await Task.sleep(for: .seconds(1))
-        XCTAssertNotEqual(elapsed.value as? String, before)
+        XCTAssertNotEqual(clock(app), before)
         XCTAssertFalse(play.isEnabled)
         capture(app,"global-translator-playing")
         for tab in ["Podcasts", "Coach"] {
@@ -177,8 +209,8 @@ final class DictationPlayerUITests: XCTestCase {
         XCTAssertTrue(app.textFields["dictation-draft"].waitForExistence(timeout:5))
         XCTAssertEqual(app.navigationBars.firstMatch.identifier,title)
         XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].exists)
-        wait(app.staticTexts["dictation-remaining"], "value == '0:00'")
-        XCTAssertEqual(elapsed.value as? String,"0:08")
+        waitClock(app,"0:00",remaining:true)
+        XCTAssertEqual(clock(app),"0:08")
         XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].exists)
     }
 
@@ -201,15 +233,14 @@ final class DictationPlayerUITests: XCTestCase {
             XCTAssertGreaterThanOrEqual(play.frame.width,44)
             play.tap() // Transport never selects Dictation or opens a destination.
             XCTAssertTrue(app.tabBars.buttons["Translator"].isSelected)
-            let elapsed = app.staticTexts["dictation-elapsed"]
-            wait(elapsed,"value != '0:00'")
+            waitClock(app,"0:00",different:true)
             capture(app,"global-\(theme)-translator-playing")
             for tab in ["Podcasts", "Coach", "Dictation"] {
-                let before = elapsed.value as? String
+                let before = clock(app)
                 app.tabBars.buttons[tab].tap()
                 if tab == "Dictation" { app.buttons["dictation-player-open"].tap() }
                 XCTAssertTrue(app.otherElements["dictation-player"].exists)
-                XCTAssertNotEqual(elapsed.value as? String,before,"The single clock keeps advancing across tabs")
+                XCTAssertNotEqual(clock(app),before,"The single clock keeps advancing across tabs")
                 XCTAssertFalse(play.isEnabled,"No pause UI; the sequence is still active")
                 capture(app,"global-\(theme)-\(tab.lowercased())-playing")
             }
@@ -221,8 +252,8 @@ final class DictationPlayerUITests: XCTestCase {
             XCTAssertEqual(app.navigationBars.firstMatch.identifier,title)
             XCTAssertEqual(draft.value as? String,"Exact attempt draft")
             XCTAssertTrue(app.staticTexts["Whole-text starts: 0 of 4"].exists)
-            wait(app.staticTexts["dictation-remaining"],"value == '0:00'")
-            XCTAssertEqual(elapsed.value as? String,"0:19")
+            waitClock(app,"0:00",remaining:true)
+            XCTAssertEqual(clock(app),"0:19")
             wait(play,"label == 'Optional final reading' AND enabled == true")
             app.terminate()
         }
@@ -235,19 +266,19 @@ final class DictationPlayerUITests: XCTestCase {
         wait(play,"enabled == true")
         app.tabBars.buttons["Translator"].tap()
         play.tap()
-        wait(app.staticTexts["dictation-elapsed"],"value == '0:01'")
+        waitClock(app,"0:01",different:false)
         XCUIDevice.shared.press(.home)
         try await Task.sleep(for:.seconds(1))
         app.activate()
         wait(play,"label == 'Continue' AND enabled == true")
-        let frozen = app.staticTexts["dictation-elapsed"].value as? String
+        let frozen = clock(app)
         try await Task.sleep(for:.seconds(1))
-        XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String,frozen)
+        XCTAssertEqual(clock(app),frozen)
         play.tap()
         XCTAssertTrue(app.tabBars.buttons["Translator"].isSelected)
         app.buttons["dictation-player-open"].tap()
         XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].exists)
-        wait(app.staticTexts["dictation-remaining"],"value == '0:00'")
+        waitClock(app,"0:00",remaining:true)
         XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].exists)
     }
 
@@ -316,6 +347,7 @@ final class DictationPlayerUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "dictation-local"
         app.launchEnvironment["KM_DICTATION_UI_APPEARANCE"] = theme
+        app.launchEnvironment["KM_DICTATION_CLOCK_PROBE"] = "1"
         app.launchEnvironment["KM_DICTATION_FIXTURE_TOKEN"] = token
         app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
         app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]
@@ -343,6 +375,22 @@ final class DictationPlayerUITests: XCTestCase {
         XCTAssertLessThan(prepare.frame.maxY,app.tabBars.firstMatch.frame.minY)
         wait(prepare,"hittable == true")
         return app
+    }
+    // Opt-in simulator telemetry is sampled from the real coordinator, not a
+    // visible clock or a synthetic counter. Shipping device UI has no probe.
+    @MainActor private func clock(_ app:XCUIApplication,remaining:Bool = false) -> String {
+        let fields = (app.otherElements["dictation-player"].value as? String ?? "").split(separator:"|",omittingEmptySubsequences:false)
+        return fields.count == 2 ? String(fields[remaining ? 1 : 0]) : "unavailable"
+    }
+    @MainActor private func waitClock(_ app:XCUIApplication,_ value:String,remaining:Bool = false,different:Bool = false) {
+        let predicate = NSPredicate { _, _ in
+            MainActor.assumeIsolated {
+                let current = self.clock(app,remaining:remaining)
+                return current != "unavailable" && (different ? current != value : current == value)
+            }
+        }
+        expectation(for:predicate,evaluatedWith:app)
+        waitForExpectations(timeout:25)
     }
     @MainActor private func wait(_ element: XCUIElement, _ predicate: String) {
         expectation(for: NSPredicate(format: predicate), evaluatedWith: element)

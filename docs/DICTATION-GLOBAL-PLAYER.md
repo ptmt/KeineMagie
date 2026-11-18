@@ -1,5 +1,7 @@
 # Native Dictation — global system TabView accessory
 
+**Latest presentation:** the user's subsequent Apple Music reference supersedes the centered-title/timeline iterations recorded below. The mini-player now has one left-aligned title row, a quiet source symbol and one trailing transport/status; no progress line or clocks. See `DICTATION-MINIMAL-PLAYER.md` for current evidence. The ownership and policy guarantees below remain applicable; earlier visual receipts are historical, not the current design.
+
 This local candidate supersedes the **Dictation-only footer** decision in `DICTATION-NATIVE-CAMERA-PLAYER.md`. Base: `5dd8799d087d0e136db44e6f971f6c7d29915c1d`. No publication or production/account/provider operation is authorized or performed.
 
 ## Native presentation

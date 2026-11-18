@@ -19,65 +19,50 @@ struct DictationAudioToolbar: View {
     @Bindable var session: DictationPlaybackCoordinator
     let inline: Bool
     let open: () -> Void
-    @Environment(\.dynamicTypeSize) private var typeSize
     @State private var expanded = false
     var body: some View {
+        // Simulator-only clock probe reads the real coordinator, never visible UI.
+        // Device builds retain no fixture telemetry or artificial timer labels.
+        #if targetEnvironment(simulator)
+        if ProcessInfo.processInfo.environment["KM_DICTATION_CLOCK_PROBE"] == "1" {
+            TimelineView(.animation(minimumInterval:0.25,paused:!session.ticking)) { _ in
+                compactBody.accessibilityValue(clock(session.timing?.elapsed) + "|" + clock(session.timing?.remaining,remaining:true))
+            }.sheet(isPresented:$expanded) { expandedPlayer }
+        } else {
+            compactBody.sheet(isPresented:$expanded) { expandedPlayer }
+        }
+        #else
         compactBody.sheet(isPresented:$expanded) { expandedPlayer }
+        #endif
     }
     private var compactBody: some View {
-        // Native glass is only 48pt: two text baselines and one thin track.
-        ZStack(alignment:.bottom) {
-            HStack(spacing:0) {
-                Button {
-                    if typeSize.isAccessibilitySize { expanded = true } else { open() }
-                } label: {
+        HStack(spacing:0) {
+            Button(action:open) {
+                HStack(spacing:10) {
+                    Image(systemName:"headphones")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                        .frame(width:24).accessibilityHidden(true)
                     Text(session.record?.title ?? "")
                         .font(.subheadline.weight(.semibold)).lineLimit(1)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth:.infinity).frame(height:inline ? 44 : 22)
-                        .padding(.leading,44)
-                        .frame(height:44,alignment:.top).contentShape(Rectangle())
-                }
-                    .accessibilityIdentifier("dictation-player-open")
-                    .contextMenu {
-                        speedPicker
-                        Button("Audio details") { expanded = true }
-                    }
-                Button {
-                    if session.preparing { session.interrupt() } else { session.activate() }
-                } label: {
-                    Group {
-                        if session.preparing { Image(systemName:"xmark") }
-                        else if session.controller?.busy == true { ProgressView().controlSize(.small) }
-                        else { Image(systemName:session.ticking ? "waveform" : "play.fill") }
-                    }.font(.subheadline).foregroundStyle(.secondary)
-                        .frame(width:44,height:inline ? 44 : 22)
-                        .frame(width:44,height:44,alignment:.top).contentShape(Rectangle())
-                }.disabled(!session.preparing && session.disabled)
-                    .accessibilityLabel(Text(session.preparing ? "Cancel preparation" : AppL10n.text(session.label)))
-                    .accessibilityIdentifier(session.preparing ? "dictation-cancel-preparation" : "dictation-play")
+                        .accessibilityIdentifier("dictation-player-title")
+                        .frame(maxWidth:.infinity,alignment:.leading)
+                }.frame(height:44).contentShape(Rectangle())
             }
-            if !inline {
-                TimelineView(.animation(minimumInterval:0.25, paused:!session.ticking)) { _ in
-                    let snapshot = session.timing
-                    VStack(spacing:2) {
-                        ProgressView(value:snapshot?.fraction ?? 0,total:1)
-                            .progressViewStyle(.linear).tint(.primary).accessibilityHidden(true)
-                        HStack {
-                            Text(verbatim:clock(snapshot?.elapsed))
-                                .accessibilityLabel(Text("dictation.elapsed"))
-                                .accessibilityValue(clock(snapshot?.elapsed))
-                                .accessibilityIdentifier("dictation-elapsed")
-                            Spacer(minLength:4)
-                            Text(verbatim:snapshot?.remaining.map { "−" + clock($0, remaining:true) } ?? "—")
-                                .accessibilityLabel(Text("dictation.remaining"))
-                                .accessibilityValue(clock(snapshot?.remaining,remaining:true))
-                                .accessibilityIdentifier("dictation-remaining")
-                        }.font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-                    }.frame(maxWidth:.infinity)
-                        .accessibilityElement(children:.contain).accessibilityIdentifier("dictation-timeline")
-                }.allowsHitTesting(false)
+            .accessibilityIdentifier("dictation-player-open")
+            .contextMenu {
+                speedPicker
+                Button("Audio details") { expanded = true }
+                    .accessibilityIdentifier("dictation-player-details")
             }
+            Button {
+                if session.preparing { session.interrupt() } else { session.activate() }
+            } label: {
+                Image(systemName:session.preparing ? "xmark" : session.ticking ? "waveform" : session.controller?.busy == true ? "ellipsis" : "play.fill")
+                    .font(.body).foregroundStyle(.secondary)
+                    .frame(width:44,height:44).contentShape(Rectangle())
+            }.disabled(!session.preparing && session.disabled)
+                .accessibilityLabel(Text(session.preparing ? "Cancel preparation" : AppL10n.text(session.label)))
+                .accessibilityIdentifier(session.preparing ? "dictation-cancel-preparation" : "dictation-play")
         }.frame(height:44).buttonStyle(.plain).foregroundStyle(.primary)
             .padding(.horizontal,12)
             .dynamicTypeSize(...DynamicTypeSize.large)
