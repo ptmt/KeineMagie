@@ -44,14 +44,14 @@ test('new hints are scoped to opt-in records and legacy guidance stays unchanged
  const {fixture,record}=await import('./dictation-mount-fixture.mjs');
  const value={...record(),playback_policy_version:1,playback:{cursor:1,whole_starts:0},plan:[{kind:'whole',asset:0},{kind:'sentence',asset:1},{kind:'final',asset:0}]};
  const f=fixture({request:async path=>path.endsWith('/one')?value:{items:[value]}});f.media[0].paused=true;
- await f.start();await f.click('Test one · In progress');assert.match(f.host.textContent,/four times, without pauses/);assert.equal(f.button('Play').disabled,false);assert.ok(!f.host.all().some(e=>e.tagName==='BUTTON'&&e.textContent==='Pause'));assert.equal(f.requests.filter(r=>r.method==='POST').length,0);f.controller.identity(null);
+ await f.start();await f.click('Test one');assert.match(f.host.textContent,/four times, without pauses/);assert.equal(f.button('Play').disabled,false);assert.ok(!f.host.all().some(e=>e.tagName==='BUTTON'&&e.textContent==='Pause'));assert.equal(f.requests.filter(r=>r.method==='POST').length,0);f.controller.identity(null);
 });
 
 test('checked policy attempts do not offer a nonfunctional Play action',async()=>{
  const {fixture,record}=await import('./dictation-mount-fixture.mjs');
  const value={...record(),checked:true,playback_policy_version:1,playback:{cursor:1,whole_starts:1},plan:[{kind:'whole',asset:0},{kind:'sentence',asset:1},{kind:'final',asset:0}]};
  const f=fixture({request:async path=>path.endsWith('/one')?value:{items:[value]}});f.media[0].paused=true;
- await f.start();await f.click('Test one · Checked');assert.equal(f.button('Play').disabled,true);f.controller.identity(null);
+ await f.start();await f.click('Test oneChecked');assert.equal(f.button('Play').disabled,true);f.controller.identity(null);
 });
 
 test('refreshing the playback ledger cannot overwrite a pending typed draft',async()=>{

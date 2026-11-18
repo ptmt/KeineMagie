@@ -8,7 +8,7 @@ for(const [label,change] of [['title',{form:{title:'Saved title'}}],['text',{for
   const saved={entries:{},form:{id:'saved',title:'',text:'',language:'de',...change.form},pendingCreate:change.pendingCreate??null,recoveries:{},revision:1};
   f.disk.set('dictation:synthetic',structuredClone(saved));await f.start();
   assert.doesNotMatch(f.host.textContent,/No dictations yet|Listen → type → check/);
-  const resumeLabel=(saved.form.title?saved.form.title+' · ':'')+'In progress';
+  const resumeLabel=(saved.form.title?saved.form.title+' · ':'')+'Draft';
   await f.click(resumeLabel);
   assert.equal(f.host.all().find(e=>e.tagName==='DIALOG').open,true);
   const field=label=>f.host.all().find(e=>e.getAttribute('aria-label')===label);
@@ -22,10 +22,10 @@ for(const [label,change] of [['title',{form:{title:'Saved title'}}],['text',{for
 test('refresh removes stale empty onboarding immediately while history is loading',async()=>{
  let release,count=0;const f=fixture({request:async()=>++count===1?{items:[]}:await new Promise(r=>release=r)});
  await f.start();assert.match(f.host.textContent,/Listen → type → check/);
- const refresh=f.button('Refresh').onclick();
+ f.controller.route();
  assert.match(f.host.textContent,/Loading…/);
  assert.doesNotMatch(f.host.textContent,/No dictations yet|Listen → type → check/);
- release({items:[]});await refresh;await tick();
+ release({items:[]});await tick();await tick();
  assert.match(f.host.textContent,/Listen → type → check/);f.controller.identity(null);
 });
 
@@ -86,7 +86,7 @@ test('media error probes 401 and clears identity while playback keeps its click 
   assert.equal(options.method,undefined,'never synthesize or mutate during playback');
   return path.endsWith('/one')?record():{items:[record()]};
  }});
- await f.start();await f.click('Test one · In progress');
+ await f.start();await f.click('Test one');
  await f.click('Play');
  const audio=f.media[0];
  assert.equal(audio.src,'/v1/learning/dictations/one/audio/0');
@@ -107,7 +107,7 @@ test('media 401 is detected even when play rejects before the media error event'
   if(options.method==='HEAD')throw Object.assign(Error('expired'),{status:401});
   return path.endsWith('/one')?record():{items:[record()]};
  }});
- await f.start();await f.click('Test one · In progress');
+ await f.start();await f.click('Test one');
  f.media[0].playError=Error('media load failed');
  await f.click('Play');
  assert.equal(f.unauthorized,0,'play rejection alone does not prove an expired session');
@@ -116,15 +116,14 @@ test('media 401 is detected even when play rejects before the media error event'
  assert.equal(f.media[0].plays,1);
 });
 
-test('onboarding only follows an authenticated successful empty read; refresh is in a keyboard-accessible menu',async()=>{
+test('onboarding only follows an authenticated successful empty read; header stays focused on creation',async()=>{
  let release;const f=fixture({request:async()=>await new Promise(r=>release=r)});
  assert.doesNotMatch(f.host.textContent,/Listen → type → check/);
  await f.start();assert.doesNotMatch(f.host.textContent,/Listen → type → check/);
  release({items:[]});await tick();await tick();
  assert.match(f.host.textContent,/Listen → type → check/);
  assert.equal(f.requests.length,1,'empty onboarding never generates content');
- assert.ok(f.host.all().some(e=>e.tagName==='SUMMARY'&&e.getAttribute('aria-label')==='More options'));
- assert.equal(f.button('Refresh').disabled,false);
+ assert.equal(f.host.all().filter(e=>e.tagName==='SUMMARY').length,0);
  f.controller.identity(null);assert.doesNotMatch(f.host.textContent,/Listen → type → check/);
 });
 test('failed history never renders onboarding',async()=>{
@@ -152,8 +151,8 @@ test('editing then cancelling Add text exposes a resume row beside practice and 
  field('Title').value='New title Ω';field('Title').listeners.input();await tick();
  field('Original text').value='Exact text\nΩ ';field('Original text').listeners.input();await tick();
  await f.click('Cancel');
- assert.ok(f.button('Test one · In progress'));assert.ok(f.button('Export draft'));
- await f.click('New title Ω · In progress');
+ assert.ok(f.button('Test one'));assert.ok(f.button('Export draft'));
+ await f.click('New title Ω · Draft');
  assert.equal(field('Original text').value,'Exact text\nΩ ');
  assert.equal(f.requests.length,1);
  f.controller.identity(null);

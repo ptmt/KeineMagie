@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "real_app": true,
+  "real_go_list_dto": true,
+  "synthetic_words": 120,
+  "actual_silent_wav_seconds": 95,
+  "library_media_requests": 0,
+  "errors": []
+}

@@ -35,7 +35,7 @@ with sync_playwright() as p:
  context.set_offline(True);draft.fill('Offline behalten Ω')
  page.wait_for_function("""() => new Promise(resolve=>{const r=indexedDB.open('keinemagie-dictation',1);r.onsuccess=()=>{const q=r.result.transaction('drafts').objectStore('drafts').getAll();q.onsuccess=()=>resolve(JSON.stringify(q.result).includes('Offline behalten Ω'));};})""")
  context.set_offline(False);page.reload()
- page.get_by_role('button',name=title+' · In progress',exact=True).click()
+ page.get_by_role('button',name=title).click()
  expect(page.get_by_role('textbox',name='What you heard')).to_have_value('Offline behalten Ω')
  page.locator('.dictation-attempt-menu summary').click()
  page.get_by_role('button',name='New attempt',exact=True).click()
@@ -45,7 +45,7 @@ with sync_playwright() as p:
  page.on('dialog',lambda d:d.accept())
  page.locator('.dictation-attempt-menu summary').click()
  page.get_by_role('button',name='Delete attempt',exact=True).click()
- page.get_by_role('button',name=title+' · In progress',exact=True).click()
+ page.get_by_role('button',name=title).click()
  expect(page.get_by_role('textbox',name='What you heard')).to_have_value('Offline behalten Ω')
  # Switch all interface languages without touching the owner or draft.
  requests=[];page.on('request',lambda r:requests.append(r.url) if '/v1/' in r.url else None)

@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "delayed preparation interruption",
+    "rapid mode switches",
+    "logout during delayed audio download"
+  ],
+  "page_errors": []
+}

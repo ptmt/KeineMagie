@@ -19,7 +19,7 @@ class Element {
  showModal(){this.open=true;}
  close(){this.open=false;}
 }
-export function fixture({request,readError=false}={}){
+export function fixture({request,readError=false,locale=()=>'en'}={}){
  const disk=new Map(),writes=[],requests=[],media=[];let gesture=false,unauthorized=0;
  const doc={createElement:tag=>new Element(tag),addEventListener(){},activeElement:null,hidden:false};
  globalThis.document=doc;
@@ -37,7 +37,7 @@ export function fixture({request,readError=false}={}){
    delete(key){const q={};queueMicrotask(()=>{disk.delete(key);t.oncomplete();});return q;}
   };}};return t;}};r.onsuccess();});return r;}};
  const host=new Element('main');let controller;
- controller=mountDictation({host,api:{request:async(path,options)=>{requests.push({path,...options});return request(path,options);}},unauthorized:error=>{assert.equal(error?.status,401,'real app callback requires the HTTP error');unauthorized++;controller.identity(null);}});
+ controller=mountDictation({host,locale,api:{request:async(path,options)=>{requests.push({path,...options});return request(path,options);}},unauthorized:error=>{assert.equal(error?.status,401,'real app callback requires the HTTP error');unauthorized++;controller.identity(null);}});
  const session={user:{id:'synthetic'},csrf_token:'synthetic'};
  return {host,disk,writes,requests,media,controller,session,get unauthorized(){return unauthorized;},
   button(label){const b=host.all().find(e=>e.tagName==='BUTTON'&&(e.textContent===label||e.getAttribute('aria-label')===label));assert.ok(b,`missing ${label}`);return b;},

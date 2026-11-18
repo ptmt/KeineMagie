@@ -44,7 +44,7 @@ with sync_playwright() as p:
     draft.fill(source)
     page.wait_for_timeout(1200)
     page.reload()
-    page.get_by_role('button',name='Cached accepted OpenAI WAV · In progress',exact=True).first.click()
+    page.get_by_role('button',name='Cached accepted OpenAI WAV').first.click()
     expect(draft).to_have_value(source)
     page.get_by_role('button',name='Check',exact=True).click()
     expect(page.locator('.dictation-original')).to_have_count(0)

@@ -157,10 +157,10 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 	}
 	if id == "" {
 		if r.Method == "GET" {
-			items := []dictationRecord{}
+			items := []dictationLibraryItem{}
 			e := cfg.dictationTransaction(owner, false, func(d *dictationData) error {
 				for i := len(d.Items) - 1; i >= 0; i-- {
-					items = append(items, dictationPublic(d.Items[i], true))
+					items = append(items, cfg.dictationLibraryItem(owner, d.Items[i]))
 				}
 				return nil
 			})

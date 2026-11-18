@@ -4,7 +4,7 @@ import {fixture,record} from './dictation-mount-fixture.mjs';
 test('uncached exercise has one audio action, quiet audio details and secondary attempt menu',async()=>{
  const value={...record(),ready:[]};
  const f=fixture({request:async path=>path.endsWith('/one')?value:{items:[value]}});
- await f.start();await f.click('Test one · In progress');
+ await f.start();await f.click('Test one');
  const controls=f.host.all().find(e=>e.className==='dictation-player');
  assert.ok(controls,'focused player');
  assert.equal(controls.all().filter(e=>e.tagName==='BUTTON'&&!e.hidden).length,1);
@@ -25,7 +25,7 @@ test('uncached exercise has one audio action, quiet audio details and secondary 
 test('mode guidance is separate from the draft and Check remains explicit above it',async()=>{
  const value={...record(),draft:'Partial words'};
  const f=fixture({request:async path=>path.endsWith('/one')?value:{items:[value]}});
- await f.start();await f.click('Test one · In progress');
+ await f.start();await f.click('Test one');
  const panel=f.host.all().find(e=>e.className==='dictation-work');
  const hint=panel.all().find(e=>e.className==='dictation-hint');
  assert.ok(hint,'distinct hint block');
@@ -45,7 +45,7 @@ test('mode guidance is separate from the draft and Check remains explicit above 
 });
 test('missing cached media returns to explicit paid preparation, never auto-retries',async()=>{
  const f=fixture({request:async(path,options)=>{if(options.method==='HEAD')throw Object.assign(Error('missing'),{status:404});return path.endsWith('/one')?record():{items:[record()]};}});
- await f.start();await f.click('Test one · In progress');await f.click('Play');await f.media[0].onerror();
+ await f.start();await f.click('Test one');await f.click('Play');await f.media[0].onerror();
  assert.ok(f.button('Prepare audio'));
  assert.equal(f.requests.filter(r=>r.method==='POST').length,0);
  f.controller.identity(null);

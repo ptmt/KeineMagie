@@ -1,0 +1,22 @@
+[
+  {
+    "locale": "en",
+    "stable": true
+  },
+  {
+    "locale": "de",
+    "stable": true
+  },
+  {
+    "locale": "ru",
+    "stable": true
+  },
+  {
+    "locale": "es",
+    "stable": true
+  },
+  {
+    "locale": "fr",
+    "stable": true
+  }
+]
