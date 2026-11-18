@@ -186,6 +186,34 @@ final class DictationPlaybackControllerTests: XCTestCase {
         sameOwner=false;selected=false;await controller.interrupt();gate?.resume(throwing:APIError.http(401));await next.value
         XCTAssertEqual(failures,1)
     }
+    @MainActor func testReplacedAttemptReleasesLateAdmissionWithoutStartingOrEndingMedia() async throws {
+        let f = PlaybackFixture()
+        var admission: CheckedContinuation<DictationPlayback, Never>?
+        var request: DictationPlaybackRequest?
+        var commands: [String] = []
+        let controller = DictationPlaybackController(read:{f.record},refresh:{f.record},send:{ command in
+            commands.append(command.action)
+            if command.action == "resume" {
+                request = command
+                return await withCheckedContinuation { admission = $0 }
+            }
+            return DictationPlayback(revision:4,wholeStarts:1,cursor:1,finalUsed:false,
+                active:DictationListen(id:command.id,client:command.client,step:0,fence:4,offset:command.offset,leaseUntil:0,done:false),listens:nil)
+        },audio:{_ in XCTFail("Replaced admission must never load media");return Data()},publish:{f.record.playback=$0},
+           play:{_,_,_ in XCTFail("Replaced admission must never play")},stop:{0},authorized:{true},failed:{_ in XCTFail("Unexpected failure")})
+        let start = Task { await controller.play() }
+        while admission == nil { await Task.yield() }
+        await controller.suspend().value
+        let command = try XCTUnwrap(request)
+        admission?.resume(returning:DictationPlayback(revision:3,wholeStarts:1,cursor:1,finalUsed:false,
+            active:DictationListen(id:command.id,client:command.client,step:0,fence:3,offset:0.5,leaseUntil:2000000000000,done:false),listens:nil))
+        await start.value
+        XCTAssertEqual(commands,["resume","release"])
+        XCTAssertEqual(f.record.playback?.active?.leaseUntil,0)
+        XCTAssertEqual(f.record.playback?.wholeStarts,1)
+        XCTAssertFalse(controller.playing)
+    }
+
     @MainActor func testInterruptedContinueUsesSameReservationAndDoesNotEnd() async throws {
         let f=PlaybackFixture()
         await f.controller.play()

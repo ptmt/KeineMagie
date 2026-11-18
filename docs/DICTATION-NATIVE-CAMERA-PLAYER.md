@@ -1,5 +1,7 @@
 # Native Dictation: navigation, compact transport and photograph answer
 
+> Historical base-candidate report. The Dictation-only footer and off-tab interruption decisions below are superseded by [the global system TabView accessory](DICTATION-GLOBAL-PLAYER.md). Camera/OCR and native navigation remain unchanged; this report's original evidence is retained.
+
 ## Candidate scope
 
 Local-only candidate on `candidate/dictation-native-camera-player`, based on verified `origin/main` `c0c6ff3be9194495e45abe921181b403da0c3542`, which includes release `78e2ebf589cbee9f574b497892319afa255de121`. No publication, server deployment, paid inference/TTS, signing-asset changes or real-account mutation is part of this change.

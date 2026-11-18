@@ -152,7 +152,17 @@ import Observation
                 request=DictationPlaybackRequest(id:UUID().uuidString,client:client,action:"start",step:selection.policyStep,fence:0)
             }
             let admitted=try await send(request)
-            guard current(ticket) else {return} // GET resolves uncertain admission on Continue.
+            guard current(ticket) else {
+                // A replacement/background boundary may happen while admission is
+                // in flight. Release the acknowledged reservation without playing,
+                // refunding, or ending it. Never disturb a newer resume operation.
+                if authorized(), !busy, !playing, !waiting,
+                   let active = admitted.active, active.id == request.id, active.client == client {
+                    try apply(admitted)
+                    _ = try await command("release", stamp: active, offset: active.offset)
+                }
+                return
+            }
             try apply(admitted)
             guard let active=admitted.active,active.id == request.id,active.client == client else {throw APIError.invalidResponse}
             owned=active

@@ -14,88 +14,112 @@ struct DictationRules: View {
     }
 }
 
+/// The native TabView accessory supplies its glass; never paint another material.
 struct DictationAudioToolbar: View {
-    let label: String
-    let identifier: String
-    let disabled: Bool
-    let preparing: Bool
-    @Binding var rate: Float
-    let timing: () -> DictationTimingSnapshot?
-    let ticking: Bool
-    let activate: () -> Void
-    let cancel: () -> Void
-    @State private var details = false
+    @Bindable var session: DictationPlaybackCoordinator
+    let inline: Bool
+    let open: () -> Void
     var body: some View {
-        VStack(spacing: 3) {
-            HStack(spacing: 8) {
-                action
-                Spacer(minLength: 0)
-                controls
+        HStack(spacing: 4) {
+            TimelineView(.animation(minimumInterval:0.25, paused:!session.ticking)) { _ in
+                let snapshot = session.timing
+                Button(action:open) {
+                    VStack(alignment:.leading, spacing:2) {
+                        Text(session.record?.title ?? "").font(.subheadline.weight(.semibold)).lineLimit(1)
+                        if !inline {
+                            HStack {
+                                Text(verbatim:clock(snapshot?.elapsed))
+                                    .accessibilityLabel(Text("dictation.elapsed"))
+                                    .accessibilityValue(clock(snapshot?.elapsed))
+                                    .accessibilityIdentifier("dictation-elapsed")
+                                Spacer(minLength:4)
+                                Text(verbatim:snapshot?.remaining.map { "−" + clock($0, remaining:true) } ?? "—")
+                                    .accessibilityLabel(Text("dictation.remaining"))
+                                    .accessibilityValue(clock(snapshot?.remaining,remaining:true))
+                                    .accessibilityIdentifier("dictation-remaining")
+                            }.font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
+                            ProgressView(value:snapshot?.fraction ?? 0,total:1)
+                                .progressViewStyle(.linear).tint(.primary).accessibilityHidden(true)
+                        }
+                    }.frame(maxWidth:.infinity, minHeight:44, alignment:.leading).contentShape(Rectangle())
+                }.buttonStyle(.plain).accessibilityIdentifier("dictation-player-open")
             }
-            TimelineView(.animation(minimumInterval: 0.25, paused: !ticking)) { _ in
-                let snapshot = timing()
-                VStack(spacing: 2) {
-                    ProgressView(value: snapshot?.fraction ?? 0, total: 1)
-                        .progressViewStyle(.linear)
-                        .accessibilityHidden(true)
-                    HStack {
-                        Text(verbatim: clock(snapshot?.elapsed))
-                            .accessibilityLabel(Text("dictation.elapsed"))
-                            .accessibilityValue(clock(snapshot?.elapsed))
-                            .accessibilityIdentifier("dictation-elapsed")
-                        Spacer()
-                        Text(verbatim: snapshot?.remaining.map { "−" + clock($0, remaining: true) } ?? "—")
-                            .accessibilityLabel(Text("dictation.remaining"))
-                            .accessibilityValue(clock(snapshot?.remaining, remaining: true))
-                            .accessibilityIdentifier("dictation-remaining")
-                    }.font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
-                }
-
-            }
-        }
-    }
-    private func clock(_ value: Double?, remaining: Bool = false) -> String {
-        guard let value, value.isFinite else { return "—" }
-        let seconds = Int(max(0, value).rounded(remaining ? .up : .down))
-        return String(format: "%d:%02d", seconds / 60, seconds % 60)
-    }
-    private var action: some View {
-        Button(action:activate) {
-            HStack(spacing: 8) {
-                if preparing { ProgressView().controlSize(.small) }
-                else { Image(systemName: "play.fill") }
-                Text(AppL10n.text(label)).font(.subheadline.weight(.semibold))
-                    .fixedSize(horizontal: false, vertical: true)
-            }.frame(minHeight:44).contentShape(Rectangle())
-        }.buttonStyle(.plain).disabled(disabled)
-            .accessibilityLabel(Text(AppL10n.text(label))).accessibilityIdentifier(identifier)
-    }
-    private var controls: some View {
-        HStack(spacing:4) {
-            if preparing {
-                Button(action:cancel) {Image(systemName:"xmark").frame(width:44,height:44)}
+            Button { session.activate() } label: {
+                Group {
+                    if session.preparing || session.controller?.busy == true { ProgressView().controlSize(.small) }
+                    else { Image(systemName:session.ticking ? "waveform" : "play.fill").font(.title3) }
+                }.frame(width:44,height:44).contentShape(Rectangle())
+            }.buttonStyle(.plain).disabled(session.disabled)
+                .accessibilityLabel(Text(AppL10n.text(session.label)))
+                .accessibilityIdentifier(session.preparing ? "dictation-prepare" : "dictation-play")
+            if session.preparing {
+                Button { session.interrupt() } label: { Image(systemName:"xmark").frame(width:44,height:44) }
                     .accessibilityLabel("Cancel preparation").accessibilityIdentifier("dictation-cancel-preparation")
-            } else {
+            } else if !inline {
                 Menu {
-                    Picker("Speed",selection:$rate) {
+                    Picker("Speed",selection:Binding(get:{session.player.rate},set:{session.player.rate=$0})) {
                         Text(verbatim:"0.75×").tag(Float(0.75))
                         Text(verbatim:"1×").tag(Float(1))
                         Text(verbatim:"1.25×").tag(Float(1.25))
                     }
-                } label: {
-                    HStack(spacing:5) {Text(verbatim:rate == 1 ? "1×" : rate == 0.75 ? "0.75×" : "1.25×");Image(systemName:"chevron.down").font(.caption2)}
-                        .frame(minWidth:60,minHeight:44)
-                }.accessibilityLabel("Speed").accessibilityIdentifier("dictation-speed")
+                } label: { Text(verbatim:session.player.rate == 1 ? "1×" : session.player.rate == 0.75 ? "0.75×" : "1.25×").font(.caption).frame(width:44,height:44) }
+                    .accessibilityLabel("Speed").accessibilityIdentifier("dictation-speed")
+                DictationAudioInformation()
             }
-            Button {details.toggle()} label: {Image(systemName:"info.circle").frame(width:44,height:44)}
-                .accessibilityLabel("Audio details").accessibilityIdentifier("dictation-audio-info")
-                .popover(isPresented:$details) {
-                    VStack(alignment:.leading,spacing:12) {
-                        Text("dictation.paid.notice")
-                        Text("dictation.budget.notice")
-                    }.font(.footnote).padding().frame(idealWidth:320)
-                        .presentationCompactAdaptation(.popover)
-                }
-        }.buttonStyle(.plain).foregroundStyle(.secondary)
+        }.buttonStyle(.plain).foregroundStyle(.primary)
+            .padding(.horizontal,12)
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            .accessibilityElement(children:.contain).accessibilityIdentifier("dictation-player")
+    }
+    private func clock(_ value:Double?, remaining:Bool = false) -> String {
+        guard let value, value.isFinite else { return "—" }
+        let seconds = Int(max(0,value).rounded(remaining ? .up : .down))
+        return String(format:"%d:%02d", seconds / 60, seconds % 60)
+    }
+}
+
+struct DictationAudioInformation: View {
+    @State private var details = false
+    var body: some View {
+        Button { details.toggle() } label: { Image(systemName:"info.circle").frame(width:44,height:44) }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Audio details").accessibilityIdentifier("dictation-audio-info")
+            .popover(isPresented:$details) {
+                VStack(alignment:.leading,spacing:12) {
+                    Text("dictation.paid.notice")
+                    Text("dictation.budget.notice")
+                }.font(.footnote).padding().frame(idealWidth:320).presentationCompactAdaptation(.popover)
+            }
+    }
+}
+
+@available(iOS 26.0, *)
+struct DictationNativeAccessory: View {
+    @Environment(\.tabViewBottomAccessoryPlacement) private var placement
+    let session: DictationPlaybackCoordinator
+    let open: () -> Void
+    var body: some View {
+        DictationAudioToolbar(session:session,inline:placement == .inline,open:open)
+    }
+}
+
+struct DictationGlobalAccessory: ViewModifier {
+    let session: DictationPlaybackCoordinator
+    let open: () -> Void
+    @ViewBuilder func body(content:Content) -> some View {
+        if #available(iOS 26.1, *) {
+            content.tabViewBottomAccessory(isEnabled:session.visible) {
+                DictationNativeAccessory(session:session,open:open)
+            }
+        } else if #available(iOS 26.0, *) {
+            content.tabViewBottomAccessory {
+                if session.visible { DictationNativeAccessory(session:session,open:open) }
+            }
+        } else {
+            // iOS 17–18 compatibility only, not an imitation of Liquid Glass.
+            content.safeAreaInset(edge:.bottom) {
+                if session.visible { DictationAudioToolbar(session:session,inline:false,open:open).background(.bar) }
+            }
+        }
     }
 }

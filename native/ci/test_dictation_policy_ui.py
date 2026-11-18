@@ -16,11 +16,12 @@ class DictationPolicyUI(unittest.TestCase):
   self.assertNotIn(': "Pause"',source)
   self.assertNotIn('Text("dictation.paid.notice").font(.caption)',source)
   self.assertIn('DictationRules',source)
-  self.assertIn('DictationAudioToolbar',source)
+  self.assertNotIn('DictationAudioToolbar',source)
+  self.assertIn('DictationGlobalAccessory(session:playback)',(ROOT/'App/MainTabsView.swift').read_text())
   self.assertIn('Button("Check")',source)
   self.assertIn('.accessibilityIdentifier("dictation-camera")',source)
   self.assertIn('.id("dictation-draft-header")',source)
-  self.assertIn('.safeAreaInset(edge: .bottom, spacing: 0)',source)
+  self.assertNotIn('.safeAreaInset(edge:',source)
   self.assertNotIn('Label("History",systemImage:"chevron.left")',source)
  def test_web_rules_and_status_have_five_exact_translations(self):
   catalog=json.loads((ROOT/'App/Localizable.xcstrings').read_text())['strings']
@@ -29,7 +30,7 @@ class DictationPolicyUI(unittest.TestCase):
    self.assertEqual(set(catalog[key]['localizations']),{'de','en','ru','es','fr'})
  def test_os_interruptions_do_not_complete(self):
   source=(ROOT/'App/DictationView.swift').read_text()
-  self.assertIn('policyPlayer?.suspend()',source)
-  self.assertIn('mediaServicesWereResetNotification',source)
-  self.assertIn('audioPlayerDecodeErrorDidOccur',source)
+  self.assertIn('controller?.suspend()',(ROOT/'App/DictationPlaybackCoordinator.swift').read_text())
+  self.assertIn('mediaServicesWereResetNotification',(ROOT/'App/MainTabsView.swift').read_text())
+  self.assertIn('audioPlayerDecodeErrorDidOccur',(ROOT/'App/DictationPlayer.swift').read_text())
 if __name__=='__main__': unittest.main()

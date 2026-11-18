@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import AVFoundation
 import KeineMagieCore
 
 struct MainTabsView: View {
@@ -7,6 +8,8 @@ struct MainTabsView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Binding var showSettings: Bool
     @State private var selected = "translator"
+    @State private var playback = DictationPlaybackCoordinator()
+    @State private var dictationPath: [String] = []
     @State private var showPodcastAdd = false
     @State private var showCoachProfile = false
     @State private var showPending = false
@@ -15,7 +18,7 @@ struct MainTabsView: View {
         TabView(selection: $selected) {
             navigationTab("translator") { TranslatorView(showPending: $showPending) }
                 .tabItem { Label("feature.translator", systemImage: "character.bubble") }.tag("translator")
-            DictationView(showAdd: $showDictationAdd, showSettings: $showSettings, isSelected: selected == "dictation" && !showSettings)
+            DictationView(showAdd: $showDictationAdd, showSettings: $showSettings, path: $dictationPath, isSelected: selected == "dictation" && !showSettings)
                 .tabItem { Label("feature.dictation", systemImage: "waveform") }.tag("dictation")
             navigationTab("podcasts") { PodcastLibraryView(showAdd: $showPodcastAdd) }
                 .tabItem { Label("feature.podcasts", systemImage: "headphones") }.tag("podcasts")
@@ -28,6 +31,23 @@ struct MainTabsView: View {
                 }
             }.tabItem { Label("feature.coach", systemImage: "bubble.left.and.bubble.right") }.tag("coach")
         }
+        .modifier(DictationGlobalAccessory(session:playback) {
+            selected = "dictation"
+            if let id = playback.record?.id, dictationPath != [id] { dictationPath = [id] }
+            playback.requestOpen()
+        })
+        .environment(playback)
+        .task(id: "media-\(playback.record?.id ?? "")-\(playback.record?.mode ?? "")-\(playback.record?.ready ?? [])") {
+            await playback.loadTiming()
+        }
+        .onChange(of: playback.record?.id) { old, next in if old != nil && next == nil { playback.reset() } }
+        .onChange(of: scenePhase) { _, phase in if phase != .active { playback.interrupt() } }
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in playback.interrupt() }
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)) { _ in playback.interrupt() }
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.mediaServicesWereResetNotification)) { _ in playback.interrupt() }
+        .onChange(of: model.session.generation) { _, _ in playback.reset() }
+        .onChange(of: model.session.phase) { _, phase in if phase != .signedIn { playback.reset() } }
+        .onDisappear { playback.reset() }
         .task(id: "\(model.session.generation)-\(model.session.canWrite)") { await model.warmData() }
         .task(id: "outbox-\(model.session.generation)-\(model.session.canWrite)-\(scenePhase)") {
             guard scenePhase == .active else { return }

@@ -832,6 +832,23 @@ let package = Package(name:"Lifecycle",platforms:[.macOS(.v14)],dependencies:[.p
 ''' % (ROOT/'Core'))
         app = (ROOT/'App/AppModel.swift').read_text().replace('import SwiftUI','import Foundation\nimport Observation')
         (p/'Sources/Lifecycle/AppModel.swift').write_text(app)
+        coordinator = (ROOT/'App/DictationPlaybackCoordinator.swift').read_text().replace('import SwiftUI','import Foundation\nimport Observation')
+        (p/'Sources/Lifecycle/DictationPlaybackCoordinator.swift').write_text(coordinator)
+        # Only the platform output adapter is substituted. Production coordinator,
+        # API transport, journal and admission controller run unchanged.
+        (p/'Sources/Lifecycle/DictationPlayer.swift').write_text('''import Foundation
+import Observation
+@MainActor @Observable final class DictationPlayer {
+ var playing = false
+ var rate: Float = 1
+ var finished: ((Bool) -> Void)?
+ var position: Double = 0
+ var duration: Double? = 8
+ func play(_ data: Data, offset: Double = 0) throws { position=offset;playing=true }
+ func stop(resetTiming: Bool = false) { playing=false;finished=nil;if resetTiming {position=0} }
+}
+''')
+        (p/'Tests/LifecycleTests/DictationGlobalTests.swift').write_text((ROOT/'ci/dictation_global_harness.swift').read_text())
         (p/'Sources/Lifecycle/TranslationProfileSync.swift').write_text((ROOT/'App/TranslationProfileSync.swift').read_text())
         (p/'Sources/Lifecycle/PodcastStore.swift').write_text((ROOT/'App/PodcastStore.swift').read_text())
         (p/'Sources/Lifecycle/Stubs.swift').write_text('''import Foundation

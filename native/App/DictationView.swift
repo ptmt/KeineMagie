@@ -2,56 +2,14 @@ import SwiftUI
 import AVFoundation
 import KeineMagieCore
 
-@MainActor @Observable final class DictationPlayer: NSObject, AVAudioPlayerDelegate {
-    var playing = false
-    var rate: Float = 1 {didSet {player?.rate=rate}}
-    var finished: ((Bool) -> Void)?
-    var position: Double {playing ? (player?.currentTime ?? lastPosition) : lastPosition}
-    var duration: Double? {player?.duration ?? lastDuration}
-    private var lastPosition: Double = 0
-    private var lastDuration: Double?
-    private var player: AVAudioPlayer?
-    private var generation = 0
-    func play(_ data: Data, offset: Double = 0) throws {
-        stop()
-        try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
-        try AVAudioSession.sharedInstance().setActive(true)
-        let next = try AVAudioPlayer(data: data)
-        next.enableRate = true; next.rate = rate; next.delegate = self
-        next.currentTime=min(max(0,offset),max(0,next.duration-0.01))
-        guard next.prepareToPlay(), next.play() else { throw APIError.invalidResponse }
-        player = next; lastPosition=next.currentTime; lastDuration=next.duration; playing = true
-    }
-    func stop(resetTiming: Bool = false) {
-        if playing {lastPosition=player?.currentTime ?? lastPosition}
-        if resetTiming {lastPosition=0;lastDuration=nil}
-        generation += 1; finished = nil; player?.stop(); player = nil; playing = false; try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation) }
-    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        let completedPlayer = ObjectIdentifier(player)
-        Task { @MainActor [weak self] in
-            guard let self, let current = self.player, ObjectIdentifier(current) == completedPlayer else { return }
-            self.lastPosition = flag ? current.duration : current.currentTime
-            self.playing = false
-            self.finished?(flag)
-        }
-    }
-    nonisolated func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        let failedPlayer=ObjectIdentifier(player)
-        Task { @MainActor [weak self] in
-            guard let self,let current=self.player,ObjectIdentifier(current)==failedPlayer else {return}
-            self.lastPosition=current.currentTime;self.playing=false;self.finished?(false)
-        }
-    }
-}
-
 struct DictationView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var phase
     @Environment(\.dynamicTypeSize) private var textSize
     @Binding var showAdd: Bool
     @Binding var showSettings: Bool
+    @Binding var path: [String]
     let isSelected: Bool
-    @State private var path: [String] = []
     private struct PhotoPresentation: Identifiable {
         let id = UUID()
         let context: DictationPhotoInsertion
@@ -66,7 +24,8 @@ struct DictationView: View {
     @State private var error: String?
     @State private var title = ""
     @State private var original = ""
-    @State private var player = DictationPlayer()
+    @Environment(DictationPlaybackCoordinator.self) private var playbackSession
+    private var player: DictationPlayer { playbackSession.player }
     @State private var task: Task<Void, Never>?
     @State private var saveTask: Task<Void, Never>?
     @State private var epoch = 0
@@ -76,11 +35,15 @@ struct DictationView: View {
     @State private var confirmDelete = false
     @State private var confirmReveal = false
     @State private var originalVisible: String?
-    @State private var preparing = false
-    @State private var policyPlayer: DictationPlaybackController?
+    private var preparing: Bool { playbackSession.preparing }
+    private var policyPlayer: DictationPlaybackController? { playbackSession.controller }
     @AccessibilityFocusState private var menuAXFocused: Bool
     @FocusState private var menuFocused: Bool
     @FocusState private var draftFocused: Bool
+    private var mediaRevision: String {
+        guard let value = model.dictationDrafts.record(record?.id ?? "") else { return "" }
+        return "\(value.id)-\(value.playback?.revision ?? -1)-\(value.ready)-\(value.step)"
+    }
     var body: some View {
         // Each tab owns its navigation stack; RootView resets all of them on owner change.
         NavigationStack(path: $path) {
@@ -148,9 +111,10 @@ struct DictationView: View {
                 }
         }
         .onChange(of: path) { old, next in
+            if let id = next.last, record?.id != id { record = model.dictationDrafts.record(id) }
             if !old.isEmpty && next.isEmpty {
+                draftFocused = false
                 photo = nil
-                cancelTransport()
                 // Back/swipe-back never waits on the network; the local draft was
                 // persisted on every keystroke. Show locally created attempts even
                 // when a previous save is still in flight, then refresh if possible.
@@ -158,22 +122,33 @@ struct DictationView: View {
                 save { load() }
             }
         }
-        .onChange(of: isSelected) { _, selected in if !selected { photo=nil; cancelTransport(); save() } }
+        .onChange(of: isSelected) { _, selected in if !selected { photo=nil; save() } }
         .task(id: model.session.generation) {
             guard loadedGeneration != model.session.generation else { return }
             loadedGeneration = model.session.generation
+            let destination = path.last
             clear(); load()
+            if let destination, let saved = model.dictationDrafts.record(destination) { record = saved; path = [destination] }
         }
-        .onChange(of: phase) { _, next in if next != .active { cancelTransport();save() } }
-        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in cancelTransport() }
-        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)) { _ in cancelTransport() }
-        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.mediaServicesWereResetNotification)) { _ in cancelTransport() }
+        .onChange(of: phase) { _, next in if next != .active { save() } }
         .onChange(of: record?.id) { _, id in
             photo = nil
-            _=policyPlayer?.suspend();policyPlayer=nil;player.stop(resetTiming:true);originalVisible=nil
+            if let record { playbackSession.select(record, model:model) };originalVisible=nil
             path = id.map { [$0] } ?? []
         }
-        .onDisappear { photo=nil;cancelTransport();player.stop();save() }
+        .onDisappear { photo=nil;save() }
+        .onChange(of: playbackSession.openRequest) { _, _ in
+            guard let value = playbackSession.record else { return }
+            // Reuse the existing destination if already open: no fetch, create, or focus reset.
+            if record?.id != value.id { record = value }
+            if path != [value.id] { path = [value.id] }
+        }
+        .onChange(of: mediaRevision) { _, _ in
+            guard let latest = model.dictationDrafts.record(record?.id ?? "") else { return }
+            record?.playback = latest.playback
+            record?.ready = latest.ready
+            record?.step = latest.step
+        }
         .onChange(of: record?.checked) { _, checked in if checked == true { photo=nil } }
         .sheet(item: $photo) { presentation in
             DictationCameraSheet(ownerID: String(presentation.context.generation), attemptID: presentation.context.attempt,
@@ -241,6 +216,16 @@ struct DictationView: View {
                     Text("Whole text").tag("whole"); Text("By sentences").tag("sentences")
                 }.pickerStyle(.segmented).disabled(value.checked || busy || saving || policyPlayer?.busy == true).accessibilityIdentifier("dictation-mode")
                 DictationRules(record:value)
+                if value.segment != nil && !playbackSession.cached(value) && !preparing {
+                    HStack {
+                        Button("Prepare audio", systemImage:"waveform") { playbackSession.activate() }
+                            .frame(minHeight:44).accessibilityIdentifier("dictation-prepare")
+                            .disabled(busy || saving || playbackSession.disabled)
+                        Spacer()
+                        DictationAudioInformation()
+                    }
+                }
+                if let failure = playbackSession.error { Text(failure).font(.footnote).foregroundStyle(.secondary) }
                 if value.assisted { Text("With hint · assisted").font(.caption) }
                 if value.segment != nil {
                     if value.playbackPolicyVersion == 1 {
@@ -290,21 +275,6 @@ struct DictationView: View {
                 if let error { Text(error).font(.footnote).foregroundStyle(.secondary) }
             }.padding()
         }.scrollDismissesKeyboard(.interactively)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if isSelected, let segment = value.segment {
-                playback(value, segment)
-                    // Keep transport compact while the answer retains full Dynamic Type.
-                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-                    .padding(.horizontal, 12).padding(.vertical, 6)
-                    .background(.regularMaterial)
-                    .accessibilityElement(children: .contain)
-                    .accessibilityIdentifier("dictation-player")
-            }
-        }
-        .task(id: "\(value.id)-\(value.mode)-\(value.ready)-\(isSelected)") {
-            guard isSelected, value.playbackPolicyVersion == 1 else { return }
-            await policyController(value)?.loadTiming()
-        }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { _ in
             // Keep the compact 44pt action header and full-size editable lines together
             // above the transport, rather than scrolling Check behind system navigation.
@@ -344,79 +314,11 @@ struct DictationView: View {
             if !Task.isCancelled { save() }
         }
     }
-    private func playback(_ value: DictationRecord, _ segment: DictationSegment) -> some View {
-        let policy=value.playbackPolicyVersion == 1
-        let assets=policy ? value.policyAssets : [segment.asset]
-        let cached=assets.allSatisfy {value.ready.contains($0)}
-        let label=preparing ? "Preparing audio…" : !cached ? "Prepare audio" : policyPlayer?.waiting == true ? "dictation.pause" : player.playing ? "dictation.listening" : policy && (value.playback?.active != nil || policyPlayer?.canContinue == true) ? "dictation.resume" : segment.kind == "final" ? "Optional final reading" : "Play"
-        return DictationAudioToolbar(label:label,identifier:cached ? "dictation-play" : "dictation-prepare",
-            disabled:busy || saving || player.playing || !model.session.canWrite || (policy && (value.checked || value.policyExhausted || policyPlayer?.busy == true || policyPlayer?.waiting == true || player.playing)) || (value.playbackPolicyVersion != nil && !policy),
-            preparing:preparing,rate:$player.rate,
-            timing:{
-                if policy { return policyPlayer?.timing }
-                return DictationTimingTrack(assets:[segment.asset]).snapshot(
-                    durations:player.duration.map {[segment.asset:$0]} ?? [:],index:0,position:player.position)
-            }, ticking:isSelected && (player.playing || policyPlayer?.waiting == true),
-            activate:{
-                if !cached {
-                    perform { api,current in
-                        preparing=true
-                        defer {if current() {preparing=false}}
-                        for asset in assets where !value.ready.contains(asset) {
-                            guard current() else {return}
-                            _ = try await api.dictationAudio(id:value.id,index:asset,prepare:true)
-                            guard current() else {return}
-                            record?.ready.append(asset)
-                            if let record {try model.dictationDrafts.update(record)}
-                        }
-                        save()
-                    }
-                } else if policy {
-                    let controller=policyController(value)
-                    Task {await controller?.play()}
-                } else {
-                    perform {api,current in
-                        let data=try await api.dictationAudio(id:value.id,index:segment.asset,prepare:false)
-                        guard current(),phase == .active else {return}
-                        try player.play(data)
-                        player.finished={success in if current(),success {transition(.ended)}}
-                    }
-                }
-            },cancel:{cancelTransport();save()})
+    private func policyController(_ value: DictationRecord) -> DictationPlaybackController? {
+        playbackSession.select(value, model:model)
+        return playbackSession.controller
     }
-
-    private func policyController(_ value:DictationRecord) -> DictationPlaybackController? {
-        if let policyPlayer {return policyPlayer}
-        guard let api=try? model.podcastAPI() else {return nil}
-        let generation=model.session.generation,id=value.id
-        let controller=DictationPlaybackController(
-            read:{record?.id == id ? record : nil},refresh:{try await api.dictation(id:id)},
-            send:{try await api.dictationPlayback(id:id,command:$0)},
-            audio:{try await api.dictationAudio(id:id,index:$0,prepare:false)},
-            publish:{ledger in
-                guard record?.id == id,model.session.generation == generation else {throw CancellationError()}
-                try model.dictationDrafts.acceptPlayback(id:id,policy:1,ledger:ledger)
-                record?.playback=ledger
-            },play:{data,offset,completion in
-                guard phase == .active, isSelected, !path.isEmpty else {throw CancellationError()}
-                try player.play(data,offset:offset);player.finished=completion
-            },stop:{let offset=player.position;player.stop();return offset},
-            authorized:{model.session.generation == generation && model.session.canWrite && record?.id == id},
-            failed:{failure in
-                guard model.session.generation == generation else {return}
-                if case APIError.http(401)=failure {model.session.rejectUnauthorized();model.resetSessionContent();clear()}
-                else if case APIError.http(404)=failure {
-                    if let asset=record?.segment?.asset {record?.ready.removeAll {$0 == asset}}
-                    if let record {try? model.dictationDrafts.update(record)}
-                    error=AppL10n.text("Saved audio unavailable. Prepare it again.")
-                } else if case APIError.http(409)=failure {error=AppL10n.text("dictation.playback.conflict")}
-                else {error=AppL10n.text("dictation.continue")}
-            },ownerCurrent:{model.session.generation == generation},position:{player.position},
-            duration:{data in (try? AVAudioPlayer(data:data))?.duration})
-        policyPlayer=controller
-        return controller
-    }
-    private func cancelTransport() { _=policyPlayer?.suspend();task?.cancel();task=nil;epoch += 1;busy=false;preparing=false;player.stop() }
+    private func cancelTransport() { playbackSession.interrupt();task?.cancel();task=nil;epoch += 1;busy=false }
     private func transition(_ event: DictationEvent) {
         if let value=record,value.playbackPolicyVersion == 1,event == .whole || event == .sentences {
             let controller=policyController(value)
@@ -428,7 +330,7 @@ struct DictationView: View {
             }
         } else {player.stop(resetTiming:event != .ended);record?.transition(event);if let record {do {try model.dictationDrafts.update(record)} catch {self.error=AppL10n.text("Not saved. Retry before leaving.")}};save()}
     }
-    private func clear() { _=policyPlayer?.suspend();policyPlayer=nil;originalVisible=nil;preparing=false;epoch += 1;saveFence.reset();task?.cancel();saveTask?.cancel();player.stop(resetTiming:true);path=[];items=[];record=nil;title="";original="";error=nil;busy=false;saving=false;loaded=false;historyConfirmed=false;showAdd=false }
+    private func clear() { originalVisible=nil;epoch += 1;saveFence.reset();task?.cancel();saveTask?.cancel();path=[];items=[];record=nil;title="";original="";error=nil;busy=false;saving=false;loaded=false;historyConfirmed=false;showAdd=false }
     private func saveAddForm() { do { try model.dictationDrafts.editAdd(title:title,original:original) } catch { self.error=AppL10n.text("Not saved. Retry before leaving.") } }
     private func accept(_ value: DictationRecord) throws { try model.dictationDrafts.accept(value);record = model.dictationDrafts.record(value.id);path=[value.id] }
     private func load() {
