@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"io"
 	"os"
+	"strings"
 
 	"golang.org/x/text/unicode/norm"
 )
@@ -12,12 +13,13 @@ import (
 // Older clients ignore these fields; older web clients can omit their display.
 type dictationLibraryItem struct {
 	dictationRecord
+	LifecycleStage       string  `json:"lifecycle_stage,omitempty"`
 	WordCount            int     `json:"word_count"`
 	AudioDurationSeconds float64 `json:"audio_duration_seconds,omitempty"`
 }
 
 func (cfg *serverConfig) dictationLibraryItem(owner string, v dictationRecord) dictationLibraryItem {
-	item := dictationLibraryItem{dictationRecord: dictationPublic(v, true), WordCount: len(dictationWords.FindAllString(norm.NFC.String(v.Text), -1))}
+	item := dictationLibraryItem{dictationRecord: dictationPublic(v, true), WordCount: len(dictationWords.FindAllString(norm.NFC.String(v.Text), -1)), LifecycleStage: cfg.dictationLibraryStage(owner, v)}
 	for _, segment := range v.Plan {
 		if segment.Kind != "whole" {
 			continue
@@ -30,6 +32,66 @@ func (cfg *serverConfig) dictationLibraryItem(owner string, v dictationRecord) d
 		}
 	}
 	return item
+}
+
+// A milestone is not proof that all preceding milestones occurred. In particular,
+// typing/checking needs no audio. Never infer work from opening/revision/cursor.
+func (cfg *serverConfig) dictationLibraryStage(owner string, v dictationRecord) string {
+	if v.Checked {
+		return "completed"
+	}
+	started := strings.TrimSpace(v.Draft) != ""
+	if v.PlaybackPolicyVersion == 1 {
+		// Admission is durable even when playback is later interrupted/canceled;
+		// it is a start, not evidence of hearing or completing a recording.
+		started = started || v.Playback.WholeStarts > 0 || len(v.Playback.Listens) > 0
+	} else {
+		started = started || v.Replays > 0
+	}
+	if started {
+		return "started"
+	}
+	// Mirror the explicit preparation contract: policy whole = asset 0;
+	// policy passages = remaining sequence (including final whole); legacy =
+	// current step only. Use the stored plan, not assumptions about asset IDs.
+	if len(v.Plan) == 0 {
+		return "added"
+	}
+	segments := v.Plan[:1]
+	if v.Mode == "sentences" {
+		step := v.Step
+		if v.PlaybackPolicyVersion == 1 {
+			step = v.Playback.Cursor
+		}
+		if step < 0 || step >= len(v.Plan) {
+			return "added"
+		}
+		segments = v.Plan[step : step+1]
+		if v.PlaybackPolicyVersion == 1 {
+			segments = v.Plan[step:]
+		}
+	} else if v.Mode != "whole" {
+		return "added"
+	}
+	ready := make(map[int]bool, len(v.Ready))
+	for _, asset := range v.Ready {
+		ready[asset] = true
+	}
+	seen := make(map[int]bool)
+	for _, segment := range segments {
+		if seen[segment.Asset] {
+			continue
+		}
+		seen[segment.Asset] = true
+		if !ready[segment.Asset] {
+			return "added"
+		}
+		info, err := os.Stat(dictationAssetPath(cfg.dictationRoot(owner), v.ID, segment.Asset))
+		if err != nil || !info.Mode().IsRegular() || info.Size() == 0 {
+			return "added"
+		}
+	}
+	return "ready"
 }
 
 // Our cached PCM WAVs have a canonical 44-byte header (dictation_openai.go).

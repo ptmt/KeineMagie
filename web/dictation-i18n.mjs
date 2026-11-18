@@ -1,5 +1,9 @@
 // Interface language never changes the German source or a learner's draft.
 const rows=[
+['dictation.lifecycle.added','Hinzugefügt','Added','Добавлен','Añadido','Ajouté'],
+['dictation.lifecycle.ready','Audio bereit','Audio ready','Аудио готово','Audio listo','Audio prêt'],
+['dictation.lifecycle.started','Begonnen','In progress','Начат','En curso','En cours'],
+['dictation.lifecycle.completed','Abgeschlossen','Completed','Завершён','Completado','Terminé'],
 ['Draft','Entwurf','Draft','Черновик','Borrador','Brouillon'],
 ['dictation.words.one','{n} Wort','{n} word','{n} слово','{n} palabra','{n} mot'],
 ['dictation.words.few','{n} Wörter','{n} words','{n} слова','{n} palabras','{n} mots'],

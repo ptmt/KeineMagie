@@ -54,11 +54,25 @@ export function mountDictation({host,api,unauthorized,locale=()=>'en'}){
 
  // The list DTO deliberately excludes drafts/source. Unchecked is not a job,
  // nor evidence that the learner has written anything. Omit that generic state.
+ // Only the list summary knows the redacted draft. Missing/future fields stay
+ // unknown; checked is the one authoritative legacy completion fallback.
+ function libraryLifecycle(v){
+  const stages=['added','ready','started','completed'];
+  const current=v.checked?'completed':v.lifecycle_stage,index=stages.indexOf(current);
+  if(index<0)return null;
+  const track=el('span');track.className='dictation-lifecycle';
+  stages.forEach((stage,i)=>{const step=el('span',l('dictation.lifecycle.'+stage));
+   step.className='dictation-milestone '+(i===index?'is-current stage-'+stage:i<index?'is-earlier':'is-later');
+   if(i===index)step.setAttribute('aria-current','step');
+   track.append(step);
+  });
+  return track;
+ }
  function libraryMetadata(v){
   const parts=[],lang=['de','en','ru','es','fr'].includes(locale())?locale():'en';
   if(Number.isSafeInteger(v.word_count)&&v.word_count>0)parts.push(l('dictation.words.'+new Intl.PluralRules(lang).select(v.word_count),{n:new Intl.NumberFormat(lang).format(v.word_count)}));
   if(Number.isFinite(v.audio_duration_seconds)&&v.audio_duration_seconds>0){const seconds=Math.max(1,Math.round(v.audio_duration_seconds));parts.push(`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`);}
-  if(v.checked)parts.push(l('Checked'));
+
   return parts.join(' · ');
  }
  function render(){const focused=practice.contains(document.activeElement)&&document.activeElement.tagName==='TEXTAREA', selection=focused?[document.activeElement.selectionStart,document.activeElement.selectionEnd]:null;renderStatus();list.replaceChildren();practice.replaceChildren();list.hidden=!!record;practice.hidden=!record;
@@ -68,7 +82,7 @@ export function mountDictation({host,api,unauthorized,locale=()=>'en'}){
    const savedForm=journal.form(),hasCreation=!!(savedForm.title||savedForm.text||journal.createBody());
    if(session&&loaded&&!items.length&&!loading&&!hydrating&&!error&&!Object.keys(journal.entries()).length&&!Object.keys(journal.recoveries()).length&&!hasCreation)list.append(el('p',l('No dictations yet.')),el('p',l('dictation.onboarding')),button(l('Add text'),openAdd));
    if(session&&!hydrating&&hasCreation){const resume=button((savedForm.title?savedForm.title+' · ':'')+l('Draft'),openAdd);resume.disabled=busy;list.append(resume);}
-   for(const [id,recovery] of Object.entries(journal.recoveries())){const row=el('div');row.append(el('p',l('Deleted on another device. Your draft is available to export.')+' '+recovery.title),button(l('Export draft'),()=>exportDraft(recovery.title,recovery.draft)),button(l('Dismiss recovery'),async()=>{const e=epoch;await journal.clearRecovery(id);if(e===epoch)render();}));list.append(row);}for(const v of items){const row=button('',async()=>{const e=epoch,cached=journal.get(v.id);if(cached){record=cached;render();}const result=await run(()=>request('/'+v.id));if(e!==epoch)return;if(result){accept(result);render();}else if(record?.id===v.id)await inspectConflict(v.id);});row.className='dictation-card';row.append(el('strong',v.title));const metadata=libraryMetadata(v);if(metadata)row.append(el('small',metadata));list.append(row);}return;}
+   for(const [id,recovery] of Object.entries(journal.recoveries())){const row=el('div');row.append(el('p',l('Deleted on another device. Your draft is available to export.')+' '+recovery.title),button(l('Export draft'),()=>exportDraft(recovery.title,recovery.draft)),button(l('Dismiss recovery'),async()=>{const e=epoch;await journal.clearRecovery(id);if(e===epoch)render();}));list.append(row);}for(const v of items){const row=button('',async()=>{const e=epoch,cached=journal.get(v.id);if(cached){record=cached;render();}const result=await run(()=>request('/'+v.id));if(e!==epoch)return;if(result){accept(result);render();}else if(record?.id===v.id)await inspectConflict(v.id);});row.className='dictation-card';row.append(el('strong',v.title));const metadata=libraryMetadata(v);if(metadata)row.append(el('small',metadata));const lifecycle=libraryLifecycle(v);if(lifecycle)row.append(lifecycle);list.append(row);}return;}
   const v=record;const back=button(l('History'),async()=>{if(busy)return;const e=epoch;stop();try{await save();}catch{return}if(e!==epoch)return;record=null;await load();render();});back.className='dictation-back';back.setAttribute('aria-label',l('History'));practice.append(back);const heading=el('div');heading.className='dictation-heading';heading.append(el('h1',v.title));practice.append(heading);
   const again=button(l('New attempt'),async()=>{if(busy)return;const e=epoch;stop();try{await save();}catch{return}if(e!==epoch)return;let id;try{id=await journal.reserveAttempt(v.id,1)}catch{if(e===epoch){error=l('Could not save. Retry.');renderStatus()}return}if(e!==epoch)return;const value=await run(()=>request('/'+v.id+'/attempts',{method:'POST',body:{id,...(journal.attemptPolicy(v.id)?{playback_policy_version:journal.attemptPolicy(v.id)}:{})}}),v.id);if(e!==epoch)return;if(value){await journal.clearAttempt(v.id);if(e!==epoch)return;accept(value);render();}});
   const remove=button(l('Delete attempt'),async()=>{if(busy)return;if(!confirm(l('Delete this attempt and its draft?')))return;const e=epoch;stop();try{await save();}catch{return}if(e!==epoch)return;const value=await run(()=>request('/'+v.id,{method:'DELETE',body:{revision:record.revision}}),v.id);if(e!==epoch)return;if(value){await journal.remove(v.id);if(e!==epoch)return;record=null;await load();if(e===epoch)render();}});again.disabled=remove.disabled=busy;const attemptMenu=el('details'),attemptSummary=el('summary','•••');activeAttemptMenu=attemptMenu;attemptMenu.className='dictation-attempt-menu';attemptSummary.setAttribute('aria-label',l('More options'));attemptMenu.append(attemptSummary);if(!v.checked)attemptMenu.append(again);attemptMenu.append(remove);attemptMenu.onkeydown=e=>{if(e.key==='Escape'){attemptMenu.open=false;attemptSummary.focus();}};attemptMenu.onfocusout=e=>{if(e.relatedTarget&&!attemptMenu.contains(e.relatedTarget))attemptMenu.open=false;};heading.append(attemptMenu);

@@ -57,6 +57,10 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 	}
 	var out dictationPlayback
 	err := cfg.dictationWrite(r, owner, func(d *dictationData) error {
+		// A request already canceled before admission is not a playback start.
+		if err := r.Context().Err(); err != nil {
+			return err
+		}
 		v := dictationFind(d, id)
 		if v == nil {
 			return errDictationMissing

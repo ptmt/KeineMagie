@@ -2,14 +2,15 @@
 Run against python3 -m http.server 8876 --directory web. --baseline captures RED.
 """
 import json
+import os
 import sys
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
 REPO = Path(__file__).resolve().parents[2]
-OUT = REPO / 'docs/evidence/dictation-library'
+OUT = Path(os.environ.get('DICTATION_LIBRARY_OUT', str(REPO / 'docs/evidence/dictation-library')))
 OUT.mkdir(parents=True, exist_ok=True)
-BASE = 'http://127.0.0.1:8876/tests/dictation-focused-fixture.html'
+BASE = os.environ.get('DICTATION_LIBRARY_BASE', 'http://127.0.0.1:8876/tests/dictation-focused-fixture.html')
 source = (REPO / 'web/tests/dictation-focused-fixture.html').read_text().replace('Ein Spaziergang im Park', 'Prävention gegen Einbrecher')
 # Match the real list projection: drafts/plans/results are not available there.
 source = source.replace('return {items:clone(records)}', "return {items:clone(records).map(v=>({...v,draft:'',plan:[],differences:null}))}")
@@ -54,9 +55,9 @@ with sync_playwright() as p:
                     expect(row.locator('small')).to_have_text({'ru':'120 слов · 1:35','en':'120 words · 1:35','de':'120 Wörter · 1:35','es':'120 palabras · 1:35','fr':'120 mots · 1:35'}[locale])
                     expect(row.locator('button')).to_have_count(0)
                     expect(row.locator('strong')).to_have_text('Prävention gegen Einbrecher')
-                    assert labels['In progress'] not in page.locator('main>div').inner_text()
+                    expect(page.locator('.dictation-lifecycle .stage-started[aria-current=step]')).to_have_count(0)
                     if count==3:
-                        expect(page.locator('main>div>button').nth(2)).to_contain_text(labels['Checked'])
+                        expect(page.locator('main>div>button').nth(2).locator('.stage-completed')).to_have_attribute('aria-current','step')
                 else:
                     assert page.locator('.dictation-library').evaluate('e=>getComputedStyle(e).display')=='block', 'empty onboarding keeps its existing flow'
                     expect(page.get_by_text(labels['No dictations yet.'],exact=True)).to_be_visible()
