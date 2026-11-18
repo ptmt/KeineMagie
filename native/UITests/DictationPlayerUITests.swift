@@ -14,6 +14,11 @@ final class DictationPlayerUITests: XCTestCase {
             assertBarGeometry(app, title:title)
             XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String,"0:00", "Navigation does not admit playback")
             capture(app,"layout-\(theme)-centered-ready")
+            app.buttons["dictation-player-open"].press(forDuration:1)
+            let faster = app.buttons["1.25×"]
+            if !faster.exists { app.buttons["Speed"].tap() }
+            XCTAssertTrue(faster.waitForExistence(timeout:5)); faster.tap()
+            XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String,"0:00","Speed menu must not admit playback")
             app.terminate()
         }
     }
@@ -27,12 +32,24 @@ final class DictationPlayerUITests: XCTestCase {
             app.tabBars.buttons["Coach"].tap()
             assertBarGeometry(app,title:title)
             let body = app.buttons["dictation-player-open"]
-            let font = UIFont.preferredFont(forTextStyle:.subheadline,compatibleWith:UITraitCollection(preferredContentSizeCategory:.extraExtraExtraLarge))
-            let minimumFont = UIFont.systemFont(ofSize:font.pointSize*0.75,weight:.semibold)
-            let size = (title as NSString).size(withAttributes:[.font:minimumFont])
-            XCTAssertLessThanOrEqual(ceil(size.width),body.frame.width,"The complete localized title must fit within its permitted scaling, not truncate")
-            XCTAssertLessThanOrEqual(ceil(size.height),24,"The title must fit above the clock row")
             capture(app,"layout-\(theme)-localized-accessibility")
+            body.tap()
+            let fullTitle = app.staticTexts["dictation-expanded-title"]
+            XCTAssertTrue(fullTitle.waitForExistence(timeout:5))
+            XCTAssertEqual(fullTitle.label,title)
+            XCTAssertGreaterThan(fullTitle.frame.height,44,"Expanded title honors accessibility text instead of shrinking")
+            let expandedElapsed = app.staticTexts["dictation-expanded-elapsed"]
+            XCTAssertGreaterThan(expandedElapsed.frame.height,30)
+            XCTAssertEqual(expandedElapsed.value as? String,"0:00")
+            let done = app.buttons["Fertig"]
+            XCTAssertTrue(done.exists)
+            XCTAssertLessThanOrEqual(done.frame.maxX,app.frame.maxX)
+            capture(app,"layout-\(theme)-expanded-accessibility")
+            done.tap()
+            XCTAssertTrue(body.waitForExistence(timeout:5)); body.tap()
+            app.buttons["dictation-expanded-open"].tap()
+            XCTAssertTrue(app.textFields["dictation-draft"].waitForExistence(timeout:5))
+            XCTAssertEqual(app.navigationBars.firstMatch.identifier,title)
             app.terminate()
         }
     }
@@ -43,7 +60,7 @@ final class DictationPlayerUITests: XCTestCase {
         let visibleTitle = app.staticTexts[title].firstMatch
         let titleText = visibleTitle.exists ? visibleTitle : app.buttons["dictation-player-open"]
         XCTAssertEqual(titleText.label,title)
-        XCTAssertEqual(titleText.frame.midX,bar.frame.midX,accuracy:2,"Title must center on the entire bar, not the space left by transport")
+        XCTAssertEqual(titleText.frame.midX + (visibleTitle.exists ? 0 : 22),bar.frame.midX,accuracy:2,"Title label is centered in the bar; its navigation target also includes the empty leading area")
         let elapsed = app.staticTexts["dictation-elapsed"].frame
         let remaining = app.staticTexts["dictation-remaining"].frame
         XCTAssertGreaterThan(remaining.maxX-elapsed.minX,bar.frame.width*0.88,"Timeline endpoints must span almost the whole bar")
@@ -53,7 +70,9 @@ final class DictationPlayerUITests: XCTestCase {
         XCTAssertGreaterThan(timeline.width,bar.frame.width*0.88,"Progress row must not return to a trailing column")
         XCTAssertEqual(timeline.minX,elapsed.minX,accuracy:1)
         XCTAssertEqual(timeline.maxX,remaining.maxX,accuracy:1)
-        XCTAssertLessThanOrEqual(app.buttons["dictation-play"].frame.maxX,app.buttons["dictation-player-open"].frame.minX,"Transport and navigation remain separate targets")
+        XCTAssertGreaterThanOrEqual(app.buttons["dictation-play"].frame.minX,app.buttons["dictation-player-open"].frame.maxX,"One quiet trailing transport; navigation remains a separate target")
+        XCTAssertGreaterThanOrEqual(elapsed.height,14,"Clocks must be readable caption text, not tiny caption2")
+        XCTAssertFalse(app.buttons["dictation-speed"].exists,"Speed belongs in the title context menu, not a competing primary-row control")
         let receipt = XCTAttachment(string:"bar=\(bar.frame); title=\(titleText.frame); timeline=\(timeline); elapsed=\(elapsed); remaining=\(remaining)")
         receipt.name="player-layout-geometry"; receipt.lifetime = .keepAlways; add(receipt)
         XCTAssertGreaterThanOrEqual(app.buttons["dictation-play"].frame.width,44)
@@ -312,6 +331,17 @@ final class DictationPlayerUITests: XCTestCase {
         original.tap(); original.typeText("Heute scheint die Sonne.")
         app.buttons["dictation-create"].tap()
         XCTAssertTrue(app.buttons["dictation-prepare"].waitForExistence(timeout: 10))
+        let prepare = app.buttons["dictation-prepare"]
+        wait(prepare,"enabled == true")
+        // XCTest's implicit scroll-to-tap can land on the tab bar on a small
+        // phone. Bring the entire entry above native chrome before tapping.
+        for _ in 0..<6 {
+            if prepare.frame.maxY < app.tabBars.firstMatch.frame.minY - 8 { break }
+            app.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.7))
+                .press(forDuration:0.1,thenDragTo:app.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.4)))
+        }
+        XCTAssertLessThan(prepare.frame.maxY,app.tabBars.firstMatch.frame.minY)
+        wait(prepare,"hittable == true")
         return app
     }
     @MainActor private func wait(_ element: XCUIElement, _ predicate: String) {

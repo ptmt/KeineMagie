@@ -1,0 +1,77 @@
+{
+  "base": "928b34f582b757eca0ef9883a1063164a9554162",
+  "sourceHashes": {
+    "native/App/DictationPracticeComponents.swift": "37b3e54140e6ba839c0b94711d393bdb4733b2df73d5cc1d75bb87cd8c8bf398",
+    "native/UITests/DictationPlayerUITests.swift": "8585279fba1418ca7b7f8f7d2d1a5d15c3e6cb235ff1762d7e12730d96ac0f95"
+  },
+  "protectedOriginalHashes": 304,
+  "protectedOriginalStatusMatches": true,
+  "summaries": {
+    "normal": {
+      "result": "Passed",
+      "totalTestCount": 4,
+      "passedTests": 4,
+      "failedTests": 0,
+      "skippedTests": 0
+    },
+    "small": {
+      "result": "Passed",
+      "totalTestCount": 3,
+      "passedTests": 3,
+      "failedTests": 0,
+      "skippedTests": 0
+    }
+  },
+  "screenshots": [
+    {
+      "file": "docs/screenshots/dictation-player-natural/before-dark.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-layout/previews/normal-global-Dark-coach-playing.png",
+      "sha256": "e12f8457dba5b12ec543e20d068e77e0371bfec5649e91c4cabb1f64933b0fad"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/normal-global-Dark-coach-playing.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/normal-approved-shots/030A1798-6F90-4BFB-9B9C-39130360F913.png",
+      "sha256": "5ffb172c75d06517c189bddddc522d8249019d89817b549cb467cdebd7430450"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/normal-global-Light-coach-playing.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/normal-approved-shots/0886161A-E76E-488E-BB64-4F7EAA4A7BD7.png",
+      "sha256": "33259d4a85e7cbe1831f9bd26143e15da18d0eac309c30d4bdf227e734a0d92b"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/normal-layout-Dark-expanded-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/normal-approved-shots/71111D6F-1B31-481A-919F-4C56B433AB2B.png",
+      "sha256": "523f72569aa96f5380d21a4072598b0343fdaa1973df3917ad055db15f85ec3e"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/normal-layout-Dark-localized-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/normal-approved-shots/0AA7B038-CFF0-4D2D-8E0D-44D39FAE2F1A.png",
+      "sha256": "997d5a75d58f82daf4ebbd131174a2aaad8555ea693c67842d628c93a431a044"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/small-global-Dark-coach-playing.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/small-approved-shots/F5EA1513-D314-4BE4-BC79-812B5C7F74EF.png",
+      "sha256": "9809153ece58869131bfd9b419d0f96a85e94d867cd67f151e19576c06a5a390"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/small-global-Light-coach-playing.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/small-approved-shots/3A036E5E-0A47-46A6-9027-4BADCA5C0052.png",
+      "sha256": "04beff056fa71b7b9003d0931c08c51dc537209cdf19a23a42e8971f4fc795b4"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/small-layout-Dark-expanded-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/small-approved-shots/3D1F2857-3851-4E1A-BB5D-65E09AB0404F.png",
+      "sha256": "5087964bd9bbe3b6b10d8d5a2b4972d150bcd1f504e0e37b71a5134b58892735"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/small-layout-Dark-localized-accessibility.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/small-approved-shots/F5E62934-E666-4CEF-AC2B-A07046F88226.png",
+      "sha256": "5594aec3d08b178bcf4c607c0b41491bd017a636d0634d49911ffd178b275154"
+    },
+    {
+      "file": "docs/screenshots/dictation-player-natural/alternative-b-rejected-dark.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/dictation-player-natural/alternative-b-shots/85C5088F-32E8-4BB0-89D5-A2F0774F8BC8.png",
+      "sha256": "a8f2b9004ad027f97bc3e064a8f2d0779ad7a9413e65b2784e83b498c5b7b7d0"
+    }
+  ]
+}
