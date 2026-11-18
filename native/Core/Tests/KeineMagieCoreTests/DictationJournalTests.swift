@@ -1,4 +1,5 @@
 import XCTest
+import Observation
 @testable import KeineMagieCore
 
 @MainActor final class DictationJournalTests: XCTestCase {
@@ -82,6 +83,13 @@ import XCTest
   var sent=false;try await store.flush(id:"one") {_,_ in sent=true;return checked}
   XCTAssertFalse(sent)
   XCTAssertEqual(store.record("one")?.draft,"mine")
+ }
+ func testSaveFenceCompletionInvalidatesObservedReadiness() async {
+  let fence=DictationSaveFence(), first=fence.begin()!
+  let changed=expectation(description:"Save completion invalidates destination readiness")
+  withObservationTracking { _=fence.isCurrent(first) } onChange: { changed.fulfill() }
+  XCTAssertTrue(fence.finish(first))
+  await fulfillment(of:[changed],timeout:0.2)
  }
  func testSaveFenceSurvivesDownloadAndInterruptionButFencesLogout() async {
   let fence=DictationSaveFence()

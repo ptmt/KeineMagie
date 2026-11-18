@@ -38,7 +38,9 @@ import KeineMagieCore
             let revision = (value.playback?.revision ?? 0) + 1
             let starts = (value.playback?.wholeStarts ?? 0) + (command.action == "start" ? 1 : 0)
             let active: [String:Any] = ["id":command.id,"client":command.client,"step":command.step,"fence":revision,"offset":command.offset,"lease_until":command.action == "release" ? Int64(0) : Int64(2000000000000),"done":false]
-            let ledger = try JSONDecoder().decode(DictationPlayback.self,from:JSONSerialization.data(withJSONObject:["revision":revision,"whole_starts":starts,"cursor":1,"final_used":false,"active":active]))
+            var object:[String:Any] = ["revision":revision,"whole_starts":starts,"cursor":1,"final_used":false]
+            if command.action != "stop" { object["active"]=active }
+            let ledger = try JSONDecoder().decode(DictationPlayback.self,from:JSONSerialization.data(withJSONObject:object))
             value.playback = ledger; values[id] = value
             return AuthResponse(data:try JSONEncoder().encode(ledger),status:200)
         }
@@ -108,6 +110,47 @@ import KeineMagieCore
     #expect(model.dictationDrafts.record("two")?.draft == "private draft two")
     #expect(!gate.calls.contains { $0.0 == "POST" && !$0.1.hasSuffix("/playback") })
     session.reset()
+}
+
+@Test @MainActor func globalOfflineStopSurvivesActualOwnerCacheAndResetsBeforeNewStart() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at:root) }
+    let gate = GlobalPlaybackGate(), session = DictationPlaybackCoordinator()
+    let model = try await gate.model(root)
+    session.select(gate.values["one"]!,model:model)
+    let controller = try #require(session.controller)
+    await controller.play()
+    session.player.position = 2
+    let remote = gate.values["one"]!
+    gate.status = 503
+    let stopped = controller.stop()
+    #expect(!session.player.playing)
+    #expect(controller.timing.elapsed == 0)
+    let intent = try #require(model.dictationDrafts.playbackStop(id:"one"))
+    await stopped.value
+    #expect(model.dictationDrafts.record("one")?.playback?.wholeStarts == 1)
+
+    // Recreate AppModel/ContentCache on the same real disk root, not an in-memory journal.
+    let coldModel = try await gate.model(root)
+    gate.values["one"] = remote
+    let cold = DictationPlaybackCoordinator()
+    cold.select(try #require(coldModel.dictationDrafts.record("one")),model:coldModel)
+    #expect(coldModel.dictationDrafts.playbackStop(id:"one")?.id == intent.id)
+    #expect(cold.controller?.explicitlyStopped == true)
+    #expect(cold.controller?.timing.elapsed == 0)
+    await cold.controller?.play()
+    #expect(!cold.player.playing)
+    #expect(gate.commands.map { $0.1.action } == ["start"])
+
+    gate.status = 200
+    await cold.controller?.play()
+    #expect(cold.player.playing)
+    #expect(cold.player.position == 0)
+    #expect(gate.commands.map { $0.1.action } == ["start","stop","start"])
+    #expect(coldModel.dictationDrafts.record("one")?.playback?.wholeStarts == 2)
+    #expect(coldModel.dictationDrafts.playbackStop(id:"one") == nil)
+    #expect(coldModel.dictationDrafts.record("one")?.draft == "private draft one")
+    session.reset();cold.reset()
 }
 
 @Test @MainActor func globalLate401FromReplacedAttemptRevokesCurrentOwnerAndHidesBar() async throws {

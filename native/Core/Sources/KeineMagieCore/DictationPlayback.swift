@@ -26,6 +26,17 @@ public struct DictationListen: Codable, Sendable, Equatable {
         case leaseUntil = "lease_until"
     }
 }
+/// Persisted before network I/O; survives offline Stop and cold relaunch.
+/// The request fence targets the revision observed at Stop, never a later refresh.
+public struct DictationStopIntent: Codable, Sendable {
+    public let id: String
+    public let client: String
+    public var request: DictationPlaybackRequest?
+    public let admission: String?
+    public init(id: String = UUID().uuidString, client: String, request: DictationPlaybackRequest? = nil, admission: String? = nil) {
+        self.id=id; self.client=client; self.request=request;self.admission=admission
+    }
+}
 public struct DictationPlaybackRequest: Codable, Sendable {
     public let id: String
     public let client: String
@@ -33,7 +44,9 @@ public struct DictationPlaybackRequest: Codable, Sendable {
     public let step: Int
     public let fence: Int
     public let offset: Double
-    public init(id: String, client: String, action: String, step: Int, fence: Int, offset: Double = 0) {
+    public let admission: String?
+    public init(id: String, client: String, action: String, step: Int, fence: Int, offset: Double = 0, admission: String? = nil) {
+        self.admission=admission
         self.id=id; self.client=client; self.action=action; self.step=step; self.fence=fence
         self.offset=offset.isFinite ? min(7200, max(0, offset)) : 0
     }

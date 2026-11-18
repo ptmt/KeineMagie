@@ -21,6 +21,7 @@ import Observation
     private let now: () -> Int64
     private let client = UUID().uuidString
     private var epoch = 0
+    private var lastStopEpoch = -1
     // Metadata survives admission, but never an interruption/mode/owner boundary.
     private var timingEpoch = 0
     private var owned: DictationListen?
@@ -43,8 +44,16 @@ import Observation
     private let resumePause: @MainActor (Double) async throws -> Void
     private var timingCompleted = false
     private let position: () -> Double
+    private let readStop: (() -> DictationStopIntent?)?
+    private let saveStop: (DictationStopIntent?) throws -> Void
+    private var localStop: DictationStopIntent?
+    private var admission: Task<DictationPlayback, Error>?
+    private var admissionRequest: DictationPlaybackRequest?
+    private var resetTask: Task<Void, Never>?
+    public private(set) var explicitlyStopped = false
+    private var stopIntent: DictationStopIntent? { localStop ?? readStop?() }
 
-    public var canContinue: Bool { pendingGap || ledger?.active != nil }
+    public var canContinue: Bool { !explicitlyStopped && (pendingGap || ledger?.active != nil) }
 
     public var timing: DictationTimingSnapshot {
         timingTrack.snapshot(durations: durations, index: timingIndex,
@@ -57,10 +66,10 @@ import Observation
     public func loadTiming() async {
         guard authorized(), let record = read() else { return }
         let ticket = timingEpoch
-        if !playing && !waiting && !timingCompleted && !pendingGap {
+        if !playing && !waiting && !timingCompleted && !pendingGap && !explicitlyStopped {
             configureTiming(record)
         }
-        let assets = Set(record.timingSteps.map { record.plan[$0].asset })
+        let assets = Set((explicitlyStopped ? timingSteps : record.timingSteps).map { record.plan[$0].asset })
         for asset in assets where record.ready.contains(asset) && audioCache[asset] == nil {
             do {
                 let data = try await audio(asset)
@@ -90,6 +99,8 @@ import Observation
                 play: @escaping (Data, Double, @escaping (Bool) -> Void) throws -> Void,
                 stop: @escaping () -> Double, authorized: @escaping () -> Bool, failed: @escaping (Error) -> Void,
                 ownerCurrent: (() -> Bool)? = nil,
+                readStop: (() -> DictationStopIntent?)? = nil,
+                saveStop: @escaping (DictationStopIntent?) throws -> Void = {_ in},
                 position: @escaping () -> Double = {0},
                 duration: @escaping (Data) -> Double? = {_ in nil},
                 pause: @escaping @MainActor () async throws -> Void = {try await Task.sleep(for:.seconds(3))},
@@ -99,8 +110,11 @@ import Observation
         self.read=read;self.refresh=refresh;self.send=send;self.audio=audio;self.publish=publish
         self.startMedia=play;self.stopMedia=stop;self.authorized=authorized;self.failed=failed
         self.ownerCurrent=ownerCurrent ?? authorized
+        self.readStop=readStop;self.saveStop=saveStop
+        self.explicitlyStopped=readStop?() != nil
         self.position=position;self.measureDuration=duration;self.pause=pause;self.now=now
         self.timingNow=timingNow;self.resumePause=resumePause
+        if explicitlyStopped { resetToBeginning() }
     }
     private func current(_ ticket: Int) -> Bool {ticket == epoch && authorized() && !Task.isCancelled}
     private func clearTimers() {heartbeat?.cancel();expiry?.cancel();gap?.cancel();heartbeat=nil;expiry=nil;gap=nil;waiting=false}
@@ -132,6 +146,10 @@ import Observation
         busy=true;epoch += 1;let ticket=epoch
         defer {if ticket == epoch {busy=false}}
         do {
+            await resetTask?.value
+            guard current(ticket) else { return }
+            if stopIntent != nil { try await finishStop() }
+            guard current(ticket) else { return }
             if pendingGap {
                 waiting = true; gapBegan = timingNow() - frozenGap
                 try await resumePause(max(0, 3 - frozenGap))
@@ -143,6 +161,10 @@ import Observation
             let fresh=try await refresh()
             guard current(ticket),fresh.id == initial.id,fresh.playbackPolicyVersion == 1,!fresh.checked,let value=fresh.playback else {return}
             try apply(value)
+            if explicitlyStopped {
+                guard value.active == nil, initial.mode == "whole" || value.cursor == 1 else { throw APIError.http(409) }
+                explicitlyStopped=false
+            }
             var selection=initial;selection.playback=value
             guard !selection.policyExhausted,let segment=selection.segment else {throw APIError.http(409)}
             let request: DictationPlaybackRequest
@@ -151,12 +173,15 @@ import Observation
             } else {
                 request=DictationPlaybackRequest(id:UUID().uuidString,client:client,action:"start",step:selection.policyStep,fence:0)
             }
-            let admitted=try await send(request)
+            let requestTask = Task { @MainActor in try await send(request) }
+            admission = requestTask;admissionRequest=request
+            let admitted=try await requestTask.value
+            if admissionRequest?.id == request.id { admission = nil;admissionRequest=nil }
             guard current(ticket) else {
                 // A replacement/background boundary may happen while admission is
                 // in flight. Release the acknowledged reservation without playing,
                 // refunding, or ending it. Never disturb a newer resume operation.
-                if authorized(), !busy, !playing, !waiting,
+                if authorized(), ticket > lastStopEpoch, !busy, !playing, !waiting,
                    let active = admitted.active, active.id == request.id, active.client == client {
                     try apply(admitted)
                     _ = try await command("release", stamp: active, offset: active.offset)
@@ -181,7 +206,7 @@ import Observation
                 self.playing=false
                 Task { @MainActor in await self.completed(success,ticket:ticket) }
             }
-            playing=true
+            explicitlyStopped=false;playing=true
         } catch {
             // A late same-owner 401 still revokes identity, even after interruption.
             if case APIError.http(401)=error, ownerCurrent() {failed(error)}
@@ -226,17 +251,96 @@ import Observation
         }
     }
     public func interrupt() async {await suspend().value}
+
+    /// User Stop is distinct from OS interruption. Silence and invalidate callbacks
+    /// synchronously, then persist the reset intent before attempting any network I/O.
+    public func stop() -> Task<Void, Never> {
+        epoch += 1; lastStopEpoch=epoch; timingEpoch += 1; clearTimers(); busy=false; playing=false
+        let stoppedAdmission=admissionRequest?.id ?? owned?.id
+        _ = stopMedia(); owned=nil
+        explicitlyStopped=true; resetToBeginning()
+        if let resetTask { return resetTask }
+        let newIntent = stopIntent == nil
+        if newIntent {
+            var intent=DictationStopIntent(client:client,admission:stoppedAdmission)
+            if let revision=[ledger?.revision,read()?.playback?.revision].compactMap({$0}).max() {
+                intent.request=DictationPlaybackRequest(id:intent.id,client:intent.client,action:"stop",step:0,fence:revision,admission:intent.admission)
+            }
+            localStop=intent
+        }
+        do {
+            if !newIntent, let intent=stopIntent { try requireCurrentStop(intent) }
+            try saveStop(stopIntent)
+        }
+        catch { failed(error); return Task {} }
+        let pendingAdmission=admission, pendingCommand=tail, pendingIntent=stopIntent
+        let task=Task { @MainActor [self] in
+            let admitted = try? await pendingAdmission?.value
+            let commanded = try? await pendingCommand?.value
+            guard authorized() else { resetTask=nil; return }
+            do {
+                guard var intent=pendingIntent else { throw CancellationError() }
+                try requireCurrentStop(intent)
+                // Only acknowledgments of operations captured at Stop may advance
+                // its target. A refresh or a retry cannot adopt a foreign revision.
+                if newIntent, let revision=[admitted?.revision,commanded?.revision].compactMap({$0}).max(),
+                   revision > (intent.request?.fence ?? -1) {
+                    intent.request=DictationPlaybackRequest(id:intent.id,client:intent.client,action:"stop",step:0,fence:revision,admission:intent.admission)
+                    localStop=intent;try saveStop(intent)
+                }
+                try await finishStop()
+            }
+            catch { if ownerCurrent() { failed(error) } }
+            resetTask=nil
+        }
+        resetTask=task
+        return task
+    }
+    private func resetToBeginning() {
+        stoppedPosition=0;timingIndex=0
+        pendingGap=false;gapBegan=nil;frozenGap=0;timingCompleted=false
+        if let record=read() {
+            timingSteps = record.mode == "whole" ? Array(record.plan.indices.prefix(1)) : Array(record.plan.indices.dropFirst().dropLast())
+            timingTrack = DictationTimingTrack(assets:timingSteps.map {record.plan[$0].asset})
+        }
+    }
+    private func requireCurrentStop(_ intent: DictationStopIntent) throws {
+        // A replacement controller may have consumed this operation or persisted
+        // a newer Stop. Never let this controller rewrite or acknowledge that intent.
+        if let readStop, readStop()?.id != intent.id { throw CancellationError() }
+    }
+    private func finishStop() async throws {
+        guard authorized(), let intent=stopIntent else { return }
+        // Retry the exact persisted operation. An intent without an observed fence
+        // cannot safely acquire one from a newer ledger (including after relaunch).
+        guard let request=intent.request else { throw APIError.invalidResponse }
+        try requireCurrentStop(intent)
+        try saveStop(intent) // retry a previously failed persistence barrier too
+        let value=try await send(request)
+        guard authorized() else { throw CancellationError() }
+        try requireCurrentStop(intent)
+        try apply(value)
+        try saveStop(nil);localStop=nil
+    }
     /// Explicit mode change / Check cancels the reservation without refunding starts.
     public func cancel() async throws {
-        await interrupt()
+        let suspension=suspend(), ticket=epoch
+        busy=true
+        defer { if ticket == epoch { busy=false } }
+        await suspension.value
+        await resetTask?.value
+        guard current(ticket) else { throw CancellationError() }
+        if stopIntent != nil { try await finishStop() }
+        guard current(ticket) else { throw CancellationError() }
         timingCompleted=false; pendingGap=false; frozenGap=0; timingSteps=[]; timingTrack=DictationTimingTrack(assets: [])
-        guard authorized() else {throw CancellationError()}
         let fresh:DictationRecord
         do {fresh=try await refresh()}
         catch {if case APIError.http(401)=error,ownerCurrent() {failed(error)};throw error}
+        guard current(ticket) else { throw CancellationError() }
         if let value=fresh.playback {try apply(value)}
         if let active=ledger?.active {
             let resumed=try await command("resume",stamp:active,offset:active.offset)
+            guard current(ticket) else { throw CancellationError() }
             if let latest=resumed.active {_ = try await command("cancel",stamp:latest,offset:latest.offset)}
         }
     }

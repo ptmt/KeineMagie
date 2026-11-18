@@ -194,9 +194,11 @@ public struct PodcastAPI: Sendable {
         if body != nil { r.setValue("application/json", forHTTPHeaderField: "Content-Type") }
         return r
     }
-    public func dictationPlayback(id: String, command: DictationPlaybackRequest) async throws -> DictationPlayback {
+    public func dictationPlayback(id: String, command: DictationPlaybackRequest, owner: String? = nil) async throws -> DictationPlayback {
         try Task.checkCancellation()
-        let data=try await send(dictationRequest(id:id,action:"playback",method:"POST",body:JSONEncoder().encode(command)))
+        var request=try dictationRequest(id:id,action:"playback",method:"POST",body:JSONEncoder().encode(command))
+        if let owner {request.setValue(owner,forHTTPHeaderField:"X-Dictation-Owner")}
+        let data=try await send(request)
         try Task.checkCancellation()
         return try JSONDecoder().decode(DictationPlayback.self,from:data)
     }

@@ -5,6 +5,140 @@ import UIKit
 /// Run only with Fixtures/generate_dictation_player_wav.py and the existing Go
 /// local fixture. These are interaction/geometry tests, not screenshot acceptance.
 final class DictationPlayerUITests: XCTestCase {
+    @MainActor func testPreparationReadinessAcrossFreshAttempts() throws {
+        // Exercise the quick no-op save while a new navigation destination is
+        // installed. Its controls must observe save completion, without a tab
+        // switch or an unrelated render to make them ready.
+        for _ in 0..<8 {
+            let app=try launch()
+            XCTAssertTrue(app.buttons["dictation-prepare"].isEnabled)
+            app.terminate()
+        }
+    }
+
+    @MainActor func testExplicitStopFromAnotherTabRestartsAtZero() async throws {
+        for theme in ["Light", "Dark"] {
+            let app=try launch(theme:theme)
+            let title=app.navigationBars.firstMatch.identifier
+            app.buttons["dictation-prepare"].tap()
+            let transport=app.buttons["dictation-play"]
+            wait(transport,"enabled == true")
+            app.tabBars.buttons["Translator"].tap()
+            capture(app,"stop-\(theme)-ready")
+            transport.tap()
+            waitClock(app,"0:02")
+            XCTAssertEqual(app.buttons["dictation-player-open"].value as? String,"Playing")
+            XCTAssertEqual(transport.label,"Stop and return to beginning")
+            capture(app,"stop-\(theme)-playing")
+            transport.tap()
+            waitClock(app,"0:00")
+            XCTAssertEqual(app.buttons["dictation-player-open"].value as? String,"Stopped")
+            XCTAssertTrue(app.tabBars.buttons["Translator"].isSelected)
+            capture(app,"stop-\(theme)-stopped")
+            try await Task.sleep(for:.seconds(1))
+            XCTAssertEqual(clock(app),"0:00")
+            transport.tap()
+            waitClock(app,"0:01")
+            app.buttons["dictation-player-open"].tap()
+            XCTAssertEqual(app.navigationBars.firstMatch.identifier,title)
+            XCTAssertTrue(app.staticTexts["Whole-text starts: 2 of 4"].waitForExistence(timeout:5))
+            transport.tap();waitClock(app,"0:00")
+            app.terminate()
+        }
+    }
+
+    @MainActor func testStopDuringDelayedAdmissionNeverPlaysLate() async throws {
+        let app=try launch(admissionDelay:true)
+        app.buttons["dictation-prepare"].tap()
+        let transport=app.buttons["dictation-play"]
+        wait(transport,"enabled == true")
+        app.tabBars.buttons["Coach"].tap();transport.tap()
+        wait(app.buttons["dictation-player-open"],"value == 'Loading…'")
+        XCTAssertEqual(transport.label,"Stop and return to beginning")
+        capture(app,"stop-loading-real-admission-no-waveform")
+        transport.tap();waitClock(app,"0:00")
+        try await Task.sleep(for:.seconds(7))
+        XCTAssertEqual(clock(app),"0:00")
+        XCTAssertEqual(app.buttons["dictation-player-open"].value as? String,"Stopped")
+        capture(app,"stop-after-late-admission-still-silent")
+        app.buttons["dictation-player-open"].tap()
+        XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].waitForExistence(timeout:5))
+        transport.tap();waitClock(app,"0:01")
+        XCTAssertTrue(app.staticTexts["Whole-text starts: 2 of 4"].exists)
+        transport.tap();waitClock(app,"0:00");app.terminate()
+    }
+
+    @MainActor func testStopDuringAutomaticGapRestartsFirstSentence() throws {
+        let app=try launch()
+        app.segmentedControls["dictation-mode"].buttons["By sentences"].tap()
+        app.buttons["dictation-prepare"].tap()
+        let transport=app.buttons["dictation-play"]
+        wait(transport,"enabled == true");transport.tap()
+        let body=app.buttons["dictation-player-open"]
+        wait(body,"value == 'Waiting'")
+        XCTAssertEqual(transport.label,"Stop and return to beginning")
+        capture(app,"stop-automatic-gap-no-waveform")
+        transport.tap();waitClock(app,"0:00")
+        transport.tap();waitClock(app,"0:01")
+        XCTAssertEqual(clock(app,remaining:true),"0:18")
+        XCTAssertTrue(app.staticTexts["Whole-text starts: 0 of 4"].exists)
+        transport.tap();app.terminate()
+    }
+
+    @MainActor func testReducedMotionKeepsStaticWaveformAndPlayingLabel() async throws {
+        let settings=XCUIApplication(bundleIdentifier:"com.apple.Preferences")
+        settings.launchArguments=["-AppleLanguages","(en)","-AppleLocale","en_US"]
+        settings.launch()
+        if !settings.switches["Reduce Motion"].exists {
+            let accessibility=settings.staticTexts["Accessibility"].firstMatch
+            for _ in 0..<6 {if accessibility.exists && accessibility.isHittable {break};settings.swipeUp()}
+            XCTAssertTrue(accessibility.isHittable);accessibility.tap()
+            let motion=settings.staticTexts["Motion"].firstMatch
+            XCTAssertTrue(motion.waitForExistence(timeout:5));motion.tap()
+        }
+        let reduce=settings.switches["Reduce Motion"].firstMatch
+        XCTAssertTrue(reduce.waitForExistence(timeout:5))
+        let wasOn=reduce.value as? String == "1"
+        if !wasOn {reduce.coordinate(withNormalizedOffset:CGVector(dx:0.9,dy:0.5)).tap()}
+        wait(reduce,"value == '1'")
+        capture(settings,"stop-system-reduce-motion-enabled")
+        defer { restoreMotionSetting(wasOn) }
+        let app=try launch(theme:"Dark")
+        app.buttons["dictation-prepare"].tap()
+        let transport=app.buttons["dictation-play"]
+        wait(transport,"enabled == true")
+        app.tabBars.buttons["Coach"].tap();transport.tap();waitClock(app,"0:01")
+        XCTAssertEqual(app.buttons["dictation-player-open"].value as? String,"Playing")
+        capture(app,"stop-reduce-motion-playing-a")
+        try await Task.sleep(for:.milliseconds(600))
+        capture(app,"stop-reduce-motion-playing-b")
+        transport.tap();waitClock(app,"0:00");app.terminate()
+    }
+
+    @MainActor private func restoreMotionSetting(_ enabled:Bool) {
+        // A background Settings AX tree can survive an ineffective activate().
+        // Relaunch and verify foreground before interacting with the real switch.
+        let settings=XCUIApplication(bundleIdentifier:"com.apple.Preferences")
+        settings.terminate()
+        settings.launchArguments=["-AppleLanguages","(en)","-AppleLocale","en_US"]
+        settings.launch()
+        XCTAssertTrue(settings.wait(for:.runningForeground,timeout:10))
+        if !settings.switches["Reduce Motion"].exists {
+            let accessibility=settings.staticTexts["Accessibility"].firstMatch
+            for _ in 0..<6 {if accessibility.exists && accessibility.isHittable {break};settings.swipeUp()}
+            XCTAssertTrue(accessibility.isHittable);accessibility.tap()
+            let motion=settings.staticTexts["Motion"].firstMatch
+            XCTAssertTrue(motion.waitForExistence(timeout:5));motion.tap()
+        }
+        let toggle=settings.switches["Reduce Motion"].firstMatch
+        wait(toggle,"hittable == true")
+        let target=enabled ? "1" : "0"
+        if toggle.value as? String != target {toggle.coordinate(withNormalizedOffset:CGVector(dx:0.9,dy:0.5)).tap()}
+        wait(toggle,"value == '\(target)'")
+        capture(settings,"stop-system-reduce-motion-restored-\(target)")
+        settings.terminate()
+    }
+
     @MainActor func testMinimalLeftTitleWithoutTimeline() throws {
         for theme in ["Light", "Dark"] {
             let app = try launch(theme:theme)
@@ -197,7 +331,7 @@ final class DictationPlayerUITests: XCTestCase {
         let before = clock(app)
         try await Task.sleep(for: .seconds(1))
         XCTAssertNotEqual(clock(app), before)
-        XCTAssertFalse(play.isEnabled)
+        XCTAssertTrue(play.isEnabled)
         capture(app,"global-translator-playing")
         for tab in ["Podcasts", "Coach"] {
             app.tabBars.buttons[tab].tap()
@@ -241,7 +375,7 @@ final class DictationPlayerUITests: XCTestCase {
                 if tab == "Dictation" { app.buttons["dictation-player-open"].tap() }
                 XCTAssertTrue(app.otherElements["dictation-player"].exists)
                 XCTAssertNotEqual(clock(app),before,"The single clock keeps advancing across tabs")
-                XCTAssertFalse(play.isEnabled,"No pause UI; the sequence is still active")
+                XCTAssertTrue(play.isEnabled,"Explicit Stop is available; there is still no Pause")
                 capture(app,"global-\(theme)-\(tab.lowercased())-playing")
             }
             XCTAssertEqual(draft.value as? String,"Exact attempt draft")
@@ -337,7 +471,7 @@ final class DictationPlayerUITests: XCTestCase {
         XCTAssertFalse(app.buttons["dictation-row"].exists)
     }
 
-    @MainActor private func launch(theme: String = "Light", locale:String = "en", large:Bool = false, title fixtureTitle:String? = nil) throws -> XCUIApplication {
+    @MainActor private func launch(theme: String = "Light", locale:String = "en", large:Bool = false, title fixtureTitle:String? = nil, admissionDelay:Bool = false) throws -> XCUIApplication {
         let root = URL(fileURLWithPath: "/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player")
         guard let data = try? Data(contentsOf: root.appendingPathComponent("fixture/fixture.json")),
               let info = try JSONSerialization.jsonObject(with: data) as? [String: String],
@@ -348,6 +482,7 @@ final class DictationPlayerUITests: XCTestCase {
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "dictation-local"
         app.launchEnvironment["KM_DICTATION_UI_APPEARANCE"] = theme
         app.launchEnvironment["KM_DICTATION_CLOCK_PROBE"] = "1"
+        if admissionDelay {app.launchEnvironment["KM_DICTATION_ADMISSION_DELAY"] = "1"}
         app.launchEnvironment["KM_DICTATION_FIXTURE_TOKEN"] = token
         app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
         app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]

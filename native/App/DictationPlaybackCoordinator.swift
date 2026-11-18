@@ -28,6 +28,19 @@ import KeineMagieCore
         return preparing || cached(record)
     }
     var ticking: Bool { player.playing || controller?.waiting == true }
+    var canStop: Bool { !preparing && (player.playing || busy || controller?.busy == true || controller?.waiting == true) }
+    var status: String {
+        if player.playing { return "dictation.player.playing" }
+        if preparing || busy || controller?.busy == true { return "dictation.player.loading" }
+        if controller?.waiting == true { return "dictation.player.gap" }
+        if controller?.explicitlyStopped == true { return "dictation.player.stopped" }
+        return "dictation.player.ready"
+    }
+    func stop() {
+        operation += 1; work?.cancel(); work=nil
+        if let controller { _ = controller.stop() }
+        player.stop(resetTiming:true);busy=false;preparing=false
+    }
     var disabled: Bool {
         guard let value = record else { return true }
         return model?.session.canWrite != true || busy || player.playing || controller?.busy == true || controller?.waiting == true ||
@@ -40,7 +53,7 @@ import KeineMagieCore
         if !cached(value) { return "Prepare audio" }
         if controller?.waiting == true { return "dictation.pause" }
         if player.playing { return "dictation.listening" }
-        if value.playbackPolicyVersion == 1 && (value.playback?.active != nil || controller?.canContinue == true) { return "dictation.resume" }
+        if controller?.explicitlyStopped != true && value.playbackPolicyVersion == 1 && (value.playback?.active != nil || controller?.canContinue == true) { return "dictation.resume" }
         return value.segment?.kind == "final" ? "Optional final reading" : "Play"
     }
     var timing: DictationTimingSnapshot? {
@@ -125,17 +138,17 @@ import KeineMagieCore
                 }
                 error = AppL10n.text("Saved audio unavailable. Prepare it again.")
             } else if case APIError.http(409) = failure { error = AppL10n.text("dictation.playback.conflict") }
-            else if !(failure is CancellationError) { error = AppL10n.text("dictation.continue") }
+            else if !(failure is CancellationError) { error = AppL10n.text(controller?.explicitlyStopped == true ? "dictation.player.resetPending" : "dictation.continue") }
         }
     }
     private func makeController(_ value: DictationRecord, model: AppModel) -> DictationPlaybackController? {
         guard let api = try? model.podcastAPI() else { return nil }
         let generation = model.session.generation, id = value.id
-        let player = player
+        let player = player, owner = model.session.user?.id
         return DictationPlaybackController(
             read:{ [weak model] in model?.dictationDrafts.record(id) },
             refresh:{ try await api.dictation(id:id) },
-            send:{ try await api.dictationPlayback(id:id,command:$0) },
+            send:{ try await api.dictationPlayback(id:id,command:$0,owner:owner) },
             audio:{ try await api.dictationAudio(id:id,index:$0,prepare:false) },
             publish:{ [weak model] ledger in
                 guard let model, model.session.generation == generation, model.session.canWrite else { throw CancellationError() }
@@ -148,6 +161,11 @@ import KeineMagieCore
             failed:{ [weak self, weak model] failure in
                 guard let model else { return }; self?.failed(failure,model:model,generation:generation,id:id)
             }, ownerCurrent:{ [weak model] in model?.session.generation == generation },
+            readStop:{ [weak model] in model?.dictationDrafts.playbackStop(id:id) },
+            saveStop:{ [weak model] intent in
+                guard let model, model.session.generation == generation else { throw CancellationError() }
+                try model.dictationDrafts.setPlaybackStop(id:id,intent:intent)
+            },
             position:{ player.position }, duration:{ (try? AVAudioPlayer(data:$0))?.duration })
     }
 }

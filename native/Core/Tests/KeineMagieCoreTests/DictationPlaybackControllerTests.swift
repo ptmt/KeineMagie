@@ -37,6 +37,254 @@ import XCTest
         }, now: { self.clock })
 }
 final class DictationPlaybackControllerTests: XCTestCase {
+    @MainActor func testLateStopAcknowledgmentPreservesNewerPersistedStop() async throws {
+        let store=DictationDraftStore();var disk=Data();store.persist={disk=$0}
+        let original=PlaybackFixture().record;try store.accept(original)
+        var remote=original;var offline=false;var gate:CheckedContinuation<Void,Never>?
+        var responses:[String:DictationPlayback]=[:];var plays=0;var requests:[DictationPlaybackRequest]=[]
+        func make(_ journal:DictationDraftStore) -> DictationPlaybackController {
+            DictationPlaybackController(read:{journal.record(original.id)},refresh:{remote},send:{request in
+                requests.append(request)
+                if offline {throw URLError(.notConnectedToInternet)}
+                if let response=responses[request.id],request.action == "stop" {return response}
+                let old=remote.playback!
+                let active=["start","resume"].contains(request.action) ? DictationListen(id:request.id,client:request.client,step:0,fence:old.revision+1,offset:0,leaseUntil:2000000000000,done:false) : nil
+                let response=DictationPlayback(revision:old.revision+1,wholeStarts:old.wholeStarts,cursor:1,finalUsed:false,active:active,listens:nil)
+                remote.playback=response
+                if request.action == "stop" {
+                    responses[request.id]=response
+                    await withCheckedContinuation {gate=$0}
+                }
+                return response
+            },audio:{_ in Data()},publish:{try journal.acceptPlayback(id:original.id,policy:1,ledger:$0)},
+            play:{_,_,_ in plays += 1},stop:{0},authorized:{true},failed:{_ in},
+            readStop:{journal.playbackStop(id:original.id)},saveStop:{try journal.setPlaybackStop(id:original.id,intent:$0)})
+        }
+        let retained=make(store);await retained.play()
+        let firstStop=retained.stop()
+        while gate == nil {await Task.yield()}
+        let firstID=try XCTUnwrap(store.playbackStop(id:original.id)?.id)
+        await retained.suspend().value
+        let replacement=make(store);await replacement.play()
+        XCTAssertTrue(replacement.playing);XCTAssertNil(store.playbackStop(id:original.id))
+        offline=true;await replacement.stop().value
+        let second=try XCTUnwrap(store.playbackStop(id:original.id))
+        XCTAssertNotEqual(second.id,firstID)
+        let persistedBefore=disk;let requestsBefore=requests.count
+        gate?.resume();await firstStop.value
+        XCTAssertEqual(store.playbackStop(id:original.id)?.id,second.id,"Late S1 must not clear S2")
+        XCTAssertEqual(disk,persistedBefore,"Late S1 must not write the journal")
+        let cold=DictationDraftStore();try cold.restore(disk)
+        XCTAssertEqual(cold.playbackStop(id:original.id)?.id,second.id)
+        XCTAssertEqual(plays,2);XCTAssertFalse(retained.playing)
+        await retained.play();await retained.stop().value
+        XCTAssertFalse(retained.playing)
+        XCTAssertEqual(store.playbackStop(id:original.id)?.id,second.id)
+        XCTAssertEqual(disk,persistedBefore)
+        XCTAssertEqual(requests.count,requestsBefore,"Stale controller must not retry S1 or resume")
+        let relaunched=make(cold);await relaunched.play()
+        XCTAssertFalse(relaunched.playing);XCTAssertEqual(plays,2)
+        XCTAssertEqual(requests.last?.id,second.id,"Cold Play must retry S2 before admission")
+    }
+
+    @MainActor func testLateTrackedAcknowledgmentDoesNotOverwriteNewerStopIntent() async throws {
+        let store=DictationDraftStore();var disk=Data();store.persist={disk=$0}
+        var original=PlaybackFixture().record;original.mode="sentences"
+        original.playback=DictationPlayback(revision:1,wholeStarts:1,cursor:1,finalUsed:false,active:nil,listens:nil)
+        try store.accept(original)
+        var remote=original;var gate:CheckedContinuation<Void,Never>?
+        var completion:((Bool)->Void)?;var requests:[DictationPlaybackRequest]=[];var plays=0
+        let controller=DictationPlaybackController(read:{store.record(original.id)},refresh:{remote},send:{request in
+            requests.append(request)
+            let old=remote.playback!
+            let active=request.action == "start" ? DictationListen(id:request.id,client:request.client,step:1,fence:old.revision+1,offset:0,leaseUntil:2000000000000,done:false) : nil
+            let response=DictationPlayback(revision:old.revision+1,wholeStarts:1,cursor:2,finalUsed:false,active:active,listens:nil)
+            remote.playback=response
+            if request.action == "ended" {await withCheckedContinuation {gate=$0}}
+            return response
+        },audio:{_ in Data()},publish:{try store.acceptPlayback(id:original.id,policy:1,ledger:$0)},
+        play:{_,_,done in plays += 1;completion=done},stop:{0},authorized:{true},failed:{_ in},
+        readStop:{store.playbackStop(id:original.id)},saveStop:{try store.setPlaybackStop(id:original.id,intent:$0)})
+        await controller.play();completion?(true)
+        while gate == nil {await Task.yield()}
+        let pending=controller.stop()
+        let firstID=try XCTUnwrap(store.playbackStop(id:original.id)?.id)
+        var newer=DictationStopIntent(client:"replacement")
+        newer.request=DictationPlaybackRequest(id:newer.id,client:newer.client,action:"stop",step:0,fence:4)
+        try store.setPlaybackStop(id:original.id,intent:newer)
+        XCTAssertNotEqual(newer.id,firstID)
+        gate?.resume();await pending.value
+        XCTAssertEqual(store.playbackStop(id:original.id)?.id,newer.id,"Tracked S1 acknowledgment must not overwrite S2")
+        XCTAssertEqual(store.playbackStop(id:original.id)?.request?.id,newer.id)
+        XCTAssertEqual(store.playbackStop(id:original.id)?.request?.fence,4)
+        let cold=DictationDraftStore();try cold.restore(disk)
+        XCTAssertEqual(cold.playbackStop(id:original.id)?.id,newer.id)
+        XCTAssertEqual(requests.map(\.action),["start","ended"],"Stale controller must not send another Stop")
+        XCTAssertFalse(controller.playing);XCTAssertEqual(plays,1)
+    }
+
+    @MainActor func testOfflineGapStopColdRestartDoesNotResetNewerReleasedForeignReservation() async throws {
+        let store=DictationDraftStore();var disk=Data();store.persist={disk=$0}
+        var object=try JSONSerialization.jsonObject(with:DictationPolicyTests.wire) as! [String:Any]
+        object["mode"]="sentences"
+        object["plan"]=[["kind":"whole","asset":0],["kind":"sentence","asset":1],
+                        ["kind":"repeat","asset":1],["kind":"final","asset":0]]
+        var original=try JSONDecoder().decode(DictationRecord.self,from:JSONSerialization.data(withJSONObject:object))
+        original.playback=DictationPlayback(revision:7,wholeStarts:1,cursor:2,finalUsed:false,active:nil,listens:nil)
+        try store.accept(original)
+        var remote=original;var offline=true;var requests:[DictationPlaybackRequest]=[];var failures=0
+        func make(_ journal:DictationDraftStore) -> DictationPlaybackController {
+            DictationPlaybackController(read:{journal.record(original.id)},refresh:{
+                if offline {throw URLError(.notConnectedToInternet)}
+                return remote
+            },send:{request in
+                requests.append(request)
+                if offline {throw URLError(.notConnectedToInternet)}
+                let old=remote.playback!
+                guard request.action == "stop",request.fence == old.revision else {throw APIError.http(409)}
+                remote.playback=DictationPlayback(revision:old.revision+1,wholeStarts:old.wholeStarts,cursor:1,finalUsed:old.finalUsed,active:nil,listens:old.listens)
+                return remote.playback!
+            },audio:{_ in Data()},publish:{try journal.acceptPlayback(id:original.id,policy:1,ledger:$0)},
+            play:{_,_,_ in XCTFail("Conflicting Stop must not play")},stop:{0},authorized:{true},failed:{_ in failures += 1},
+            readStop:{journal.playbackStop(id:original.id)},saveStop:{try journal.setPlaybackStop(id:original.id,intent:$0)})
+        }
+        let controller=make(store)
+        await controller.stop().value
+        XCTAssertEqual(store.playbackStop(id:original.id)?.request?.fence,7,"Persist the observed gap revision before offline I/O")
+        XCTAssertNil(store.playbackStop(id:original.id)?.admission)
+        let cold=DictationDraftStore();try cold.restore(disk);cold.persist={disk=$0}
+        let foreign=DictationListen(id:"foreign",client:"other-client",step:2,fence:9,offset:1.25,leaseUntil:0,done:false)
+        let newer=DictationPlayback(revision:9,wholeStarts:2,cursor:2,finalUsed:true,active:foreign,listens:[foreign])
+        remote.playback=newer;offline=false;requests=[]
+        let relaunched=make(cold)
+        await relaunched.play()
+        XCTAssertEqual(requests.map(\.action),["stop"])
+        XCTAssertEqual(requests.first?.fence,7,"Retry must not adopt the foreign generation")
+        XCTAssertEqual(remote.playback,newer,"Released foreign reservation, offset, cursor and quota must survive")
+        XCTAssertNotNil(cold.playbackStop(id:original.id))
+        XCTAssertFalse(relaunched.playing)
+        XCTAssertEqual(failures,2)
+    }
+
+    @MainActor func testStopAdvancesOnlyToHeldEndedAcknowledgment() async throws {
+        let f=PlaybackFixture();f.record.mode="sentences"
+        f.record.playback=DictationPlayback(revision:1,wholeStarts:1,cursor:1,finalUsed:false,active:nil,listens:nil)
+        var remote=f.record;var disk:DictationStopIntent?;var gate:CheckedContinuation<Void,Never>?
+        var completion:((Bool)->Void)?;var requests:[DictationPlaybackRequest]=[]
+        let controller=DictationPlaybackController(read:{f.record},refresh:{remote},send:{request in
+            requests.append(request)
+            let old=remote.playback!
+            if request.action == "stop",request.fence != old.revision {throw APIError.http(409)}
+            let active=request.action == "start" ? DictationListen(id:request.id,client:request.client,step:1,fence:old.revision+1,offset:0,leaseUntil:2000000000000,done:false) : nil
+            remote.playback=DictationPlayback(revision:old.revision+1,wholeStarts:old.wholeStarts,cursor:request.action == "ended" ? 2 : 1,finalUsed:false,active:active,listens:nil)
+            let response=remote.playback!
+            if request.action == "ended" {await withCheckedContinuation {gate=$0}}
+            return response
+        },audio:{_ in Data()},publish:{f.record.playback=$0},play:{_,_,done in completion=done},stop:{0},authorized:{true},failed:{_ in XCTFail("Unexpected failure")},readStop:{disk},saveStop:{disk=$0})
+        await controller.play();completion?(true)
+        while gate == nil {await Task.yield()}
+        let stop=controller.stop()
+        XCTAssertEqual(disk?.request?.fence,2,"Persist before waiting for the tracked acknowledgment")
+        gate?.resume();await stop.value
+        XCTAssertEqual(requests.map(\.action),["start","ended","stop"])
+        XCTAssertEqual(requests.last?.fence,3)
+        XCTAssertNil(disk)
+        XCTAssertEqual(f.record.playback?.cursor,1)
+    }
+
+    @MainActor func testModeCancellationWaitsForPendingExplicitReset() async throws {
+        let f=PlaybackFixture();var actions:[String]=[];var gate:CheckedContinuation<Void,Never>?
+        let controller=DictationPlaybackController(read:{f.record},refresh:{f.record},send:{request in
+            actions.append(request.action)
+            let old=f.record.playback!
+            if request.action == "stop" {await withCheckedContinuation {gate=$0}}
+            let active=["resume","start","release"].contains(request.action) ? DictationListen(id:request.id,client:request.client,step:0,fence:old.revision+1,offset:0,leaseUntil:2000000000000,done:false) : nil
+            return DictationPlayback(revision:old.revision+1,wholeStarts:1,cursor:1,finalUsed:false,active:active,listens:nil)
+        },audio:{_ in Data([0])},publish:{f.record.playback=$0},play:{_,_,_ in},stop:{0},authorized:{true},failed:{_ in})
+        await controller.play();let stop=controller.stop()
+        while gate == nil {await Task.yield()}
+        let mode=Task {try await controller.cancel()}
+        for _ in 0..<40 {await Task.yield()}
+        XCTAssertEqual(actions,["resume","stop"],"Mode/Check cancellation must not race a pending reset with another resume/cancel")
+        gate?.resume();await stop.value;try await mode.value
+        XCTAssertNil(f.record.playback?.active)
+    }
+    @MainActor func testOfflineStopColdRelaunchResetsBeforeNextStart() async throws {
+        let store=DictationDraftStore();var disk=Data();store.persist={disk=$0}
+        let original=PlaybackFixture().record;try store.accept(original)
+        var remote=original;var offline=false;var position=1.5;var starts:[Double]=[];var actions:[String]=[]
+        func make(_ journal:DictationDraftStore) -> DictationPlaybackController {
+            DictationPlaybackController(read:{journal.record(original.id)},refresh:{remote},send:{request in
+                actions.append(request.action)
+                if offline {throw URLError(.notConnectedToInternet)}
+                let old=remote.playback!
+                let active=request.action == "start" || request.action == "resume" ? DictationListen(id:request.id,client:request.client,step:0,fence:old.revision+1,offset:request.action == "resume" ? 1.5 : 0,leaseUntil:2000000000000,done:false) : nil
+                remote.playback=DictationPlayback(revision:old.revision+1,wholeStarts:old.wholeStarts+(request.action == "start" ? 1 : 0),cursor:1,finalUsed:false,active:active,listens:nil)
+                return remote.playback!
+            },audio:{_ in Data([0])},publish:{try journal.acceptPlayback(id:original.id,policy:1,ledger:$0)},play:{_,offset,_ in starts.append(offset)},stop:{position=0;return 1.5},authorized:{true},failed:{_ in},readStop:{journal.playbackStop(id:original.id)},saveStop:{try journal.setPlaybackStop(id:original.id,intent:$0)},position:{position},duration:{_ in 2})
+        }
+        let controller=make(store);await controller.play()
+        offline=true;await controller.stop().value
+        XCTAssertEqual(position,0);XCTAssertNotNil(store.playbackStop(id:original.id))
+        let cold=DictationDraftStore();try cold.restore(disk);cold.persist={disk=$0}
+        let relaunched=make(cold);await relaunched.loadTiming()
+        XCTAssertEqual(relaunched.timing.elapsed,0,"Cold Stop must never restore stale media offset")
+        let before=starts.count
+        await relaunched.play();XCTAssertEqual(starts.count,before,"Offline reset cannot resume media")
+        offline=false;actions=[];await relaunched.play()
+        XCTAssertEqual(actions,["stop","start"])
+        XCTAssertEqual(starts.last,0);XCTAssertNil(cold.playbackStop(id:original.id))
+        await relaunched.stop().value
+    }
+
+    @MainActor func testStopWhileAdmissionIsHeldNeverPlaysLate() async throws {
+        let f=PlaybackFixture();var remote=f.record
+        var gate:CheckedContinuation<Void,Never>?;var actions:[String]=[];var plays=0
+        let controller=DictationPlaybackController(read:{f.record},refresh:{remote},send:{request in
+            actions.append(request.action)
+            let old=remote.playback!
+            if request.action == "stop",request.fence != old.revision {throw APIError.http(409)}
+            let active=request.action == "start" || request.action == "resume" ? DictationListen(id:request.id,client:request.client,step:0,fence:old.revision+1,offset:0,leaseUntil:2000000000000,done:false) : nil
+            remote.playback=DictationPlayback(revision:old.revision+1,wholeStarts:1,cursor:1,finalUsed:false,active:active,listens:nil)
+            let response=remote.playback!
+            if active != nil {await withCheckedContinuation {gate=$0}}
+            return response
+        },audio:{_ in Data([0])},publish:{f.record.playback=$0},play:{_,_,_ in plays += 1},stop:{0},authorized:{true},failed:{_ in XCTFail("unexpected failure")})
+        let start=Task {await controller.play()}
+        while gate == nil {await Task.yield()}
+        let stop=controller.stop()
+        gate?.resume();gate=nil
+        await start.value;await stop.value
+        XCTAssertEqual(plays,0);XCTAssertEqual(actions.last,"stop")
+        XCTAssertNil(f.record.playback?.active)
+        XCTAssertEqual(f.record.playback?.wholeStarts,1)
+    }
+    @MainActor func testStopIntentSurvivesColdJournalAndOwnerResetPurges() throws {
+        let store=DictationDraftStore();var disk=Data();store.persist={disk=$0}
+        let record=PlaybackFixture().record
+        try store.accept(record)
+        let intent=DictationStopIntent(client:"owner-client")
+        try store.setPlaybackStop(id:record.id,intent:intent)
+        let cold=DictationDraftStore();try cold.restore(disk)
+        XCTAssertEqual(cold.playbackStop(id:record.id)?.id,intent.id)
+        XCTAssertEqual(cold.record(record.id)?.draft,record.draft)
+        cold.reset();XCTAssertNil(cold.playbackStop(id:record.id))
+    }
+    @MainActor func testExplicitStopImmediatelyResetsTimingAndNeverEnds() async throws {
+        let f = PlaybackFixture()
+        await f.controller.loadTiming(); await f.controller.play()
+        f.mediaPosition = 1.25
+        let oldCompletion = f.completion
+        let stopped = f.controller.stop()
+        XCTAssertFalse(f.controller.playing)
+        XCTAssertEqual(f.controller.timing.elapsed, 0)
+        await stopped.value
+        oldCompletion?(true)
+        for _ in 0..<30 { await Task.yield() }
+        XCTAssertEqual(f.actions.last?.action, "stop")
+        XCTAssertFalse(f.actions.contains { $0.action == "ended" })
+        XCTAssertNil(f.record.playback?.active)
+    }
     @MainActor func testRealCachedDurationsEndPersistsAndFinalStartsFresh() async throws {
         let f = PlaybackFixture()
         await f.controller.loadTiming()

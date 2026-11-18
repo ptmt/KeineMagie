@@ -5,6 +5,7 @@ import XCTest
 /// Actual Go handlers over the repository's synthetic stdio bridge. No provider.
 private actor DictationGoBridge {
     nonisolated let token: String
+    nonisolated let owner: String
     private let process: Process
     private let input: FileHandle
     private let output: FileHandle
@@ -26,7 +27,8 @@ private actor DictationGoBridge {
         let line=try Self.line(stdout.fileHandleForReading)
         let prefix=Data("PLAYBACK_BOOT ".utf8)
         guard line.starts(with:prefix),let object=try JSONSerialization.jsonObject(with:line.dropFirst(prefix.count)) as? [String:Any],let token=object["token"] as? String else {p.terminate();throw APIError.invalidResponse}
-        self.token=token;process=p;input=stdin.fileHandleForWriting;output=stdout.fileHandleForReading
+        guard let owner=object["owner"] as? String else {p.terminate();throw APIError.invalidResponse}
+        self.owner=owner;self.token=token;process=p;input=stdin.fileHandleForWriting;output=stdout.fileHandleForReading
     }
     func request(_ request:URLRequest) throws -> AuthResponse {
         let payload:[String:Any]=["method":request.httpMethod ?? "GET","path":request.url!.path,"body":String(data:request.httpBody ?? Data(),encoding:.utf8)!,"headers":request.allHTTPHeaderFields ?? [:]]
@@ -38,6 +40,38 @@ private actor DictationGoBridge {
     func close() {try? input.close();process.waitUntilExit()}
 }
 final class DictationGoBridgeTests:XCTestCase {
+    @MainActor func testActualGoStopRestartZeroAndFourStartCap() async throws {
+        guard let executable=ProcessInfo.processInfo.environment["DICTATION_NATIVE_BRIDGE_EXECUTABLE"] else {throw XCTSkip("Run native/ci/verify_dictation_policy_bridge.py")}
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("native-stop-"+UUID().uuidString)
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        defer {try? FileManager.default.removeItem(at:root)}
+        let bridge=try DictationGoBridge(executable:executable,root:root)
+        let api=PodcastAPI(endpoint:try ServerEndpoint("https://dictation.test"),token:bridge.token,transport:{try await bridge.request($0)})
+        let store=DictationDraftStore()
+        try store.editAdd(title:"Stop fixture",original:"Hallo. Guten Morgen.")
+        var record=try await api.dictation(method:"POST",body:store.pendingCreate())
+        _ = try await api.dictationAudio(id:record.id,index:0,prepare:true)
+        record=try await api.dictation(id:record.id)
+        let id=record.id
+        do { _ = try await api.dictationPlayback(id:id,command:DictationPlaybackRequest(id:"wrong-owner",client:"native",action:"stop",step:0,fence:0),owner:"not-the-owner");XCTFail("owner mismatch accepted") }
+        catch APIError.http(403) {}
+        var offsets:[Double]=[]; var position=0.0;var sounded=false;var errors:[Error]=[]
+        let controller=DictationPlaybackController(read:{record},refresh:{try await api.dictation(id:id)},send:{try await api.dictationPlayback(id:id,command:$0,owner:bridge.owner)},audio:{try await api.dictationAudio(id:id,index:$0,prepare:false)},publish:{record.playback=$0},play:{_,offset,_ in offsets.append(offset);sounded=true},stop:{sounded=false;return position},authorized:{true},failed:{errors.append($0)},position:{position},duration:{_ in 8})
+        for expected in 1...4 {
+            await controller.play()
+            XCTAssertTrue(sounded);XCTAssertEqual(record.playback?.wholeStarts,expected)
+            position=2.5
+            let stop=controller.stop()
+            XCTAssertFalse(sounded);XCTAssertEqual(controller.timing.elapsed,0)
+            await stop.value
+            XCTAssertNil(record.playback?.active)
+            XCTAssertEqual(record.playback?.wholeStarts,expected)
+        }
+        XCTAssertTrue(errors.isEmpty)
+        await controller.play();XCTAssertEqual(offsets,[0,0,0,0]);XCTAssertFalse(sounded)
+        XCTAssertEqual(record.playback?.wholeStarts,4)
+        await bridge.close()
+    }
     @MainActor func testActualGoNativeRoundTripAdmissionRecoveryAndRevocation() async throws {
         guard let executable=ProcessInfo.processInfo.environment["DICTATION_NATIVE_BRIDGE_EXECUTABLE"] else {throw XCTSkip("Run native/ci/verify_dictation_policy_bridge.py; synthetic Go bridge only")}
         let root=FileManager.default.temporaryDirectory.appendingPathComponent("native-dictation-"+UUID().uuidString)

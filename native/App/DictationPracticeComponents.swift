@@ -20,6 +20,7 @@ struct DictationAudioToolbar: View {
     let inline: Bool
     let open: () -> Void
     @State private var expanded = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
         // Simulator-only clock probe reads the real coordinator, never visible UI.
         // Device builds retain no fixture telemetry or artificial timer labels.
@@ -39,15 +40,22 @@ struct DictationAudioToolbar: View {
         HStack(spacing:0) {
             Button(action:open) {
                 HStack(spacing:10) {
-                    Image(systemName:"headphones")
+                    Image(systemName:session.player.playing ? "waveform" : "headphones")
+                        .symbolEffect(.variableColor.iterative, options:.repeating,
+                                      isActive:session.player.playing && !reduceMotion)
                         .font(.subheadline).foregroundStyle(.secondary)
                         .frame(width:24).accessibilityHidden(true)
                     Text(session.record?.title ?? "")
                         .font(.subheadline.weight(.semibold)).lineLimit(1)
                         .accessibilityIdentifier("dictation-player-title")
                         .frame(maxWidth:.infinity,alignment:.leading)
+                    Text(AppL10n.text(session.status))
+                        .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                        .accessibilityIdentifier("dictation-player-state")
                 }.frame(height:44).contentShape(Rectangle())
             }
+            .accessibilityLabel(session.record?.title ?? "")
+            .accessibilityValue(AppL10n.text(session.status))
             .accessibilityIdentifier("dictation-player-open")
             .contextMenu {
                 speedPicker
@@ -55,13 +63,15 @@ struct DictationAudioToolbar: View {
                     .accessibilityIdentifier("dictation-player-details")
             }
             Button {
-                if session.preparing { session.interrupt() } else { session.activate() }
+                if session.preparing { session.interrupt() }
+                else if session.canStop { session.stop() }
+                else { session.activate() }
             } label: {
-                Image(systemName:session.preparing ? "xmark" : session.ticking ? "waveform" : session.controller?.busy == true ? "ellipsis" : "play.fill")
+                Image(systemName:session.preparing ? "xmark" : session.canStop ? "stop.fill" : "play.fill")
                     .font(.body).foregroundStyle(.secondary)
                     .frame(width:44,height:44).contentShape(Rectangle())
-            }.disabled(!session.preparing && session.disabled)
-                .accessibilityLabel(Text(session.preparing ? "Cancel preparation" : AppL10n.text(session.label)))
+            }.disabled(!session.preparing && !session.canStop && session.disabled)
+                .accessibilityLabel(Text(session.preparing ? "Cancel preparation" : AppL10n.text(session.canStop ? "dictation.player.stop" : session.label)))
                 .accessibilityIdentifier(session.preparing ? "dictation-cancel-preparation" : "dictation-play")
         }.frame(height:44).buttonStyle(.plain).foregroundStyle(.primary)
             .padding(.horizontal,12)

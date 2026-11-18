@@ -10,7 +10,15 @@ import (
 
 // Policy 1 is opt-in and immutable. Offsets are recovery hints supplied by the
 // client, never evidence that audio was heard. This is admission, not DRM.
+// Stop receipts are separate from listens: an explicit stop is not an ending.
+type dictationStop struct {
+	Admission string `json:"admission,omitempty"`
+	ID        string `json:"id"`
+	Client    string `json:"client"`
+	Fence     int    `json:"fence"`
+}
 type dictationPlayback struct {
+	Stops       []dictationStop   `json:"stops,omitempty"`
 	Revision    int               `json:"revision"`
 	WholeStarts int               `json:"whole_starts"`
 	Cursor      int               `json:"cursor"`
@@ -26,6 +34,7 @@ type dictationListen struct {
 	Offset     float64 `json:"offset"`
 	LeaseUntil int64   `json:"lease_until"`
 	Done       bool    `json:"done"`
+	Stopped    bool    `json:"stopped,omitempty"`
 }
 
 func dictationPolicy(raw json.RawMessage) (int, bool) {
@@ -39,24 +48,33 @@ func dictationPolicy(raw json.RawMessage) (int, bool) {
 	return 1, true
 }
 func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Request, owner, id string) {
+	if expected := r.Header.Get("X-Dictation-Owner"); expected != "" && expected != owner {
+		writeError(w, http.StatusForbidden, "owner changed")
+		return
+	}
 	var in struct {
-		ID     string  `json:"id"`
-		Client string  `json:"client"`
-		Action string  `json:"action"`
-		Step   int     `json:"step"`
-		Fence  int     `json:"fence"`
-		Offset float64 `json:"offset"`
+		Admission string  `json:"admission,omitempty"`
+		ID        string  `json:"id"`
+		Client    string  `json:"client"`
+		Action    string  `json:"action"`
+		Step      int     `json:"step"`
+		Fence     int     `json:"fence"`
+		Offset    float64 `json:"offset"`
 	}
 	if !learningDecode(w, r, &in) {
 		return
 	}
-	if !dictationID.MatchString(in.ID) || !dictationID.MatchString(in.Client) || in.Step < 0 || in.Step > 120 || in.Fence < 0 || math.IsNaN(in.Offset) || math.IsInf(in.Offset, 0) || in.Offset < 0 || in.Offset > 7200 {
+	if (in.Admission != "" && (!dictationID.MatchString(in.Admission) || in.Action != "stop")) || !dictationID.MatchString(in.ID) || !dictationID.MatchString(in.Client) || in.Step < 0 || in.Step > 120 || in.Fence < 0 || math.IsNaN(in.Offset) || math.IsInf(in.Offset, 0) || in.Offset < 0 || in.Offset > 7200 {
 		// A legacy attempt still gets a policy conflict rather than an upgrade.
 		writeError(w, 400, "invalid playback stamp")
 		return
 	}
 	var out dictationPlayback
 	err := cfg.dictationWrite(r, owner, func(d *dictationData) error {
+		// Isolated canceled-before-admission fix from dfb3dc729d5f29a6afcb711ae0e6dd2aba9b8578.
+		if err := r.Context().Err(); err != nil {
+			return err
+		}
 		v := dictationFind(d, id)
 		if v == nil {
 			return errDictationMissing
@@ -82,12 +100,40 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 			return nil
 		}
 		switch in.Action {
+		case "stop":
+			for _, receipt := range p.Stops {
+				if receipt.ID == in.ID {
+					if receipt.Client != in.Client || receipt.Fence != in.Fence || receipt.Admission != in.Admission {
+						return errDictationConflict
+					}
+					out = *p
+					return nil
+				}
+			}
+			// Compare the complete ledger, including between-sentence gaps.
+			// Do not take over another client's live lease or refund any start.
+			if (a != nil && in.Admission != "" && a.ID != in.Admission) || in.Step != 0 || in.Fence != p.Revision || v.Checked || len(p.Stops) >= 256 || (a != nil && a.Client != in.Client && a.LeaseUntil > now) {
+				return errDictationConflict
+			}
+			if a != nil {
+				a.Stopped = true // terminal reservation, never a successful ending
+				a.Offset = 0
+				a.LeaseUntil = 0
+			}
+			p.Cursor = 1
+			p.Revision++
+			p.Stops = append(p.Stops, dictationStop{ID: in.ID, Client: in.Client, Fence: in.Fence, Admission: in.Admission})
 		case "start":
+			for _, receipt := range p.Stops {
+				if receipt.Admission == in.ID {
+					return errDictationConflict
+				}
+			}
 			if prior != nil {
 				if prior.Step != in.Step || prior.Client != in.Client {
 					return errDictationConflict
 				}
-				if prior.Done {
+				if prior.Done || prior.Stopped {
 					out = *p
 					return nil
 				}
@@ -170,7 +216,7 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 					p.Listens[i] = *p.Active
 				}
 			}
-			if p.Active.Done {
+			if p.Active.Done || p.Active.Stopped {
 				p.Active = nil
 			}
 		}

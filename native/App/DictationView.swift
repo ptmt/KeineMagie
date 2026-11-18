@@ -29,7 +29,7 @@ struct DictationView: View {
     @State private var task: Task<Void, Never>?
     @State private var saveTask: Task<Void, Never>?
     @State private var epoch = 0
-    @State private var saving = false
+    private var saving: Bool { saveFence.isSaving }
     @State private var saveFence = DictationSaveFence()
     @State private var draftVersion = 0
     @State private var confirmDelete = false
@@ -330,7 +330,7 @@ struct DictationView: View {
             }
         } else {player.stop(resetTiming:event != .ended);record?.transition(event);if let record {do {try model.dictationDrafts.update(record)} catch {self.error=AppL10n.text("Not saved. Retry before leaving.")}};save()}
     }
-    private func clear() { originalVisible=nil;epoch += 1;saveFence.reset();task?.cancel();saveTask?.cancel();path=[];items=[];record=nil;title="";original="";error=nil;busy=false;saving=false;loaded=false;historyConfirmed=false;showAdd=false }
+    private func clear() { originalVisible=nil;epoch += 1;saveFence.reset();task?.cancel();saveTask?.cancel();path=[];items=[];record=nil;title="";original="";error=nil;busy=false;loaded=false;historyConfirmed=false;showAdd=false }
     private func saveAddForm() { do { try model.dictationDrafts.editAdd(title:title,original:original) } catch { self.error=AppL10n.text("Not saved. Retry before leaving.") } }
     private func accept(_ value: DictationRecord) throws { try model.dictationDrafts.accept(value);record = model.dictationDrafts.record(value.id);path=[value.id] }
     private func load() {
@@ -344,16 +344,15 @@ struct DictationView: View {
         guard model.session.canWrite, let api=try? model.podcastAPI() else { completion();return }
         guard let ticket=saveFence.begin() else { return }
         let generation=model.session.generation, version=draftVersion
-        saving=true
         Task { @MainActor in
-            defer { if saveFence.finish(ticket) {saving=false} }
+            defer { saveFence.finish(ticket) }
             do {
                 guard saveFence.isCurrent(ticket),model.session.generation==generation,record?.id==value.id else{return}
                 try await model.dictationDrafts.flushRecoveringDeletion(id:value.id) { id,body in try await api.dictation(id:id,method:"PUT",body:body) }
                 guard let updated=model.dictationDrafts.record(value.id) else { return }
                 guard saveFence.isCurrent(ticket),model.session.generation==generation,record?.id==value.id else{return}
                 record?.revision=updated.revision
-                if version==draftVersion { _=saveFence.finish(ticket);saving=false;completion() }
+                if version==draftVersion { _=saveFence.finish(ticket);completion() }
                 else { Task { @MainActor in await Task.yield();save(completion) } }
             } catch { if saveFence.isCurrent(ticket) && generation==model.session.generation && model.session.canWrite {
                 if case APIError.http(401) = error { model.session.rejectUnauthorized();model.resetSessionContent();clear() }

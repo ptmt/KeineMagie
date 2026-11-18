@@ -220,7 +220,8 @@ actor SimulatorSessionFixture {
             let items: [[String: Any]] = read > 1 ? [record] : []
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["items": items, "tts_available": false, "languages": ["de"]]), status: 200)
         }
-        if mode == "dictation-local", let path = request.url?.path, path.hasPrefix("/v1/learning/dictations"),
+        if mode == "dictation-local", let path = request.url?.path,
+           (path.hasPrefix("/v1/learning/dictations") || path == "/v1/auth/session"),
            let token = ProcessInfo.processInfo.environment["KM_DICTATION_FIXTURE_TOKEN"] {
             var local = request
             local.url = URL(string: "http://localhost:8799" + path)
@@ -230,6 +231,13 @@ actor SimulatorSessionFixture {
             let session = URLSession(configuration: configuration)
             defer { session.invalidateAndCancel() }
             let (data, response) = try await session.data(for: local)
+            // Hold a real admitted response to prove native Stop's late-result fence.
+            if request.httpMethod == "POST", path.hasSuffix("/playback"),
+               ProcessInfo.processInfo.environment["KM_DICTATION_ADMISSION_DELAY"] == "1",
+               let body=request.httpBody,
+               let command=try? JSONDecoder().decode(DictationPlaybackRequest.self,from:body), command.action == "start" {
+                await Task.detached { try? await Task.sleep(for:.seconds(6)) }.value
+            }
             // Explicit simulator-only delayed real-WAV delivery, never device code.
             if request.httpMethod == "GET", path.contains("/audio/"),
                let race = ProcessInfo.processInfo.environment["KM_DICTATION_AUDIO_RACE"] {

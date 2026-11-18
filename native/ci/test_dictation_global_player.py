@@ -5,6 +5,14 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 class GlobalDictationOwnership(unittest.TestCase):
+    def test_explicit_stop_and_actual_audio_indicator(self):
+        accessory = (ROOT / 'App/DictationPracticeComponents.swift').read_text()
+        self.assertIn('session.stop()', accessory)
+        self.assertIn('"stop.fill"', accessory)
+        self.assertIn('accessibilityReduceMotion', accessory)
+        self.assertIn('session.player.playing', accessory)
+        self.assertIn('session.status', accessory)
+
     def test_one_root_owned_transport_and_native_accessory(self):
         tabs = (ROOT / 'App/MainTabsView.swift').read_text()
         view = (ROOT / 'App/DictationView.swift').read_text()
