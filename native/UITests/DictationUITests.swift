@@ -1,7 +1,7 @@
 import XCTest
 final class DictationUITests: XCTestCase {
  @MainActor func testRealLocalWholeAndSentenceAudio() throws {
-  let path="/Users/tinyserve/.hermes/cache/scratch/dictation-final/fixture/fixture.json"
+  let path="/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player/fixture/fixture.json"
   guard let data=FileManager.default.contents(atPath:path),let info=try JSONSerialization.jsonObject(with:data) as? [String:String],let token=info["native"] else { throw XCTSkip("Start explicit local Go fixture first") }
   let app=XCUIApplication();app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="dictation-local";app.launchEnvironment["KM_DICTATION_FIXTURE_TOKEN"]=token
   app.launchArguments=["-AppleLanguages","(en)","-AppleLocale","en_US"]
@@ -35,7 +35,7 @@ final class DictationUITests: XCTestCase {
   XCTAssertTrue(app.staticTexts["dictation-revealed"].waitForExistence(timeout:10));shot(app,"native-check-real-backend")
  }
  @MainActor func testPendingDraftSurvivesImmediateRelaunch() throws {
-  let path="/Users/tinyserve/.hermes/cache/scratch/dictation-final/fixture/fixture.json"
+  let path="/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player/fixture/fixture.json"
   guard let data=FileManager.default.contents(atPath:path),let info=try JSONSerialization.jsonObject(with:data) as? [String:String],let token=info["native"] else { throw XCTSkip("Start local fixture") }
   let app=XCUIApplication();app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="dictation-local";app.launchEnvironment["KM_DICTATION_FIXTURE_TOKEN"]=token
   app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"]=UUID().uuidString
@@ -52,7 +52,7 @@ final class DictationUITests: XCTestCase {
   XCTAssertEqual(restored.value as? String,"Pending last character Z");shot(app,"native-durable-relaunch")
  }
  @MainActor func testAddFormRestoresAcrossRelaunch() throws {
-  let path="/Users/tinyserve/.hermes/cache/scratch/dictation-final/fixture/fixture.json"
+  let path="/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player/fixture/fixture.json"
   guard let data=FileManager.default.contents(atPath:path),let info=try JSONSerialization.jsonObject(with:data) as? [String:String],let token=info["native"] else { throw XCTSkip("Start local fixture") }
   let app=XCUIApplication();app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="dictation-local";app.launchEnvironment["KM_DICTATION_FIXTURE_TOKEN"]=token
   app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"]=UUID().uuidString
@@ -96,7 +96,7 @@ final class DictationUITests: XCTestCase {
   shot(app,"native-logout-real-download")
  }
  @MainActor private func launchDelayedAudio(_ race:String) throws -> XCUIApplication {
-  let data=try Data(contentsOf:URL(fileURLWithPath:"/Users/tinyserve/.hermes/cache/scratch/dictation-final/fixture/fixture.json"))
+  let data=try Data(contentsOf:URL(fileURLWithPath:"/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player/fixture/fixture.json"))
   let info=try XCTUnwrap(JSONSerialization.jsonObject(with:data) as? [String:String])
   let app=XCUIApplication();app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="dictation-local";app.launchEnvironment["KM_DICTATION_FIXTURE_TOKEN"]=info["native"]
   app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"]=UUID().uuidString;app.launchEnvironment["KM_DICTATION_AUDIO_RACE"]=race

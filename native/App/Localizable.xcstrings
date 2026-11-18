@@ -1,6 +1,77 @@
 {
   "sourceLanguage": "de",
   "strings" : {
+  "dictation.elapsed": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Vergangene Zeit"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Elapsed time"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Прошло"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Tiempo transcurrido"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Temps écoulé"
+        }
+      }
+    }
+  },
+  "dictation.remaining": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Verbleibende Zeit"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Remaining time"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Осталось"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Tiempo restante"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Temps restant"
+        }
+      }
+    }
+  },
+
   "dictation.budget.notice": {
     "extractionState": "manual",
     "localizations": {

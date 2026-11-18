@@ -30,7 +30,14 @@ class LocalizationTests(unittest.TestCase):
         keys = set(catalog['strings'])
         for path in (NATIVE / 'App').glob('*.swift'):
             source = path.read_text()
-            literals = re.findall(r'(?:Text|Label|Button|Section|ProgressView|FeatureRow|navigationTitle|accessibilityLabel)\(\s*"([^"\n]*)"', source)
+            # Explicit named-table Text resolves against that table, not Localizable.
+            named = r'Text\("([^"\n]+)",\s*tableName:\s*"([^"\n]+)"\)'
+            for key, table in re.findall(named, source):
+                strings = json.loads((NATIVE / 'App' / (table + '.xcstrings')).read_text())['strings']
+                self.assertIn(key, strings, (path.name, table, key))
+                self.assertEqual(set(strings[key]['localizations']), LOCALES)
+            source = re.sub(named, 'Text(verbatim: "")', source)
+            literals = re.findall(r'(?<![A-Za-z0-9_])(?:Text|Label|Button|Section|ProgressView|FeatureRow|navigationTitle|accessibilityLabel)\(\s*"([^"\n]*)"', source)
             for key in literals:
                 if key.startswith('https://') or key == 'Keine Magie':
                     continue
@@ -63,6 +70,22 @@ class LocalizationTests(unittest.TestCase):
             translations = catalog[key]['localizations']
             self.assertEqual(set(translations), LOCALES, key)
             self.assertEqual(len({v['stringUnit']['value'] for v in translations.values()}), 5, key)
+
+    def test_camera_table_and_permission_have_five_translations(self):
+        catalog = json.loads((NATIVE / 'App/DictationCamera.xcstrings').read_text())['strings']
+        source = (NATIVE / 'App/DictationCamera.swift').read_text()
+        used = set(re.findall(r'(?:cameraText|\.failure)\("(dictation\.camera\.[^"]+)"', source))
+        self.assertTrue(used)
+        self.assertTrue(used <= set(catalog))
+        for key, entry in catalog.items():
+            self.assertEqual(set(entry['localizations']), LOCALES, key)
+            for value in entry['localizations'].values():
+                self.assertTrue(value['stringUnit']['value'].strip())
+        for locale in LOCALES:
+            info = (NATIVE / 'App' / (locale + '.lproj') / 'InfoPlist.strings').read_text()
+            self.assertIn('NSCameraUsageDescription', info)
+        for name in ['Info.plist', 'Info-Debug.plist']:
+            self.assertIn('NSCameraUsageDescription', plistlib.loads((NATIVE / 'Config' / name).read_bytes()))
 
     def test_podcast_dynamic_labels_and_errors_are_localized(self):
         catalog = json.loads((NATIVE / 'App/Localizable.xcstrings').read_text())['strings']

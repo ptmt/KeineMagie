@@ -78,6 +78,11 @@ final class DictationPolicyUITests: XCTestCase {
             XCTAssertFalse(rules.label.contains("dictation.policy"))
             XCTAssertTrue(app.buttons["dictation-audio-info"].exists)
             XCTAssertTrue(app.buttons["dictation-check"].exists)
+            let camera=app.buttons["dictation-camera"]
+            XCTAssertTrue(camera.exists)
+            XCTAssertFalse(camera.label.contains("dictation.camera"))
+            XCTAssertGreaterThanOrEqual(camera.frame.width+0.001,44)
+            XCTAssertGreaterThanOrEqual(camera.frame.height+0.001,44)
             XCTAssertFalse(app.staticTexts["dictation-revealed"].exists)
             capture(app,"\(locale)-Dark-rules-toolbar")
             app.terminate()
@@ -90,6 +95,12 @@ final class DictationPolicyUITests: XCTestCase {
         app.swipeUp()
         draft.tap();draft.typeText("My draft stays here")
         let check=app.buttons["dictation-check"]
+        let camera=app.buttons["dictation-camera"]
+        let navigationBottom=app.navigationBars.firstMatch.frame.maxY
+        XCTAssertGreaterThanOrEqual(check.frame.minY,navigationBottom,"Check must remain fully visible below system navigation")
+        XCTAssertGreaterThanOrEqual(camera.frame.minY,navigationBottom,"Camera must remain fully visible with the editable answer")
+        XCTAssertTrue(check.isHittable)
+        XCTAssertTrue(camera.isHittable)
         XCTAssertGreaterThanOrEqual(check.frame.height,44)
         XCTAssertLessThanOrEqual(check.frame.maxY,draft.frame.minY)
         XCTAssertFalse(app.staticTexts["dictation-revealed"].exists)
@@ -100,9 +111,11 @@ final class DictationPolicyUITests: XCTestCase {
         let font=UIFont.preferredFont(forTextStyle:.body,compatibleWith:UITraitCollection(preferredContentSizeCategory:.accessibilityExtraExtraExtraLarge))
         let textHeight=("My draft stays here" as NSString).boundingRect(with:CGSize(width:draft.frame.width-24,height:1000),options:.usesLineFragmentOrigin,attributes:[.font:font],context:nil).height
         XCTAssertLessThanOrEqual(draft.frame.minY+12+ceil(textHeight),keyboard.frame.minY-8,"The complete typed fixture and caret must remain above the keyboard at maximum Dynamic Type")
+        let footer = app.otherElements["dictation-player"]
+        XCTAssertLessThanOrEqual(draft.frame.minY+12+ceil(textHeight),footer.frame.minY-8,"The footer must not obscure the complete typed fixture or caret")
     }
     @MainActor private func launch(locale:String,theme:String,large:Bool=false) throws -> XCUIApplication {
-        let url=URL(fileURLWithPath:"/Users/tinyserve/.hermes/cache/scratch/dictation-final/fixture/fixture.json")
+        let url=URL(fileURLWithPath:"/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player/fixture/fixture.json")
         guard let data=try? Data(contentsOf:url),let info=try JSONSerialization.jsonObject(with:data) as? [String:String],let token=info["native"] else {throw XCTSkip("Start isolated Go cached-audio fixture; never use production")}
         let app=XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="dictation-local"

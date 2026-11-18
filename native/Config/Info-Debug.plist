@@ -33,6 +33,8 @@
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Verbindet den Debug-Simulator mit deinem lokalen Keine-Magie-Server.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Fotografiere deine geschriebene Diktatantwort, um den Text auf diesem Gerät zu erkennen und vor dem Einfügen zu bearbeiten. Fotos werden nicht gespeichert oder hochgeladen.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations~ipad</key>

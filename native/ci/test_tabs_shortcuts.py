@@ -36,9 +36,8 @@ class TabsAndShortcutsTests(unittest.TestCase):
 
     def test_identity_epoch_resets_tabs_and_account_local_content(self):
         source = (ROOT / 'App/KeineMagieApp.swift').read_text()
-        # Reset the owning stack: resetting only its root tabs leaves pushed
-        # destinations holding private job values after an authenticated 401.
-        stack = source.index('NavigationStack {')
+        # Root identity must enclose every tab-owned stack and all pushed values.
+        stack = source.index('        Group {')
         opening = source.index('{', stack)
         depth = 1
         closing = opening
@@ -49,8 +48,13 @@ class TabsAndShortcutsTests(unittest.TestCase):
         suffix = '\n'.join(line for line in source[closing + 1:].splitlines()
                            if not line.strip().startswith('//')).lstrip()
         self.assertTrue(suffix.startswith('.id(model.session.generation)'),
-                        'The owner epoch must replace the NavigationStack itself')
+                        'The owner epoch must replace the entire group of tab-owned stacks')
         self.assertNotIn('MainTabsView(showSettings: $showSettings).id(', source)
+        tabs = (ROOT / 'App/MainTabsView.swift').read_text()
+        for tab in ['translator', 'podcasts', 'coach']:
+            self.assertIn(f'navigationTab("{tab}")', tabs)
+        self.assertIn('NavigationStack {', tabs)
+        self.assertIn('NavigationStack(path: $path)', (ROOT / 'App/DictationView.swift').read_text())
         self.assertIn('model.resetSessionContent(); model.loadShortcuts()', source)
 
 if __name__ == '__main__':

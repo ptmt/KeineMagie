@@ -19,26 +19,56 @@ struct DictationAudioToolbar: View {
     let identifier: String
     let disabled: Bool
     let preparing: Bool
-    let primary: Bool
     @Binding var rate: Float
+    let timing: () -> DictationTimingSnapshot?
+    let ticking: Bool
     let activate: () -> Void
     let cancel: () -> Void
     @State private var details = false
-    @Environment(\.dynamicTypeSize) private var textSize
     var body: some View {
-        ViewThatFits(in:.horizontal) {
-            HStack(spacing:8) { action; controls }
-            VStack(alignment:.leading,spacing:4) { action; HStack {Spacer();controls} }
+        VStack(spacing: 3) {
+            HStack(spacing: 8) {
+                action
+                Spacer(minLength: 0)
+                controls
+            }
+            TimelineView(.animation(minimumInterval: 0.25, paused: !ticking)) { _ in
+                let snapshot = timing()
+                VStack(spacing: 2) {
+                    ProgressView(value: snapshot?.fraction ?? 0, total: 1)
+                        .progressViewStyle(.linear)
+                        .accessibilityHidden(true)
+                    HStack {
+                        Text(verbatim: clock(snapshot?.elapsed))
+                            .accessibilityLabel(Text("dictation.elapsed"))
+                            .accessibilityValue(clock(snapshot?.elapsed))
+                            .accessibilityIdentifier("dictation-elapsed")
+                        Spacer()
+                        Text(verbatim: snapshot?.remaining.map { "−" + clock($0, remaining: true) } ?? "—")
+                            .accessibilityLabel(Text("dictation.remaining"))
+                            .accessibilityValue(clock(snapshot?.remaining, remaining: true))
+                            .accessibilityIdentifier("dictation-remaining")
+                    }.font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
+                }
+
+            }
         }
+    }
+    private func clock(_ value: Double?, remaining: Bool = false) -> String {
+        guard let value, value.isFinite else { return "—" }
+        let seconds = Int(max(0, value).rounded(remaining ? .up : .down))
+        return String(format: "%d:%02d", seconds / 60, seconds % 60)
     }
     private var action: some View {
         Button(action:activate) {
-            Text(AppL10n.text(label)).fontWeight(primary ? .semibold : .regular)
-                .frame(maxWidth:.infinity,minHeight:44)
-                .padding(.horizontal,8)
-                .foregroundStyle(primary ? Color(uiColor:.systemBackground) : .primary)
-                .background(primary ? Color.primary : .clear,in:RoundedRectangle(cornerRadius:8))
-        }.buttonStyle(.plain).disabled(disabled).accessibilityIdentifier(identifier)
+            HStack(spacing: 8) {
+                if preparing { ProgressView().controlSize(.small) }
+                else { Image(systemName: "play.fill") }
+                Text(AppL10n.text(label)).font(.subheadline.weight(.semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+            }.frame(minHeight:44).contentShape(Rectangle())
+        }.buttonStyle(.plain).disabled(disabled)
+            .accessibilityLabel(Text(AppL10n.text(label))).accessibilityIdentifier(identifier)
     }
     private var controls: some View {
         HStack(spacing:4) {

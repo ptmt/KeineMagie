@@ -17,7 +17,11 @@ class DictationPolicyUI(unittest.TestCase):
   self.assertNotIn('Text("dictation.paid.notice").font(.caption)',source)
   self.assertIn('DictationRules',source)
   self.assertIn('DictationAudioToolbar',source)
-  self.assertIn('HStack { Spacer(); Button("Check")',source)
+  self.assertIn('Button("Check")',source)
+  self.assertIn('.accessibilityIdentifier("dictation-camera")',source)
+  self.assertIn('.id("dictation-draft-header")',source)
+  self.assertIn('.safeAreaInset(edge: .bottom, spacing: 0)',source)
+  self.assertNotIn('Label("History",systemImage:"chevron.left")',source)
  def test_web_rules_and_status_have_five_exact_translations(self):
   catalog=json.loads((ROOT/'App/Localizable.xcstrings').read_text())['strings']
   for key in ['dictation.policy.hint.whole','dictation.policy.hint.sentences','dictation.hint.whole','dictation.hint.sentences','dictation.listens','dictation.resume','dictation.pause','dictation.limit','dictation.budget.notice','Audio details','Show original','More options','Showing the original counts as help for this attempt. Continue?']:

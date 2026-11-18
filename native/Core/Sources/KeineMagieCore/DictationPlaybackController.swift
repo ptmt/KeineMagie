@@ -21,13 +21,68 @@ import Observation
     private let now: () -> Int64
     private let client = UUID().uuidString
     private var epoch = 0
+    // Metadata survives admission, but never an interruption/mode/owner boundary.
+    private var timingEpoch = 0
     private var owned: DictationListen?
     private var ledger: DictationPlayback?
     private var tail: Task<DictationPlayback, Error>?
     private var heartbeat: Task<Void,Never>?
     private var expiry: Task<Void,Never>?
     private var gap: Task<Void,Never>?
+    private var audioCache: [Int: Data] = [:]
+    public private(set) var durations: [Int: Double] = [:]
+    private let measureDuration: (Data) -> Double?
+    private var timingSteps: [Int] = []
+    private var timingTrack = DictationTimingTrack(assets: [])
+    private var timingIndex = 0
+    private var stoppedPosition: Double = 0
+    private var gapBegan: Double?
+    private var frozenGap: Double = 0
+    private var pendingGap = false
+    private let timingNow: () -> Double
+    private let resumePause: @MainActor (Double) async throws -> Void
+    private var timingCompleted = false
     private let position: () -> Double
+
+    public var canContinue: Bool { pendingGap || ledger?.active != nil }
+
+    public var timing: DictationTimingSnapshot {
+        timingTrack.snapshot(durations: durations, index: timingIndex,
+            position: playing ? position() : stoppedPosition,
+            gapElapsed: gapBegan.map { max(0, timingNow() - $0) } ?? frozenGap,
+            completed: timingCompleted)
+    }
+
+    /// GET existing bytes only; no admission or synthesis. Late owners cannot publish.
+    public func loadTiming() async {
+        guard authorized(), let record = read() else { return }
+        let ticket = timingEpoch
+        if !playing && !waiting && !timingCompleted && !pendingGap {
+            configureTiming(record)
+        }
+        let assets = Set(record.timingSteps.map { record.plan[$0].asset })
+        for asset in assets where record.ready.contains(asset) && audioCache[asset] == nil {
+            do {
+                let data = try await audio(asset)
+                guard ticket == timingEpoch, authorized(), !Task.isCancelled else { return }
+                cache(data, asset: asset)
+            } catch {
+                if case APIError.http(401) = error, ownerCurrent() { failed(error) }
+                // Other unavailable bytes leave duration unknown. Play reports errors.
+            }
+        }
+    }
+    private func cache(_ data: Data, asset: Int) {
+        audioCache[asset] = data
+        if let duration = measureDuration(data), duration.isFinite, duration > 0 { durations[asset] = duration }
+    }
+    private func configureTiming(_ record: DictationRecord) {
+        timingSteps = record.timingSteps
+        timingTrack = DictationTimingTrack(assets: timingSteps.map { record.plan[$0].asset })
+        timingIndex = timingSteps.firstIndex(of: record.policyStep) ?? 0
+        stoppedPosition = record.playback?.active?.offset ?? 0
+        gapBegan = nil; frozenGap = 0; pendingGap = false; timingCompleted = false
+    }
 
     public init(read: @escaping () -> DictationRecord?, refresh: @escaping @MainActor () async throws -> DictationRecord,
                 send: @escaping @MainActor (DictationPlaybackRequest) async throws -> DictationPlayback,
@@ -36,12 +91,16 @@ import Observation
                 stop: @escaping () -> Double, authorized: @escaping () -> Bool, failed: @escaping (Error) -> Void,
                 ownerCurrent: (() -> Bool)? = nil,
                 position: @escaping () -> Double = {0},
+                duration: @escaping (Data) -> Double? = {_ in nil},
                 pause: @escaping @MainActor () async throws -> Void = {try await Task.sleep(for:.seconds(3))},
+                timingNow: @escaping () -> Double = {ProcessInfo.processInfo.systemUptime},
+                resumePause: @escaping @MainActor (Double) async throws -> Void = {try await Task.sleep(for: .seconds($0))},
                 now: @escaping () -> Int64 = {Int64(Date().timeIntervalSince1970 * 1000)}) {
         self.read=read;self.refresh=refresh;self.send=send;self.audio=audio;self.publish=publish
         self.startMedia=play;self.stopMedia=stop;self.authorized=authorized;self.failed=failed
         self.ownerCurrent=ownerCurrent ?? authorized
-        self.position=position;self.pause=pause;self.now=now
+        self.position=position;self.measureDuration=duration;self.pause=pause;self.now=now
+        self.timingNow=timingNow;self.resumePause=resumePause
     }
     private func current(_ ticket: Int) -> Bool {ticket == epoch && authorized() && !Task.isCancelled}
     private func clearTimers() {heartbeat?.cancel();expiry?.cancel();gap?.cancel();heartbeat=nil;expiry=nil;gap=nil;waiting=false}
@@ -73,6 +132,12 @@ import Observation
         busy=true;epoch += 1;let ticket=epoch
         defer {if ticket == epoch {busy=false}}
         do {
+            if pendingGap {
+                waiting = true; gapBegan = timingNow() - frozenGap
+                try await resumePause(max(0, 3 - frozenGap))
+                guard current(ticket) else { return }
+                waiting = false; pendingGap = false; gapBegan = nil; frozenGap = 3
+            }
             _ = try? await tail?.value
             guard current(ticket) else {return}
             let fresh=try await refresh()
@@ -91,9 +156,16 @@ import Observation
             try apply(admitted)
             guard let active=admitted.active,active.id == request.id,active.client == client else {throw APIError.invalidResponse}
             owned=active
+            if timingSteps.contains(active.step), !timingCompleted {
+                timingIndex = timingSteps.firstIndex(of: active.step) ?? 0
+                stoppedPosition = active.offset; gapBegan = nil; frozenGap = 0
+            } else { configureTiming(selection) }
             watch(ticket)
-            let data=try await audio(segment.asset)
+            let data: Data
+            if let cached = audioCache[segment.asset] { data = cached }
+            else { data = try await audio(segment.asset) }
             guard current(ticket),owned?.id == active.id,active.leaseUntil > now() else {return}
+            cache(data, asset: segment.asset)
             try startMedia(data,active.offset) { [weak self] success in
                 guard let self,self.current(ticket),self.playing else {return}
                 self.playing=false
@@ -128,7 +200,14 @@ import Observation
     }
     /// Call synchronously on background/OS interruption, then await best-effort release.
     public func suspend() -> Task<Void,Never> {
-        epoch += 1;clearTimers();busy=false;playing=false
+        if playing { stoppedPosition = position() }
+        // Freeze the gap clock. Continue waits only its remaining real seconds
+        // before admitting the next sentence; background time never advances it.
+        if let began = gapBegan {
+            frozenGap = min(3, max(0, timingNow() - began)); pendingGap = true
+        }
+        gapBegan = nil
+        epoch += 1;timingEpoch += 1;clearTimers();busy=false;playing=false
         let offset=stopMedia(),active=owned;owned=nil
         return Task { @MainActor [self] in
             guard let active,authorized() else {return}
@@ -140,6 +219,7 @@ import Observation
     /// Explicit mode change / Check cancels the reservation without refunding starts.
     public func cancel() async throws {
         await interrupt()
+        timingCompleted=false; pendingGap=false; frozenGap=0; timingSteps=[]; timingTrack=DictationTimingTrack(assets: [])
         guard authorized() else {throw CancellationError()}
         let fresh:DictationRecord
         do {fresh=try await refresh()}
@@ -153,18 +233,23 @@ import Observation
     private func completed(_ success:Bool,ticket:Int) async {
         guard current(ticket),let active=owned else {return}
         if !success {await interrupt();failed(APIError.invalidResponse);return}
+        if timingTrack.assets.indices.contains(timingIndex) {
+            stoppedPosition = durations[timingTrack.assets[timingIndex]] ?? position()
+        }
         clearTimers();busy=true
         do {
             _ = try await command("ended",stamp:active,offset:position())
             guard current(ticket) else {return}
             owned=nil;busy=false
-            guard active.step > 0,let record=read(),let value=ledger,value.cursor < record.plan.count-1 else {return}
-            waiting=true
+            guard active.step > 0,let record=read(),let value=ledger,value.cursor < record.plan.count-1 else {
+                timingCompleted = true; return
+            }
+            waiting=true;frozenGap=0;gapBegan=timingNow()
             gap=Task { @MainActor [weak self] in
                 guard let self else {return}
                 do {try await self.pause()} catch {return}
                 guard self.current(ticket) else {return}
-                self.waiting=false;await self.play()
+                self.waiting=false;self.gapBegan=nil;self.frozenGap=3;await self.play()
             }
         } catch {if current(ticket) {await interrupt();failed(error)}}
     }

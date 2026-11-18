@@ -16,27 +16,25 @@ struct RootView: View {
     @State private var started = false
     @State private var enteredBackground = false
     var body: some View {
-        NavigationStack {
-            Group {
-                if model.session.phase == .signedIn {
-                    MainTabsView(showSettings: $showSettings)
-                } else {
+        Group {
+            if model.session.phase == .signedIn {
+                MainTabsView(showSettings: $showSettings)
+            } else {
+                NavigationStack {
                     LoginGate()
-                }
-            }
-            .navigationTitle(model.session.phase == .signedIn ? "" : ProductIdentity.displayName)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                if model.session.phase != .signedIn {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Einstellungen", systemImage: "gearshape") { showSettings = true }
-                            .disabled(model.session.phase == .loggingOut)
-                    }
+                        .navigationTitle(ProductIdentity.displayName)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Einstellungen", systemImage: "gearshape") { showSettings = true }
+                                    .disabled(model.session.phase == .loggingOut)
+                            }
+                        }
                 }
             }
         }
         // Destination closures retain original job values independently of AppModel.
-        // Replace the owning stack at the identity boundary, not only its root tab.
+        // Replace ALL tab-owned navigation stacks at the identity boundary.
         .id(model.session.generation)
         #if targetEnvironment(simulator)
         .preferredColorScheme(SimulatorAppearance.colorScheme)

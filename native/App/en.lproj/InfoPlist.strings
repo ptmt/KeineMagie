@@ -1,1 +1,2 @@
 "NSLocalNetworkUsageDescription" = "Connects the Debug simulator to your local Keine Magie server.";
+"NSCameraUsageDescription" = "Photograph your written dictation answer to recognize text on this device and edit it before inserting. Photos are not saved or uploaded.";

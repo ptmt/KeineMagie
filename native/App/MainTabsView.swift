@@ -13,20 +13,20 @@ struct MainTabsView: View {
     @State private var showDictationAdd = false
     var body: some View {
         TabView(selection: $selected) {
-            TranslatorView(showPending: $showPending)
+            navigationTab("translator") { TranslatorView(showPending: $showPending) }
                 .tabItem { Label("feature.translator", systemImage: "character.bubble") }.tag("translator")
-            DictationView(showAdd: $showDictationAdd)
+            DictationView(showAdd: $showDictationAdd, showSettings: $showSettings, isSelected: selected == "dictation" && !showSettings)
                 .tabItem { Label("feature.dictation", systemImage: "waveform") }.tag("dictation")
-            PodcastLibraryView(showAdd: $showPodcastAdd)
+            navigationTab("podcasts") { PodcastLibraryView(showAdd: $showPodcastAdd) }
                 .tabItem { Label("feature.podcasts", systemImage: "headphones") }.tag("podcasts")
-            CoachView(isSelected: selected == "coach" && !showCoachProfile && !showSettings)
+            navigationTab("coach") { CoachView(isSelected: selected == "coach" && !showCoachProfile && !showSettings)
                 .transformEnvironment(\.coachReduceMotionOverride) { value in
                     #if targetEnvironment(simulator)
                     if ProcessInfo.processInfo.environment["KM_SIMULATOR_SESSION_FIXTURE"]?.hasPrefix("coach") == true,
                        ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_REDUCE_MOTION"] == "1" { value = true }
                     #endif
                 }
-                .tabItem { Label("feature.coach", systemImage: "bubble.left.and.bubble.right") }.tag("coach")
+            }.tabItem { Label("feature.coach", systemImage: "bubble.left.and.bubble.right") }.tag("coach")
         }
         .task(id: "\(model.session.generation)-\(model.session.canWrite)") { await model.warmData() }
         .task(id: "outbox-\(model.session.generation)-\(model.session.canWrite)-\(scenePhase)") {
@@ -45,14 +45,19 @@ struct MainTabsView: View {
                 if model.podcasts.jobs.contains(where: \.active) { await model.refreshPodcasts() }
             }
         }
-        // Let the system adapt the sole inline title when Dynamic Type leaves
-        // insufficient centered space beside the two independent controls.
-        .navigationTitle(LocalizedStringKey("feature." + selected))
-        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showCoachProfile) { LearningProfileView() }
         .sheet(isPresented: $showPending) { PendingTranslationsView() }
-        .toolbar {
-            if selected == "translator" {
+    }
+    private func navigationTab<Content: View>(_ tab: String, @ViewBuilder content: () -> Content) -> some View {
+        NavigationStack {
+            content()
+                .navigationTitle(LocalizedStringKey("feature." + tab))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar { tabToolbar(tab) }
+        }
+    }
+    @ToolbarContentBuilder private func tabToolbar(_ tab: String) -> some ToolbarContent {
+            if tab == "translator" {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 0) {
                         TranslatorDirectionMenu(direction: model.direction) { model.direction = $0 }
@@ -79,34 +84,26 @@ struct MainTabsView: View {
                     }
                 }
             }
-            if selected != "translator" {
+            if tab != "translator" && tab != "dictation" {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Einstellungen", systemImage: "gearshape") { showSettings = true }
                         .accessibilityIdentifier("main-settings")
                         .disabled(model.session.phase == .loggingOut)
                 }
             }
-            if selected == "dictation" {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Add text", systemImage: "plus") { showDictationAdd = true }
-                        .accessibilityIdentifier("dictation-add")
-                        .disabled(!model.session.canWrite)
-                }
-            }
-            if selected == "coach" {
+            if tab == "coach" {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("coach.skills", systemImage: "graduationcap") { showCoachProfile = true }
                         .accessibilityIdentifier("coach-profile")
                 }
             }
-            if selected == "podcasts" {
+            if tab == "podcasts" {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("podcast.add", systemImage: "plus") { showPodcastAdd = true }
                         .accessibilityIdentifier("podcast-add")
                         .disabled(!model.session.canWrite)
                 }
             }
-        }
     }
 }
 

@@ -1,0 +1,277 @@
+{
+  "normal-final-fresh": {
+    "result": "Passed",
+    "passed": 38,
+    "failed": 0,
+    "skipped": 0,
+    "devices": [
+      {
+        "architecture": "arm64",
+        "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName": "KeineMagie Dictation final isolated",
+        "modelName": "iPhone 17",
+        "osBuildNumber": "24B8117",
+        "osVersion": "27.2",
+        "platform": "iOS Simulator"
+      }
+    ],
+    "tests": [
+      {
+        "id": "CoachDailyCandidateUITests/testCheckingIntervalsNormalAndReducedMotion()",
+        "result": "Passed"
+      },
+      {
+        "id": "CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard()",
+        "result": "Passed"
+      },
+      {
+        "id": "CoachDailyCandidateUITests/testDictationPullRefreshChangesActualHistoryWithoutAudio()",
+        "result": "Passed"
+      },
+      {
+        "id": "CoachDailyCandidateUITests/testEmptyDictationHasPrimaryCreateAndNoRefresh()",
+        "result": "Passed"
+      },
+      {
+        "id": "CoachDailyCandidateUITests/testManualOlderReadingSurvivesEntryReadback()",
+        "result": "Passed"
+      },
+      {
+        "id": "CoachUITests/testBackgroundReturnConsultsServerAdmissionAndKeepsDraft()",
+        "result": "Passed"
+      },
+      {
+        "id": "CoachUITests/testFiveLocaleCompactFeedback()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationCameraUITests/testPhotographPreviewExplicitAppendCancelAndUnavailableCamera()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPlayerUITests/testActiveWAVStopsOffTabAndContinuesWithoutAnotherStart()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPlayerUITests/testDecodedWAVClockSequenceAndExplicitFinal()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPlayerUITests/testNativeBackSwipeDraftAndTabIsolation()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPlayerUITests/testOwnerLogoutRemovesAttemptStackAndPlayer()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPolicyUITests/testContinuousSentencesStopBeforeExplicitFinalReading()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPolicyUITests/testFocusedRussianLightAndDarkPolicyStates()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPolicyUITests/testLargeTypeKeyboardAndCheckGeometry()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationUITests/testAddFormRestoresAcrossRelaunch()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationUITests/testInterruptedRealDownloadCannotStartLatePlayback()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationUITests/testLogoutDuringRealDownloadRejectsLateAudio()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationUITests/testPendingDraftSurvivesImmediateRelaunch()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationUITests/testRealLocalWholeAndSentenceAudio()",
+        "result": "Passed"
+      },
+      {
+        "id": "PassageGroupsUITests/testBridgeSplitSearchRelaunchOwnerAndNavigation()",
+        "result": "Passed"
+      },
+      {
+        "id": "PassageGroupsUITests/testFailedWriteRetainsStateAndRevocationPurges()",
+        "result": "Passed"
+      },
+      {
+        "id": "PassageGroupsUITests/testFiveLocaleXXXLContextMenu()",
+        "result": "Passed"
+      },
+      {
+        "id": "PassageGroupsUITests/testNativeSwipeUsesProductionHTTP()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationCopyUITests/testClearDuringPendingTranslationKeepsAcceptedSnapshotAndKeyboard()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationCopyUITests/testOneTapCopiesExactCompletedTranslationInAllLocales()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationProfileSyncUITests/testFiveLocaleLargeEditorAndAccessibleTranslator()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationProfileSyncUITests/testMigrationConflictOfflineRelaunchAndRemoteDeletion()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationProfileSyncUITests/testRevokedOwnerPurgesJournalAndColdOfflineContent()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationResultControlsUITests/testClarifyIsInsideResultFooterAndClearKeepsOutput()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationResultControlsUITests/testHistoryActionsTrailingAllLocales()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationResultControlsUITests/testHistoryCopiesExactUnicodeAndOpensEachRecordWithoutChangingDraft()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationResultControlsUITests/testHistoryDarkLargeText()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationResultControlsUITests/testResultFooterAllLocalesIncludingLargeType()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationResultControlsUITests/testStylesInsideSourceFooter()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslatorInitialGeometryUITests/testProviderSettlementFiveLocalesAndKeyboardNavigation()",
+        "result": "Passed"
+      }
+    ],
+    "runtimeWarningMessages": [
+      "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread."
+    ]
+  },
+  "small-final": {
+    "result": "Passed",
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "devices": [
+      {
+        "architecture": "arm64",
+        "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+        "deviceName": "KeineMagie profiles integrated isolated",
+        "modelName": "iPhone SE (3rd generation)",
+        "osBuildNumber": "24B8117",
+        "osVersion": "27.2",
+        "platform": "iOS Simulator"
+      }
+    ],
+    "tests": [
+      {
+        "id": "DictationCameraUITests/testPhotographPreviewExplicitAppendCancelAndUnavailableCamera()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPlayerUITests/testActiveWAVStopsOffTabAndContinuesWithoutAnotherStart()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPlayerUITests/testDecodedWAVClockSequenceAndExplicitFinal()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPlayerUITests/testNativeBackSwipeDraftAndTabIsolation()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPlayerUITests/testOwnerLogoutRemovesAttemptStackAndPlayer()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPolicyUITests/testFiveLocaleRulesAndQuietAudioDetails()",
+        "result": "Passed"
+      },
+      {
+        "id": "DictationPolicyUITests/testLargeTypeKeyboardAndCheckGeometry()",
+        "result": "Passed"
+      },
+      {
+        "id": "TranslationProfileSyncUITests/testMigrationConflictOfflineRelaunchAndRemoteDeletion()",
+        "result": "Passed"
+      }
+    ],
+    "runtimeWarningMessages": [
+      "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread."
+    ]
+  },
+  "core": {
+    "xctestExecuted": 87,
+    "xctestSkipped": 2,
+    "xctestFailures": 0,
+    "swiftTestingPassed": 82,
+    "bridgeChecks": "Both fixture-gated paths passed separately: dictation Go bridge and podcast wire verifier"
+  },
+  "nativeCI": {
+    "unittestPassed": 59,
+    "appModelSwiftTestingPassed": 113
+  },
+  "visionHarness": {
+    "realVisionGroupsPassed": 6,
+    "physicalCameraVerified": false
+  },
+  "fixtureWAVSHA256": "de0d54b330ecfd9cdea259dcc230ee14862ed31eafcffbb8c0d68f3d77b2e0d1",
+  "simulatorAppBinarySHA256": "e2908af0b7b7e1d5bdb220d359d8019f3ea78ffc056f75c18566c13a3572f3f3",
+  "screenshots": [
+    {
+      "file": "docs/screenshots/dictation-native-camera-player/normal-ax-keyboard.png",
+      "sha256": "1d3457b2294b1e32f41d74493a97a336d032e3886e388b669af1cd8909e8dbeb"
+    },
+    {
+      "file": "docs/screenshots/dictation-native-camera-player/normal-dark-ready.png",
+      "sha256": "e68103b6d6d82d568b297bdac044154ff694c105a898d0b1d57376531f578834"
+    },
+    {
+      "file": "docs/screenshots/dictation-native-camera-player/normal-light-ready.png",
+      "sha256": "b9c4b605cf945de076c05a09409d44775ce62b9d9b02db56ea5eed1ea1ffd325"
+    },
+    {
+      "file": "docs/screenshots/dictation-native-camera-player/normal-playing.png",
+      "sha256": "086773ca78a9fe0ade217b9535e43d351c29dc34928c6ec5f106156cbf142d96"
+    },
+    {
+      "file": "docs/screenshots/dictation-native-camera-player/small-ax-keyboard.png",
+      "sha256": "1a5e13981a500034447f1ceae9648fff8b1ed2f57b54518cd35355e5058d847d"
+    },
+    {
+      "file": "docs/screenshots/dictation-native-camera-player/small-camera-preview.png",
+      "sha256": "a3190115903cdcf4743a24f0ce785ff8f944286b137ead1bbad897f8ae5fef8f"
+    },
+    {
+      "file": "docs/screenshots/dictation-native-camera-player/small-keyboard.png",
+      "sha256": "3a8bf2ac3693d60243e26cc3d1cd92157b4a1b649455e96292847415b4923984"
+    }
+  ]
+}
