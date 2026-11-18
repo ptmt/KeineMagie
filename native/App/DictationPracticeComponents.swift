@@ -20,53 +20,65 @@ struct DictationAudioToolbar: View {
     let inline: Bool
     let open: () -> Void
     var body: some View {
-        HStack(spacing: 4) {
-            TimelineView(.animation(minimumInterval:0.25, paused:!session.ticking)) { _ in
-                let snapshot = session.timing
+        // The system glass host is 48pt tall. Keep the visible rows inside 44pt;
+        // growing a VStack can overflow its AX frame while the host clips the track.
+        ZStack(alignment:.bottom) {
+            HStack(spacing:4) {
+                Button { session.activate() } label: {
+                    Group {
+                        if session.preparing || session.controller?.busy == true { ProgressView().controlSize(.small) }
+                        else { Image(systemName:session.ticking ? "waveform" : "play.fill").font(.title3) }
+                    }.frame(width:44,height:inline ? 44 : 24)
+                        .frame(width:44,height:44,alignment:.top).contentShape(Rectangle())
+                }.disabled(session.disabled)
+                    .accessibilityLabel(Text(AppL10n.text(session.label)))
+                    .accessibilityIdentifier(session.preparing ? "dictation-prepare" : "dictation-play")
                 Button(action:open) {
-                    VStack(alignment:.leading, spacing:2) {
-                        Text(session.record?.title ?? "").font(.subheadline.weight(.semibold)).lineLimit(1)
-                        if !inline {
-                            HStack {
-                                Text(verbatim:clock(snapshot?.elapsed))
-                                    .accessibilityLabel(Text("dictation.elapsed"))
-                                    .accessibilityValue(clock(snapshot?.elapsed))
-                                    .accessibilityIdentifier("dictation-elapsed")
-                                Spacer(minLength:4)
-                                Text(verbatim:snapshot?.remaining.map { "−" + clock($0, remaining:true) } ?? "—")
-                                    .accessibilityLabel(Text("dictation.remaining"))
-                                    .accessibilityValue(clock(snapshot?.remaining,remaining:true))
-                                    .accessibilityIdentifier("dictation-remaining")
-                            }.font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
-                            ProgressView(value:snapshot?.fraction ?? 0,total:1)
-                                .progressViewStyle(.linear).tint(.primary).accessibilityHidden(true)
+                    Text(session.record?.title ?? "")
+                        .font(.subheadline.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.75)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth:.infinity).frame(height:inline ? 44 : 24)
+                        .frame(height:44,alignment:.top).contentShape(Rectangle())
+                }.accessibilityIdentifier("dictation-player-open")
+                // Equal 44pt side lanes center the title on the bar itself.
+                if session.preparing {
+                    Button { session.interrupt() } label: { Image(systemName:"xmark").frame(width:44,height:inline ? 44 : 24).frame(height:44,alignment:.top).contentShape(Rectangle()) }
+                        .accessibilityLabel("Cancel preparation").accessibilityIdentifier("dictation-cancel-preparation")
+                } else if !inline {
+                    Menu {
+                        Picker("Speed",selection:Binding(get:{session.player.rate},set:{session.player.rate=$0})) {
+                            Text(verbatim:"0.75×").tag(Float(0.75))
+                            Text(verbatim:"1×").tag(Float(1))
+                            Text(verbatim:"1.25×").tag(Float(1.25))
                         }
-                    }.frame(maxWidth:.infinity, minHeight:44, alignment:.leading).contentShape(Rectangle())
-                }.buttonStyle(.plain).accessibilityIdentifier("dictation-player-open")
+                    } label: { Text(verbatim:session.player.rate == 1 ? "1×" : session.player.rate == 0.75 ? "0.75×" : "1.25×").font(.caption).frame(width:44,height:24).frame(height:44,alignment:.top).contentShape(Rectangle()) }
+                        .accessibilityLabel("Speed").accessibilityIdentifier("dictation-speed")
+                } else {
+                    Color.clear.frame(width:44,height:44).accessibilityHidden(true)
+                }
             }
-            Button { session.activate() } label: {
-                Group {
-                    if session.preparing || session.controller?.busy == true { ProgressView().controlSize(.small) }
-                    else { Image(systemName:session.ticking ? "waveform" : "play.fill").font(.title3) }
-                }.frame(width:44,height:44).contentShape(Rectangle())
-            }.buttonStyle(.plain).disabled(session.disabled)
-                .accessibilityLabel(Text(AppL10n.text(session.label)))
-                .accessibilityIdentifier(session.preparing ? "dictation-prepare" : "dictation-play")
-            if session.preparing {
-                Button { session.interrupt() } label: { Image(systemName:"xmark").frame(width:44,height:44) }
-                    .accessibilityLabel("Cancel preparation").accessibilityIdentifier("dictation-cancel-preparation")
-            } else if !inline {
-                Menu {
-                    Picker("Speed",selection:Binding(get:{session.player.rate},set:{session.player.rate=$0})) {
-                        Text(verbatim:"0.75×").tag(Float(0.75))
-                        Text(verbatim:"1×").tag(Float(1))
-                        Text(verbatim:"1.25×").tag(Float(1.25))
-                    }
-                } label: { Text(verbatim:session.player.rate == 1 ? "1×" : session.player.rate == 0.75 ? "0.75×" : "1.25×").font(.caption).frame(width:44,height:44) }
-                    .accessibilityLabel("Speed").accessibilityIdentifier("dictation-speed")
-                DictationAudioInformation()
+            if !inline {
+                TimelineView(.animation(minimumInterval:0.25, paused:!session.ticking)) { _ in
+                    let snapshot = session.timing
+                    VStack(spacing:2) {
+                        HStack {
+                            Text(verbatim:clock(snapshot?.elapsed))
+                                .accessibilityLabel(Text("dictation.elapsed"))
+                                .accessibilityValue(clock(snapshot?.elapsed))
+                                .accessibilityIdentifier("dictation-elapsed")
+                            Spacer(minLength:4)
+                            Text(verbatim:snapshot?.remaining.map { "−" + clock($0, remaining:true) } ?? "—")
+                                .accessibilityLabel(Text("dictation.remaining"))
+                                .accessibilityValue(clock(snapshot?.remaining,remaining:true))
+                                .accessibilityIdentifier("dictation-remaining")
+                        }.font(.caption2.monospacedDigit()).dynamicTypeSize(...DynamicTypeSize.large).foregroundStyle(.secondary)
+                        ProgressView(value:snapshot?.fraction ?? 0,total:1)
+                            .progressViewStyle(.linear).tint(.primary).accessibilityHidden(true)
+                    }.frame(maxWidth:.infinity)
+                        .accessibilityElement(children:.contain).accessibilityIdentifier("dictation-timeline")
+                }.allowsHitTesting(false)
             }
-        }.buttonStyle(.plain).foregroundStyle(.primary)
+        }.frame(height:44).buttonStyle(.plain).foregroundStyle(.primary)
             .padding(.horizontal,12)
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .accessibilityElement(children:.contain).accessibilityIdentifier("dictation-player")

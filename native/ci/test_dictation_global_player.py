@@ -21,6 +21,20 @@ class GlobalDictationOwnership(unittest.TestCase):
         self.assertNotIn('.ultraThinMaterial', accessory)
         self.assertNotIn('Slider(', accessory)
 
+    def test_compact_full_width_timeline_and_no_mini_player_info(self):
+        accessory = (ROOT / 'App/DictationPracticeComponents.swift').read_text()
+        toolbar = accessory.split('struct DictationAudioToolbar:', 1)[1].split('struct DictationAudioInformation:', 1)[0]
+        timeline = toolbar.split('TimelineView(', 1)[1]
+        self.assertNotIn('DictationAudioInformation()', toolbar)
+        self.assertIn('ZStack(alignment:.bottom)', toolbar)
+        self.assertIn('.multilineTextAlignment(.center)', toolbar)
+        self.assertIn('}.frame(height:44).buttonStyle(.plain)', toolbar)
+        self.assertIn('ProgressView(value:snapshot?.fraction', timeline)
+        self.assertIn('}.frame(maxWidth:.infinity)', timeline)
+        self.assertNotIn('.frame(width:', timeline)
+        self.assertIn('.allowsHitTesting(false)', timeline)
+        self.assertIn('DictationAudioInformation()', (ROOT / 'App/DictationView.swift').read_text())
+
     def test_tab_navigation_never_interrupts_or_prepares(self):
         view = (ROOT / 'App/DictationView.swift').read_text()
         selected = view.split('.onChange(of: isSelected)', 1)[1].split('.task(', 1)[0]

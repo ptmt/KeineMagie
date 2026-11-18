@@ -76,9 +76,10 @@ final class DictationPolicyUITests: XCTestCase {
             let rules=app.staticTexts["dictation-rules"]
             XCTAssertTrue(rules.waitForExistence(timeout:10))
             XCTAssertFalse(rules.label.contains("dictation.policy"))
+            XCTAssertTrue(app.buttons["dictation-audio-info"].exists, "Details remain at the existing preparation entry")
             app.buttons["dictation-prepare"].tap()
             waitEnabled(app.buttons["dictation-play"])
-            XCTAssertTrue(app.buttons["dictation-audio-info"].exists)
+            XCTAssertFalse(app.otherElements["dictation-player"].buttons["dictation-audio-info"].exists)
             XCTAssertTrue(app.buttons["dictation-check"].exists)
             let camera=app.buttons["dictation-camera"]
             XCTAssertTrue(camera.exists)

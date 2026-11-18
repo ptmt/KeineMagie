@@ -4,6 +4,63 @@ import AVFoundation
 /// Run only with Fixtures/generate_dictation_player_wav.py and the existing Go
 /// local fixture. These are interaction/geometry tests, not screenshot acceptance.
 final class DictationPlayerUITests: XCTestCase {
+    @MainActor func testCenteredTitleAndFullWidthTimeline() throws {
+        for theme in ["Light", "Dark"] {
+            let app = try launch(theme:theme)
+            let title = app.navigationBars.firstMatch.identifier
+            app.buttons["dictation-prepare"].tap()
+            wait(app.buttons["dictation-play"], "enabled == true")
+            app.tabBars.buttons["Coach"].tap()
+            assertBarGeometry(app, title:title)
+            XCTAssertEqual(app.staticTexts["dictation-elapsed"].value as? String,"0:00", "Navigation does not admit playback")
+            capture(app,"layout-\(theme)-centered-ready")
+            app.terminate()
+        }
+    }
+
+    @MainActor func testLongLocalizedTitleAtAccessibilitySize() throws {
+        for theme in ["Light", "Dark"] {
+            let title = "Ein Spaziergang im Park"
+            let app = try launch(theme:theme,locale:"de",large:true,title:title)
+            app.buttons["dictation-prepare"].tap()
+            wait(app.buttons["dictation-play"], "enabled == true")
+            app.tabBars.buttons["Coach"].tap()
+            assertBarGeometry(app,title:title)
+            let body = app.buttons["dictation-player-open"]
+            let font = UIFont.preferredFont(forTextStyle:.subheadline,compatibleWith:UITraitCollection(preferredContentSizeCategory:.extraExtraExtraLarge))
+            let minimumFont = UIFont.systemFont(ofSize:font.pointSize*0.75,weight:.semibold)
+            let size = (title as NSString).size(withAttributes:[.font:minimumFont])
+            XCTAssertLessThanOrEqual(ceil(size.width),body.frame.width,"The complete localized title must fit within its permitted scaling, not truncate")
+            XCTAssertLessThanOrEqual(ceil(size.height),24,"The title must fit above the clock row")
+            capture(app,"layout-\(theme)-localized-accessibility")
+            app.terminate()
+        }
+    }
+
+    @MainActor private func assertBarGeometry(_ app:XCUIApplication, title:String) {
+        let bar = app.otherElements["dictation-player"]
+        XCTAssertLessThanOrEqual(bar.frame.height,48,"Content must fit inside the actual 48pt native glass accessory; overflowing AX frames can hide the track")
+        let visibleTitle = app.staticTexts[title].firstMatch
+        let titleText = visibleTitle.exists ? visibleTitle : app.buttons["dictation-player-open"]
+        XCTAssertEqual(titleText.label,title)
+        XCTAssertEqual(titleText.frame.midX,bar.frame.midX,accuracy:2,"Title must center on the entire bar, not the space left by transport")
+        let elapsed = app.staticTexts["dictation-elapsed"].frame
+        let remaining = app.staticTexts["dictation-remaining"].frame
+        XCTAssertGreaterThan(remaining.maxX-elapsed.minX,bar.frame.width*0.88,"Timeline endpoints must span almost the whole bar")
+        XCTAssertEqual(elapsed.minX-bar.frame.minX,bar.frame.maxX-remaining.maxX,accuracy:2,"Timeline horizontal insets must balance")
+        XCTAssertFalse(bar.buttons["dictation-audio-info"].exists)
+        let timeline = app.otherElements["dictation-timeline"].frame
+        XCTAssertGreaterThan(timeline.width,bar.frame.width*0.88,"Progress row must not return to a trailing column")
+        XCTAssertEqual(timeline.minX,elapsed.minX,accuracy:1)
+        XCTAssertEqual(timeline.maxX,remaining.maxX,accuracy:1)
+        XCTAssertLessThanOrEqual(app.buttons["dictation-play"].frame.maxX,app.buttons["dictation-player-open"].frame.minX,"Transport and navigation remain separate targets")
+        let receipt = XCTAttachment(string:"bar=\(bar.frame); title=\(titleText.frame); timeline=\(timeline); elapsed=\(elapsed); remaining=\(remaining)")
+        receipt.name="player-layout-geometry"; receipt.lifetime = .keepAlways; add(receipt)
+        XCTAssertGreaterThanOrEqual(app.buttons["dictation-play"].frame.width,44)
+        XCTAssertGreaterThanOrEqual(app.buttons["dictation-play"].frame.height,44)
+        XCTAssertFalse(app.sliders.firstMatch.exists)
+    }
+
     @MainActor func testNativeBackSwipeDraftAndGlobalAccessory() throws {
         let app = try launch()
         app.buttons["dictation-prepare"].tap()
@@ -230,7 +287,7 @@ final class DictationPlayerUITests: XCTestCase {
         XCTAssertFalse(app.buttons["dictation-row"].exists)
     }
 
-    @MainActor private func launch(theme: String = "Light") throws -> XCUIApplication {
+    @MainActor private func launch(theme: String = "Light", locale:String = "en", large:Bool = false, title fixtureTitle:String? = nil) throws -> XCUIApplication {
         let root = URL(fileURLWithPath: "/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player")
         guard let data = try? Data(contentsOf: root.appendingPathComponent("fixture/fixture.json")),
               let info = try JSONSerialization.jsonObject(with: data) as? [String: String],
@@ -242,13 +299,15 @@ final class DictationPlayerUITests: XCTestCase {
         app.launchEnvironment["KM_DICTATION_UI_APPEARANCE"] = theme
         app.launchEnvironment["KM_DICTATION_FIXTURE_TOKEN"] = token
         app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]
+        if large { app.launchArguments += ["-UIPreferredContentSizeCategoryName","UICTContentSizeCategoryAccessibilityXXXL"] }
         app.launch()
-        XCTAssertTrue(app.tabBars.buttons["Dictation"].waitForExistence(timeout: 10))
-        app.tabBars.buttons["Dictation"].tap()
+        let tab = locale == "de" ? "Diktat" : "Dictation"
+        XCTAssertTrue(app.tabBars.buttons[tab].waitForExistence(timeout: 10))
+        app.tabBars.buttons[tab].tap()
         app.buttons["dictation-add"].tap()
         let title = app.textFields["dictation-title"]
-        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText("Player " + UUID().uuidString.prefix(6))
+        XCTAssertTrue(title.waitForExistence(timeout: 5)); title.tap(); title.typeText(fixtureTitle ?? ("Player " + UUID().uuidString.prefix(6)))
         let original = app.textViews["dictation-original"]
         original.tap(); original.typeText("Heute scheint die Sonne.")
         app.buttons["dictation-create"].tap()

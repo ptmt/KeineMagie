@@ -66,3 +66,18 @@ All paths below are beneath the evidence root's `previews/`; `preview-manifest.j
 The protected original worktree's **304 manifest hashes match**. Camera/OCR source, catalog and fixture bytes match the base commit. AnyProgress was not modified. No production/provider activity occurred; Translator's unsynced-style message in these private-fixture screenshots is retained rather than visually concealed.
 
 Physical iPhone capture/permissions/handwriting and spoken VoiceOver remain unverified. No TestFlight build, push, deployment or publication is included.
+
+## Layout-only follow-up — 2026-11-18
+
+Base verified clean: `ae23955d3a23d711206b3b6bea0677dbc6e83205`. The mini-player now centers its title on the entire glass bar using equal 44pt side lanes, stretches the timeline across the bar with balanced 12pt insets, and removes its info button. Existing audio details remain at the preparation entry; no replacement control was added. Speed, separate transport/navigation targets and root-owned playback are unchanged.
+
+The actual native host is 48pt tall. An initial stacked layout overflowed that host and clipped the track despite plausible AX frames; the final content is 44pt tall. The title scales down only as needed (minimum 75%); the compact monospaced clocks retain caption size. Geometry receipts show a **336pt timeline on normal / 309pt on small**, equal title/bar centers, balanced endpoints and independent 44pt transport. Runtime captures confirm the complete German title “Ein Spaziergang im Park” at maximum accessibility size on both devices.
+
+Focused Release acceptance, sequential on the same supplied UDIDs, with parallel testing disabled:
+- **Normal: 8 passed, 0 failed, 0 skipped** — new title/timeline geometry and localized accessibility tests; existing all-tab light/dark playback, separate transport, exact-attempt/draft return, background/Continue count recovery, decoded clock/gap/final-reading flow, camera preview/insertion, five locales/details entry, and accessibility keyboard geometry.
+- **Small: 4 passed, 0 failed, 0 skipped** — both new layout tests, all-tab light/dark playback/transport/draft flow and accessibility keyboard geometry.
+- **Structural guards: 4 passed.** Original alignment regression failed before implementation; the additional native-host height regression failed at 63.33pt before the compact correction. Historical failed/interrupted runs are retained, not counted as acceptance.
+
+Evidence: `/Users/tinyserve/.hermes/cache/scratch/dictation-player-layout/{normal,small}-final.xcresult`, matching command/summary JSON, `source-manifest.json`, and `preview-manifest.json`. Inspected unaltered previews include both device sizes' `global-{Light,Dark}-coach-playing.png` and `layout-{Light,Dark}-localized-accessibility.png` under `previews/` (filenames prefixed `normal-` or `small-`). The initial static-text AX query was adapted to SwiftUI's title-button representation; the final small build also includes the explanatory source comment added during the normal run.
+
+Only the accessory layout, its tests and this documentation changed. Coordinator, root tabs, policy/core/backend, camera and draft implementation are byte-unchanged from the base; all **304 protected original-worktree hashes match**. AnyProgress was untouched. Both devices are shut down, the local fixture is stopped, and no simulator was created/cloned/deleted. No live AI/provider use, push or release.
