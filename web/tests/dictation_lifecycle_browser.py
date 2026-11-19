@@ -32,6 +32,16 @@ async def main():
         page = await context.new_page()
         errors = []
         page.on('pageerror', lambda error: errors.append(str(error)))
+        # This transport-fence regression intentionally exercises legacy Next/
+        # Pause behavior; v1 sequencing has its own real Go/Chromium harness.
+        async def legacy_creation(route):
+            if route.request.method == 'POST':
+                body = route.request.post_data_json
+                body.pop('playback_policy_version', None)
+                await route.continue_(post_data=json.dumps(body))
+            else:
+                await route.continue_()
+        await page.route('**/v1/learning/dictations', legacy_creation)
         await page.goto(info['url'] + '/#dictation')
         await page.locator('#dictation header').get_by_role('button', name='Add text', exact=True).click()
         await page.get_by_role('textbox', name='Title', exact=True).fill('Lifecycle fence')

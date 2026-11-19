@@ -1,0 +1,147 @@
+{
+  "result": "PASS",
+  "cases": 20,
+  "errors": [],
+  "results": [
+    {
+      "policy": false,
+      "mode": "whole",
+      "locale": "ru",
+      "rules": "Слушайте текст целиком. В первый раз запишите всё, что удалось расслышать, хотя бы отдельные слова. При каждом повторе добавляйте слова и детали.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "whole",
+      "locale": "en",
+      "rules": "Listen to the whole text. First, note anything you catch, even a few words. Add more words and details each time you listen again.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "whole",
+      "locale": "de",
+      "rules": "Höre den ganzen Text. Notiere beim ersten Mal alles, was du verstehst, auch einzelne Wörter. Ergänze bei jedem weiteren Hören Wörter und Details.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "whole",
+      "locale": "es",
+      "rules": "Escucha el texto completo. La primera vez, anota lo que entiendas, aunque sean palabras sueltas. Añade más palabras y detalles en cada repetición.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "whole",
+      "locale": "fr",
+      "rules": "Écoutez le texte entier. La première fois, notez ce que vous comprenez, même quelques mots. Ajoutez des mots et des détails à chaque nouvelle écoute.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "sentences",
+      "locale": "ru",
+      "rules": "Слушайте предложения и длинные фрагменты по очереди. Записывайте на ходу, затем нажимайте «Далее». В конце можно ещё раз послушать текст целиком.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "sentences",
+      "locale": "en",
+      "rules": "Listen to sentences and longer passages one at a time. Write as you listen, then choose Next. At the end, you can listen to the whole text again.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "sentences",
+      "locale": "de",
+      "rules": "Höre die Sätze und längeren Abschnitte einzeln. Schreibe beim Hören und wähle dann Weiter. Am Ende kannst du den ganzen Text noch einmal hören.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "sentences",
+      "locale": "es",
+      "rules": "Escucha las frases y los fragmentos largos uno a uno. Escribe mientras escuchas y pulsa Siguiente. Al final, puedes volver a escuchar el texto completo.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": false,
+      "mode": "sentences",
+      "locale": "fr",
+      "rules": "Écoutez les phrases et les passages longs un à un. Écrivez en écoutant, puis choisissez Suivant. À la fin, vous pouvez réécouter le texte entier.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "whole",
+      "locale": "ru",
+      "rules": "Текст можно прослушать 4 раза, без пауз. В первый раз запишите всё, что расслышали, хотя бы отдельные слова или подсказки. При каждом следующем прослушивании добавляйте слова и детали.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "whole",
+      "locale": "en",
+      "rules": "You can listen to the text four times, without pauses. First, write anything you catch, even individual words or clues. Add words and details each time you listen again.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "whole",
+      "locale": "de",
+      "rules": "Du kannst den Text viermal ohne Pausen anhören. Notiere beim ersten Mal alles, was du verstehst, auch einzelne Wörter oder Hinweise. Ergänze bei jedem weiteren Hören Wörter und Details.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "whole",
+      "locale": "es",
+      "rules": "Puedes escuchar el texto cuatro veces, sin pausas. La primera vez, anota todo lo que entiendas, incluso palabras sueltas o pistas. Añade palabras y detalles en cada escucha.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "whole",
+      "locale": "fr",
+      "rules": "Vous pouvez écouter le texte quatre fois, sans pauses. La première fois, notez tout ce que vous comprenez, même des mots isolés ou des indices. Ajoutez des mots et des détails à chaque écoute.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "sentences",
+      "locale": "ru",
+      "rules": "Слушайте текст с паузами между фрагментами. Записывайте на ходу. В конце можно ещё раз послушать текст целиком, если остался один из четырёх запусков.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "sentences",
+      "locale": "en",
+      "rules": "Listen to the text with pauses between passages. Write as you listen. At the end, you can replay the whole text once, with one of the four starts remaining.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "sentences",
+      "locale": "de",
+      "rules": "Höre den Text mit Pausen zwischen den Abschnitten. Schreibe beim Hören. Am Ende kannst du den ganzen Text noch einmal hören, wenn einer der vier Starts übrig ist.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "sentences",
+      "locale": "es",
+      "rules": "Escucha el texto con pausas entre fragmentos. Escribe mientras escuchas. Al final, puedes escuchar el texto completo una vez más si queda uno de los cuatro inicios disponible.",
+      "keyboard_disclosure": true
+    },
+    {
+      "policy": true,
+      "mode": "sentences",
+      "locale": "fr",
+      "rules": "Écoutez le texte avec des pauses entre les passages. Écrivez en écoutant. À la fin, vous pouvez réécouter le texte entier une fois, avec un des quatre démarrages restants.",
+      "keyboard_disclosure": true
+    }
+  ]
+}

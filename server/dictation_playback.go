@@ -71,7 +71,7 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 	}
 	var out dictationPlayback
 	err := cfg.dictationWrite(r, owner, func(d *dictationData) error {
-		// Isolated canceled-before-admission fix from dfb3dc729d5f29a6afcb711ae0e6dd2aba9b8578.
+		// A request already canceled before admission is not a playback start.
 		if err := r.Context().Err(); err != nil {
 			return err
 		}

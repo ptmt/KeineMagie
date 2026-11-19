@@ -43,7 +43,7 @@ with tempfile.TemporaryDirectory(prefix='dictation-policy-') as tmp:
    page.goto('https://dictation.test/tests/dictation-policy-fixture.html')
    def create(identifier):
     response=call('POST','/v1/learning/dictations',dict(id=identifier,title='Synthetic '+identifier,text='Heute scheint die Sonne. Wir gehen in den Park.',language='de',playback_policy_version=1));assert response['status']==200,response
-    page.reload();page.get_by_role('button',name='Synthetic '+identifier+' · In progress',exact=True).click()
+    page.reload();page.get_by_role('button',name='Synthetic '+identifier).click()
    def state(identifier):return json.loads(call('GET','/v1/learning/dictations/'+identifier)['bytes'])
    create('whole');page.get_by_role('button',name='Prepare audio',exact=True).click()
    for n in range(1,5):
@@ -69,7 +69,7 @@ with tempfile.TemporaryDirectory(prefix='dictation-policy-') as tmp:
    page.evaluate('rejectNextPlay=true');page.get_by_role('button',name='Play',exact=True).click();expect(page.get_by_role('button',name='Continue',exact=True)).to_be_visible();reservation=state('resume')['playback']['active']['id']
    page.get_by_role('button',name='Continue',exact=True).click();page.wait_for_function('fixtureAudio.currentTime>.1');assert state('resume')['playback']['active']['id']==reservation
    # A second controller cannot take over a currently leased reservation.
-   tab=ctx.new_page();tab.goto(page.url);tab.get_by_role('button',name='Synthetic resume · In progress',exact=True).click();tab.get_by_role('button',name='Continue',exact=True).click();assert state('resume')['playback']['whole_starts']==1;tab.close()
+   tab=ctx.new_page();tab.goto(page.url);tab.get_by_role('button',name='Synthetic resume').click();tab.get_by_role('button',name='Continue',exact=True).click();assert state('resume')['playback']['whole_starts']==1;tab.close()
    page.wait_for_function("events.some(e=>e.event==='ended')")
    assert len([c for c in page.evaluate('calls') if c['path'].endswith('/check')])==0
    create('network');page.get_by_role('button',name='Prepare audio',exact=True).click();abort_media=True;page.get_by_role('button',name='Play',exact=True).click();expect(page.get_by_role('button',name='Continue',exact=True)).to_be_visible();before=state('network')['playback']['active']['id'];page.get_by_role('button',name='Continue',exact=True).click();assert state('network')['playback']['active']['id']==before;page.wait_for_function("events.some(e=>e.event==='ended')");assert state('network')['playback']['whole_starts']==1
@@ -87,7 +87,7 @@ with tempfile.TemporaryDirectory(prefix='dictation-policy-') as tmp:
    page.wait_for_function("events.some(e=>e.event==='ended')");expect(draft).to_be_focused()
    assert state('paused')['playback']['whole_starts']==1
    page.get_by_role('button',name='History',exact=True).click()
-   page.get_by_role('button',name='Synthetic paused · In progress',exact=True).click()
+   page.get_by_role('button',name='Synthetic paused').click()
    expect(page.get_by_role('textbox',name='What you heard',exact=True)).to_have_value('Pause recovery draft')
    assert page.evaluate("calls.filter(c=>c.method==='POST'&&c.path.includes('/audio/')).length")==paid_before
    create('sentences');page.get_by_role('button',name='By sentences',exact=True).click();page.get_by_role('button',name='Prepare audio',exact=True).click()

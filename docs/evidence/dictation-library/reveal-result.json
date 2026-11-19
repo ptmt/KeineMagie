@@ -1,0 +1,47 @@
+{
+  "result": "PASS",
+  "cases": 10,
+  "errors": [],
+  "results": [
+    {
+      "locale": "ru",
+      "checked": false
+    },
+    {
+      "locale": "en",
+      "checked": false
+    },
+    {
+      "locale": "de",
+      "checked": false
+    },
+    {
+      "locale": "es",
+      "checked": false
+    },
+    {
+      "locale": "fr",
+      "checked": false
+    },
+    {
+      "locale": "ru",
+      "checked": true
+    },
+    {
+      "locale": "en",
+      "checked": true
+    },
+    {
+      "locale": "de",
+      "checked": true
+    },
+    {
+      "locale": "es",
+      "checked": true
+    },
+    {
+      "locale": "fr",
+      "checked": true
+    }
+  ]
+}

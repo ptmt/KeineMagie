@@ -31,11 +31,11 @@ func TestDictationLocalFixture(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	listener, e := net.Listen("tcp", "127.0.0.1:8799")
+	listener, e := net.Listen("tcp", "127.0.0.1:"+getenv("DICTATION_FIXTURE_PORT", "8799"))
 	if e != nil {
 		t.Fatal(e)
 	}
-	info, _ := json.Marshal(map[string]string{"native": token, "browser": browser, "csrf": browserCSRF(browser), "url": "http://localhost:8799"})
+	info, _ := json.Marshal(map[string]string{"native": token, "browser": browser, "csrf": browserCSRF(browser), "url": "http://localhost:" + strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)})
 	if e = os.WriteFile(filepath.Join(root, "fixture.json"), info, 0600); e != nil {
 		t.Fatal(e)
 	}
@@ -83,7 +83,7 @@ func TestDictationLocalFixture(t *testing.T) {
 	defer server.Close()
 	done := make(chan error, 1)
 	go func() { done <- server.Serve(listener) }()
-	t.Log("local fixture ready on loopback 8799; no production stores")
+	t.Log("local fixture ready on", listener.Addr(), "; no production stores")
 	select {
 	case e := <-done:
 		t.Fatal(e)
