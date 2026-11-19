@@ -1,0 +1,664 @@
+{
+  "source_sha": "a6699b034eb4584c533a6c2268ea35bafd040a2f",
+  "native": {
+    "normal": {
+      "result": "Passed",
+      "passedTests": 13,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "totalTestCount": 13,
+      "devicesAndConfigurations": [
+        {
+          "device": {
+            "architecture": "arm64",
+            "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+            "deviceName": "KeineMagie Dictation final isolated",
+            "modelName": "iPhone 17",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          },
+          "expectedFailures": 0,
+          "failedTests": 0,
+          "passedTests": 13,
+          "skippedTests": 0,
+          "testPlanConfiguration": {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        }
+      ],
+      "passed_test_identifiers": [
+        "KeineMagieUITests.DictationCameraUITests testPhotographPreviewExplicitAppendCancelAndUnavailableCamera",
+        "KeineMagieUITests.DictationPlayerUITests testBackgroundStillInterruptsAndContinuePreservesCountFromAnotherTab",
+        "KeineMagieUITests.DictationPlayerUITests testExplicitStopFromAnotherTabRestartsAtZero",
+        "KeineMagieUITests.DictationPlayerUITests testLongLocalizedTitleAtAccessibilitySize",
+        "KeineMagieUITests.DictationPlayerUITests testMinimalLeftTitleWithoutTimeline",
+        "KeineMagieUITests.DictationPlayerUITests testNativeBackSwipeDraftAndGlobalAccessory",
+        "KeineMagieUITests.DictationPlayerUITests testReducedMotionKeepsStaticWaveformAndPlayingLabel",
+        "KeineMagieUITests.DictationPlayerUITests testStopDuringAutomaticGapRestartsFirstSentence",
+        "KeineMagieUITests.DictationPlayerUITests testStopDuringDelayedAdmissionNeverPlaysLate",
+        "KeineMagieUITests.TranslationDeadlineUITests testSlowRealHTTPTranslationCompletesWithoutAttention",
+        "KeineMagieUITests.TranslationOutboxUITests testLostAcknowledgementRelaunchAnd401HidePrivateDraft",
+        "KeineMagieUITests.TranslationOutboxUITests testOfflineQueueAndTypingSurviveTerminateRelaunchThenRetry",
+        "KeineMagieUITests.TranslationOutboxUITests testTypingAndTranslateDuringHeldVerificationAndProviderStatus"
+      ]
+    },
+    "small": {
+      "result": "Passed",
+      "passedTests": 5,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "totalTestCount": 5,
+      "devicesAndConfigurations": [
+        {
+          "device": {
+            "architecture": "arm64",
+            "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+            "deviceName": "KeineMagie profiles integrated isolated",
+            "modelName": "iPhone SE (3rd generation)",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          },
+          "expectedFailures": 0,
+          "failedTests": 0,
+          "passedTests": 5,
+          "skippedTests": 0,
+          "testPlanConfiguration": {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        }
+      ],
+      "passed_test_identifiers": [
+        "KeineMagieUITests.DictationCameraUITests testPhotographPreviewExplicitAppendCancelAndUnavailableCamera",
+        "KeineMagieUITests.DictationPlayerUITests testExplicitStopFromAnotherTabRestartsAtZero",
+        "KeineMagieUITests.DictationPlayerUITests testLongLocalizedTitleAtAccessibilitySize",
+        "KeineMagieUITests.TranslationDeadlineUITests testSlowRealHTTPTranslationCompletesWithoutAttention",
+        "KeineMagieUITests.TranslationOutboxUITests testOfflineQueueAndTypingSurviveTerminateRelaunchThenRetry"
+      ]
+    }
+  },
+  "server_ci": {
+    "conclusion": "success",
+    "databaseId": 44590575523,
+    "headSha": "a6699b034eb4584c533a6c2268ea35bafd040a2f",
+    "jobs": [
+      {
+        "completedAt": "2026-11-19T18:43:25Z",
+        "conclusion": "success",
+        "databaseId": 135795156730,
+        "name": "build",
+        "startedAt": "2026-11-19T18:42:06Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-11-19T18:42:08Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-11-19T18:42:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:42:11Z",
+            "conclusion": "success",
+            "name": "Checkout",
+            "number": 2,
+            "startedAt": "2026-11-19T18:42:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:42:18Z",
+            "conclusion": "success",
+            "name": "Set up Docker Buildx",
+            "number": 3,
+            "startedAt": "2026-11-19T18:42:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:42:18Z",
+            "conclusion": "success",
+            "name": "Log in to GHCR",
+            "number": 4,
+            "startedAt": "2026-11-19T18:42:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:42:19Z",
+            "conclusion": "success",
+            "name": "Extract metadata",
+            "number": 5,
+            "startedAt": "2026-11-19T18:42:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:43:15Z",
+            "conclusion": "success",
+            "name": "Build image",
+            "number": 6,
+            "startedAt": "2026-11-19T18:42:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:43:17Z",
+            "conclusion": "success",
+            "name": "Post Build image",
+            "number": 9,
+            "startedAt": "2026-11-19T18:43:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:43:17Z",
+            "conclusion": "success",
+            "name": "Post Log in to GHCR",
+            "number": 10,
+            "startedAt": "2026-11-19T18:43:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:43:23Z",
+            "conclusion": "success",
+            "name": "Post Set up Docker Buildx",
+            "number": 11,
+            "startedAt": "2026-11-19T18:43:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:43:23Z",
+            "conclusion": "success",
+            "name": "Post Checkout",
+            "number": 12,
+            "startedAt": "2026-11-19T18:43:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-19T18:43:23Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-11-19T18:43:23Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ptmt/KeineMagie/actions/runs/44590575523/job/135795156730"
+      }
+    ],
+    "status": "completed"
+  },
+  "apple": {
+    "source_sha": "a6699b034eb4584c533a6c2268ea35bafd040a2f",
+    "run_id": 44591241250,
+    "validate_job_id": 135801654560,
+    "upload_job_id": 135805494659,
+    "conclusion": "success",
+    "build": "2789.91.59",
+    "upload_markers": [
+      "2026-11-19T18:59:46.3682630Z Archiving build 2789.91.59 with manually validated signing",
+      "2026-11-19T19:04:42.0484030Z UPLOAD SUCCEEDED with no errors, 1 warning"
+    ],
+    "warning": {
+      "code": 90725,
+      "summary": "Accepted with future April 2027 iOS 27 SDK requirement warning; existing hosted iOS 26.5 SDK."
+    }
+  },
+  "image": {
+    "id": "sha256:fdff5214c556b8e2bd55b3a406f8f5264990e7b4f6a70ed8207eba1bad2d7a82",
+    "digests": [
+      "ghcr.io/ptmt/diktat-server@sha256:fdff5214c556b8e2bd55b3a406f8f5264990e7b4f6a70ed8207eba1bad2d7a82"
+    ],
+    "architecture": "arm64",
+    "revision": "a6699b034eb4584c533a6c2268ea35bafd040a2f"
+  },
+  "public": {
+    "source_sha": "a6699b034eb4584c533a6c2268ea35bafd040a2f",
+    "asset_count": 31,
+    "exact_bytes": true,
+    "tls_verified": true,
+    "ipv4": true,
+    "statuses": {
+      "/health": 200,
+      "/v1/web/session": 401,
+      "/v1/podcasts": 401,
+      "/v1/learning/dictations": 401
+    },
+    "assets": [
+      {
+        "path": "translator-followup.mjs",
+        "status": 200,
+        "bytes": 13667,
+        "sha256": "779ea7cf382a01bbd572f6ce8c442d474a3a1afe65bf603461d99052bb315371"
+      },
+      {
+        "path": "translator-followup.css",
+        "status": 200,
+        "bytes": 1800,
+        "sha256": "8d531a13a7e2ac1eb5f2bcac2abd8f3a0b47c97b37ee5b50c6b723844092c95d"
+      },
+      {
+        "path": "bootstrap.js",
+        "status": 200,
+        "bytes": 5295,
+        "sha256": "e97d531503a4f04adc0b0417713e60217e40cf88022496cde655c4a0f38c3e02"
+      },
+      {
+        "path": "index.html",
+        "status": 200,
+        "bytes": 14035,
+        "sha256": "bb998e696d351753ea161563ad9ca3e86670003b7fcf9dc4765dedae2dcfa4ef"
+      },
+      {
+        "path": "app.mjs",
+        "status": 200,
+        "bytes": 69528,
+        "sha256": "1d644027542897106635b826d5b158ea0ba57750eef928cba674f1df00b83342"
+      },
+      {
+        "path": "core.mjs",
+        "status": 200,
+        "bytes": 18750,
+        "sha256": "ac4a28c1cfb46a2bbcd5708b5c300be9ed871319e516d07ae423eb431cb09b6c"
+      },
+      {
+        "path": "i18n.mjs",
+        "status": 200,
+        "bytes": 40659,
+        "sha256": "9fdad201e83ae46c874b4cc65f99e07a4e5fa820136d73fe46dad67a3b750994"
+      },
+      {
+        "path": "episode.mjs",
+        "status": 200,
+        "bytes": 4082,
+        "sha256": "3b656b900e02507e37ac544229be362c66b4f02fd55bef5e84b405f5f178a8f1"
+      },
+      {
+        "path": "episode-view.mjs",
+        "status": 200,
+        "bytes": 28353,
+        "sha256": "3dc3153b61f04ddce935f8588519e49fda50442a3edcb4d330d4da93ae71f669"
+      },
+      {
+        "path": "episode-i18n.mjs",
+        "status": 200,
+        "bytes": 21852,
+        "sha256": "688dece5027af759d06e3e404044c30ae43a6d4de3616d13e1e5aa11a3cca5db"
+      },
+      {
+        "path": "episode.css",
+        "status": 200,
+        "bytes": 7063,
+        "sha256": "5fbcc6e0ab87a582cad8b3a717615423a16e18943a5442fdd8975f8962c37864"
+      },
+      {
+        "path": "styles.css",
+        "status": 200,
+        "bytes": 22833,
+        "sha256": "2f80e7010ef6a6dae8da6658e3f83b6992a4ad0125c9173783c54456874caa2b"
+      },
+      {
+        "path": "favicon.svg",
+        "status": 200,
+        "bytes": 252,
+        "sha256": "5e089d1a95402447b6674402b80945b220a1ed93c9f482bef37fefa0d2874ecd"
+      },
+      {
+        "path": "apple-sign-in-de.png",
+        "status": 200,
+        "bytes": 12523,
+        "sha256": "5dbc8ad730f76f5665a5ec09f7e9ad73cd8007aad82b04d99c57cedeff5e2fd2"
+      },
+      {
+        "path": "apple-sign-in-en.png",
+        "status": 200,
+        "bytes": 13232,
+        "sha256": "d89a231a4b3a3ba0dc6b86b3e35ec2dbb8748af3b745ef2ecbd8f8239e9cdac2"
+      },
+      {
+        "path": "apple-sign-in-ru.png",
+        "status": 200,
+        "bytes": 11104,
+        "sha256": "a7e33bfb90122c4d4114690061f64700010357e18b8d1fabb9e612bb207deaf7"
+      },
+      {
+        "path": "apple-sign-in-es.png",
+        "status": 200,
+        "bytes": 15317,
+        "sha256": "5eb555f999acebbbf37b60fade5fd804ca2d265533e12aa4b375dc6960f860f0"
+      },
+      {
+        "path": "apple-sign-in-fr.png",
+        "status": 200,
+        "bytes": 13324,
+        "sha256": "1ecdb24a8b11088c5593104999d08101fff6b3cee89ff2477a690f8d69252eb3"
+      },
+      {
+        "path": "coach.mjs",
+        "status": 200,
+        "bytes": 37954,
+        "sha256": "f74c28bc56a45c3f63319b2a1a6bc500360ea02c9b18ad0899716efd601dc6f1"
+      },
+      {
+        "path": "coach-state.mjs",
+        "status": 200,
+        "bytes": 3719,
+        "sha256": "118f263373dc11df42e0be6f77b90ddea01429d333ce6e126e72213adb968613"
+      },
+      {
+        "path": "coach-chat.mjs",
+        "status": 200,
+        "bytes": 1540,
+        "sha256": "6d4ac6dfb470fd15cfd297b73e1f7dad8426d8a2897e696ec6997148cc8a21ee"
+      },
+      {
+        "path": "coach-presentation.mjs",
+        "status": 200,
+        "bytes": 2017,
+        "sha256": "c1ac9141628b5b55a18611bf9cb5b888356c545f98f1926abb36e2189a9a3fca"
+      },
+      {
+        "path": "coach.css",
+        "status": 200,
+        "bytes": 5359,
+        "sha256": "8eaa76004b9b70e05b58359492fb98812bf0c76e99d8afa7275e06158b0685df"
+      },
+      {
+        "path": "dictation.mjs",
+        "status": 200,
+        "bytes": 27619,
+        "sha256": "9cc3d6a758be1587a652c735731f5ec2f79d0fc3e5207b8f88b9f4a4ad1b87e2"
+      },
+      {
+        "path": "dictation-playback.mjs",
+        "status": 200,
+        "bytes": 5296,
+        "sha256": "464a56803ca9e42fa59a1a3b18ce99b860f411e8dc8ca06c3ca4a2c741d8c4ca"
+      },
+      {
+        "path": "dictation-state.mjs",
+        "status": 200,
+        "bytes": 431,
+        "sha256": "7f16a823a081dc89ba86bfa36a7f7e93b4945c4dca4213d7ea217bbb781a8044"
+      },
+      {
+        "path": "dictation-journal.mjs",
+        "status": 200,
+        "bytes": 4671,
+        "sha256": "57814a61bdd46b28d6f09c01cee030bb643a1c0e8eaf6730e201dafa27ebb159"
+      },
+      {
+        "path": "dictation-cache.mjs",
+        "status": 200,
+        "bytes": 1785,
+        "sha256": "cd221b39774f95e627fe0e782888575e167b7025b3de49065b188ca359ad5982"
+      },
+      {
+        "path": "dictation-i18n.mjs",
+        "status": 200,
+        "bytes": 24123,
+        "sha256": "92cfc5d210c47b7627cb118afb366420863919f8214d1038194b91819b14532d"
+      },
+      {
+        "path": "dictation.css",
+        "status": 200,
+        "bytes": 7922,
+        "sha256": "5a10fed04bdbff6935ea279b5ea3ab123be3d3d01c35e03ce19d5baf32adc34c"
+      },
+      {
+        "path": "profile-sync.mjs",
+        "status": 200,
+        "bytes": 7565,
+        "sha256": "c72a014e3ad8216c0e85c5ebc0a9ba3bb0ca60f9a3c80f93fb98c8a80c328a80"
+      }
+    ]
+  },
+  "live_browser": {
+    "result": "PASS",
+    "real_app": true,
+    "real_go_dto": true,
+    "live_https_assets": true,
+    "synthetic_api_only": true,
+    "intercepted_private_requests": 52,
+    "escaped_requests": [],
+    "public_assets": [
+      "/",
+      "/app.mjs",
+      "/apple-sign-in-de.png",
+      "/apple-sign-in-en.png",
+      "/apple-sign-in-es.png",
+      "/apple-sign-in-fr.png",
+      "/apple-sign-in-ru.png",
+      "/bootstrap.js",
+      "/coach-chat.mjs",
+      "/coach-presentation.mjs",
+      "/coach-state.mjs",
+      "/coach.css",
+      "/coach.mjs",
+      "/core.mjs",
+      "/dictation-cache.mjs",
+      "/dictation-i18n.mjs",
+      "/dictation-journal.mjs",
+      "/dictation-playback.mjs",
+      "/dictation-state.mjs",
+      "/dictation.css",
+      "/dictation.mjs",
+      "/episode.css",
+      "/i18n.mjs",
+      "/profile-sync.mjs",
+      "/styles.css",
+      "/translator-followup.css",
+      "/translator-followup.mjs"
+    ],
+    "cases": [
+      {
+        "locale": "ru",
+        "scheme": "light",
+        "width": 320,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "ru",
+        "scheme": "light",
+        "width": 390,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "ru",
+        "scheme": "light",
+        "width": 1280,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "ru",
+        "scheme": "dark",
+        "width": 320,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "ru",
+        "scheme": "dark",
+        "width": 390,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "ru",
+        "scheme": "dark",
+        "width": 1280,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "en",
+        "scheme": "light",
+        "width": 320,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "en",
+        "scheme": "light",
+        "width": 390,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "en",
+        "scheme": "light",
+        "width": 1280,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "en",
+        "scheme": "dark",
+        "width": 320,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "en",
+        "scheme": "dark",
+        "width": 390,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "en",
+        "scheme": "dark",
+        "width": 1280,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "de",
+        "scheme": "light",
+        "width": 320,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "de",
+        "scheme": "light",
+        "width": 390,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "de",
+        "scheme": "light",
+        "width": 1280,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "de",
+        "scheme": "dark",
+        "width": 320,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "de",
+        "scheme": "dark",
+        "width": 390,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "de",
+        "scheme": "dark",
+        "width": 1280,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "es",
+        "scheme": "light",
+        "width": 320,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "es",
+        "scheme": "light",
+        "width": 390,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "es",
+        "scheme": "light",
+        "width": 1280,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "es",
+        "scheme": "dark",
+        "width": 320,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "es",
+        "scheme": "dark",
+        "width": 390,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "es",
+        "scheme": "dark",
+        "width": 1280,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "fr",
+        "scheme": "light",
+        "width": 320,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "fr",
+        "scheme": "light",
+        "width": 390,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "fr",
+        "scheme": "light",
+        "width": 1280,
+        "minimum_contrast": 5.281957285416207
+      },
+      {
+        "locale": "fr",
+        "scheme": "dark",
+        "width": 320,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "fr",
+        "scheme": "dark",
+        "width": 390,
+        "minimum_contrast": 6.575391154591255
+      },
+      {
+        "locale": "fr",
+        "scheme": "dark",
+        "width": 1280,
+        "minimum_contrast": 6.575391154591255
+      }
+    ],
+    "library_media_requests": 0,
+    "library_mutations": 0,
+    "errors": []
+  },
+  "deployment": {
+    "source_sha": "a6699b034eb4584c533a6c2268ea35bafd040a2f",
+    "backend_image": "sha256:fdff5214c556b8e2bd55b3a406f8f5264990e7b4f6a70ed8207eba1bad2d7a82",
+    "architecture": "arm64",
+    "worker_image": "sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382",
+    "backend_only": true,
+    "unrelated_and_worker_ids_unchanged": true,
+    "config_resources_mounts_networks_preserved": true,
+    "locked_nonruntime_files_unchanged": 41,
+    "state": {
+      "states": {
+        "completed": 1
+      },
+      "jobs": 1,
+      "active": 0,
+      "segments": 2113,
+      "translations": 2113,
+      "ledger": {
+        "entries": 2,
+        "reserved_micro_usd": 2000000,
+        "max_remaining_attempts": 8,
+        "reported_cost_micro_usd": 20111
+      }
+    },
+    "backup": "/Users/tinyserve/Library/Application Support/tinyserve/services/keinemagie/deployment/release-combined-20261119T184448Z"
+  }
+}
