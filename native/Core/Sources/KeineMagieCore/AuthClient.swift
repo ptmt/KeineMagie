@@ -38,6 +38,7 @@ public struct AuthClient: Sendable {
     public func challenge() async throws -> AppleChallenge {
         var request = URLRequest(url: endpoint.url(path: "v1/auth/apple/challenge"))
         request.httpMethod = "POST"
+        request.timeoutInterval = 8
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = Data("{}".utf8)
         let response = try await transport(request)
@@ -49,6 +50,7 @@ public struct AuthClient: Sendable {
               !identityToken.isEmpty else { throw AuthError.invalidCredential }
         var request = URLRequest(url: endpoint.url(path: "v1/auth/apple"))
         request.httpMethod = "POST"
+        request.timeoutInterval = 8
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: ["challenge_id": challenge.challengeID, "identity_token": identityToken, "state": returnedState ?? ""])
         let response = try await transport(request)
@@ -74,8 +76,10 @@ public struct AuthClient: Sendable {
     }
     public static func network(_ request: URLRequest) async throws -> AuthResponse {
         let configuration = URLSessionConfiguration.ephemeral
-        configuration.timeoutIntervalForRequest = 8
-        configuration.timeoutIntervalForResource = 8
+        // Feature requests declare their own bounded deadline (translation: 90s).
+        // An 8s session resource cap silently overrode those request deadlines.
+        configuration.timeoutIntervalForRequest = request.timeoutInterval
+        configuration.timeoutIntervalForResource = request.timeoutInterval
         configuration.waitsForConnectivity = false
         let session = URLSession(configuration: configuration, delegate: AuthNoRedirects(), delegateQueue: nil)
         defer { session.invalidateAndCancel() }

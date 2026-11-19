@@ -77,6 +77,14 @@ actor SimulatorSessionFixture {
     private var followupAttempts = 0
     private var followupRequestID: String?
     func send(_ request: URLRequest) async throws -> AuthResponse {
+        if mode == "translation-deadline", request.url?.path == "/v1/translations", request.httpMethod == "POST" {
+            let server = try SimulatorTranslationDeadlineServer()
+            var local = request
+            local.url = try await server.url()
+            let response = try await AuthClient.network(local)
+            withExtendedLifetime(server) {}
+            return response
+        }
         if mode == "translation-history-controls", request.url?.path == "/v1/translations", request.httpMethod == "GET" {
             let records: [[String: Any]] = (1...2).map { index in
                 ["id": "history-control-\(index)", "created_at": "2026-11-16T12:00:00Z", "text": "Source \(index)", "translation": index == 1 ? Self.historyCopyTranslation : "Second exact translation", "source_language": "ru", "target_language": "de", "idioms": [], "patterns": [], "vocabulary": []]
