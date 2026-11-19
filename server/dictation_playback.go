@@ -27,6 +27,9 @@ type dictationPlayback struct {
 	Listens     []dictationListen `json:"listens,omitempty"`
 }
 type dictationListen struct {
+	// Revision before the current ownership began. Nil legacy reservations
+	// remain strict-CAS; every resume establishes a new boundary.
+	StopBase   *int    `json:"stop_base,omitempty"`
 	ID         string  `json:"id"`
 	Client     string  `json:"client"`
 	Step       int     `json:"step"`
@@ -112,7 +115,11 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 			}
 			// Compare the complete ledger, including between-sentence gaps.
 			// Do not take over another client's live lease or refund any start.
-			if (a != nil && in.Admission != "" && a.ID != in.Admission) || in.Step != 0 || in.Fence != p.Revision || v.Checked || len(p.Stops) >= 256 || (a != nil && a.Client != in.Client && a.LeaseUntil > now) {
+			// A lost start/progress acknowledgment may leave an older observed
+			// fence. Only the named admission's uninterrupted ownership can
+			// bridge that gap; never infer ownership from a refreshed revision.
+			ownedGap := a != nil && a.StopBase != nil && in.Admission == a.ID && in.Client == a.Client && in.Fence >= *a.StopBase && in.Fence < p.Revision
+			if (a != nil && in.Admission != "" && a.ID != in.Admission) || in.Step != 0 || (in.Fence != p.Revision && !ownedGap) || v.Checked || len(p.Stops) >= 256 || (a != nil && a.Client != in.Client && a.LeaseUntil > now) {
 				return errDictationConflict
 			}
 			if a != nil {
@@ -167,8 +174,9 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 			if kind == "final" {
 				p.FinalUsed = true
 			}
+			base := p.Revision
 			p.Revision++
-			p.Active = &dictationListen{ID: in.ID, Client: in.Client, Step: in.Step, Fence: p.Revision, LeaseUntil: now + 15000}
+			p.Active = &dictationListen{StopBase: &base, ID: in.ID, Client: in.Client, Step: in.Step, Fence: p.Revision, LeaseUntil: now + 15000}
 			p.Listens = append(p.Listens, *p.Active)
 		case "resume":
 			if a == nil || a.ID != in.ID || a.Step != in.Step || a.Fence != in.Fence || v.Checked {
@@ -177,6 +185,8 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 			if a.LeaseUntil > now && a.Client != in.Client {
 				return errDictationConflict
 			}
+			base := p.Revision
+			a.StopBase = &base
 			p.Revision++
 			a.Client = in.Client
 			a.Fence = p.Revision

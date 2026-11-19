@@ -40,6 +40,67 @@ private actor DictationGoBridge {
     func close() {try? input.close();process.waitUntilExit()}
 }
 final class DictationGoBridgeTests:XCTestCase {
+    @MainActor func testActualGoLostStartAndProgressAcknowledgmentsStopColdRestart() async throws {
+        guard let executable=ProcessInfo.processInfo.environment["DICTATION_NATIVE_BRIDGE_EXECUTABLE"] else {throw XCTSkip("Real Go bridge executable required")}
+        for lostAction in ["start", "progress"] {
+            let root=FileManager.default.temporaryDirectory.appendingPathComponent("lost-ack-"+UUID().uuidString)
+            try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+            let bridge=try DictationGoBridge(executable:executable,root:root)
+            let api=PodcastAPI(endpoint:try ServerEndpoint("https://dictation.test"),token:bridge.token,transport:{try await bridge.request($0)})
+            let store=DictationDraftStore();var disk=Data();store.persist={disk=$0}
+            try store.editAdd(title:"Lost acknowledgment",original:"Hallo. Guten Morgen.")
+            let created=try await api.dictation(method:"POST",body:store.pendingCreate())
+            try store.finishCreate(created)
+            _ = try await api.dictationAudio(id:created.id,index:0,prepare:true)
+            try store.accept(try await api.dictation(id:created.id))
+            var offline=false;var dropped=false;var reported=false;var plays:[Double]=[]
+            var requests:[DictationPlaybackRequest]=[]
+            let lost=expectation(description:"Committed \(lostAction) acknowledgment lost")
+            func make(_ journal:DictationDraftStore) -> DictationPlaybackController {
+                DictationPlaybackController(read:{journal.record(created.id)},refresh:{try await api.dictation(id:created.id)},send:{request in
+                    requests.append(request)
+                    if offline {throw URLError(.notConnectedToInternet)}
+                    let value=try await api.dictationPlayback(id:created.id,command:request,owner:bridge.owner)
+                    if request.action == lostAction && !dropped {
+                        dropped=true;offline=true
+                        throw URLError(.timedOut)
+                    }
+                    return value
+                },audio:{try await api.dictationAudio(id:created.id,index:$0,prepare:false)},
+                publish:{try journal.acceptPlayback(id:created.id,policy:1,ledger:$0)},
+                play:{_,offset,_ in plays.append(offset)},stop:{1.5},authorized:{true},
+                failed:{_ in if dropped && !reported {reported=true;lost.fulfill()}},
+                readStop:{journal.playbackStop(id:created.id)},saveStop:{try journal.setPlaybackStop(id:created.id,intent:$0)},position:{1.5})
+            }
+            let controller=make(store)
+            await controller.play()
+            await fulfillment(of:[lost],timeout:10)
+            await controller.stop().value
+            let pending=try XCTUnwrap(store.playbackStop(id:created.id))
+            let committed=try await api.dictation(id:created.id)
+            XCTAssertEqual(committed.playback?.wholeStarts,1)
+            XCTAssertGreaterThan(committed.playback!.revision,pending.request!.fence)
+            let cold=DictationDraftStore();try cold.restore(disk);cold.persist={disk=$0}
+            offline=false;requests=[]
+            let restarted=make(cold)
+            do {try await restarted.cancel()} catch {XCTFail("Cold Stop recovery failed: \(error)")}
+            XCTAssertNil(cold.playbackStop(id:created.id))
+            XCTAssertEqual(requests.first?.fence,pending.request?.fence,"Never adopt a refreshed revision")
+            let stopped=try await api.dictation(id:created.id)
+            XCTAssertNil(stopped.playback?.active)
+            XCTAssertEqual(stopped.playback?.cursor,1)
+            XCTAssertEqual(stopped.playback?.wholeStarts,1)
+            XCTAssertEqual(stopped.playback?.finalUsed,committed.playback?.finalUsed)
+            XCTAssertEqual(stopped.playback?.listens?.last?.done,false)
+            await restarted.play()
+            XCTAssertTrue(restarted.playing)
+            XCTAssertEqual(plays.last,0)
+            XCTAssertEqual(cold.record(created.id)?.playback?.wholeStarts,2)
+            await restarted.stop().value
+            await bridge.close()
+            try FileManager.default.removeItem(at:root)
+        }
+    }
     @MainActor func testActualGoStopRestartZeroAndFourStartCap() async throws {
         guard let executable=ProcessInfo.processInfo.environment["DICTATION_NATIVE_BRIDGE_EXECUTABLE"] else {throw XCTSkip("Run native/ci/verify_dictation_policy_bridge.py")}
         let root=FileManager.default.temporaryDirectory.appendingPathComponent("native-stop-"+UUID().uuidString)

@@ -256,7 +256,10 @@ import Observation
     /// synchronously, then persist the reset intent before attempting any network I/O.
     public func stop() -> Task<Void, Never> {
         epoch += 1; lastStopEpoch=epoch; timingEpoch += 1; clearTimers(); busy=false; playing=false
-        let stoppedAdmission=admissionRequest?.id ?? owned?.id
+        // An error-triggered interruption clears `owned`, but the last
+        // acknowledged ledger still identifies our uncertain heartbeat.
+        let acknowledgedOwned = ledger?.active.flatMap { $0.client == client ? $0.id : nil }
+        let stoppedAdmission=admissionRequest?.id ?? owned?.id ?? acknowledgedOwned
         _ = stopMedia(); owned=nil
         explicitlyStopped=true; resetToBeginning()
         if let resetTask { return resetTask }

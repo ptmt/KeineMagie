@@ -152,3 +152,61 @@ func TestDictationExplicitStop(t *testing.T) {
 		t.Fatal("foreign lease stopped", w.Code)
 	}
 }
+
+// The caller retains its observed fence when the committed response is lost.
+// Reopening the handler must recover only that admission's uninterrupted owner.
+func TestDictationStopLostAcknowledgmentRecovery(t *testing.T) {
+	for _, action := range []string{"start", "progress"} {
+		t.Run(action, func(t *testing.T) {
+			f := newPlaybackFixture(t)
+			f.seed(t)
+			p := playbackDecode(t, f.call("POST", "/one/playback", playbackBody("owned", "native", "start", 0, 0)))
+			observed := 0
+			if action == "progress" {
+				observed = p.Revision
+				p = playbackDecode(t, f.call("POST", "/one/playback", playbackBody("owned", "native", "progress", 0, p.Active.Fence)))
+			}
+			var err error
+			f.h, err = newHandler(f.cfg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			body := fmt.Sprintf(`{"id":"stop-lost","client":"native","action":"stop","step":0,"fence":%d,"admission":"owned"}`, observed)
+			stopped := playbackDecode(t, f.call("POST", "/one/playback", body))
+			if stopped.Active != nil || stopped.WholeStarts != 1 || stopped.FinalUsed != p.FinalUsed || stopped.Cursor != 1 || stopped.Listens[0].Done || !stopped.Listens[0].Stopped {
+				t.Fatal(stopped)
+			}
+			retry := playbackDecode(t, f.call("POST", "/one/playback", body))
+			if retry.Revision != stopped.Revision {
+				t.Fatal("non-idempotent recovery")
+			}
+		})
+	}
+}
+
+func TestDictationStopLostAcknowledgmentRejectsForeignLineage(t *testing.T) {
+	for _, returnOwnership := range []bool{false, true} {
+		t.Run(fmt.Sprint(returnOwnership), func(t *testing.T) {
+			f := newPlaybackFixture(t)
+			f.seed(t)
+			p := playbackDecode(t, f.call("POST", "/one/playback", playbackBody("owned", "native", "start", 0, 0)))
+			observed := p.Revision
+			p = playbackDecode(t, f.call("POST", "/one/playback", playbackBody("owned", "native", "release", 0, p.Active.Fence)))
+			p = playbackDecode(t, f.call("POST", "/one/playback", playbackBody("owned", "foreign", "resume", 0, p.Active.Fence)))
+			p = playbackDecode(t, f.call("POST", "/one/playback", playbackBody("owned", "foreign", "release", 0, p.Active.Fence)))
+			if returnOwnership {
+				p = playbackDecode(t, f.call("POST", "/one/playback", playbackBody("owned", "native", "resume", 0, p.Active.Fence)))
+			}
+			body := fmt.Sprintf(`{"id":"stale","client":"native","action":"stop","step":0,"fence":%d,"admission":"owned"}`, observed)
+			if w := f.call("POST", "/one/playback", body); w.Code != 409 {
+				t.Fatal("adopted foreign lineage", w.Code)
+			}
+			f.cfg.dictationTransaction(f.owner, false, func(d *dictationData) error {
+				if got := dictationFind(d, "one").Playback; got.Revision != p.Revision || got.Active.Offset != p.Active.Offset || got.Cursor != p.Cursor || got.WholeStarts != p.WholeStarts {
+					t.Error("foreign ledger changed")
+				}
+				return nil
+			})
+		})
+	}
+}
