@@ -1,0 +1,50 @@
+{
+  "base": "7b87555bc6dd0080b87bfceefaffe26245fd553a",
+  "before_count": 503,
+  "after_count": 510,
+  "removed_without_replacement": [],
+  "renamed": [
+    {
+      "from": [
+        "native/UITests/CoachUITests.swift",
+        "testContextualChipsAndProgressRetainDraft"
+      ],
+      "to": [
+        "native/UITests/CoachUITests.swift",
+        "testContextualMenuAndProgressRetainDraft"
+      ]
+    }
+  ],
+  "added": [
+    [
+      "native/UITests/CoachUITests.swift",
+      "testChatDesignCompactAnswerControls"
+    ],
+    [
+      "native/UITests/CoachUITests.swift",
+      "testComposerMenuOpensWithoutSendingOrRevealing"
+    ],
+    [
+      "native/UITests/CoachUITests.swift",
+      "testDesignEmptyEntryAndAssessmentError"
+    ],
+    [
+      "native/UITests/CoachUITests.swift",
+      "testLargestRussianNativeComposerPlaceholderFits"
+    ],
+    [
+      "native/UITests/CoachUITests.swift",
+      "testMenuDisabledDuringAssessmentAndOffline"
+    ],
+    [
+      "native/UITests/CoachUITests.swift",
+      "testMenuIncludesEveryAvailableAction"
+    ],
+    [
+      "native/UITests/CoachUITests.swift",
+      "testMenuSelectionUsesOriginalRoutesExactlyOnceAndKeepsFocus"
+    ]
+  ],
+  "selected_ui_coach_tests": 30,
+  "selected_player_tests": 3
+}

@@ -1,0 +1,13 @@
+# Coach web composer menu
+
+Owner-authorized web-only follow-up to native Coach source `cff9deeefd51f5746afdfe69e9913b94f108c017`. Native TestFlight run `44718914653` remains the only upload; this follow-up does not change native, server, Dictation or budget code.
+
+- Plus menu inside the composer replaces the separate quick-action row. Every available action remains; Progress has a concise label while its original My progress payload is unchanged.
+- Semantic menu/menuitem roles, 44px targets, arrow/Home/End/Tab/Escape navigation, outside dismissal, focused editor/caret restoration, busy/guest disabling and owner fencing. Opening/dismissal sends no action; existing authenticated daily-entry behavior is unchanged.
+- Actual Chromium synthetic-owner test passed: five locales × 390/1280px, original Hint and Progress payloads, no duplicate action, preserved draft/selection, no overflow/JS errors. Actual screenshots retained in `docs/evidence/coach-web-menu`.
+- Full Node suite passed; two additional mounted-controller tests passed for all commands, no menu-open action, disabled busy commands and stale-owner rejection. Existing browser selectors migrated to menu semantics without dropping behavioral assertions.
+- **Live:** source `30d8316fedbf5b86f587e72713c5270f9e68167c`; server CI **44722327729**, build job **136240939647**, success. ARM64 image `sha256:1f4dcfe55fa32f5287a47deb5b7535c2b49e661c4f1b04705efa32ca82ba8d49` deployed from the registry through the existing Compose overlay.
+- Production server executable byte-identical to the prior stop_base-aware image; only static Coach assets changed. Guarded idle/store-locked replacement preserved **49 durable files**, all **10 historical holds / $10 reservations**, worker/unrelated container IDs, mounts, environment, resources and networks. Reported usage is not validated settlement proof; no hold was forgiven.
+- Certificate-validating public HTTPS: health **200**, unauthenticated Coach/Dictation **401**, source path **404**; **31/31** public assets match committed bytes and Coach is no-store. Exact receipt: `public-assets.json`.
+- Actual **live HTTPS assets with all private APIs intercepted locally** passed the same menu/payload/focus/five-locale/two-width browser gate. This is not real signed-in/provider acceptance and made no production AI or mutation calls.
+- Full Node run: **166 passed, one existing skip, zero failures**; final mounted-controller run **9/9** includes the two added menu/owner cases. Updated contextual action browser passed. No duplicate iOS publication; native source/build receipt is in `docs/COACH-COMPOSER-RELEASE.md`.

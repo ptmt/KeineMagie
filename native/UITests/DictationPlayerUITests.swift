@@ -472,7 +472,7 @@ final class DictationPlayerUITests: XCTestCase {
     }
 
     @MainActor private func launch(theme: String = "Light", locale:String = "en", large:Bool = false, title fixtureTitle:String? = nil, admissionDelay:Bool = false) throws -> XCUIApplication {
-        let root = URL(fileURLWithPath: "/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player")
+        let root = URL(fileURLWithPath: ProcessInfo.processInfo.environment["KM_DICTATION_UI_FIXTURE_ROOT"] ?? "/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player")
         guard let data = try? Data(contentsOf: root.appendingPathComponent("fixture/fixture.json")),
               let info = try JSONSerialization.jsonObject(with: data) as? [String: String],
               let token = info["native"] else { throw XCTSkip("Start the isolated generated-WAV fixture described in Fixtures/generate_dictation_player_wav.py") }

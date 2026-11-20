@@ -1,0 +1,14 @@
+{
+  "source_sha": "cff9deeefd51f5746afdfe69e9913b94f108c017",
+  "run": 44718914653,
+  "validate_job": 136232341934,
+  "upload_job": 136237194095,
+  "conclusion": "success",
+  "marketing_version": "1.0",
+  "build": "2795.56.56",
+  "upload_marker": "UPLOAD SUCCEEDED with no errors, 1 warning",
+  "upload_utc": "2026-11-20T10:45:44Z",
+  "delivery_uuid": "e31d0c91-93d6-47fd-9037-933b111806d2",
+  "warning": 90725,
+  "processing_or_testers_verified": false
+}

@@ -1,0 +1,31 @@
+{
+  "locales": [
+    "en",
+    "de",
+    "ru",
+    "es",
+    "fr"
+  ],
+  "widths": [
+    390,
+    1280
+  ],
+  "actions": [
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": ""
+    },
+    {
+      "action": "reveal",
+      "text": "source",
+      "turn_id": "exercise"
+    },
+    {
+      "action": "progress",
+      "text": "My progress",
+      "turn_id": ""
+    }
+  ],
+  "errors": []
+}
