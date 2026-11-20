@@ -35,6 +35,28 @@ func TestDictationSpendReportedReceiptsOnly(t *testing.T) {
 	}
 }
 
+func TestDictationSpendSettledHoldsRemainOwnerScoped(t *testing.T) {
+	f := newPlaybackFixture(t)
+	root := filepath.Join(filepath.Dir(f.cfg.historyPath), "dictations")
+	u := dictationSpeechUsage{InputTokens: 10, OutputTokens: 20}
+	u.Input.TextTokens = 10
+	u.Output.AudioTokens = 20
+	for i, owner := range []string{f.owner, "other", ""} {
+		ticket, err := dictationReserveMonthlyBefore(root, nil, owner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = dictationRecordCompletedUsage(root, ticket, string(rune('a'+i)), u); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got := f.cfg.dictationSpeechSpend(f.owner)
+	cost, _ := dictationUsageMicroUSD(u)
+	if got.ReportedMicroUSD == nil || *got.ReportedMicroUSD != cost || got.ReservedMicroUSD != dictationAttemptMicroUSD || got.UnsettledReservations != 0 {
+		t.Fatalf("owner/global accounting confused: %+v", got)
+	}
+}
+
 func TestDictationSpendIsOwnerScopedAndUnknownIsNotZero(t *testing.T) {
 	f := newPlaybackFixture(t)
 	root := filepath.Join(filepath.Dir(f.cfg.historyPath), "dictations")

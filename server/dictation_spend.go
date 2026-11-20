@@ -30,11 +30,14 @@ func (cfg *serverConfig) dictationSpeechSpend(owner string) dictationSpeechSpend
 		if e != nil {
 			return e
 		}
-		if len(b) > 65536 {
+		if len(b) > dictationMonthlyMaxBytes {
 			return errDictationBudget
 		}
 		var ledger dictationMonthlyLedger
 		if e = json.Unmarshal(b, &ledger); e != nil {
+			return e
+		}
+		if _, e = dictationMonthlyAccounted(&ledger, out.Month); e != nil {
 			return e
 		}
 		total := int64(0)
@@ -43,6 +46,8 @@ func (cfg *serverConfig) dictationSpeechSpend(owner string) dictationSpeechSpend
 			if entry.OwnerHash != sessionHash(owner) {
 				continue
 			}
+			// Preserve the public receipt-display contract: this is the sum of
+			// original reservations, not global admission or outstanding holds.
 			out.ReservedMicroUSD += entry.MicroUSD
 			if entry.Usage == nil {
 				out.UnsettledReservations++

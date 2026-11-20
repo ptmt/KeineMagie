@@ -12,6 +12,7 @@ import (
 )
 
 type dictationOpenAIConfig struct {
+	completedUsage                                                           func(string, dictationSpeechUsage) error
 	usage                                                                    func(dictationSpeechUsage) error
 	key, model, voice                                                        string
 	seconds, tokens, timeout, chars, dailyChars, dailySeconds, dailyRequests int
@@ -149,12 +150,19 @@ func dictationRealtime(ctx context.Context, cfg dictationOpenAIConfig, text, end
 			transcriptDone = true
 		case "response.done":
 			finished = true
-			if responseID != "" && e.Response.ID == responseID && e.Response.Usage != nil && cfg.usage != nil {
-				if err := cfg.usage(*e.Response.Usage); err != nil {
-					return nil, errDictationSpeech
+			complete := ctx.Err() == nil && responseID != "" && e.Response.ID == responseID && e.Response.Status == "completed" && audioDone && transcriptDone && len(pcm) > 0 && len(pcm)%2 == 0 && dictationNarrationMatches(text, transcript)
+			if responseID != "" && e.Response.ID == responseID && e.Response.Usage != nil {
+				if complete && cfg.completedUsage != nil && cfg.model == "gpt-realtime-2.1-mini" {
+					if err := cfg.completedUsage(responseID, *e.Response.Usage); err != nil {
+						return nil, errDictationSpeech
+					}
+				} else if cfg.usage != nil {
+					if err := cfg.usage(*e.Response.Usage); err != nil {
+						return nil, errDictationSpeech
+					}
 				}
 			}
-			if ctx.Err() != nil || responseID == "" || e.Response.ID != responseID || e.Response.Status != "completed" || !audioDone || !transcriptDone || len(pcm) == 0 || len(pcm)%2 != 0 || !dictationNarrationMatches(text, transcript) {
+			if !complete {
 				return nil, errDictationSpeech
 			}
 			wav := make([]byte, 44+len(pcm))

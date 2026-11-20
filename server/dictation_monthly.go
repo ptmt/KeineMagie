@@ -8,16 +8,21 @@ import (
 	"time"
 )
 
-// Official rates checked 2026-11-14. A conservative $1 hold exceeds the entire
+// Official rates rechecked 2026-11-20. A conservative $1 hold exceeds the entire
 // documented model envelope: 128k text input*$0.60/M + 32k output*$20/M
 // = $0.7168. The actual session additionally caps output at <=4096 tokens.
-// Holds NEVER release automatically: max ten generation attempts/UTC month.
+// Uncertain calls retain the full hold. Only bound, completed response receipts
+// settle to the pinned conservative token cost; original holds/history survive.
 // This is an application admission guard, not a guarantee about provider billing,
 // changed prices, taxes, other apps, or an invoice's posting month.
 const dictationMonthlyMicroUSD int64 = 10_000_000
 const dictationAttemptMicroUSD int64 = 1_000_000
 
+// Bounded storage grows with retained receipts, not with dollars reserved.
+const dictationMonthlyMaxBytes = 4 << 20
+
 type dictationSpeechUsage struct {
+	incomplete   bool
 	InputTokens  int64 `json:"input_tokens"`
 	OutputTokens int64 `json:"output_tokens"`
 	Input        struct {
@@ -36,6 +41,7 @@ type dictationMonthlyEntry struct {
 	MicroUSD       int64                 `json:"reserved_micro_usd"`
 	Usage          *dictationSpeechUsage `json:"reported_usage,omitempty"`
 	ActualMicroUSD int64                 `json:"reported_cost_micro_usd,omitempty"`
+	Settlement     *dictationSettlement  `json:"settlement,omitempty"`
 }
 type dictationMonthlyLedger struct {
 	Entries []dictationMonthlyEntry `json:"entries"`
@@ -43,12 +49,16 @@ type dictationMonthlyLedger struct {
 type dictationBudgetTicket struct{ month, id string }
 
 func dictationMonthlyTransaction(root, month string, fn func(*dictationMonthlyLedger) error) error {
+	parsed, err := time.Parse("2006-01", month)
+	if err != nil || parsed.Format("2006-01") != month {
+		return errDictationBudget
+	}
 	store := &historyStore{path: filepath.Join(root, "paid-months", month+".json")}
 	return store.locked(func() error {
 		d := dictationMonthlyLedger{}
 		b, e := os.ReadFile(store.path)
 		if e == nil {
-			if len(b) > 65536 {
+			if len(b) > dictationMonthlyMaxBytes {
 				return errDictationBudget
 			}
 			if e = json.Unmarshal(b, &d); e != nil {
@@ -59,6 +69,13 @@ func dictationMonthlyTransaction(root, month string, fn func(*dictationMonthlyLe
 		}
 		if e = fn(&d); e != nil {
 			return e
+		}
+		encoded, err := json.Marshal(d)
+		if err != nil {
+			return err
+		}
+		if len(encoded) > dictationMonthlyMaxBytes {
+			return errDictationBudget
 		}
 		return learningAtomicJSON(store.path, d)
 	})
@@ -73,15 +90,9 @@ func dictationReserveMonthly(root string) (dictationBudgetTicket, error) {
 func dictationReserveMonthlyBefore(root string, before func() error, owner ...string) (dictationBudgetTicket, error) {
 	ticket := dictationBudgetTicket{month: time.Now().UTC().Format("2006-01")}
 	err := dictationMonthlyTransaction(root, ticket.month, func(d *dictationMonthlyLedger) error {
-		var spent int64
-		if len(d.Entries) >= 10 {
-			return errDictationBudget
-		}
-		for _, v := range d.Entries {
-			if v.MicroUSD != dictationAttemptMicroUSD {
-				return errDictationBudget
-			}
-			spent += v.MicroUSD
+		spent, err := dictationMonthlyAccounted(d, ticket.month)
+		if err != nil {
+			return err
 		}
 		if spent > dictationMonthlyMicroUSD-dictationAttemptMicroUSD {
 			return errDictationBudget
@@ -102,7 +113,36 @@ func dictationReserveMonthlyBefore(root string, before func() error, owner ...st
 	})
 	return ticket, err
 }
+func (u *dictationSpeechUsage) UnmarshalJSON(b []byte) error {
+	type plain dictationSpeechUsage
+	var decoded plain
+	if err := json.Unmarshal(b, &decoded); err != nil {
+		return err
+	}
+	var fields struct {
+		Input  *int64 `json:"input_tokens"`
+		Output *int64 `json:"output_tokens"`
+		In     struct {
+			Text  *int64 `json:"text_tokens"`
+			Audio *int64 `json:"audio_tokens"`
+		} `json:"input_token_details"`
+		Out struct {
+			Text  *int64 `json:"text_tokens"`
+			Audio *int64 `json:"audio_tokens"`
+		} `json:"output_token_details"`
+	}
+	if err := json.Unmarshal(b, &fields); err != nil {
+		return err
+	}
+	*u = dictationSpeechUsage(decoded)
+	u.incomplete = fields.Input == nil || fields.Output == nil || fields.In.Text == nil || fields.In.Audio == nil || fields.Out.Text == nil || fields.Out.Audio == nil
+	return nil
+}
+
 func dictationUsageMicroUSD(u dictationSpeechUsage) (int64, bool) {
+	if u.incomplete || u.Input.TextTokens > 128000 || u.Input.AudioTokens > 128000 || u.Output.TextTokens > 32000 || u.Output.AudioTokens > 32000 {
+		return 0, false
+	}
 	if u.InputTokens < 0 || u.InputTokens > 128000 || u.OutputTokens < 0 || u.OutputTokens > 32000 || u.Input.TextTokens < 0 || u.Input.AudioTokens < 0 || u.Input.ImageTokens != 0 || u.Output.TextTokens < 0 || u.Output.AudioTokens < 0 {
 		return 0, false
 	}
@@ -119,10 +159,16 @@ func dictationRecordUsage(root string, ticket dictationBudgetTicket, u dictation
 		return errDictationBudget
 	}
 	return dictationMonthlyTransaction(root, ticket.month, func(d *dictationMonthlyLedger) error {
+		if _, err := dictationMonthlyAccounted(d, ticket.month); err != nil {
+			return err
+		}
 		for i := range d.Entries {
 			v := &d.Entries[i]
 			if v.ID == ticket.id {
 				if v.Usage != nil {
+					if *v.Usage != u || v.ActualMicroUSD != cost {
+						return errDictationBudget
+					}
 					return nil
 				}
 				v.Usage = &u

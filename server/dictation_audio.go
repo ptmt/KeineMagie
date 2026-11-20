@@ -142,6 +142,9 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	speechConfig.usage = func(u dictationSpeechUsage) error { return dictationRecordUsage(root, ticket, u) }
+	speechConfig.completedUsage = func(id string, u dictationSpeechUsage) error {
+		return dictationRecordCompletedUsage(root, ticket, id, u)
+	}
 	synthesize := cfg.dictationSpeech
 	if synthesize == nil {
 		synthesize = func(ctx context.Context, c dictationOpenAIConfig, text string) ([]byte, error) {
