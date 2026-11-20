@@ -1,0 +1,56 @@
+{
+  "run_id": 44770605261,
+  "attempt": 1,
+  "validate_job": 136412701791,
+  "upload_job_skipped": 136421557430,
+  "annotations": [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/ptmt/KeineMagie/blob/0b76a3505001cef30bf85506eb9930eb5e74d06d/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "The job was not acquired by Runner of type hosted even after multiple attempts",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/ptmt/KeineMagie/blob/0b76a3505001cef30bf85506eb9930eb5e74d06d/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/ptmt/KeineMagie/blob/0b76a3505001cef30bf85506eb9930eb5e74d06d/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/ptmt/KeineMagie/blob/0b76a3505001cef30bf85506eb9930eb5e74d06d/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    }
+  ]
+}

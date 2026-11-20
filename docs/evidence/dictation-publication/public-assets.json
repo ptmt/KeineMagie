@@ -1,0 +1,146 @@
+{
+  "source_sha": "0b76a3505001cef30bf85506eb9930eb5e74d06d",
+  "assets_exact": 32,
+  "assets": [
+    {
+      "asset": "app.mjs",
+      "sha256": "1d644027542897106635b826d5b158ea0ba57750eef928cba674f1df00b83342"
+    },
+    {
+      "asset": "apple-sign-in-de.png",
+      "sha256": "5dbc8ad730f76f5665a5ec09f7e9ad73cd8007aad82b04d99c57cedeff5e2fd2"
+    },
+    {
+      "asset": "apple-sign-in-en.png",
+      "sha256": "d89a231a4b3a3ba0dc6b86b3e35ec2dbb8748af3b745ef2ecbd8f8239e9cdac2"
+    },
+    {
+      "asset": "apple-sign-in-es.png",
+      "sha256": "5eb555f999acebbbf37b60fade5fd804ca2d265533e12aa4b375dc6960f860f0"
+    },
+    {
+      "asset": "apple-sign-in-fr.png",
+      "sha256": "1ecdb24a8b11088c5593104999d08101fff6b3cee89ff2477a690f8d69252eb3"
+    },
+    {
+      "asset": "apple-sign-in-ru.png",
+      "sha256": "a7e33bfb90122c4d4114690061f64700010357e18b8d1fabb9e612bb207deaf7"
+    },
+    {
+      "asset": "bootstrap.js",
+      "sha256": "e97d531503a4f04adc0b0417713e60217e40cf88022496cde655c4a0f38c3e02"
+    },
+    {
+      "asset": "coach-chat.mjs",
+      "sha256": "74e0d5f5ca36bc2743daad68c474a0dc30ee41c4ec22fd91ee7f83a823337b59"
+    },
+    {
+      "asset": "coach-presentation.mjs",
+      "sha256": "c1ac9141628b5b55a18611bf9cb5b888356c545f98f1926abb36e2189a9a3fca"
+    },
+    {
+      "asset": "coach-state.mjs",
+      "sha256": "118f263373dc11df42e0be6f77b90ddea01429d333ce6e126e72213adb968613"
+    },
+    {
+      "asset": "coach.css",
+      "sha256": "6aca662512d30c55be971333485ab3f1221986495f2ff4ea8eb17f3b287ffbe1"
+    },
+    {
+      "asset": "coach.mjs",
+      "sha256": "03f3e639c51c47a8a298a974b845815ef2c580e53da983f573ce625bfb16fcf2"
+    },
+    {
+      "asset": "core.mjs",
+      "sha256": "ac4a28c1cfb46a2bbcd5708b5c300be9ed871319e516d07ae423eb431cb09b6c"
+    },
+    {
+      "asset": "dictation-assessment.mjs",
+      "sha256": "af880ca303de0d08d9fd1df61b103cb02443964bdbd66842b42f1017252d00cd"
+    },
+    {
+      "asset": "dictation-cache.mjs",
+      "sha256": "cd221b39774f95e627fe0e782888575e167b7025b3de49065b188ca359ad5982"
+    },
+    {
+      "asset": "dictation-i18n.mjs",
+      "sha256": "93ca7068095489e5c96610c86aff7efeae71bac6b4b955aad01ec37522902d22"
+    },
+    {
+      "asset": "dictation-journal.mjs",
+      "sha256": "7fc92ddf3d1d017feeaef72b381caf8980a42901cbd0ae0b1163d723d37d2f6b"
+    },
+    {
+      "asset": "dictation-playback.mjs",
+      "sha256": "7f416034e8ccf51809ca2ea327ea173f158194967ea3ba125f83d40489905608"
+    },
+    {
+      "asset": "dictation-state.mjs",
+      "sha256": "7f16a823a081dc89ba86bfa36a7f7e93b4945c4dca4213d7ea217bbb781a8044"
+    },
+    {
+      "asset": "dictation.css",
+      "sha256": "7ac614a0185a527b71bafb101604b90a19f75404ad1b3c7e2381e26dc0626a78"
+    },
+    {
+      "asset": "dictation.mjs",
+      "sha256": "c794183e5c7ce8e64a66c16a7d82d12e2b9f569a597910691cadab286084b2b9"
+    },
+    {
+      "asset": "episode-i18n.mjs",
+      "sha256": "688dece5027af759d06e3e404044c30ae43a6d4de3616d13e1e5aa11a3cca5db"
+    },
+    {
+      "asset": "episode-view.mjs",
+      "sha256": "3dc3153b61f04ddce935f8588519e49fda50442a3edcb4d330d4da93ae71f669"
+    },
+    {
+      "asset": "episode.css",
+      "sha256": "5fbcc6e0ab87a582cad8b3a717615423a16e18943a5442fdd8975f8962c37864"
+    },
+    {
+      "asset": "episode.mjs",
+      "sha256": "3b656b900e02507e37ac544229be362c66b4f02fd55bef5e84b405f5f178a8f1"
+    },
+    {
+      "asset": "favicon.svg",
+      "sha256": "5e089d1a95402447b6674402b80945b220a1ed93c9f482bef37fefa0d2874ecd"
+    },
+    {
+      "asset": "i18n.mjs",
+      "sha256": "9fdad201e83ae46c874b4cc65f99e07a4e5fa820136d73fe46dad67a3b750994"
+    },
+    {
+      "asset": "index.html",
+      "sha256": "bb998e696d351753ea161563ad9ca3e86670003b7fcf9dc4765dedae2dcfa4ef"
+    },
+    {
+      "asset": "profile-sync.mjs",
+      "sha256": "c72a014e3ad8216c0e85c5ebc0a9ba3bb0ca60f9a3c80f93fb98c8a80c328a80"
+    },
+    {
+      "asset": "styles.css",
+      "sha256": "2f80e7010ef6a6dae8da6658e3f83b6992a4ad0125c9173783c54456874caa2b"
+    },
+    {
+      "asset": "translator-followup.css",
+      "sha256": "8d531a13a7e2ac1eb5f2bcac2abd8f3a0b47c97b37ee5b50c6b723844092c95d"
+    },
+    {
+      "asset": "translator-followup.mjs",
+      "sha256": "779ea7cf382a01bbd572f6ce8c442d474a3a1afe65bf603461d99052bb315371"
+    }
+  ],
+  "http": {
+    "/health": "200",
+    "/": "200",
+    "/v1/web/session": "401",
+    "/v1/podcasts": "401",
+    "/v1/learning/coach": "401",
+    "/v1/learning/dictations": "401",
+    "/server/main.go": "404",
+    "/.env": "404",
+    "/.git/config": "404"
+  },
+  "no_store": true
+}
