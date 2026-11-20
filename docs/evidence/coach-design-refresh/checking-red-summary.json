@@ -1,0 +1,52 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "56A70197-59DE-4410-9E76-25272244E9C8",
+        "deviceName" : "KeineMagie profiles integrated isolated",
+        "modelName" : "iPhone SE (3rd generation)",
+        "osBuildNumber" : "24B8117",
+        "osVersion" : "27.2",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 0,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "KeineMagie · Built with macOS 27.2.1",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1795125374.312,
+  "passedTests" : 0,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1795125332.187,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertTrue failed - Checking must be visible, not only a spinner accessibility label",
+      "targetName" : "KeineMagieUITests",
+      "testIdentifier" : 1,
+      "testIdentifierString" : "CoachUITests/testContextualAIAssessmentPendingAndCorrection()",
+      "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachUITests/testContextualAIAssessmentPendingAndCorrection",
+      "testName" : "testContextualAIAssessmentPendingAndCorrection()"
+    }
+  ],
+  "title" : "Test - KeineMagie",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 1
+}

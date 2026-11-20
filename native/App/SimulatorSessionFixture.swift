@@ -289,9 +289,18 @@ actor SimulatorSessionFixture {
         }
         if request.url?.path == "/v1/learning/coach" {
             if !mode.hasPrefix("coach") { return AuthResponse(data: Data(#"{"turns":[],"observations":[],"model":"gpt-6.1-terra"}"#.utf8), status: 200) }
+            if ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_DESIGN_ENTRY"] == "1", request.httpMethod == "GET", coachEntryCount == 0 {
+                return AuthResponse(data: Data(#"{"turns":[],"observations":[],"actions":[]}"#.utf8), status: 200)
+            }
             if request.httpMethod == "POST", let data = request.httpBody {
                 let action = try JSONDecoder().decode(CoachAction.self, from: data)
-                if action.action == "entry" { coachEntryCount += 1 }
+                if action.action == "entry" {
+                    if ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_DESIGN_ENTRY"] == "1" { try await Task.sleep(for: .seconds(6)) }
+                    coachEntryCount += 1
+                }
+                if action.action == "answer", ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_DESIGN_ERROR"] == "1" {
+                    return AuthResponse(data: Data(), status: 503)
+                }
                 if action.action == "progress" { coachProgressShown = true }
                 if action.action == "answer" && mode == "coach-assessment" {
                     let delay = ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_CHECK_CAPTURE"] == "1" ? 6 : 2
