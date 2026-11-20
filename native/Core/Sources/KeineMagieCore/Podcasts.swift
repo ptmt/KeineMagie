@@ -196,7 +196,8 @@ public struct PodcastAPI: Sendable {
     }
     public func dictationPlayback(id: String, command: DictationPlaybackRequest, owner: String? = nil) async throws -> DictationPlayback {
         try Task.checkCancellation()
-        var request=try dictationRequest(id:id,action:"playback",method:"POST",body:JSONEncoder().encode(command))
+        let encoder=JSONEncoder();encoder.outputFormatting = [.sortedKeys]
+        var request=try dictationRequest(id:id,action:"playback",method:"POST",body:encoder.encode(command))
         if let owner {request.setValue(owner,forHTTPHeaderField:"X-Dictation-Owner")}
         let data=try await send(request)
         try Task.checkCancellation()

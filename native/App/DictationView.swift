@@ -231,16 +231,23 @@ struct DictationView: View {
                             if playbackSession.canStop { playbackSession.stop() } else { playbackSession.activate() }
                         } label: { Text(AppL10n.text(playbackSession.canStop ? "Stop" : playbackSession.label)).frame(maxWidth:.infinity,minHeight:44) }
                         .buttonStyle(.borderedProminent).tint(.primary)
+                        .foregroundStyle(Color(uiColor: .systemBackground))
                         .disabled(busy || saving || (!playbackSession.canStop && playbackSession.disabled))
                         .accessibilityIdentifier("dictation-manual-transport")
+                        if let step=value.lastCompletedFragment {
+                            Button("pacing.extra") {playbackSession.replay(step:step)}
+                                .frame(minHeight:44)
+                                .disabled(busy || saving || !playbackSession.canReplay(step:step))
+                                .accessibilityIdentifier("dictation-extra-replay")
+                        }
                     }
                 }
                 if !value.checked && !player.playing && policyPlayer?.waiting != true && value.playback?.active == nil {
                     if value.playbackPolicyVersion == 2 && (value.playback?.listens?.isEmpty != false) {
                         Picker("pacing.repeats",selection:Binding(get:{value.pacing?.repeats ?? 2},set:{configurePacing(repeats:$0,gap:value.pacing?.gapSeconds ?? 3)})) {
-                            Text("2×").tag(2);Text("3×").tag(3)
-                        }.disabled(busy || saving).accessibilityIdentifier("dictation-pacing-repeats")
-                        Toggle("pacing.long",isOn:Binding(get:{value.pacing?.gapSeconds == 8},set:{configurePacing(repeats:value.pacing?.repeats ?? 2,gap:$0 ? 8 : 3)})).disabled(busy || saving)
+                            Text(verbatim:"2×").tag(2);Text(verbatim:"3×").tag(3)
+                        }.pickerStyle(.segmented).disabled(busy || saving).accessibilityIdentifier("dictation-pacing-repeats")
+                        Toggle("pacing.long",isOn:Binding(get:{value.pacing?.gapSeconds == 8},set:{configurePacing(repeats:value.pacing?.repeats ?? 2,gap:$0 ? 8 : 3)})).disabled(busy || saving).accessibilityIdentifier("dictation-pacing-long")
                     } else if value.playbackPolicyVersion != 2 {
                         Button("pacing.upgrade") {configurePacing(repeats:2,gap:3)}.disabled(busy || saving)
                     }

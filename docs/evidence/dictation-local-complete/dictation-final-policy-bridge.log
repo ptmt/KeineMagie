@@ -1,0 +1,18 @@
+Building for debugging...
+[1 / 5]
+Build complete! (0,30 sec)
+Test Suite 'Selected tests' started at 2026-11-20 12:10:07.317.
+Test Suite 'KeineMagieCoreTests.xctest' started at 2026-11-20 12:10:07.323.
+Test Suite 'DictationGoBridgeTests' started at 2026-11-20 12:10:07.323.
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoLostStartAndProgressAcknowledgmentsStopColdRestart]' started.
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoLostStartAndProgressAcknowledgmentsStopColdRestart]' passed (5.151 seconds).
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoNativeRoundTripAdmissionRecoveryAndRevocation]' started.
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoNativeRoundTripAdmissionRecoveryAndRevocation]' passed (0.556 seconds).
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoStopRestartZeroAndFourStartCap]' started.
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoStopRestartZeroAndFourStartCap]' passed (0.539 seconds).
+Test Suite 'DictationGoBridgeTests' passed at 2026-11-20 12:10:13.570.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 6.246 (6.247) seconds
+Test Suite 'KeineMagieCoreTests.xctest' passed at 2026-11-20 12:10:13.570.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 6.246 (6.248) seconds
+Test Suite 'Selected tests' passed at 2026-11-20 12:10:13.570.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 6.246 (6.254) seconds

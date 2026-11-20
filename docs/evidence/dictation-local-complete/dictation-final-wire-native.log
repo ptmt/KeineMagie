@@ -1,0 +1,14 @@
+Building for debugging...
+[1 / 5]
+Build complete! (0,49 sec)
+Test Suite 'Selected tests' started at 2026-11-20 12:13:10.913.
+Test Suite 'KeineMagieCoreTests.xctest' started at 2026-11-20 12:13:10.918.
+Test Suite 'DictationAssessmentTests' started at 2026-11-20 12:13:10.918.
+Test Case '-[KeineMagieCoreTests.DictationAssessmentTests testActualGoHandlerReceipts]' started.
+Test Case '-[KeineMagieCoreTests.DictationAssessmentTests testActualGoHandlerReceipts]' passed (0.002 seconds).
+Test Suite 'DictationAssessmentTests' passed at 2026-11-20 12:13:10.921.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'KeineMagieCoreTests.xctest' passed at 2026-11-20 12:13:10.921.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'Selected tests' passed at 2026-11-20 12:13:10.921.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.002 (0.007) seconds

@@ -1,0 +1,423 @@
+{
+  "source_manifest_sha256": "4163c84f71533ebae6c313543b4dbdf1a46e86ec87810a93a80b84f939648b26",
+  "pixel_policy": "Byte-identical exported xcresult PNGs; no cropping, retouching or reconstructed UI",
+  "captures": [
+    {
+      "device": "normal",
+      "file": "coach-composer-menu-open-keyboard.png",
+      "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+      "original": "E44EBDE1-0442-4A9E-8848-C3F6EF1D4B61.png",
+      "sha256": "0b3e77cff92989b4edf80184ef316f0bb3e48ccd21f7207844b6fa44bba60db8"
+    },
+    {
+      "device": "normal",
+      "file": "coach-composer-menu-closed-keyboard.png",
+      "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+      "original": "671B213B-BF6C-4103-AF74-C8866AEA7842.png",
+      "sha256": "18cdf7c3b336395537bf46ce52e12ab22d278de0c0dca5878c32a13a1937ff4a"
+    },
+    {
+      "device": "normal",
+      "file": "native-spend-fr.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "334D282A-2685-4D06-8EEB-1C5C08B8AA28.png",
+      "sha256": "be307d986d1dabf5beecd169978c1f32bbda9fa3c27c04cf3aa0e2d55d8a9a7c"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-fr.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "35AB931E-F927-46B0-8A7F-D6A200C2AF8A.png",
+      "sha256": "6eefce26adb70b8a4dfc5752c7f2215661e41e8186e976b8ad626a15aa81fefe"
+    },
+    {
+      "device": "normal",
+      "file": "native-spend-es.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "08A30FC8-50D5-47F6-A946-F312E086EE80.png",
+      "sha256": "6767c314d7c7cafdc70ac1e1eed2659c17f21f1c7e576f07538872ab88d33dec"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-es.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "B9E33BA2-B142-4A2B-8443-2469AEE09CEB.png",
+      "sha256": "53b766c1887d34b8379c9c69e5c43bcca94946aad8e4ef23881620cec6a10c24"
+    },
+    {
+      "device": "normal",
+      "file": "native-spend-ru.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "C1CA2F1A-AA86-437D-9844-D06E4B1D5AEA.png",
+      "sha256": "4eeb5477fdc35dd73a5e82471266deb9f1f36500301dd7c5a95738d01a145bca"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-ru.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "58A99D93-5A89-4E5F-B066-EFE3065CD4BC.png",
+      "sha256": "d7d70f3095e1652b4743eb54c4b44e01b79a1b03ac88ba141e2c8677cfa4258a"
+    },
+    {
+      "device": "normal",
+      "file": "native-spend-de.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "D56C583E-D708-4B47-9B75-EA44C6C8E67E.png",
+      "sha256": "587041165eee8bb562afbc203328e23322c8b6709dd3e3c25c7912879fb7a0bc"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-de.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "5AFB02F8-E08A-4292-9CD7-2A916B910673.png",
+      "sha256": "6b160d767e7c2000b6d9e72a73478509c09c719c4f3453ebb733f9ecb5e21d23"
+    },
+    {
+      "device": "normal",
+      "file": "native-spend-en.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "7A9127AD-7975-4221-B1E4-32A96AE0E5C0.png",
+      "sha256": "82a7606bccb1b992386a2c573995775b06290960d36c6df9ac8186fb0021ecbb"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-en.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "00BA53D0-C5F3-4C0C-AF6C-403390E0E239.png",
+      "sha256": "eb3c26d745898ce266846ec4bd6238368c81b435bce2b0deed529a4eb0f58265"
+    },
+    {
+      "device": "normal",
+      "file": "native-policy-two-stopped-draft.png",
+      "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+      "original": "073F0B98-A652-40AF-9F2C-02A8308BCABD.png",
+      "sha256": "b245e3da341923577f1338e4c5a70743c4b3b1e7ae1a95d858246d0cd90b453b"
+    },
+    {
+      "device": "normal",
+      "file": "native-policy-two-global-coach.png",
+      "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+      "original": "670433A0-6BD2-4B78-AF33-713CAB92F970.png",
+      "sha256": "f6c3469a3a90ec0b84a1a1039f306d7a1cf8ce131fcffaa336aae9313452bb7f"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-hybrid-failed-recovered.png",
+      "test": "DictationManualUITests/testHybridFailurePreservesComparisonAndGetRecovery()",
+      "original": "51FDFEA5-535E-404A-B5DF-30CD294D3C2C.png",
+      "sha256": "86f9580cdc5d1f015f140059d38d1fa90b849685b62130c07974ece927c1ef28"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-largest-keyboard-fr.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "250F186B-C052-4CE4-B0C4-4AFC2472CBB1.png",
+      "sha256": "184120180b2ee7016f11d20deb015bd75cb2d3369bd2fc5606e9768320958d54"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-largest-keyboard-es.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "F7FC7907-971A-4B2C-ADAD-83078F4FF252.png",
+      "sha256": "16ac780940be9ec51a0b3d618b5cf2cdc4531d8bdf1e89b15f827c003f8715b7"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-largest-keyboard-ru.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "E63A9A54-5BA6-4BE8-873F-E36E4C15C639.png",
+      "sha256": "1efb18e4a5920f51c80b52f5ad3ebd5162caed30c7e78156da130cd3f864d703"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-largest-keyboard-de.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "C0B43817-20AF-4226-B503-F7345C10A52F.png",
+      "sha256": "65d799e9b4bdada42b288045336a379cb4bbacddc643d0862dc4b5af1e20d847"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-largest-keyboard-en.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "78F6F979-DDB9-42D1-9C93-BF604D9C5A6C.png",
+      "sha256": "865fe78e4680a3a66c4a2f0188c5b9c9ac51563b5225bdc1328a834c31f794f3"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-hybrid-completed.png",
+      "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+      "original": "61C1FA86-E8E2-4EDD-83A3-63B22700A4D4.png",
+      "sha256": "f04007da02669307325500e2b4f1de50ae70e0d9c9024bd2e05d1cfcdc782419"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-hybrid-pending.png",
+      "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+      "original": "27EF37CA-CDA7-4901-A19C-F331AB5EEA7A.png",
+      "sha256": "5184b0583c62f8f0dbc10124b8846a1aed098754a4c09b007aa3af0083d0c71d"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-fragment-next.png",
+      "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+      "original": "CE65C5D9-CA19-4B25-9EF4-075A1412437A.png",
+      "sha256": "1ba942839a887322f05211a602e660bf16a25ed41ba255a0da7a773c6d549153"
+    },
+    {
+      "device": "normal",
+      "file": "native-manual-introduction-next.png",
+      "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+      "original": "7690DB06-113C-4ABE-9E02-23C09F3930CF.png",
+      "sha256": "6507f3277535b884368673ac3051aa0cd8677788dbd7035b4680a95c297051f2"
+    },
+    {
+      "device": "normal",
+      "file": "native-hybrid-canceled.png",
+      "test": "DictationManualUITests/testPendingCancellationRetainsComparisonAfterLateProvider()",
+      "original": "7E48A803-3EBC-4E4C-9532-CB1A6535F18D.png",
+      "sha256": "a2201a94424a22ff6dd232cc5f49e8a9449845e5d35f4496d2f7229794b0add7"
+    },
+    {
+      "device": "normal",
+      "file": "native-transport-disabled-dark.png",
+      "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+      "original": "D24EA20F-6505-44F0-BF56-E4A4C54247AE.png",
+      "sha256": "560e459c93ad6db33cf269848268dd9b31dbdaf23acdab1e37e175dbc437c015"
+    },
+    {
+      "device": "normal",
+      "file": "native-transport-contrast-dark.png",
+      "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+      "original": "C1DCCA21-BE7B-4E7D-B348-D77DE77B472E.png",
+      "sha256": "31b168b6427dd182a4a7d68cef68fd3ae16d40a8c6dd6cf33a0fd47999e280ea"
+    },
+    {
+      "device": "normal",
+      "file": "native-transport-disabled-light.png",
+      "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+      "original": "268AD07F-FC13-42B5-93AB-3B018C68105D.png",
+      "sha256": "4296812d2c0334846861847932a9ded342755a62713ba74d384963467e4d0a81"
+    },
+    {
+      "device": "normal",
+      "file": "native-transport-contrast-light.png",
+      "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+      "original": "585194D3-9DD1-4F73-823B-27A2029E88AA.png",
+      "sha256": "3031e4fca1506784faac7b3a26e0ce06105edbd40538b6c706e3ae59f9763b63"
+    },
+    {
+      "device": "small",
+      "file": "coach-composer-menu-open-keyboard.png",
+      "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+      "original": "76F84B6E-C562-4FB7-9034-7CD8DE138E64.png",
+      "sha256": "78916250784e95d9b5fa5aef5e79a55d62425d02495c6d89e7fd79395d9a755b"
+    },
+    {
+      "device": "small",
+      "file": "coach-composer-menu-closed-keyboard.png",
+      "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+      "original": "235F892E-69E9-4C3F-A830-941600AD7C1E.png",
+      "sha256": "88756c2731b0a56069db866541c792c9fe5060d1fdbfb509aadfb99bfca23f2e"
+    },
+    {
+      "device": "small",
+      "file": "native-spend-fr.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "DB988B1E-5D4B-4D92-AECF-8E8929AB50B9.png",
+      "sha256": "5176ee0fe3c549f9055551e4101eeed8d026ea01899953c1f168aec51c939139"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-fr.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "F3D366EF-0987-40E4-BA71-AF52BE7D0E53.png",
+      "sha256": "ebdadb2e89c25af21e6ba2bc416b877cc79bed608997f96bfb2342c5b2040416"
+    },
+    {
+      "device": "small",
+      "file": "native-spend-es.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "D1F8E9AD-B637-429A-802F-804EB37FA861.png",
+      "sha256": "7695a1428479fa52b1c74dfd1aa0e46b0f76f4c8423c2644f9a2b0ed72a0a982"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-es.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "C36DA195-E9B3-4254-9CDF-37007E9094C0.png",
+      "sha256": "ade3a85ae5f9c0c5e676b5b18d3de8ebeb07d770e74d76ff7952574006bd9e50"
+    },
+    {
+      "device": "small",
+      "file": "native-spend-ru.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "4FE8DF50-04AE-4D56-8EFF-5733DB44D92E.png",
+      "sha256": "bd3ab7d27f7e1cc9935d35cb28ee1d5076137f3fab3a5ee12744fe9148a48906"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-ru.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "B2F70B0A-BC72-45B5-AFAB-5EC60DBB1870.png",
+      "sha256": "39f1c9dccf12fe22eca5df1d445ac6590e5ccd95f4354861512f16f1c2cdb5aa"
+    },
+    {
+      "device": "small",
+      "file": "native-spend-de.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "5990569E-DF16-4EFD-BC75-C02B3B914BDB.png",
+      "sha256": "a318ddf71e83a60654bde1bf541d04b4cf5bd12103a00cbd9ff7af0596f63260"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-de.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "EA7D9388-9866-40A0-8EF3-941C2A1BA281.png",
+      "sha256": "ed5a5d3af5dface7230c106263513c78af166472041aa245f219e07e855a38e3"
+    },
+    {
+      "device": "small",
+      "file": "native-spend-en.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "4B911392-9762-43E1-8A88-A3CA6BE626F4.png",
+      "sha256": "12708bbbd6ab2c3b0738d4180541ed1813f65b2524eec707db716ccaba4f0cc9"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-en.png",
+      "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+      "original": "A913F6FC-8EC8-444A-BBFA-7B17312A32E1.png",
+      "sha256": "ed6ed085ffc5875dfd013aeddd263d34c453a2ade42f59f9f2616c779ad0220c"
+    },
+    {
+      "device": "small",
+      "file": "native-policy-two-stopped-draft.png",
+      "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+      "original": "7E86D03C-E31D-4D92-A7B4-C9FFD321206C.png",
+      "sha256": "e6be795b94e183ec828986f773d46d8b2ba193739e6131dbc20410f065202903"
+    },
+    {
+      "device": "small",
+      "file": "native-policy-two-global-coach.png",
+      "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+      "original": "93C26229-3D12-4E1C-9393-AEF87182637E.png",
+      "sha256": "60af2f3f670699525e666966d7b3ed1a4dd1166d8a5803d729126ed8de300f35"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-hybrid-failed-recovered.png",
+      "test": "DictationManualUITests/testHybridFailurePreservesComparisonAndGetRecovery()",
+      "original": "79E63A00-F985-4C00-8483-1E5DF5FD886F.png",
+      "sha256": "76abc22c7e4e137250050004bf680b7df640dd85d076a05bd9f2df7656d1f685"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-largest-keyboard-fr.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "4A49DBFB-80A8-4EC2-9319-0CAAE703284B.png",
+      "sha256": "458e48acc1e958777683e3a457144af0420a6905173b8c771d7a580144a89369"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-largest-keyboard-es.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "4DFE42A9-72F1-4D62-A4B2-1061058D075F.png",
+      "sha256": "741992327d301aae45192061b9483ce4ca1030d27bea0da6a8c728ab1f9ea2b0"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-largest-keyboard-ru.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "911540ED-DBD0-417F-8C66-D1DC58E8EC6E.png",
+      "sha256": "8e862e0dfa06ef43efb4379658d7c7e256683ae49dd94ab79deb8492007fbaac"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-largest-keyboard-de.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "D1206235-8FCD-4665-B7F0-B4A85114FA5E.png",
+      "sha256": "87db54e68de5038bf4b57927d287c0bc97d11ad707b4aa3f3fe8db9e58349314"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-largest-keyboard-en.png",
+      "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "original": "392F9B4B-5BEA-46F1-9407-57FE5338D5F0.png",
+      "sha256": "f369b269361dfe51e1bff1b7cadad68bd126228506f61fc821cd31a7e0408ed1"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-hybrid-completed.png",
+      "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+      "original": "44D87E40-88C0-4934-B099-CB7CC4760316.png",
+      "sha256": "5ebdca8e70a3c6c861e5bf5d6b0dc8ebf70927006db60dfb251fb1f7ecb05343"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-hybrid-pending.png",
+      "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+      "original": "ACAF2788-71AD-4162-8DB3-BAA69A11D6CA.png",
+      "sha256": "0be65ff5237ae8a6dae16978c129eb0efb617fd4b2e26fa0ad416d30e9d1360c"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-fragment-next.png",
+      "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+      "original": "29365384-361F-4803-9F0A-0E72D8AC933E.png",
+      "sha256": "a1126bf0c59c5b4b02ce71c71bea73967d28f6192ef3cdc3c0d83dec45a5e289"
+    },
+    {
+      "device": "small",
+      "file": "native-manual-introduction-next.png",
+      "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+      "original": "E53B4C0A-1C55-42D9-A6DA-C10A05B7C2AE.png",
+      "sha256": "e4a1200bff7ed23d1628143d7425aa3584d7153215336902c8f16b8f4031b39e"
+    },
+    {
+      "device": "small",
+      "file": "native-hybrid-canceled.png",
+      "test": "DictationManualUITests/testPendingCancellationRetainsComparisonAfterLateProvider()",
+      "original": "84E9F236-6BE6-4760-91E5-79FC636D594B.png",
+      "sha256": "e987da1c3615ac08249967c01456638900a467b6b3f0d468145c607680bd4423"
+    },
+    {
+      "device": "small",
+      "file": "native-transport-disabled-dark.png",
+      "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+      "original": "D0CAB515-EF84-4A84-A716-F35647955667.png",
+      "sha256": "ffe4394d7fad0a48cec425bc7fa5bf3d227e7ef84345e82d94ea3f7588bc7fbc"
+    },
+    {
+      "device": "small",
+      "file": "native-transport-contrast-dark.png",
+      "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+      "original": "D7395C37-A6BF-4FBD-B155-345448BD9BCF.png",
+      "sha256": "424b764a12748dfce57e28d107227e072d4a516c24459a7e60091a31ae4f9588"
+    },
+    {
+      "device": "small",
+      "file": "native-transport-disabled-light.png",
+      "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+      "original": "0F54A9D2-7E5F-4891-A949-0AA8C0143E49.png",
+      "sha256": "4b04b336ecf8487a7af8a6244fe42a99f81c707095d171947dbaa131104317e1"
+    },
+    {
+      "device": "small",
+      "file": "native-transport-contrast-light.png",
+      "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+      "original": "8506154A-83E4-4180-ABAD-E1D473FE0081.png",
+      "sha256": "3e29637f0c2d325148ecfd6af9c6565adec764b31332d4e73fb368b6caa9d333"
+    }
+  ],
+  "inspected_delivery_previews": [
+    "normal/native-manual-fragment-next.png",
+    "normal/native-manual-hybrid-completed.png"
+  ],
+  "additional_visual_inspection": [
+    "small/native-transport-contrast-dark.png",
+    "small/native-manual-hybrid-completed.png",
+    "normal/native-transport-disabled-dark.png",
+    "normal/native-transport-disabled-light.png"
+  ],
+  "inspection": "Dark Next readable; normal saved comparison, partial scope and entire synthetic explanation unobscured. Small comparison heading above scroll position; source/answer and explanation visible. Exhausted transport retains native disabled dimming."
+}

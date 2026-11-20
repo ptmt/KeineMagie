@@ -16,7 +16,15 @@ struct DictationPacingTimeline: View {
     private func complete(_ anchor: Int) -> Bool {
         steps(anchor).allSatisfy { step in record.playback?.listens?.contains(where:{$0.step == step && $0.ended == true && $0.stopped != true && $0.intent == "planned"}) == true }
     }
-    private var current: Int { anchors.last(where:{$0 <= record.policyStep}) ?? 0 }
+    private var current: Int {
+        let next = anchors.last(where:{$0 <= record.policyStep}) ?? 0
+        // The cursor already names the next fragment while the user is writing.
+        // Keep the last heard phase current until explicit Next admits playback.
+        if record.needsManualNext, !waiting {
+            return anchors.last(where:{$0 < next}) ?? next
+        }
+        return next
+    }
     private func title(_ anchor: Int) -> String {
         if anchor == 0 { return AppL10n.text("pacing.intro") }
         if record.plan[anchor].kind == "final" { return AppL10n.text("Optional final reading") }
@@ -49,7 +57,7 @@ struct DictationAssessmentView: View {
     let recover: () -> Void
     let cancel: () -> Void
     private func passage(source: Bool) -> Text {
-        receipt.alignment.spans.filter{$0.kind != "unattempted"}.reduce(Text("")) { result, span in
+        receipt.alignment.spans.filter{$0.kind != "unattempted"}.reduce(Text(verbatim:"")) { result, span in
             let literal=source ? span.original : span.written
             let color: Color = span.kind == "equal" ? .primary : span.kind == "omission" ? .red : span.kind == "addition" ? .blue : .orange
             return result + Text(verbatim:literal).foregroundColor(color)
@@ -91,6 +99,7 @@ struct DictationAssessmentView: View {
                     }
                 }.font(.footnote).foregroundStyle(.secondary)
             }
-        }.accessibilityIdentifier("dictation-assessment")
+        }.accessibilityElement(children: .contain)
+            .accessibilityIdentifier("dictation-assessment")
     }
 }

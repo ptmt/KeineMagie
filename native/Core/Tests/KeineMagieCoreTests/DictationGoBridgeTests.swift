@@ -40,6 +40,12 @@ private actor DictationGoBridge {
     func close() {try? input.close();process.waitUntilExit()}
 }
 final class DictationGoBridgeTests:XCTestCase {
+    // Preserve the original policy-1 compatibility gates after new-attempt defaults change.
+    private func legacy(_ data: Data) throws -> Data {
+        var body = try XCTUnwrap(JSONSerialization.jsonObject(with:data) as? [String:Any])
+        body["playback_policy_version"] = 1
+        return try JSONSerialization.data(withJSONObject:body)
+    }
     @MainActor func testActualGoLostStartAndProgressAcknowledgmentsStopColdRestart() async throws {
         guard let executable=ProcessInfo.processInfo.environment["DICTATION_NATIVE_BRIDGE_EXECUTABLE"] else {throw XCTSkip("Real Go bridge executable required")}
         for lostAction in ["start", "progress"] {
@@ -49,7 +55,7 @@ final class DictationGoBridgeTests:XCTestCase {
             let api=PodcastAPI(endpoint:try ServerEndpoint("https://dictation.test"),token:bridge.token,transport:{try await bridge.request($0)})
             let store=DictationDraftStore();var disk=Data();store.persist={disk=$0}
             try store.editAdd(title:"Lost acknowledgment",original:"Hallo. Guten Morgen.")
-            let created=try await api.dictation(method:"POST",body:store.pendingCreate())
+            let created=try await api.dictation(method:"POST",body:legacy(store.pendingCreate()))
             try store.finishCreate(created)
             _ = try await api.dictationAudio(id:created.id,index:0,prepare:true)
             try store.accept(try await api.dictation(id:created.id))
@@ -110,7 +116,7 @@ final class DictationGoBridgeTests:XCTestCase {
         let api=PodcastAPI(endpoint:try ServerEndpoint("https://dictation.test"),token:bridge.token,transport:{try await bridge.request($0)})
         let store=DictationDraftStore()
         try store.editAdd(title:"Stop fixture",original:"Hallo. Guten Morgen.")
-        var record=try await api.dictation(method:"POST",body:store.pendingCreate())
+        var record=try await api.dictation(method:"POST",body:legacy(store.pendingCreate()))
         _ = try await api.dictationAudio(id:record.id,index:0,prepare:true)
         record=try await api.dictation(id:record.id)
         let id=record.id
@@ -143,7 +149,7 @@ final class DictationGoBridgeTests:XCTestCase {
         let api=PodcastAPI(endpoint:endpoint,token:bridge.token,transport:{try await bridge.request($0)})
         let store=DictationDraftStore();var saved=Data();store.persist={saved=$0}
         try store.editAdd(title:"Synthetic native policy",original:"Hallo. Guten Morgen.")
-        let created=try await api.dictation(method:"POST",body:store.pendingCreate())
+        let created=try await api.dictation(method:"POST",body:legacy(store.pendingCreate()))
         XCTAssertEqual(created.playbackPolicyVersion,1)
         try store.finishCreate(created)
         _ = try await api.dictationAudio(id:created.id,index:0,prepare:true)
@@ -187,7 +193,7 @@ final class DictationGoBridgeTests:XCTestCase {
         let updated=try await api.dictation(id:restored.id,method:"PUT",body:legacyWrite.progressData())
         XCTAssertEqual(updated.playbackPolicyVersion,1);XCTAssertEqual(updated.playback?.wholeStarts,4)
         // Explicit New attempt inherits cached asset and a fresh independent ledger.
-        let next=try await api.dictation(id:record.id,action:"attempts",method:"POST",body:store.pendingAttempt(source:record.id))
+        let next=try await api.dictation(id:record.id,action:"attempts",method:"POST",body:legacy(store.pendingAttempt(source:record.id)))
         XCTAssertEqual(next.playbackPolicyVersion,1);XCTAssertEqual(next.playback?.wholeStarts,0);XCTAssertTrue(next.ready.contains(0))
         // Actual authentication revocation applies to playback AND cached media.
         var logout=URLRequest(url:endpoint.url(path:"v1/auth/logout"));logout.httpMethod="POST";logout.setValue("Bearer "+bridge.token,forHTTPHeaderField:"Authorization")

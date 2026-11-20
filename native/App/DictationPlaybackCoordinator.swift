@@ -90,6 +90,19 @@ import KeineMagieCore
         interrupt(); controller = nil; player.stop(resetTiming:true)
         attemptID = nil; ownerGeneration = nil; model = nil; error = nil
     }
+    func canReplay(step: Int) -> Bool {
+        guard let value=record, value.lastCompletedFragment == step,
+              model?.session.canWrite == true, !value.checked, !busy, !preparing,
+              !player.playing, controller?.busy != true, controller?.waiting != true,
+              value.playback?.active == nil, model?.dictationChecking.contains(value.id) != true,
+              model?.dictationDrafts.playbackStop(id:value.id) == nil,
+              model?.dictationDrafts.pacingRequest(id:value.id) == nil else {return false}
+        return value.ready.contains(value.plan[step].asset)
+    }
+    func replay(step: Int) {
+        guard canReplay(step:step), let controller else {return}
+        Task {await controller.play(replayStep:step)}
+    }
     func activate() {
         guard !disabled, let value = record, let model, let api = try? model.podcastAPI() else { return }
         if cached(value), value.supportsPlaybackPolicy {

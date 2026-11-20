@@ -80,6 +80,18 @@ public struct DictationPlaybackRequest: Codable, Sendable {
 
 public extension DictationRecord {
     var supportsPlaybackPolicy: Bool { playbackPolicyVersion == 1 || playbackPolicyVersion == 2 }
+    /// Only acknowledged natural endings count; starts/Stop/legacy unknowns do not.
+    var lastCompletedFragment: Int? {
+        guard playbackPolicyVersion == 2, mode == "sentences", let playback else {return nil}
+        return plan.indices.reversed().first { anchor in
+            guard plan[anchor].kind == "sentence", anchor < playback.cursor else {return false}
+            var end=anchor+1
+            while end < plan.count && plan[end].kind == "sentence_repeat" {end += 1}
+            return end <= playback.cursor && (anchor..<end).allSatisfy { step in
+                playback.listens?.contains { $0.step == step && $0.intent == "planned" && $0.ended == true && $0.stopped != true } == true
+            }
+        }
+    }
     var needsManualNext: Bool { playbackPolicyVersion == 2 && mode == "sentences" && playback?.active == nil && policyStep > 0 && segment?.kind == "sentence" }
     var repeatGap: Double { playbackPolicyVersion == 2 ? Double(pacing?.gapSeconds ?? 3) : 3 }
     var policyStep: Int { playback?.active?.step ?? (mode == "whole" ? 0 : playback?.cursor ?? 1) }

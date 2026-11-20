@@ -1,0 +1,519 @@
+{
+  "local_only": true,
+  "released_remote": "5aa7ad93424640092c3f7a7470936fc20dda9ac2",
+  "native": {
+    "small": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "fixture_records": 16,
+      "progress": {
+        "attempts": 3,
+        "distinct_sources": 1,
+        "partial_attempts": 3,
+        "legacy_unknown": 0,
+        "exact_words": 3,
+        "attempted_words": 4,
+        "source_words": 21,
+        "replay_unknown": 3,
+        "entries": [
+          {
+            "attempt_id": "8C337075-82B0-41DC-9F19-91491353C055",
+            "at": "2026-11-20T12:58:17.829233Z",
+            "complete": false,
+            "assisted": false,
+            "exact_words": 0,
+            "attempted_words": 0,
+            "source_words": 7,
+            "additions": 2,
+            "omissions": 0,
+            "substitutions": 0,
+            "replay_tracking": "partial"
+          },
+          {
+            "attempt_id": "05F980AA-D45E-4CF5-BB23-3DAA6375BD16",
+            "at": "2026-11-20T13:01:43.578514Z",
+            "complete": false,
+            "assisted": false,
+            "exact_words": 3,
+            "attempted_words": 4,
+            "source_words": 7,
+            "additions": 0,
+            "omissions": 1,
+            "substitutions": 0,
+            "replay_tracking": "partial"
+          },
+          {
+            "attempt_id": "52115DE6-352E-45D0-8367-4E6F555D8CBF",
+            "at": "2026-11-20T13:02:12.079448Z",
+            "complete": false,
+            "assisted": false,
+            "exact_words": 0,
+            "attempted_words": 0,
+            "source_words": 7,
+            "additions": 2,
+            "omissions": 0,
+            "substitutions": 0,
+            "replay_tracking": "partial"
+          }
+        ]
+      },
+      "assessments": [
+        {
+          "state": "canceled",
+          "draft": "Cancel Katze.",
+          "alignment": {
+            "version": 1,
+            "complete": false,
+            "spans": [
+              {
+                "id": "s0",
+                "kind": "addition",
+                "source_start": 0,
+                "source_end": 0,
+                "answer_start": 0,
+                "answer_end": 12,
+                "original": "",
+                "written": "Cancel Katze"
+              },
+              {
+                "id": "s1",
+                "kind": "punctuation",
+                "source_start": 0,
+                "source_end": 0,
+                "answer_start": 12,
+                "answer_end": 13,
+                "original": "",
+                "written": "."
+              },
+              {
+                "id": "s2",
+                "kind": "unattempted",
+                "source_start": 0,
+                "source_end": 43,
+                "answer_start": 13,
+                "answer_end": 13,
+                "original": "Die kleine Katze schl\u00e4ft. Der Hund wartet.",
+                "written": ""
+              }
+            ],
+            "source_words": 7,
+            "attempted_words": 0,
+            "exact_words": 0,
+            "omissions": 0,
+            "additions": 2,
+            "substitutions": 0,
+            "unattempted_words": 7
+          }
+        },
+        {
+          "state": "completed",
+          "draft": "Die Katze schl\u00e4ft.",
+          "alignment": {
+            "version": 1,
+            "complete": false,
+            "spans": [
+              {
+                "id": "s0",
+                "kind": "equal",
+                "source_start": 0,
+                "source_end": 3,
+                "answer_start": 0,
+                "answer_end": 3,
+                "original": "Die",
+                "written": "Die"
+              },
+              {
+                "id": "s1",
+                "kind": "omission",
+                "source_start": 3,
+                "source_end": 10,
+                "answer_start": 3,
+                "answer_end": 3,
+                "original": " kleine",
+                "written": ""
+              },
+              {
+                "id": "s2",
+                "kind": "equal",
+                "source_start": 10,
+                "source_end": 26,
+                "answer_start": 3,
+                "answer_end": 19,
+                "original": " Katze schl\u00e4ft.",
+                "written": " Katze schl\u00e4ft."
+              },
+              {
+                "id": "s3",
+                "kind": "unattempted",
+                "source_start": 26,
+                "source_end": 43,
+                "answer_start": 19,
+                "answer_end": 19,
+                "original": " Der Hund wartet.",
+                "written": ""
+              }
+            ],
+            "source_words": 7,
+            "attempted_words": 4,
+            "exact_words": 3,
+            "omissions": 1,
+            "additions": 0,
+            "substitutions": 0,
+            "unattempted_words": 3
+          }
+        },
+        {
+          "state": "failed",
+          "draft": "Fehler Katze.",
+          "alignment": {
+            "version": 1,
+            "complete": false,
+            "spans": [
+              {
+                "id": "s0",
+                "kind": "addition",
+                "source_start": 0,
+                "source_end": 0,
+                "answer_start": 0,
+                "answer_end": 12,
+                "original": "",
+                "written": "Fehler Katze"
+              },
+              {
+                "id": "s1",
+                "kind": "punctuation",
+                "source_start": 0,
+                "source_end": 0,
+                "answer_start": 12,
+                "answer_end": 13,
+                "original": "",
+                "written": "."
+              },
+              {
+                "id": "s2",
+                "kind": "unattempted",
+                "source_start": 0,
+                "source_end": 43,
+                "answer_start": 13,
+                "answer_end": 13,
+                "original": "Die kleine Katze schl\u00e4ft. Der Hund wartet.",
+                "written": ""
+              }
+            ],
+            "source_words": 7,
+            "attempted_words": 0,
+            "exact_words": 0,
+            "omissions": 0,
+            "additions": 2,
+            "substitutions": 0,
+            "unattempted_words": 7
+          }
+        }
+      ],
+      "completed_fragment_evidence": {
+        "segment_id": "policy2:step1:asset1",
+        "step": 1,
+        "asset": 1,
+        "planned_repetitions": 3,
+        "planned_started": 3,
+        "extra_requested": 1,
+        "started": 4,
+        "completed": 4,
+        "stopped": 0,
+        "resumes": 0,
+        "interruptions": 0,
+        "play_failures": 0,
+        "completion_unknown": 0
+      },
+      "global_stop": {
+        "cursor": 0,
+        "whole_starts": 2,
+        "draft_preserved": true
+      },
+      "attachments": 30
+    },
+    "normal": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "fixture_records": 16,
+      "progress": {
+        "attempts": 3,
+        "distinct_sources": 1,
+        "partial_attempts": 3,
+        "legacy_unknown": 0,
+        "exact_words": 3,
+        "attempted_words": 4,
+        "source_words": 21,
+        "replay_unknown": 3,
+        "entries": [
+          {
+            "attempt_id": "52019B17-5C61-48BA-9594-3F50430C73E9",
+            "at": "2026-11-20T12:48:53.245943Z",
+            "complete": false,
+            "assisted": false,
+            "exact_words": 0,
+            "attempted_words": 0,
+            "source_words": 7,
+            "additions": 2,
+            "omissions": 0,
+            "substitutions": 0,
+            "replay_tracking": "partial"
+          },
+          {
+            "attempt_id": "1773D42C-3FCD-4988-BD76-C5A96CDBC9F9",
+            "at": "2026-11-20T12:52:17.31459Z",
+            "complete": false,
+            "assisted": false,
+            "exact_words": 3,
+            "attempted_words": 4,
+            "source_words": 7,
+            "additions": 0,
+            "omissions": 1,
+            "substitutions": 0,
+            "replay_tracking": "partial"
+          },
+          {
+            "attempt_id": "D8378CE2-A237-438E-A4EA-A9B5FEA771CA",
+            "at": "2026-11-20T12:52:48.066467Z",
+            "complete": false,
+            "assisted": false,
+            "exact_words": 0,
+            "attempted_words": 0,
+            "source_words": 7,
+            "additions": 2,
+            "omissions": 0,
+            "substitutions": 0,
+            "replay_tracking": "partial"
+          }
+        ]
+      },
+      "assessments": [
+        {
+          "state": "canceled",
+          "draft": "Cancel Katze.",
+          "alignment": {
+            "version": 1,
+            "complete": false,
+            "spans": [
+              {
+                "id": "s0",
+                "kind": "addition",
+                "source_start": 0,
+                "source_end": 0,
+                "answer_start": 0,
+                "answer_end": 12,
+                "original": "",
+                "written": "Cancel Katze"
+              },
+              {
+                "id": "s1",
+                "kind": "punctuation",
+                "source_start": 0,
+                "source_end": 0,
+                "answer_start": 12,
+                "answer_end": 13,
+                "original": "",
+                "written": "."
+              },
+              {
+                "id": "s2",
+                "kind": "unattempted",
+                "source_start": 0,
+                "source_end": 43,
+                "answer_start": 13,
+                "answer_end": 13,
+                "original": "Die kleine Katze schl\u00e4ft. Der Hund wartet.",
+                "written": ""
+              }
+            ],
+            "source_words": 7,
+            "attempted_words": 0,
+            "exact_words": 0,
+            "omissions": 0,
+            "additions": 2,
+            "substitutions": 0,
+            "unattempted_words": 7
+          }
+        },
+        {
+          "state": "completed",
+          "draft": "Die Katze schl\u00e4ft.",
+          "alignment": {
+            "version": 1,
+            "complete": false,
+            "spans": [
+              {
+                "id": "s0",
+                "kind": "equal",
+                "source_start": 0,
+                "source_end": 3,
+                "answer_start": 0,
+                "answer_end": 3,
+                "original": "Die",
+                "written": "Die"
+              },
+              {
+                "id": "s1",
+                "kind": "omission",
+                "source_start": 3,
+                "source_end": 10,
+                "answer_start": 3,
+                "answer_end": 3,
+                "original": " kleine",
+                "written": ""
+              },
+              {
+                "id": "s2",
+                "kind": "equal",
+                "source_start": 10,
+                "source_end": 26,
+                "answer_start": 3,
+                "answer_end": 19,
+                "original": " Katze schl\u00e4ft.",
+                "written": " Katze schl\u00e4ft."
+              },
+              {
+                "id": "s3",
+                "kind": "unattempted",
+                "source_start": 26,
+                "source_end": 43,
+                "answer_start": 19,
+                "answer_end": 19,
+                "original": " Der Hund wartet.",
+                "written": ""
+              }
+            ],
+            "source_words": 7,
+            "attempted_words": 4,
+            "exact_words": 3,
+            "omissions": 1,
+            "additions": 0,
+            "substitutions": 0,
+            "unattempted_words": 3
+          }
+        },
+        {
+          "state": "failed",
+          "draft": "Fehler Katze.",
+          "alignment": {
+            "version": 1,
+            "complete": false,
+            "spans": [
+              {
+                "id": "s0",
+                "kind": "addition",
+                "source_start": 0,
+                "source_end": 0,
+                "answer_start": 0,
+                "answer_end": 12,
+                "original": "",
+                "written": "Fehler Katze"
+              },
+              {
+                "id": "s1",
+                "kind": "punctuation",
+                "source_start": 0,
+                "source_end": 0,
+                "answer_start": 12,
+                "answer_end": 13,
+                "original": "",
+                "written": "."
+              },
+              {
+                "id": "s2",
+                "kind": "unattempted",
+                "source_start": 0,
+                "source_end": 43,
+                "answer_start": 13,
+                "answer_end": 13,
+                "original": "Die kleine Katze schl\u00e4ft. Der Hund wartet.",
+                "written": ""
+              }
+            ],
+            "source_words": 7,
+            "attempted_words": 0,
+            "exact_words": 0,
+            "omissions": 0,
+            "additions": 2,
+            "substitutions": 0,
+            "unattempted_words": 7
+          }
+        }
+      ],
+      "completed_fragment_evidence": {
+        "segment_id": "policy2:step1:asset1",
+        "step": 1,
+        "asset": 1,
+        "planned_repetitions": 3,
+        "planned_started": 3,
+        "extra_requested": 1,
+        "started": 4,
+        "completed": 4,
+        "stopped": 0,
+        "resumes": 0,
+        "interruptions": 0,
+        "play_failures": 0,
+        "completion_unknown": 0
+      },
+      "global_stop": {
+        "cursor": 0,
+        "whole_starts": 2,
+        "draft_preserved": true
+      },
+      "attachments": 30
+    }
+  },
+  "limits": [
+    "Synthetic PCM and provider adapter; no paid provider calls",
+    "No production budget reconciliation or unblock claim",
+    "Simulator, not physical-device or spoken VoiceOver acceptance"
+  ],
+  "protected": {
+    "KeineMagie": {
+      "checked": 304,
+      "mismatches": []
+    },
+    "AnyProgress": {
+      "checked": 13,
+      "mismatches": []
+    }
+  },
+  "offline": {
+    "go_full_count_1": "pass",
+    "go_race_full_count_1": "pass",
+    "go_vet": "pass",
+    "node": {
+      "tests": 177,
+      "pass": 176,
+      "fail": 0,
+      "skipped": 1
+    },
+    "swift_core": {
+      "xctest_total": 108,
+      "xctest_skipped_default": 5,
+      "swift_testing_passed": 84
+    },
+    "actual_policy_bridge_passed": 3,
+    "native_ci": {
+      "tests": 64,
+      "skipped": 1
+    },
+    "actual_go_http_harness": 123,
+    "opt_in_wire_fixtures": "actual Go assessment and podcast receipts passed separately"
+  },
+  "reused_receipts": {
+    "baseline": "v4 source-manifest",
+    "changed_paths": [
+      "native/App/DictationView.swift",
+      "native/UITests/DictationManualUITests.swift"
+    ],
+    "reason": "Only native transport foreground and its UI tests changed; unchanged server/Core/web and HTTP receipts retained. Native CI and coherent Release UI gates rerun."
+  },
+  "contrast": {
+    "red_failure": "XCTAssertGreaterThan failed: (\"0\") is not greater than (\"100\") - Next label must contrast with its real rendered button, not only exist in AX",
+    "green": "Real PNG center-pixel contrast assertions for Prepare audio, Play and Next in explicit Light/Dark on both devices; original intro/fragment Next assertions retained",
+    "disabled": "Existing disabled expression and native borderedProminent rendering retained. Both themes exhaust four whole starts, assert disabled, tap the disabled frame and verify no fifth start; authenticated record read-back confirms four starts and no active playback."
+  }
+}

@@ -34,7 +34,7 @@ with sync_playwright() as p:
  expect(page.locator('.dictation-unattempted summary')).to_have_text('Ещё не написано · 54 слова')
  page.screenshot(path=str(ART/'partial-mobile-ru.png'),full_page=True)
  for locale in ['de','en','ru','es','fr']:
-  page.get_by_role('combobox',name='Language',exact=True).select_option(locale)
+  page.locator('#interface-language-header').select_option(locale)
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
   page.screenshot(path=str(ART/f'partial-mobile-{locale}.png'),full_page=True)
  page.get_by_role('combobox').first.select_option('en')

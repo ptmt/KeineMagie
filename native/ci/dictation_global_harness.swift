@@ -73,6 +73,26 @@ import KeineMagieCore
     coordinator.reset()
 }
 
+@Test @MainActor func policyTwoExtraReplayUsesRootEngineAndExplicitIntent() async throws {
+    let root=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer {try? FileManager.default.removeItem(at:root)}
+    let gate=GlobalPlaybackGate(),coordinator=DictationPlaybackCoordinator()
+    let model=try await gate.model(root)
+    var object=try JSONSerialization.jsonObject(with:JSONEncoder().encode(gate.values["one"]!)) as! [String:Any]
+    object["playback_policy_version"]=2;object["mode"]="sentences";object["ready"]=[0,1]
+    object["plan"]=[["kind":"whole","asset":0],["kind":"sentence","asset":1],["kind":"sentence_repeat","asset":1],["kind":"final","asset":0]]
+    object["playback"]=["revision":5,"whole_starts":1,"cursor":3,"final_used":false,"listens":[1,2].map { ["id":"planned-\($0)","client":"native","step":$0,"fence":$0,"offset":0,"lease_until":0,"done":true,"ended":true,"intent":"planned"] as [String:Any] }]
+    let value=try JSONDecoder().decode(DictationRecord.self,from:JSONSerialization.data(withJSONObject:object))
+    gate.values[value.id]=value;try model.dictationDrafts.accept(value);coordinator.select(value,model:model)
+    #expect(value.lastCompletedFragment == 1)
+    #expect(coordinator.canReplay(step:1));coordinator.replay(step:1)
+    for _ in 0..<500 {if coordinator.player.playing {break};await Task.yield()}
+    #expect(coordinator.player.playing);#expect(gate.commands.last?.1.intent == "extra")
+    #expect(gate.commands.last?.1.step == 1)
+    #expect(!coordinator.canReplay(step:1))
+    coordinator.reset()
+}
+
 @Test @MainActor func globalPlaybackSelectionAndOpenAreCachedOnlyNoAdmissionOrPreparation() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at:root) }
