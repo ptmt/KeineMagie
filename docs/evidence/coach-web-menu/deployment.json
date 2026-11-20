@@ -1,0 +1,26 @@
+{
+  "source_sha": "30d8316fedbf5b86f587e72713c5270f9e68167c",
+  "backend_image": "sha256:1f4dcfe55fa32f5287a47deb5b7535c2b49e661c4f1b04705efa32ca82ba8d49",
+  "architecture": "arm64",
+  "worker_image": "sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382",
+  "backend_only": true,
+  "unrelated_and_worker_ids_unchanged": true,
+  "config_resources_mounts_networks_preserved": true,
+  "locked_nonruntime_files_unchanged": 49,
+  "state": {
+    "states": {
+      "completed": 1
+    },
+    "jobs": 1,
+    "active": 0,
+    "segments": 2113,
+    "translations": 2113,
+    "ledger": {
+      "entries": 10,
+      "reserved_micro_usd": 10000000,
+      "max_remaining_attempts": 0,
+      "reported_cost_micro_usd": 40404
+    }
+  },
+  "server_executable_identical": true
+}
