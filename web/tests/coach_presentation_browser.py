@@ -47,8 +47,8 @@ try:
    assert page.locator('[data-turn=wrong].coach-incorrect').count()==1
    assert page.locator('[data-coach-source],.coach-bubble blockquote').count()==0
    assert 'internal-only' not in page.locator('.coach-messages').inner_text()
-   hint=page.locator('.coach-quick button');assert hint.count()==1,'Contextual Hint must remain'
-   page.locator('#coach-input').fill('hint preserves draft');hint.click();page.wait_for_timeout(200)
+   hint=page.locator('.coach-command-menu button');assert hint.count()==1,'Contextual Hint must remain'
+   page.locator('#coach-input').fill('hint preserves draft');page.locator('.coach-menu-trigger').click();hint.click();page.wait_for_timeout(200)
    assert any(c.get('action')=='reveal' and c.get('text')=='source' and c.get('turn_id')=='waiting' for c in CALLS)
    assert page.locator('[data-turn=waiting] .coach-hint').is_visible()
    assert page.locator('#coach-input').input_value()=='hint preserves draft'

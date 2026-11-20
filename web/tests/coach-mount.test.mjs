@@ -24,6 +24,21 @@ test('Latest in expanded history collapses and requests bottom without a snapsho
  assert.equal(f.messages.scrollTop,800,'explicit Latest requests bottom');
  assert.equal(f.messages.querySelectorAll('button').find(b=>b.textContent==='Earlier').getAttribute('aria-expanded'),'false');
 });
+test('composer menu includes every command and a detached old-owner command cannot send',async()=>{
+ const actions=['reveal','progress','more','explain','practice'].map(action=>({action,turn_id:'exercise'}));
+ const f=fixture({snapshot:{turns:[],observations:[],actions}});f.controller.identity(f.session);await f.show();
+ const menu=f.host.querySelector('.coach-command-menu'),trigger=f.host.querySelector('.coach-menu-trigger');
+ assert.equal(menu.children.length,5);const before=f.requests.length;trigger.onclick();assert.equal(f.requests.length,before);
+ const old=menu.children[0];f.controller.identity({user:{id:'different'},csrf_token:'synthetic'});await f.flush();
+ const switched=f.requests.length;await old.onclick();assert.equal(f.requests.length,switched);assert.equal(menu.hidden,true);
+ f.controller.identity(null);assert.ok(menu.children.every(b=>b.disabled));
+});
+test('busy menu stays discoverable with disabled commands and opening sends nothing',async()=>{
+ let release;const f=fixture({request:async()=>await new Promise(r=>release=r)});f.controller.identity(f.session);await f.show();
+ const trigger=f.host.querySelector('.coach-menu-trigger'),menu=f.host.querySelector('.coach-command-menu');
+ assert.equal(trigger.disabled,false);assert.ok(menu.children.every(b=>b.disabled));const before=f.requests.length;trigger.onclick();assert.equal(f.requests.length,before);
+ release({turns:[],observations:[]});await f.flush();
+});
 const snapshot={turns:[{id:'exercise',state:'completed',kind:'cloze',prompt:'Ich warte ___ den Bus.'}],observations:[]};
 test('only authenticated visible entry posts; hidden preload and background visibility do not',async()=>{
  const f=fixture({snapshot});f.controller.identity(f.session);await f.flush();assert.equal(f.requests.length,0);

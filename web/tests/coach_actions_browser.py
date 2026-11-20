@@ -25,22 +25,23 @@ try:
   browser=p.chromium.launch();page=browser.new_page(viewport={'width':390,'height':844},color_scheme='dark',reduced_motion='reduce');errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.add_init_script("localStorage.setItem('keinemagie:interface-language:v1','en')")
   D['turns']=[turn('offer')]
-  page.goto(f'http://127.0.0.1:{server.server_port}/#coach');page.get_by_role('button',name='30 seconds',exact=True).wait_for()
-  assert page.get_by_role('button',name='30 seconds',exact=True).count()==1
+  page.goto(f'http://127.0.0.1:{server.server_port}/#coach');page.locator('.coach-menu-trigger').click();page.get_by_role('menuitem',name='30 seconds',exact=True).wait_for()
+  assert page.get_by_role('menuitem',name='30 seconds',exact=True).count()==1
   assert page.locator('[data-turn=offer] button').count()==0
   page.screenshot(path=str(evidence/'web-offer-mobile-dark.png'))
   D['turns']=[turn('old',message='Synthetic saved feedback: repeat preposition case.')];D['actions']=[{'action':'explain','turn_id':'old'},{'action':'more','turn_id':''},{'action':'progress','turn_id':''}]
-  page.reload();page.get_by_role('button',name='My progress',exact=True).wait_for()
+  page.reload();page.locator('.coach-menu-trigger').click();page.get_by_role('menuitem',name='Progress',exact=True).wait_for()
   page.locator('#coach-input').fill('keep my draft')
   page.screenshot(path=str(evidence/'web-after-feedback-mobile-dark.png'))
-  page.evaluate("Array.from(document.querySelectorAll('.coach-quick button')).find(e=>e.textContent==='My progress').click();Array.from(document.querySelectorAll('.coach-quick button')).find(e=>e.textContent==='My progress').click()")
+  page.evaluate("Array.from(document.querySelectorAll('.coach-command-menu button')).find(e=>e.textContent==='Progress').click();Array.from(document.querySelectorAll('.coach-command-menu button')).find(e=>e.textContent==='Progress').click()")
   page.get_by_text('Synthetic progress:',exact=False).wait_for()
   assert len([b for b in CALLS if b['action']=='progress'])==1
   assert page.locator('#coach-input').input_value()=='keep my draft'
   page.evaluate('window.scrollTo(0,0)')
   page.screenshot(path=str(evidence/'web-progress-mobile-dark.png'))
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
-  assert all(x['height']>=44 for x in page.locator('.coach-quick button').evaluate_all('es=>es.map(e=>e.getBoundingClientRect().toJSON())'))
+  page.locator('.coach-menu-trigger').click()
+  assert all(x['height']>=44 for x in page.locator('.coach-command-menu button').evaluate_all('es=>es.map(e=>e.getBoundingClientRect().toJSON())'))
   assert not errors,errors
   print('PASS duplicate CTA, contextual feedback actions, one rapid-tap progress POST, draft retained, mobile dark reduced motion, 44px controls. Evidence:',evidence)
   browser.close()

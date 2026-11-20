@@ -32,7 +32,7 @@ try:
   D['turns']=[turn('old',True),turn('latest',True)]
   page.add_init_script("localStorage.setItem('keinemagie:interface-language:v1','en')")
   page.add_init_script("""window.historyMotion=[];const sample=()=>{for(const e of document.querySelectorAll('[data-turn]'))if(['old','latest'].includes(e.dataset.turn)){const s=getComputedStyle(e);window.historyMotion.push({id:e.dataset.turn,opacity:Number(s.opacity),animation:s.animationName});}if(window.historyMotion.length<180)requestAnimationFrame(sample);};requestAnimationFrame(sample);""")
-  page.goto(f'http://127.0.0.1:{server.server_port}/#coach');page.get_by_role('button',name='More',exact=True).wait_for()
+  page.goto(f'http://127.0.0.1:{server.server_port}/#coach');page.locator('.coach-menu-trigger').wait_for()
   page.wait_for_function("() => document.querySelectorAll('[data-turn]').length===2")
   old=page.locator('[data-turn="old"]');latest=page.locator('[data-turn="latest"]')
   assert old.locator('.coach-answer').count()==0 and old.locator('.coach-explanation').count()==0
