@@ -38,6 +38,7 @@ actor SimulatorSessionFixture {
     private var coachArrivalSeenVersion = ""
     private var coachProgressShown = false
     private var coachEntryCount = 0
+    private var coachActionJournal: [String] = []
     private var validations = 0
     private var dictationHistoryReads = 0
     private var profileLevels: [String: String] = [:]
@@ -294,6 +295,10 @@ actor SimulatorSessionFixture {
             }
             if request.httpMethod == "POST", let data = request.httpBody {
                 let action = try JSONDecoder().decode(CoachAction.self, from: data)
+                // Opt-in transport receipt: actual commands, excluding visibility acknowledgments.
+                if mode == "coach-menu-probe", action.action != "seen" {
+                    coachActionJournal.append("\(action.action)|\(action.text)|\(action.turnID)")
+                }
                 if action.action == "entry" {
                     if ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_DESIGN_ENTRY"] == "1" { try await Task.sleep(for: .seconds(6)) }
                     coachEntryCount += 1
@@ -329,6 +334,7 @@ actor SimulatorSessionFixture {
                     turn["quote"] = "Ich war einmal bei diesem Kurs dabei."
                 }
             }
+            if mode == "coach-menu-probe" { turn["message"] = "Synthetic commands: " + coachActionJournal.joined(separator: ";") }
             if mode == "coach-entry-lifecycle" { turn["message"] = "Synthetic entry count: \(coachEntryCount)" }
             if coachPending || coachCanceled { turn["state"] = coachPending ? "pending" : "canceled"; turn.removeValue(forKey: "kind") }
             var turns = [turn]
@@ -361,7 +367,10 @@ actor SimulatorSessionFixture {
                 turns[1]["seen_version"] = coachArrivalSeenVersion
             }
             if coachProgressShown { turns.append(["id":"synthetic-progress", "text":"My progress", "state":"completed", "at":"now", "assisted":false, "language":"", "kind":"clarification", "message":"Synthetic progress: 4 translations; 2 Coach answers, 1 correct. Repeat preposition case. 3 vocabulary entries; 2 saved podcast passages. Dictation unavailable. Activity is not mastery."]) }
-            let quick: [[String: String]] = coachAnswered ? [["action":"explain", "turn_id":"synthetic-coach"], ["action":"more", "turn_id":""], ["action":"progress", "turn_id":""]] : [["action":"reveal", "turn_id":"synthetic-coach"], ["action":"progress", "turn_id":""]]
+            var quick: [[String: String]] = coachAnswered ? [["action":"explain", "turn_id":"synthetic-coach"], ["action":"more", "turn_id":""], ["action":"progress", "turn_id":""]] : [["action":"reveal", "turn_id":"synthetic-coach"], ["action":"progress", "turn_id":""]]
+            if ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_ALL_ACTIONS"] == "1" {
+                quick = ["reveal", "progress", "explain", "more", "practice"].map { ["action": $0, "turn_id": "synthetic-coach"] }
+            }
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["actions":quick,"turns": turns, "observations": [], "model": "gpt-6.1-terra"]), status: 200)
         }
         if let path = request.url?.path, path.hasPrefix("/v1/learning/") {
@@ -383,6 +392,7 @@ actor SimulatorSessionFixture {
         case "/v1/auth/session":
             validations += 1
             if validations > 1 {
+                if mode == "coach-menu-offline" { throw URLError(.notConnectedToInternet) }
                 try await Task.sleep(for: .seconds(2))
                 if mode == "revoked" { return AuthResponse(data: Data(), status: 401) }
             }

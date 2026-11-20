@@ -1,0 +1,46 @@
+{
+  "status": "blocked-incomplete-player-acceptance",
+  "base": "984e34ed7b8d1f840e10a386aa8fe641090d9412",
+  "native_files_checked": 207,
+  "source_changes": [],
+  "release_executable_sha256": "1860a82f59db20688831bda89e4a3580cf2034741cbd5f3c569099d3fcac593b",
+  "protected_originals": [
+    {
+      "name": "KeineMagie",
+      "files": 304,
+      "mismatches": []
+    },
+    {
+      "name": "AnyProgress",
+      "files": 13,
+      "mismatches": []
+    }
+  ],
+  "runs": {
+    "normal-dark": {
+      "totalTestCount": 33,
+      "passedTests": 33,
+      "failedTests": 0,
+      "skippedTests": 0
+    },
+    "normal-light": {
+      "totalTestCount": 2,
+      "passedTests": 2,
+      "failedTests": 0,
+      "skippedTests": 0
+    },
+    "small-light": {
+      "totalTestCount": 33,
+      "passedTests": 31,
+      "failedTests": 2,
+      "skippedTests": 0
+    },
+    "small-dark": {
+      "totalTestCount": 2,
+      "passedTests": 2,
+      "failedTests": 0,
+      "skippedTests": 0
+    }
+  },
+  "blocker": "Existing local synthetic fixture has 30 dictation records; new-record guard at server/dictation.go:214-215. Stop and back/draft small-device cases fail in creation. No guard reset/bypass."
+}

@@ -62,9 +62,10 @@ struct CoachView: View {
                                 Label("coach.earlier", systemImage: "chevron.up").fixedSize()
                                 Rectangle().fill(Color(uiColor: .separator)).frame(height: 0.5)
                             }
+                            .frame(minHeight: 44).contentShape(Rectangle())
                         }
                             .buttonStyle(.plain).foregroundStyle(CoachPalette.secondary)
-                            .font(.footnote).frame(minHeight: 44).accessibilityIdentifier("coach-earlier")
+                            .font(.footnote).accessibilityIdentifier("coach-earlier")
                     }
                     if !model.session.canWrite { Text("Offline. Showing saved history").font(.footnote).foregroundStyle(.secondary) }
                     if model.coach?.turns.filter(\.isVisible).isEmpty != false {
@@ -114,23 +115,24 @@ struct CoachView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 VStack(alignment: .leading, spacing: 4) {
-                    quickControls(proxy: proxy)
-                    HStack(alignment: .bottom, spacing: dynamicTypeSize.isAccessibilitySize ? 0 : 12) {
-                    TextField("coach.message", text: $model.coachDraft, prompt: Text("coach.message").foregroundStyle(CoachPalette.secondary), axis: .vertical)
-                        .lineLimit(1...5).focused($composerFocused)
-                        .padding(.leading, dynamicTypeSize.isAccessibilitySize ? 8 : 14).padding(.vertical, 12)
-                        .accessibilityIdentifier("coach-composer")
-                        .accessibilityLabel("coach.message")
-                        .accessibilitySortPriority(1)
-                    Button {
-                        followQuickReply = true
-                        model.sendCoach("message", text: model.coachDraft)
-                        composerFocused = false
-                    } label: { Image(systemName: "arrow.up.circle.fill").font(.system(size: 28)).frame(width: 44, height: 44) }
-                        .accessibilityLabel("coach.send").accessibilityIdentifier("coach-send")
-                        .disabled(!model.session.canWrite || model.coachBusy || model.coachDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.coachDraft.unicodeScalars.count > 2000)
-                    }.padding(.trailing, 4).background(CoachPalette.surface, in: RoundedRectangle(cornerRadius: 24))
+                    historyControls(proxy: proxy)
+                    VStack(spacing: 0) {
+                        HStack(alignment: .bottom, spacing: 4) {
+                            if !dynamicTypeSize.isAccessibilitySize { actionsMenu }
+                            TextField("coach.message", text: $model.coachDraft, prompt: Text("coach.message").foregroundStyle(CoachPalette.secondary), axis: .vertical)
+                                .lineLimit(1...5).focused($composerFocused)
+                                .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 8 : 0).padding(.vertical, 12)
+                                .accessibilityIdentifier("coach-composer")
+                                .accessibilityLabel("coach.message")
+                                .accessibilitySortPriority(1)
+                            if !dynamicTypeSize.isAccessibilitySize { sendButton }
+                        }
+                        if dynamicTypeSize.isAccessibilitySize {
+                            HStack { actionsMenu; Spacer(minLength: 0); sendButton }
+                        }
+                    }.padding(.horizontal, 4).background(CoachPalette.surface, in: RoundedRectangle(cornerRadius: 24))
                         .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("coach-composer-container")
                 }.padding(.horizontal).padding(.vertical, 8).background(.bar)
             }
             .task(id: "\(scrollRevision)-\(model.coachOwnSendRevision)-\(model.coachLoaded)-\(viewport.height > 0)-\(contentHeight > 0)") {
@@ -172,22 +174,48 @@ struct CoachView: View {
     private var scrollRevision: String {
         "\(model.coach?.turns.filter(\.isVisible).map { "\($0.id):\($0.state):\($0.messageVersion ?? ""):\($0.attempt?.id ?? ""):\($0.attempt?.assessmentState ?? "")" }.joined(separator: "|") ?? "")"
     }
-    private func quickControls(proxy: ScrollViewProxy) -> some View {
-        let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6)) : AnyLayout(HStackLayout())
-        return layout {
-            ForEach(Array((model.coach?.quickActions ?? []).prefix(3).enumerated()), id: \.offset) { _, action in
+    private var sendButton: some View {
+        Button {
+            followQuickReply = true
+            model.sendCoach("message", text: model.coachDraft)
+            composerFocused = false
+        } label: { Image(systemName: "arrow.up.circle.fill").font(.system(size: 28)).frame(width: 44, height: 44) }
+            .accessibilityLabel("coach.send").accessibilityIdentifier("coach-send")
+            .disabled(!model.session.canWrite || model.coachBusy || model.coachDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.coachDraft.unicodeScalars.count > 2000)
+    }
+    private var actionsMenu: some View {
+        Menu {
+            ForEach(Array((model.coach?.quickActions ?? []).enumerated()), id: \.offset) { _, action in
                 Button {
                     followQuickReply = action.action != "reveal"
                     model.sendCoach(action.action, text: action.action == "reveal" ? "source" : AppL10n.text("coach.quick." + action.action), turnID: action.turnID, preserveDraft: true)
                 } label: {
-                    Text(LocalizedStringKey("coach.quick." + action.action)).fixedSize(horizontal: true, vertical: false)
+                    Label(LocalizedStringKey(action.action == "progress" ? "coach.menu.progress" : "coach.quick." + action.action), systemImage: actionSymbol(action.action))
                 }
-                .font(.subheadline).padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 8 : 14).frame(minHeight: 44)
-                .background(CoachPalette.surface, in: Capsule()).buttonStyle(.plain)
                 .disabled(!model.session.canWrite || model.coachBusy)
-                .accessibilityIdentifier("coach-" + action.action).accessibilityValue(motionContract)
+                .accessibilityIdentifier("coach-" + action.action)
             }
-            if !dynamicTypeSize.isAccessibilitySize { Spacer() }
+        } label: {
+            Image(systemName: "plus").font(.system(size: 22, weight: .medium))
+                .frame(width: 44, height: 44).contentShape(Rectangle())
+        }
+        .accessibilityLabel("coach.actions").accessibilityIdentifier("coach-actions")
+        .accessibilityValue(motionContract)
+        // Keep commands discoverable while busy/offline; only their execution is disabled.
+        .disabled(model.coach?.quickActions.isEmpty != false)
+    }
+    private func actionSymbol(_ action: String) -> String {
+        switch action {
+        case "reveal": "lightbulb"
+        case "progress": "chart.bar"
+        case "explain": "text.bubble"
+        case "practice", "more": "pencil"
+        default: "text.bubble"
+        }
+    }
+    private func historyControls(proxy: ScrollViewProxy) -> some View {
+        let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6)) : AnyLayout(HStackLayout())
+        return layout {
             if let active = model.coach?.turns.last(where: { $0.isVisible && $0.kind != nil && !["clarification", "nudge"].contains($0.kind ?? "") }), active.attempt == nil, !active.isRecent(now: historyNow), !CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier).contains(where: { $0.id == active.id }) {
                 Button("coach.awaiting") {
                     let older = (model.coach?.turns ?? []).filter { $0.isVisible && !$0.isRecent(now: historyNow) }
@@ -197,6 +225,7 @@ struct CoachView: View {
                 }.font(.footnote).frame(minHeight: 44).accessibilityIdentifier("coach-active-earlier")
             }
             if !nearBottom {
+                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
                 Button { proxy.scrollTo("coach-bottom", anchor: .bottom) } label: { Image(systemName: "arrow.down.circle").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("coach.latest").accessibilityIdentifier("coach-latest")
             }
         }

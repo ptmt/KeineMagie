@@ -1,0 +1,164 @@
+[
+  {
+    "test": "CoachPresentationUITests/testHistoryBottomEarlierAndOwnSend()",
+    "file": "coach-history-earlier-revealed.png",
+    "original": "0BB916DC-89A3-45CD-9742-A43CDB997D8D.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testAccessibilityReadingOrderAndLabels()",
+    "file": "coach-accessibility-tree.txt",
+    "original": "6A32202F-2552-4B34-B573-1132C3ECF6B1.txt",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-correct-before-or-after.png",
+    "original": "06C91D28-E727-4E52-B6B5-DE0D265078EF.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-filled-keyboard-before-or-after.png",
+    "original": "711A9937-AA81-46B9-91BB-C6698AB00C4F.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-active-before-or-after.png",
+    "original": "807AC0D1-2ADE-49C4-A6EE-09B5810FDAFE.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "file": "coach-composer-menu-open-keyboard.png",
+    "original": "0303469F-371E-4C83-A1E7-748E0AE24ACC.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "file": "coach-composer-menu-closed-keyboard.png",
+    "original": "23FD9D7B-3DBC-4853-AB8C-1C35A76FE17B.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-fr.png",
+    "original": "06E181D3-1FF9-41D1-B271-8066AE59B05F.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-es.png",
+    "original": "BD6B0C38-2AC6-4711-8F3E-D437CFC542AA.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-ru.png",
+    "original": "624917F6-CD96-4B46-BEC3-B4C1E370E124.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-en.png",
+    "original": "BC8EA735-DE82-4772-95F4-F0B7817B61F3.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-de.png",
+    "original": "F31A99C1-4228-4082-9C55-AD8090188E54.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-fr.png",
+    "original": "F32B4F32-223D-43DA-903E-8BCF6520C432.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-fr.png",
+    "original": "6B04C22D-76E1-4814-80D4-ED707E319C2B.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-es.png",
+    "original": "36E938FD-02F4-4578-9D8F-1476785312E1.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-es.png",
+    "original": "93F98E23-3CF9-4003-8386-DE40F69E7E89.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-ru.png",
+    "original": "467FF638-B81A-443C-8918-2DBDA1E0144B.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-ru.png",
+    "original": "C0F66F36-9D2A-4239-B87A-C1C2FB013E4D.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-de.png",
+    "original": "A4293888-7025-45C7-8D56-7052A0CF9696.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-de.png",
+    "original": "951EC524-C75E-4438-9E80-DD6A12730EAC.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-en.png",
+    "original": "85AF09CF-75CF-4CF0-BC34-99393A1022C8.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-en.png",
+    "original": "CF120E3B-23B7-41FE-9C45-AEE446F1AD37.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testLargestRussianNativeComposerPlaceholderFits()",
+    "file": "coach-russian-native-placeholder-largest.png",
+    "original": "5722E053-1567-4AC4-8D35-A41FDDAFDCAB.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testMenuDisabledDuringAssessmentAndOffline()",
+    "file": "coach-menu-offline-disabled.png",
+    "original": "B0EAF29F-AA59-4245-AD1D-45C82834AC9B.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testMenuIncludesEveryAvailableAction()",
+    "file": "coach-menu-all-available-actions.png",
+    "original": "122DF2FE-64CD-420E-92E3-F81347C91D8B.png",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testMenuSelectionUsesOriginalRoutesExactlyOnceAndKeepsFocus()",
+    "file": "coach-menu-transport-receipt.txt",
+    "original": "289A4822-26D8-4C58-9150-675A4A52562E.txt",
+    "result": "normal-acceptance.xcresult"
+  },
+  {
+    "test": "DictationPlayerUITests/testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt()",
+    "file": "global-coach.png",
+    "original": "33C6B550-80EA-48F8-AC2F-91C014F485C5.png",
+    "result": "normal-acceptance.xcresult"
+  }
+]

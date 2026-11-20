@@ -1,0 +1,32 @@
+[
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-correct-before-or-after.png",
+    "original": "8A6654FD-D7C9-4B98-B99D-FEB568ECD959.png",
+    "result": "small-dark-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-filled-keyboard-before-or-after.png",
+    "original": "1506D852-DEC6-4052-BEE0-808374EB6F80.png",
+    "result": "small-dark-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-active-before-or-after.png",
+    "original": "71DDAB88-8B0B-469C-B1D5-92085A912FF9.png",
+    "result": "small-dark-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "file": "coach-composer-menu-open-keyboard.png",
+    "original": "675C68B5-F07C-42B1-8C77-82098BCA0123.png",
+    "result": "small-dark-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "file": "coach-composer-menu-closed-keyboard.png",
+    "original": "441FEF74-D252-4E69-9676-4F3E8DF8A4A1.png",
+    "result": "small-dark-acceptance.xcresult"
+  }
+]
