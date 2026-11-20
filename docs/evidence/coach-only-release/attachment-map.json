@@ -1,0 +1,42 @@
+{
+  "coach-design-filled-keyboard-before-or-after": {
+    "file": "coach-design-filled-keyboard-before-or-after.png",
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "source": "7619C29A-9689-41A6-933B-CC128F9AB822.png"
+  },
+  "coach-composer-menu-open-keyboard": {
+    "file": "coach-composer-menu-open-keyboard.png",
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "source": "AA308AC0-B812-47F1-B5CD-25E9737C97BF.png"
+  },
+  "coach-composer-menu-closed-keyboard": {
+    "file": "coach-composer-menu-closed-keyboard.png",
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "source": "621DA10D-032A-4271-80BC-B2D7989405A8.png"
+  },
+  "coach-largest-context-de": {
+    "file": "coach-largest-context-de.png",
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "source": "578B2280-CE41-48A0-AB9D-60A07966E02C.png"
+  },
+  "coach-menu-transport-receipt": {
+    "file": "coach-menu-transport-receipt.txt",
+    "test": "CoachUITests/testMenuSelectionUsesOriginalRoutesExactlyOnceAndKeepsFocus()",
+    "source": "93C13087-975F-4F32-9236-4E2ABE4A8AF2.txt"
+  },
+  "global-coach": {
+    "file": "global-coach.png",
+    "test": "DictationPlayerUITests/testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt()",
+    "source": "A8A52D2B-A687-4E9B-A989-EB5BD3EDFEDC.png"
+  },
+  "stop-Dark-stopped": {
+    "file": "stop-Dark-stopped.png",
+    "test": "DictationPlayerUITests/testExplicitStopFromAnotherTabRestartsAtZero()",
+    "source": "614F4DEE-6D2D-46E1-B397-4F7844B63850.png"
+  },
+  "stop-Light-stopped": {
+    "file": "stop-Light-stopped.png",
+    "test": "DictationPlayerUITests/testExplicitStopFromAnotherTabRestartsAtZero()",
+    "source": "AE50AFAC-FFA4-40B7-AF62-584FFED6DDDC.png"
+  }
+}

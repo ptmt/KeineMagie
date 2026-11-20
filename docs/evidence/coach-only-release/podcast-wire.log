@@ -1,0 +1,27 @@
+=== RUN   TestNativePodcastWireFixture
+--- PASS: TestNativePodcastWireFixture (0.02s)
+PASS
+ok  	diktat/server	0.287s
+Building for debugging...
+Build complete! (0,20 sec)
+Test Suite 'Selected tests' started at 2026-11-20 11:22:10.108.
+Test Suite 'KeineMagieCoreTests.xctest' started at 2026-11-20 11:22:10.113.
+Test Suite 'PodcastWireShapeTests' started at 2026-11-20 11:22:10.113.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testActualGoSerializedWire]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testActualGoSerializedWire]' passed (0.004 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testMalformedRequiredDataStillFailsRatherThanPretendingEmpty]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testMalformedRequiredDataStillFailsRatherThanPretendingEmpty]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testMissingSegmentsAndOldCachedTitleRemainCompatible]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testMissingSegmentsAndOldCachedTitleRemainCompatible]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testOptionalFieldsAndWrongTypesStayStrict]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testOptionalFieldsAndWrongTypesStayStrict]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testProductionSummaryNullSegmentsAndServerTitleDecode]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testProductionSummaryNullSegmentsAndServerTitleDecode]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testSubscriptionNullMissingCollectionsAndWrongTypes]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testSubscriptionNullMissingCollectionsAndWrongTypes]' passed (0.000 seconds).
+Test Suite 'PodcastWireShapeTests' passed at 2026-11-20 11:22:10.118.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.005 (0.005) seconds
+Test Suite 'KeineMagieCoreTests.xctest' passed at 2026-11-20 11:22:10.118.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.005 (0.005) seconds
+Test Suite 'Selected tests' passed at 2026-11-20 11:22:10.118.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.005 (0.010) seconds

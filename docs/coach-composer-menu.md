@@ -1,5 +1,7 @@
 # Coach composer actions — local iOS preview
 
+Release follow-through: `docs/COACH-COMPOSER-RELEASE.md` records the owner-authorized Coach-only candidate and the fresh-store coherent small-device **33/33** rerun. The diagnostic failures below remain historical evidence, not the current release gate.
+
 November 20, 2026. Base `984e34ed7b8d1f840e10a386aa8fe641090d9412`; local-only revision. No push or release.
 
 ## Changes
