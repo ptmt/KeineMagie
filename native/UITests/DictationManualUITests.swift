@@ -132,6 +132,40 @@ final class DictationManualUITests:XCTestCase {
         shot(app,"native-manual-hybrid-completed")
         app.terminate()
     }
+    @MainActor func testOptionalFinalWholeReadingEndToEnd() throws {
+        continueAfterFailure = false
+        let app = try launch(titlePrefix:"FinalWhole")
+        defer { app.terminate() }
+        let transport = app.buttons["dictation-manual-transport"]
+        wait(transport,"label == 'Prepare audio' AND enabled == true")
+        transport.tap(); wait(transport,"label == 'Play' AND enabled == true")
+        transport.tap(); wait(transport,"label == 'Next' AND enabled == true")
+        // Three actual fragments, two planned readings each, default 3-second gaps.
+        for fragment in 0..<3 {
+            transport.tap()
+            wait(transport,"label == 'Stop' AND enabled == true")
+            wait(transport,fragment == 2 ? "label == 'Optional final reading' AND enabled == true" : "label == 'Next' AND enabled == true",timeout:25)
+        }
+        XCTAssertTrue(app.staticTexts["Optional final reading"].exists)
+        XCTAssertTrue(app.staticTexts["Whole-text starts: 1 of 4"].exists)
+        sleep(2)
+        XCTAssertEqual(transport.label,"Optional final reading","Final whole reading must await explicit activation")
+        transport.tap()
+        wait(transport,"label == 'Optional final reading' AND enabled == false",timeout:25)
+        XCTAssertTrue(app.staticTexts["Whole-text starts: 2 of 4"].exists)
+        XCTAssertFalse(app.otherElements["dictation-player"].exists)
+        shot(app,"native-optional-final-whole-ended")
+        let draft = app.textFields["dictation-draft"]
+        visible(app,draft); draft.tap(); draft.typeText("Die kleine Katze schläft, weil sie sehr müde ist. Der Hund wartet.")
+        app.buttons["dictation-menu"].tap()
+        app.buttons["dictation-complete"].tap()
+        let check = app.buttons["dictation-check"]
+        visible(app,check); wait(check,"enabled == true"); check.tap()
+        let state = app.staticTexts["dictation-assessment-state"]
+        XCTAssertTrue(state.waitForExistence(timeout:10))
+        wait(state,"label == 'AI explanation of the saved comparison'",timeout:20)
+        shot(app,"native-optional-final-whole-checked")
+    }
     @MainActor func testTransportContrastInLightAndDark() throws {
         for theme in ["Light","Dark"] {
             let app=try launch(titlePrefix:"Contrast",theme:theme)

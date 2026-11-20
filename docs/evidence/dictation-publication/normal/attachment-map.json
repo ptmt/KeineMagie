@@ -1,0 +1,22 @@
+[
+  {
+    "file": "native-optional-final-whole-checked.png",
+    "sha256": "f2f313cfe884aefff1b10bd0e3947bd662aa50a04e333a7411e2b5cf7d5456bc",
+    "test": "DictationManualUITests/testOptionalFinalWholeReadingEndToEnd()"
+  },
+  {
+    "file": "native-optional-final-whole-checked-buttons-7.txt",
+    "sha256": "55af75d3ec83cc9f487730b2dd7d92a209dfe4efc0ee12c344ef6c1ad0306a8b",
+    "test": "DictationManualUITests/testOptionalFinalWholeReadingEndToEnd()"
+  },
+  {
+    "file": "native-optional-final-whole-ended.png",
+    "sha256": "c23adb6ef06f9d01e867176d7946f726c87dfca49d35993e7f71c5f677674688",
+    "test": "DictationManualUITests/testOptionalFinalWholeReadingEndToEnd()"
+  },
+  {
+    "file": "native-optional-final-whole-ended-buttons-9.txt",
+    "sha256": "85ade3f2078eb09215df4022cba73cb9ff4269bdcaf4788ec852374a6590a213",
+    "test": "DictationManualUITests/testOptionalFinalWholeReadingEndToEnd()"
+  }
+]

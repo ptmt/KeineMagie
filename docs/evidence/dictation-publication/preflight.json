@@ -1,0 +1,252 @@
+{
+  "approved_candidate": "dc607597c42d0ca9aaded1f376ec0c7a8ce06541",
+  "old_manifest_files": 584,
+  "source_differences": [
+    "native/UITests/DictationManualUITests.swift"
+  ],
+  "production_source_identical": true,
+  "native": {
+    "normal": {
+      "passed": 1,
+      "whole_starts": 2,
+      "final_used": true,
+      "ended_planned_listens": 8,
+      "checked": true,
+      "assessment_state": "completed",
+      "alignment": {
+        "version": 1,
+        "complete": true,
+        "spans": [
+          {
+            "id": "s0",
+            "kind": "equal",
+            "source_start": 0,
+            "source_end": 68,
+            "answer_start": 0,
+            "answer_end": 68,
+            "original": "Die kleine Katze schl\u00e4ft, weil sie sehr m\u00fcde ist. Der Hund wartet.",
+            "written": "Die kleine Katze schl\u00e4ft, weil sie sehr m\u00fcde ist. Der Hund wartet."
+          }
+        ],
+        "source_words": 12,
+        "attempted_words": 12,
+        "exact_words": 12,
+        "omissions": 0,
+        "additions": 0,
+        "substitutions": 0,
+        "unattempted_words": 0
+      },
+      "assistance_summary": {
+        "version": 1,
+        "tracking": "partial",
+        "scope": "server_accepted_reports",
+        "unreported": "unknown",
+        "archived_unknown": false,
+        "unknown_admissions": 0,
+        "segments": [
+          {
+            "segment_id": "policy2:step0:asset0",
+            "step": 0,
+            "asset": 0,
+            "planned_repetitions": 1,
+            "planned_started": 1,
+            "extra_requested": 0,
+            "started": 1,
+            "completed": 1,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          },
+          {
+            "segment_id": "policy2:step1:asset1",
+            "step": 1,
+            "asset": 1,
+            "planned_repetitions": 2,
+            "planned_started": 2,
+            "extra_requested": 0,
+            "started": 2,
+            "completed": 2,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          },
+          {
+            "segment_id": "policy2:step3:asset2",
+            "step": 3,
+            "asset": 2,
+            "planned_repetitions": 2,
+            "planned_started": 2,
+            "extra_requested": 0,
+            "started": 2,
+            "completed": 2,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          },
+          {
+            "segment_id": "policy2:step5:asset3",
+            "step": 5,
+            "asset": 3,
+            "planned_repetitions": 2,
+            "planned_started": 2,
+            "extra_requested": 0,
+            "started": 2,
+            "completed": 2,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          },
+          {
+            "segment_id": "policy2:step7:asset0",
+            "step": 7,
+            "asset": 0,
+            "planned_repetitions": 1,
+            "planned_started": 1,
+            "extra_requested": 0,
+            "started": 1,
+            "completed": 1,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          }
+        ]
+      }
+    },
+    "small": {
+      "passed": 1,
+      "whole_starts": 2,
+      "final_used": true,
+      "ended_planned_listens": 8,
+      "checked": true,
+      "assessment_state": "completed",
+      "alignment": {
+        "version": 1,
+        "complete": true,
+        "spans": [
+          {
+            "id": "s0",
+            "kind": "equal",
+            "source_start": 0,
+            "source_end": 68,
+            "answer_start": 0,
+            "answer_end": 68,
+            "original": "Die kleine Katze schl\u00e4ft, weil sie sehr m\u00fcde ist. Der Hund wartet.",
+            "written": "Die kleine Katze schl\u00e4ft, weil sie sehr m\u00fcde ist. Der Hund wartet."
+          }
+        ],
+        "source_words": 12,
+        "attempted_words": 12,
+        "exact_words": 12,
+        "omissions": 0,
+        "additions": 0,
+        "substitutions": 0,
+        "unattempted_words": 0
+      },
+      "assistance_summary": {
+        "version": 1,
+        "tracking": "partial",
+        "scope": "server_accepted_reports",
+        "unreported": "unknown",
+        "archived_unknown": false,
+        "unknown_admissions": 0,
+        "segments": [
+          {
+            "segment_id": "policy2:step0:asset0",
+            "step": 0,
+            "asset": 0,
+            "planned_repetitions": 1,
+            "planned_started": 1,
+            "extra_requested": 0,
+            "started": 1,
+            "completed": 1,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          },
+          {
+            "segment_id": "policy2:step1:asset1",
+            "step": 1,
+            "asset": 1,
+            "planned_repetitions": 2,
+            "planned_started": 2,
+            "extra_requested": 0,
+            "started": 2,
+            "completed": 2,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          },
+          {
+            "segment_id": "policy2:step3:asset2",
+            "step": 3,
+            "asset": 2,
+            "planned_repetitions": 2,
+            "planned_started": 2,
+            "extra_requested": 0,
+            "started": 2,
+            "completed": 2,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          },
+          {
+            "segment_id": "policy2:step5:asset3",
+            "step": 5,
+            "asset": 3,
+            "planned_repetitions": 2,
+            "planned_started": 2,
+            "extra_requested": 0,
+            "started": 2,
+            "completed": 2,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          },
+          {
+            "segment_id": "policy2:step7:asset0",
+            "step": 7,
+            "asset": 0,
+            "planned_repetitions": 1,
+            "planned_started": 1,
+            "extra_requested": 0,
+            "started": 1,
+            "completed": 1,
+            "stopped": 0,
+            "resumes": 0,
+            "interruptions": 0,
+            "play_failures": 0,
+            "completion_unknown": 0
+          }
+        ]
+      }
+    }
+  },
+  "protected": {
+    "KeineMagie": {
+      "files": 304,
+      "mismatches": 0
+    },
+    "AnyProgress": {
+      "files": 13,
+      "mismatches": 0
+    }
+  }
+}
