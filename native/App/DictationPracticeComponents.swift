@@ -5,7 +5,7 @@ import KeineMagieCore
 struct DictationRules: View {
     let record: DictationRecord
     var body: some View {
-        Text(AppL10n.text((record.playbackPolicyVersion ?? 0) > 1 ? "pacing.nativeUnsupported" : (record.playbackPolicyVersion == 1 ? "dictation.policy.hint." : "dictation.hint.") + record.mode))
+        Text(record.playbackPolicyVersion == 2 ? dictationText("pacing.hint",["n":String(record.pacing?.repeats ?? 2)]) : AppL10n.text((record.playbackPolicyVersion ?? 0) > 2 ? "pacing.nativeUnsupported" : (record.playbackPolicyVersion == 1 ? "dictation.policy.hint." : "dictation.hint.") + record.mode))
             .font(.footnote).foregroundStyle(.secondary)
             .frame(maxWidth:.infinity,alignment:.leading).fixedSize(horizontal:false,vertical:true)
             .padding(12).background(.quaternary.opacity(0.3),in:RoundedRectangle(cornerRadius:8))

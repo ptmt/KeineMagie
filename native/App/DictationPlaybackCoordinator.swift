@@ -9,6 +9,7 @@ import KeineMagieCore
     let player = DictationPlayer()
     private(set) var controller: DictationPlaybackController?
     private(set) var attemptID: String?
+    private var selectedPolicy: Int?
     private(set) var preparing = false
     private(set) var busy = false
     private(set) var error: String?
@@ -43,7 +44,7 @@ import KeineMagieCore
     }
     var disabled: Bool {
         guard let value = record else { return true }
-        return model?.session.canWrite != true || busy || player.playing || controller?.busy == true || controller?.waiting == true ||
+        return model?.session.canWrite != true || model?.dictationDrafts.pacingRequest(id:value.id) != nil || model?.dictationChecking.contains(value.id) == true || busy || player.playing || controller?.busy == true || controller?.waiting == true ||
             (value.supportsPlaybackPolicy && (value.checked || value.policyExhausted)) ||
             (value.playbackPolicyVersion != nil && !value.supportsPlaybackPolicy)
     }
@@ -70,12 +71,12 @@ import KeineMagieCore
     func select(_ value: DictationRecord, model: AppModel) {
         if ownerGeneration != model.session.generation { reset() }
         self.model = model; ownerGeneration = model.session.generation
-        guard attemptID != value.id else { return }
+        guard attemptID != value.id || selectedPolicy != value.playbackPolicyVersion else { return }
         // suspend stops synchronously; its retained controller finishes the old
         // interrupted release against its own ID even after selection changes.
         interrupt()
         controller = nil; player.stop(resetTiming:true)
-        attemptID = value.id; error = nil
+        attemptID = value.id; selectedPolicy=value.playbackPolicyVersion; error = nil
         if value.supportsPlaybackPolicy { controller = makeController(value, model:model) }
     }
     func loadTiming() async { await controller?.loadTiming() }

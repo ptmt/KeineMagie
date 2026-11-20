@@ -24,6 +24,22 @@ final class DictationManualIntegrationTests: XCTestCase {
         let cold=DictationDraftStore();try cold.restore(disk)
         XCTAssertEqual(try cold.pendingPacing(id:"manual",repeats:2,gapSeconds:3),body)
     }
+    @MainActor func testExplicitExtraReplayUsesChosenCachedFragmentWithoutAutoRepeating() async throws {
+        var record=try JSONDecoder().decode(DictationRecord.self,from:Self.wire)
+        record.playback=DictationPlayback(revision:4,wholeStarts:1,cursor:3,finalUsed:false,active:nil,listens:nil)
+        var requests:[DictationPlaybackRequest]=[];var end:((Bool)->Void)?;var assets:[Int]=[]
+        let controller=DictationPlaybackController(read:{record},refresh:{record},send:{r in
+            requests.append(r)
+            var active:DictationListen?=nil
+            if r.action == "start" {active=DictationListen(intent:r.intent,id:r.id,client:r.client,step:r.step,fence:5,offset:0,leaseUntil:2000000000000,done:false)}
+            return DictationPlayback(revision:record.playback!.revision+1,wholeStarts:1,cursor:3,finalUsed:false,active:active,listens:nil)
+        },audio:{assets.append($0);return Data()},publish:{record.playback=$0},play:{_,_,callback in end=callback},stop:{0},authorized:{true},failed:{XCTFail("\($0)")})
+        await controller.play(replayStep:1)
+        XCTAssertEqual(requests.first?.intent,"extra");XCTAssertEqual(assets,[1])
+        end?(true);for _ in 0..<100 {await Task.yield()}
+        XCTAssertFalse(controller.waiting);XCTAssertEqual(record.playback?.cursor,3)
+        XCTAssertEqual(requests.filter{$0.action == "start"}.count,1)
+    }
     static let wire = Data(#"{"id":"manual","title":"Manual","language":"de","created":"now","mode":"sentences","step":0,"replays":0,"draft":"Heute","revision":0,"checked":false,"assisted":false,"playback_policy_version":2,"pacing":{"repeats":2,"gap_seconds":8},"playback":{"revision":0,"cursor":0,"whole_starts":0,"final_used":false},"plan":[{"kind":"whole","asset":0},{"kind":"sentence","asset":1},{"kind":"sentence_repeat","asset":1},{"kind":"sentence","asset":2},{"kind":"sentence_repeat","asset":2},{"kind":"final","asset":0}],"ready":[0,1,2]}"#.utf8)
     @MainActor func testIntroductionAndFragmentRequireExplicitNextButRepeatsUseConfiguredGap() async throws {
         var record = try JSONDecoder().decode(DictationRecord.self, from: Self.wire)

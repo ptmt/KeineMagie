@@ -141,7 +141,7 @@ import Observation
         tail=task
         return try await task.value
     }
-    public func play() async {
+    public func play(replayStep: Int? = nil) async {
         guard !busy,!playing,!waiting,authorized(),let initial=read(),initial.supportsPlaybackPolicy,!initial.checked else {return}
         busy=true;epoch += 1;let ticket=epoch
         defer {if ticket == epoch {busy=false}}
@@ -166,12 +166,15 @@ import Observation
                 explicitlyStopped=false
             }
             var selection=initial;selection.playback=value
-            guard !selection.policyExhausted,let segment=selection.segment else {throw APIError.http(409)}
+            let selectedStep=value.active?.step ?? replayStep ?? selection.policyStep
+            guard selection.plan.indices.contains(selectedStep), replayStep != nil || !selection.policyExhausted else {throw APIError.http(409)}
+            if let replayStep {guard fresh.playbackPolicyVersion == 2, value.active == nil, replayStep < value.cursor, selection.plan[replayStep].kind == "sentence" else {throw APIError.http(409)}}
+            let segment=selection.plan[selectedStep]
             let request: DictationPlaybackRequest
             if let active=value.active {
                 request=DictationPlaybackRequest(id:active.id,client:client,action:"resume",step:active.step,fence:active.fence,policyVersion:fresh.playbackPolicyVersion)
             } else {
-                request=DictationPlaybackRequest(id:UUID().uuidString,client:client,action:"start",step:selection.policyStep,fence:0,policyVersion:fresh.playbackPolicyVersion,intent:fresh.playbackPolicyVersion == 2 ? "planned" : nil)
+                request=DictationPlaybackRequest(id:UUID().uuidString,client:client,action:"start",step:selectedStep,fence:0,policyVersion:fresh.playbackPolicyVersion,intent:fresh.playbackPolicyVersion == 2 ? (replayStep == nil ? "planned" : "extra") : nil)
             }
             let requestTask = Task { @MainActor in try await send(request) }
             admission = requestTask;admissionRequest=request

@@ -31,6 +31,15 @@ public struct DictationRecord: Codable, Sendable, Identifiable {
  public func progressData() throws -> Data { try JSONEncoder().encode(DictationProgress(mode:mode,step:step,replays:replays,draft:draft,revision:revision)) }
 }
 private struct DictationProgress: Codable { let mode: String; let step: Int; let replays: Int; let draft: String; let revision: Int }
-public struct DictationHistory: Codable, Sendable { public let items: [DictationRecord]; public let ttsAvailable: Bool; public let languages: [String]
- enum CodingKeys: String, CodingKey { case items, languages, ttsAvailable = "tts_available" }
+public struct DictationSpeechSpend: Codable, Sendable {
+ public let month: String
+ public let currency: String
+ public let scope: String
+ public let reportedMicroUSD: Int64?
+ public let unsettledReservations: Int
+ public let reservedMicroUSD: Int64
+ enum CodingKeys: String, CodingKey {case month,currency,scope;case reportedMicroUSD = "reported_micro_usd",unsettledReservations = "unsettled_reservations",reservedMicroUSD = "reserved_micro_usd"}
+}
+public struct DictationHistory: Codable, Sendable { public var speechSpend: DictationSpeechSpend? = nil; public let items: [DictationRecord]; public let ttsAvailable: Bool; public let languages: [String]
+ enum CodingKeys: String, CodingKey { case items, languages, ttsAvailable = "tts_available", speechSpend = "speech_spend" }
 }
