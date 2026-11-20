@@ -50,15 +50,43 @@ func (cfg *serverConfig) dictationAttempt(w http.ResponseWriter, r *http.Request
 		if len(d.Items) >= 30 {
 			return errors.New("history limit")
 		}
-		out = dictationRecord{PlaybackPolicyVersion: policy, Playback: dictationPlayback{Cursor: 1}, ID: in.ID, TextID: textID, Title: source.Title, Text: source.Text, Language: source.Language, Created: time.Now().UTC().Format(time.RFC3339), Mode: "whole", Plan: source.Plan, Ready: []int{}}
-		if policy == 1 {
+		plan, mode, cursor := source.Plan, "whole", 1
+		var pacing *dictationPacing
+		if policy == 2 {
+			pacing = &dictationPacing{Repeats: 2, GapSeconds: 3}
+			plan = dictationPacingPlan(source.Text, source.Plan, 2)
+			mode, cursor = "sentences", 0
+		}
+		if policy != 2 && source.PlaybackPolicyVersion == 2 {
+			plan = dictationPlan(source.Text)
+		}
+		if len(plan) > 120 {
+			return errDictationConflict
+		}
+		for _, segment := range plan {
+			if segment.Asset > 120 {
+				return errDictationConflict
+			}
+		}
+		out = dictationRecord{Pacing: pacing, PlaybackPolicyVersion: policy, Playback: dictationPlayback{Cursor: cursor}, ID: in.ID, TextID: textID, Title: source.Title, Text: source.Text, Language: source.Language, Created: time.Now().UTC().Format(time.RFC3339), Mode: mode, Plan: plan, Ready: []int{}}
+		if policy == 1 || policy == 2 {
 			seen := map[int]bool{}
-			for _, segment := range source.Plan {
+			for _, segment := range out.Plan {
 				if seen[segment.Asset] {
 					continue
 				}
 				seen[segment.Asset] = true
-				from := dictationAssetPath(cfg.dictationRoot(owner), source.ID, segment.Asset)
+				sourceAsset := -1
+				for _, old := range source.Plan {
+					if old.Text == segment.Text {
+						sourceAsset = old.Asset
+						break
+					}
+				}
+				if sourceAsset < 0 {
+					continue
+				}
+				from := dictationAssetPath(cfg.dictationRoot(owner), source.ID, sourceAsset)
 				to := dictationAssetPath(cfg.dictationRoot(owner), in.ID, segment.Asset)
 				info, e := os.Stat(from)
 				if errors.Is(e, os.ErrNotExist) {

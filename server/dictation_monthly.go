@@ -31,6 +31,7 @@ type dictationSpeechUsage struct {
 	} `json:"output_token_details"`
 }
 type dictationMonthlyEntry struct {
+	OwnerHash      string                `json:"owner_hash,omitempty"`
 	ID             string                `json:"id"`
 	MicroUSD       int64                 `json:"reserved_micro_usd"`
 	Usage          *dictationSpeechUsage `json:"reported_usage,omitempty"`
@@ -63,6 +64,13 @@ func dictationMonthlyTransaction(root, month string, fn func(*dictationMonthlyLe
 	})
 }
 func dictationReserveMonthly(root string) (dictationBudgetTicket, error) {
+	return dictationReserveMonthlyBefore(root, nil)
+}
+
+// Hold the monthly lock through the daily admission. Ordinary limit rejection
+// changes neither allowance. A filesystem failure after the daily commit keeps
+// that conservative reservation; no provider call is made until all commits pass.
+func dictationReserveMonthlyBefore(root string, before func() error, owner ...string) (dictationBudgetTicket, error) {
 	ticket := dictationBudgetTicket{month: time.Now().UTC().Format("2006-01")}
 	err := dictationMonthlyTransaction(root, ticket.month, func(d *dictationMonthlyLedger) error {
 		var spent int64
@@ -78,9 +86,18 @@ func dictationReserveMonthly(root string) (dictationBudgetTicket, error) {
 		if spent > dictationMonthlyMicroUSD-dictationAttemptMicroUSD {
 			return errDictationBudget
 		}
+		if before != nil {
+			if err := before(); err != nil {
+				return err
+			}
+		}
 		// The ledger lock and monotone length make this unique within a month.
 		ticket.id = time.Now().UTC().Format("20060102T150405.000000000")
-		d.Entries = append(d.Entries, dictationMonthlyEntry{ID: ticket.id, MicroUSD: dictationAttemptMicroUSD})
+		ownerHash := ""
+		if len(owner) == 1 && owner[0] != "" {
+			ownerHash = sessionHash(owner[0])
+		}
+		d.Entries = append(d.Entries, dictationMonthlyEntry{ID: ticket.id, MicroUSD: dictationAttemptMicroUSD, OwnerHash: ownerHash})
 		return nil
 	})
 	return ticket, err

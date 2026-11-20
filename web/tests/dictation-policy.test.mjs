@@ -81,6 +81,17 @@ test('policy copy counts authorized starts and qualifies the final replay allowa
  }
 });
 
+test('manual policy repeats only the same fragment then waits indefinitely for Next',async t=>{
+ t.mock.timers.enable({apis:['setTimeout','setInterval','Date'],now:10000});
+ const f=playerFixture();f.r.playback_policy_version=2;f.r.pacing={repeats:2,gap_seconds:8};
+ await f.p.play();assert.equal(f.plays,1);
+ f.audio.ended=true;await f.p.ended();assert.equal(f.p.waiting,true);
+ t.mock.timers.tick(7999);await Promise.resolve();assert.equal(f.plays,1);
+ t.mock.timers.tick(1);for(let i=0;i<20;i++)await Promise.resolve();assert.equal(f.plays,2);
+ f.audio.ended=true;await f.p.ended();t.mock.timers.tick(60000);for(let i=0;i<20;i++)await Promise.resolve();
+ assert.equal(f.plays,2);assert.equal(f.r.playback.cursor,3);assert.equal(f.p.waiting,false);f.p.stop();
+});
+
 test('navigation checkpoints the position before removing the media source',async()=>{
  const f=playerFixture({mode:'whole'});await f.p.play();f.audio.currentTime=0.7;f.p.stop();f.audio.currentTime=0;
  for(let i=0;i<10;i++)await Promise.resolve();

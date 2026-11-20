@@ -3,11 +3,12 @@ public struct DictationSegment: Codable, Sendable { public let kind: String; pub
 public struct DictationDifference: Codable, Sendable { public let kind: String; public let original: String; public let written: String }
 public enum DictationEvent: Sendable { case whole, sentences, next, ended, pause }
 public struct DictationRecord: Codable, Sendable, Identifiable {
+	public var pacing: DictationPacing?
  public var playbackPolicyVersion: Int?
  public var playback: DictationPlayback?
  enum CodingKeys: String, CodingKey {
   case id, title, language, created, text, mode, step, replays, draft, revision, checked, assisted, plan, ready, differences
-  case playbackPolicyVersion = "playback_policy_version", playback
+  case playbackPolicyVersion = "playback_policy_version", playback, pacing
  }
  public let id: String; public let title: String; public let language: String; public let created: String
  public var text: String?; public var mode: String; public var step: Int; public var replays: Int; public var draft: String; public var revision: Int

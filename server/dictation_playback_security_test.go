@@ -288,7 +288,7 @@ func TestDictationPlaybackCheckpointFencesAndCachedNewAttempt(t *testing.T) {
 	if w := f.call("GET", "/fresh/audio/0", ""); w.Code != 200 {
 		t.Fatal(w.Code, w.Body)
 	}
-	for _, version := range []string{`0`, `2`, `null`, `1.0`} {
+	for _, version := range []string{`0`, `3`, `null`, `1.0`} {
 		if w := f.call("POST", "/fresh/attempts", `{"id":"bad","playback_policy_version":`+version+`}`); w.Code != 400 {
 			t.Fatal("unsupported attempt policy", w.Code)
 		}

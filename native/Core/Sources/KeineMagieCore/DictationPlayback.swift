@@ -1,7 +1,18 @@
 import Foundation
 
+/// Preservation-only v2 contract. Native transport remains gated to policy 1.
+public struct DictationPacing: Codable, Sendable, Equatable {
+    public let repeats: Int
+    public let gapSeconds: Int
+    enum CodingKeys: String, CodingKey { case repeats; case gapSeconds = "gap_seconds" }
+}
+public struct DictationStopReceipt: Codable, Sendable, Equatable {
+    public let id: String; public let client: String; public let fence: Int; public let admission: String?
+}
+
 /// Mirrors server/dictation_playback.go. The ledger counts admitted starts, not listening.
 public struct DictationPlayback: Codable, Sendable, Equatable {
+    public var stops: [DictationStopReceipt]?
     public let revision: Int
     public let wholeStarts: Int
     public let cursor: Int
@@ -9,11 +20,20 @@ public struct DictationPlayback: Codable, Sendable, Equatable {
     public let active: DictationListen?
     public let listens: [DictationListen]?
     enum CodingKeys: String, CodingKey {
-        case revision, cursor, active, listens
+        case revision, cursor, active, listens, stops
         case wholeStarts = "whole_starts", finalUsed = "final_used"
     }
 }
 public struct DictationListen: Codable, Sendable, Equatable {
+    public var policyVersion: Int?
+    public var asset: Int?
+    public var intent: String?
+    public var ended: Bool?
+    public var stopped: Bool?
+    public var stopBase: Int?
+    public var resumes: Int?
+    public var interruptions: Int?
+    public var playFailures: Int?
     public let id: String
     public let client: String
     public let step: Int
@@ -22,7 +42,8 @@ public struct DictationListen: Codable, Sendable, Equatable {
     public let leaseUntil: Int64
     public let done: Bool
     enum CodingKeys: String, CodingKey {
-        case id, client, step, fence, offset, done
+        case id, client, step, fence, offset, done, asset, intent, ended, stopped, resumes, interruptions
+        case policyVersion = "policy_version", stopBase = "stop_base", playFailures = "play_failures"
         case leaseUntil = "lease_until"
     }
 }
@@ -64,7 +85,8 @@ public extension DictationRecord {
     }
     mutating func preservePlayback(from old: DictationRecord) {
         guard old.id == id else {return}
-        if let version=old.playbackPolicyVersion {playbackPolicyVersion=version}
+        if let version=old.playbackPolicyVersion, version > (playbackPolicyVersion ?? 0) {playbackPolicyVersion=version;pacing=old.pacing}
+        if pacing == nil, playbackPolicyVersion == old.playbackPolicyVersion {pacing=old.pacing}
         if let ledger=old.playback, ledger.revision > (playback?.revision ?? -1) {playback=ledger}
     }
 }

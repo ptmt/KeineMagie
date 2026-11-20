@@ -27,6 +27,12 @@ type dictationPlayback struct {
 	Listens     []dictationListen `json:"listens,omitempty"`
 }
 type dictationListen struct {
+	PolicyVersion int    `json:"policy_version,omitempty"`
+	Asset         *int   `json:"asset,omitempty"`
+	Intent        string `json:"intent,omitempty"`
+	Resumes       int    `json:"resumes,omitempty"`
+	Interruptions int    `json:"interruptions,omitempty"`
+	PlayFailures  int    `json:"play_failures,omitempty"`
 	// Revision before the current ownership began. Nil legacy reservations
 	// remain strict-CAS; every resume establishes a new boundary.
 	StopBase   *int    `json:"stop_base,omitempty"`
@@ -37,6 +43,7 @@ type dictationListen struct {
 	Offset     float64 `json:"offset"`
 	LeaseUntil int64   `json:"lease_until"`
 	Done       bool    `json:"done"`
+	Ended      bool    `json:"ended,omitempty"`
 	Stopped    bool    `json:"stopped,omitempty"`
 }
 
@@ -45,6 +52,9 @@ func dictationPolicy(raw json.RawMessage) (int, bool) {
 		return 0, true
 	}
 	// Exact integer version; reject null, floats, strings and future versions.
+	if string(raw) == "2" {
+		return 2, true
+	}
 	if string(raw) != "1" {
 		return 0, false
 	}
@@ -56,18 +66,25 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 		return
 	}
 	var in struct {
-		Admission string  `json:"admission,omitempty"`
-		ID        string  `json:"id"`
-		Client    string  `json:"client"`
-		Action    string  `json:"action"`
-		Step      int     `json:"step"`
-		Fence     int     `json:"fence"`
-		Offset    float64 `json:"offset"`
+		PolicyVersion int     `json:"policy_version,omitempty"`
+		Intent        string  `json:"intent,omitempty"`
+		Reason        string  `json:"reason,omitempty"`
+		Admission     string  `json:"admission,omitempty"`
+		ID            string  `json:"id"`
+		Client        string  `json:"client"`
+		Action        string  `json:"action"`
+		Step          int     `json:"step"`
+		Fence         int     `json:"fence"`
+		Offset        float64 `json:"offset"`
 	}
 	if !learningDecode(w, r, &in) {
 		return
 	}
-	if (in.Admission != "" && (!dictationID.MatchString(in.Admission) || in.Action != "stop")) || !dictationID.MatchString(in.ID) || !dictationID.MatchString(in.Client) || in.Step < 0 || in.Step > 120 || in.Fence < 0 || math.IsNaN(in.Offset) || math.IsInf(in.Offset, 0) || in.Offset < 0 || in.Offset > 7200 {
+	if (in.Intent != "" && in.Intent != "extra" && in.Intent != "planned") || (in.Reason != "" && in.Reason != "play_failed" && in.Reason != "interrupted") {
+		writeError(w, 400, "invalid playback intent")
+		return
+	}
+	if (in.Admission != "" && (!dictationID.MatchString(in.Admission) || in.Action != "stop")) || !dictationID.MatchString(in.ID) || !dictationID.MatchString(in.Client) || in.Step < 0 || (in.Step > 180 || in.Step > 120 && in.PolicyVersion != 2) || in.Fence < 0 || math.IsNaN(in.Offset) || math.IsInf(in.Offset, 0) || in.Offset < 0 || in.Offset > 7200 {
 		// A legacy attempt still gets a policy conflict rather than an upgrade.
 		writeError(w, 400, "invalid playback stamp")
 		return
@@ -82,8 +99,22 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 		if v == nil {
 			return errDictationMissing
 		}
-		if v.PlaybackPolicyVersion != 1 {
+		if v.PlaybackPolicyVersion != 1 && v.PlaybackPolicyVersion != 2 {
 			return errDictationConflict
+		}
+		if v.PlaybackPolicyVersion == 2 && in.PolicyVersion != 2 {
+			// An explicit upgrade must not strand an already committed legacy
+			// Stop whose ACK was lost. Recognize only the exact archived receipt;
+			// no old-client action may mutate the new plan/ownership interval.
+			if in.Action == "stop" && in.Step == 0 && v.PacingHistory != nil {
+				for _, receipt := range v.PacingHistory.Playback.Stops {
+					if receipt.ID == in.ID && receipt.Client == in.Client && receipt.Fence == in.Fence && receipt.Admission == in.Admission {
+						out = v.Playback
+						return nil
+					}
+				}
+			}
+			return errDictationConflict // Fence delayed unsupported clients.
 		}
 		p := &v.Playback
 		now := time.Now().UnixMilli()
@@ -128,15 +159,25 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 				a.LeaseUntil = 0
 			}
 			p.Cursor = 1
+			if v.PlaybackPolicyVersion == 2 {
+				p.Cursor = 0
+			}
 			p.Revision++
 			p.Stops = append(p.Stops, dictationStop{ID: in.ID, Client: in.Client, Fence: in.Fence, Admission: in.Admission})
 		case "start":
+			intent := "planned"
+			if in.Intent == "extra" {
+				intent = "extra"
+			}
 			for _, receipt := range p.Stops {
 				if receipt.Admission == in.ID {
 					return errDictationConflict
 				}
 			}
 			if prior != nil {
+				if v.PlaybackPolicyVersion == 2 && prior.Intent != intent {
+					return errDictationConflict
+				}
 				if prior.Step != in.Step || prior.Client != in.Client {
 					return errDictationConflict
 				}
@@ -156,7 +197,11 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 				return errDictationConflict
 			}
 			kind := v.Plan[in.Step].Kind
-			if in.Step != 0 && in.Step != p.Cursor {
+			extra := v.PlaybackPolicyVersion == 2 && intent == "extra" && dictationCanReplay(*v, in.Step)
+			if intent == "extra" && !extra {
+				return errDictationConflict
+			}
+			if in.Step != 0 && in.Step != p.Cursor && !extra {
 				return errDictationConflict
 			}
 			if kind == "whole" || kind == "final" {
@@ -177,6 +222,12 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 			base := p.Revision
 			p.Revision++
 			p.Active = &dictationListen{StopBase: &base, ID: in.ID, Client: in.Client, Step: in.Step, Fence: p.Revision, LeaseUntil: now + 15000}
+			if v.PlaybackPolicyVersion == 2 {
+				asset := v.Plan[in.Step].Asset
+				p.Active.Asset = &asset
+				p.Active.PolicyVersion = 2
+				p.Active.Intent = intent
+			}
 			p.Listens = append(p.Listens, *p.Active)
 		case "resume":
 			if a == nil || a.ID != in.ID || a.Step != in.Step || a.Fence != in.Fence || v.Checked {
@@ -189,6 +240,9 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 			a.StopBase = &base
 			p.Revision++
 			a.Client = in.Client
+			if v.PlaybackPolicyVersion == 2 {
+				a.Resumes++
+			}
 			a.Fence = p.Revision
 			a.LeaseUntil = now + 15000
 		case "progress", "release", "ended", "cancel":
@@ -210,10 +264,18 @@ func (cfg *serverConfig) dictationPlaybackHTTP(w http.ResponseWriter, r *http.Re
 			}
 			if in.Action == "release" {
 				a.LeaseUntil = 0
+				if v.PlaybackPolicyVersion == 2 {
+					if in.Reason == "play_failed" {
+						a.PlayFailures++
+					} else {
+						a.Interruptions++
+					}
+				}
 			}
 			if in.Action == "ended" || in.Action == "cancel" {
 				a.Done = true
-				if in.Step > 0 && in.Action == "ended" && in.Step == p.Cursor && p.Cursor < len(v.Plan)-1 {
+				a.Ended = in.Action == "ended"
+				if (in.Step > 0 || v.PlaybackPolicyVersion == 2) && a.Intent != "extra" && in.Action == "ended" && in.Step == p.Cursor && p.Cursor < len(v.Plan)-1 {
 					p.Cursor++
 				}
 			}

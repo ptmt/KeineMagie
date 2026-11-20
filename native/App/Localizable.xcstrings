@@ -1,6 +1,42 @@
 {
   "sourceLanguage": "de",
   "strings" : {
+  "pacing.nativeUnsupported": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Dieser Versuch verwendet manuelle Wiederholungen. Öffne ihn zum Abspielen im Web; dein Entwurf bleibt erhalten."
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "This attempt uses manual repeat pacing. Open it on the web to play; your draft is preserved."
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "В этой попытке включены повторы с ручным переходом. Для прослушивания откройте её в веб-версии; черновик сохранён."
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Este intento usa repeticiones con avance manual. Ábrelo en la web para escuchar; se conserva tu borrador."
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Cet essai utilise les répétitions à avance manuelle. Ouvrez-le sur le Web pour écouter ; votre brouillon est conservé."
+        }
+      }
+    }
+  }
+,
   "dictation.player.resetPending": {
     "extractionState": "manual",
     "localizations": {

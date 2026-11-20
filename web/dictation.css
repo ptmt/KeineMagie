@@ -1,3 +1,16 @@
+.dictation-spend{font-size:.75rem;line-height:1.5;color:#686871;margin:24px 0 12px}.dictation-extra-replay{font-size:.85rem!important;margin-top:4px}
+/* Manual pacing keeps the primary transport slot stable and writing reachable. */
+.dictation-now{font-size:.9rem;line-height:1.45;margin:12px 0 8px;min-height:2.9em}
+.dictation-timeline{list-style:none;padding:0 0 0 12px;margin:8px 0;border-left:2px solid #d5d5da;font-size:.85rem;line-height:1.45}
+.dictation-timeline li{padding:4px 0 4px 10px;color:#686871}
+.dictation-timeline li.is-current{font-weight:650;color:#252629}
+.dictation-timeline li.is-complete{color:#28613e}
+.dictation-timeline-expand{font-size:.8rem!important;color:#62646a;padding-left:0!important}
+.dictation-pacing-settings{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:10px 0 14px;font-size:.875rem}
+.dictation-pacing-settings label{display:flex;align-items:center;gap:8px;min-height:44px}
+.dictation-pacing-settings input[type=checkbox]{width:20px;height:20px;margin:0}
+.dictation-pacing-settings select{max-width:100%}
+@media(prefers-color-scheme:dark){.dictation-timeline li{color:#aaaab4}.dictation-timeline li.is-current{color:#eeeef0}.dictation-timeline li.is-complete{color:#a1d7b2}}
 /* Ordered milestones, not a checklist: skipped stages have no completion ticks. */
 .dictation-page .dictation-lifecycle{display:flex;flex-wrap:wrap;gap:6px 8px;max-width:100%;font-size:14px;line-height:1.5}
 .dictation-lifecycle .dictation-milestone{display:inline-block;padding:2px 6px;border-radius:4px;white-space:nowrap;color:#6b6b73;font-weight:400}

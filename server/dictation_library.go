@@ -41,7 +41,7 @@ func (cfg *serverConfig) dictationLibraryStage(owner string, v dictationRecord) 
 		return "completed"
 	}
 	started := strings.TrimSpace(v.Draft) != ""
-	if v.PlaybackPolicyVersion == 1 {
+	if v.PlaybackPolicyVersion == 1 || v.PlaybackPolicyVersion == 2 {
 		// Admission is durable even when playback is later interrupted/canceled;
 		// it is a start, not evidence of hearing or completing a recording.
 		started = started || v.Playback.WholeStarts > 0 || len(v.Playback.Listens) > 0
@@ -60,14 +60,14 @@ func (cfg *serverConfig) dictationLibraryStage(owner string, v dictationRecord) 
 	segments := v.Plan[:1]
 	if v.Mode == "sentences" {
 		step := v.Step
-		if v.PlaybackPolicyVersion == 1 {
+		if v.PlaybackPolicyVersion == 1 || v.PlaybackPolicyVersion == 2 {
 			step = v.Playback.Cursor
 		}
 		if step < 0 || step >= len(v.Plan) {
 			return "added"
 		}
 		segments = v.Plan[step : step+1]
-		if v.PlaybackPolicyVersion == 1 {
+		if v.PlaybackPolicyVersion == 1 || v.PlaybackPolicyVersion == 2 {
 			segments = v.Plan[step:]
 		}
 	} else if v.Mode != "whole" {

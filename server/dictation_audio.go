@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/url"
 	"os"
@@ -80,7 +79,7 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 	}
 	defer lock.Close()
 	if e = syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); e != nil {
-		writeError(w, 429, "Audio engine busy. Retry shortly.")
+		writeJSON(w, 429, map[string]any{"error": "Audio engine busy. Retry shortly.", "code": "speech_engine_busy"})
 		return
 	}
 	defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
@@ -113,14 +112,23 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 		writeError(w, 503, "OpenAI speech is not configured with an approved budget. No fallback.")
 		return
 	}
+	var ticket dictationBudgetTicket
 	e = cfg.dictationWrite(r, owner, func(d *dictationData) error {
+		if err := r.Context().Err(); err != nil {
+			return err
+		}
 		day := time.Now().UTC().Format("2006-01-02")
 		if d.Day != day {
 			d.Day = day
 			d.Generations = 0
 		}
 		if d.Generations >= 120 {
-			return errors.New("daily audio limit")
+			return errDictationBudget
+		}
+		var err error
+		ticket, err = dictationReserveMonthlyBefore(root, func() error { return dictationReservePaid(root, speechConfig, text) }, owner)
+		if err != nil {
+			return err
 		}
 		d.Generations++
 		return nil
@@ -131,15 +139,6 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 	}
 	if e = r.Context().Err(); e != nil {
 		dictationError(w, e)
-		return
-	}
-	if e = dictationReservePaid(root, speechConfig, text); e != nil {
-		dictationError(w, e)
-		return
-	}
-	ticket, budgetErr := dictationReserveMonthly(root)
-	if budgetErr != nil {
-		dictationError(w, budgetErr)
 		return
 	}
 	speechConfig.usage = func(u dictationSpeechUsage) error { return dictationRecordUsage(root, ticket, u) }

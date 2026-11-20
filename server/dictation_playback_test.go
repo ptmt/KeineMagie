@@ -38,7 +38,7 @@ func TestDictationPlaybackPolicy(t *testing.T) {
 	create := func(id, version string, want int) {
 		call("POST", "", fmt.Sprintf(`{"id":%q,"title":"Test","text":"Hallo. Morgen!","language":"de"%s}`, id, version), want)
 	}
-	for _, v := range []string{`0`, `2`, `-1`, `"1"`, `null`, `1.0`, `1e0`, `true`} {
+	for _, v := range []string{`0`, `3`, `-1`, `"1"`, `null`, `1.0`, `1e0`, `true`} {
 		create("bad", `,"playback_policy_version":`+v, 400)
 	}
 	create("legacy", "", 200)
