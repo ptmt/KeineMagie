@@ -10,7 +10,7 @@ test('uncached exercise has one audio action, quiet audio details and secondary 
  assert.equal(controls.all().filter(e=>e.tagName==='BUTTON'&&!e.hidden).length,1);
  assert.doesNotMatch(f.host.textContent,/Via OpenAI API · paid/);
  const disclosure=f.host.all().find(e=>e.className==='dictation-disclosure');
- assert.ok(controls.all().includes(disclosure),'disclosure belongs to audio toolbar');
+ assert.ok(f.host.all().find(e=>e.className==='dictation-attempt-menu').all().includes(disclosure),'audio details belong to the existing overflow');
  assert.equal(disclosure.querySelector('summary').getAttribute('aria-label'),'Audio details');
  assert.equal(disclosure.querySelector('summary').textContent,'ⓘ');
  assert.equal(disclosure.querySelector('span').getAttribute('aria-hidden'),'true');
@@ -22,7 +22,7 @@ test('uncached exercise has one audio action, quiet audio details and secondary 
  assert.equal(f.requests.filter(r=>r.method==='POST').length,0);
  f.controller.identity(null);
 });
-test('mode guidance is separate from the draft and Check remains explicit above it',async()=>{
+test('mode guidance is separate from the draft and Check remains explicit below it',async()=>{
  const value={...record(),draft:'Partial words'};
  const f=fixture({request:async path=>path.endsWith('/one')?value:{items:[value]}});
  await f.start();await f.click('Test one');
@@ -36,7 +36,8 @@ test('mode guidance is separate from the draft and Check remains explicit above 
  assert.equal(draft.getAttribute('aria-describedby'),hint.id);
  assert.match(hint.textContent,/First, note anything/);
  const header=panel.all().find(e=>e.className==='dictation-input-header');
- assert.ok(header?.all().includes(f.button('Check')),'explicit Check in input header');
+ assert.ok(header?.all().includes(f.button('Check')),'explicit Check below answer');
+ assert.ok(panel.children.indexOf(draft)<panel.children.indexOf(header),'draft precedes Check');
  const footer=panel.all().find(e=>e.className==='dictation-answer-actions');
  assert.ok(!footer.all().includes(f.button('Check')));
  assert.equal(f.requests.filter(r=>r.path.endsWith('/check')).length,0);

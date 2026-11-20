@@ -55,6 +55,7 @@ with sync_playwright() as p:
  # Complete declaration grades the whole source, without an unattempted suffix.
  page.get_by_role('button',name='New attempt',exact=True).click()
  page.get_by_role('textbox',name='What you heard').fill('Die kleine Katze schläft. '+'Danach gehen die Kinder zusammen in die große Schule. '*6)
+ page.get_by_label('More options').click()
  page.get_by_role('checkbox',name='I finished the whole text').check()
  page.get_by_role('button',name='Check',exact=True).click()
  expect(page.locator('.dictation-assessment')).to_contain_text('AI explanation of the saved comparison',timeout=15000)

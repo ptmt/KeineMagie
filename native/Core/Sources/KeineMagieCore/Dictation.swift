@@ -1,5 +1,5 @@
 import Foundation
-public struct DictationSegment: Codable, Sendable { public let kind: String; public let asset: Int; public let text: String? }
+public struct DictationSegment: Codable, Sendable { public let kind: String; public let asset: Int; public let text: String?; public let sentence: Int?; public let fragment: Int? }
 public struct DictationDifference: Codable, Sendable { public let kind: String; public let original: String; public let written: String }
 public enum DictationEvent: Sendable { case whole, sentences, next, ended, pause }
 public struct DictationRecord: Codable, Sendable, Identifiable {

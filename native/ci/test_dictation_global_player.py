@@ -18,11 +18,11 @@ class GlobalDictationOwnership(unittest.TestCase):
         view = (ROOT / 'App/DictationView.swift').read_text()
         accessory = (ROOT / 'App/DictationPracticeComponents.swift').read_text()
         self.assertEqual(tabs.count('@State private var playback = DictationPlaybackCoordinator()'), 1)
-        self.assertEqual(tabs.count('.modifier(DictationGlobalAccessory(session:playback)'), 1)
+        self.assertEqual(tabs.count('.modifier(DictationGlobalAccessory(session:playback,'), 1)
         self.assertNotIn('DictationPlayer()', view)
         self.assertNotIn('.safeAreaInset', view)
         self.assertNotIn('tabViewBottomAccessory', view)
-        self.assertIn('content.tabViewBottomAccessory(isEnabled:session.visible)', accessory)
+        self.assertIn('content.tabViewBottomAccessory(isEnabled:enabled)', accessory)
         self.assertIn('content.tabViewBottomAccessory {', accessory)
         self.assertIn('@Environment(\\.tabViewBottomAccessoryPlacement)', accessory)
         self.assertNotIn('.regularMaterial', accessory)
@@ -45,7 +45,7 @@ class GlobalDictationOwnership(unittest.TestCase):
         details = accessory.split('private var expandedPlayer:', 1)[1]
         self.assertIn('ProgressView(value:snapshot?.fraction', details)
         self.assertIn('dictation-expanded-elapsed', details)
-        self.assertIn('DictationAudioInformation()', (ROOT / 'App/DictationView.swift').read_text())
+        self.assertIn('Menu("Audio details")', (ROOT / 'App/DictationView.swift').read_text())
 
     def test_tab_navigation_never_interrupts_or_prepares(self):
         view = (ROOT / 'App/DictationView.swift').read_text()

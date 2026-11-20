@@ -6,9 +6,11 @@ import (
 )
 
 type dictationSegment struct {
-	Kind  string `json:"kind"`
-	Text  string `json:"text,omitempty"`
-	Asset int    `json:"asset"`
+	Kind     string `json:"kind"`
+	Text     string `json:"text,omitempty"`
+	Asset    int    `json:"asset"`
+	Sentence int    `json:"sentence,omitempty"`
+	Fragment int    `json:"fragment,omitempty"`
 }
 
 // Conservative German sentence boundaries. Original storage is never normalized.
@@ -90,7 +92,7 @@ func dictationPlan(text string) []dictationSegment {
 			id = len(assets)
 			assets[text] = id
 		}
-		out = append(out, dictationSegment{kind, text, id})
+		out = append(out, dictationSegment{Kind: kind, Text: text, Asset: id})
 	}
 	for _, s := range dictationSentences(text) {
 		add("sentence", s)

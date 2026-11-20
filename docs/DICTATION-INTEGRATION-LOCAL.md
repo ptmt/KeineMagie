@@ -1,5 +1,7 @@
 # Dictation manual pacing + hybrid assessment — local integration
 
+The subsequent compact-detail and hierarchical-timeline revision is tracked in `DICTATION-COMPACT-LOCAL.md`; the receipts below describe the earlier layout.
+
 > **Local acceptance complete, not published.** Fresh authorized contrast RED reproduced the white-on-white Next defect. The minimal adaptive foreground fix passes coherent final Release suites **9/9 on normal and 9/9 on small**, with zero failures/skips on identical final source. `docs/evidence/dictation-local-complete` now contains regenerated source hashes, xcresult summaries, original-pixel attachments and inspected dark Next / unobscured assessment previews. No outstanding tool approval is being claimed.
 
 ## Scope and source

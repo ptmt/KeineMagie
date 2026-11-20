@@ -1,0 +1,380 @@
+[
+  {
+    "file": "coach-composer-menu-open-keyboard.png",
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "original": "743AE9CB-4F44-4867-9776-1E1469611404.png",
+    "sha256": "f279e50ca7468d09af6a4148fd330bee3333bba0a742c0802bb5939a38308cce"
+  },
+  {
+    "file": "coach-composer-menu-closed-keyboard.png",
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "original": "515D94CC-46A9-4713-92F3-50506B0D0DDC.png",
+    "sha256": "32de2dd44800da5f97c11547c115765ac98eb9a5e1881a7872243aadfe027cbb"
+  },
+  {
+    "file": "coach-menu-transport-receipt.txt",
+    "test": "CoachUITests/testMenuSelectionUsesOriginalRoutesExactlyOnceAndKeepsFocus()",
+    "original": "A8EECA2D-435D-4A4D-8ADD-3DD6F838D7FE.txt",
+    "sha256": "f26b29d349eb82565897d2c951017948c4ba5311d079a4caa3d040179a71832b"
+  },
+  {
+    "file": "native-spend-fr.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "62153576-6C7D-4D84-88D8-CEFA05C94F4A.png",
+    "sha256": "ce0f8b638aefbeda3e17ed487a70c0837aa2140f196f57b022580ffd352816b1"
+  },
+  {
+    "file": "native-spend-fr-buttons-11.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "AB9E4271-1B92-4AD9-81FF-CC22DD3C8C08.txt",
+    "sha256": "5ad2c6c9998204c4494dea5cc1f1cdd7400aff4fa231aa4b00e34a1e1eec65c6"
+  },
+  {
+    "file": "native-manual-fr.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "A81D3C9A-6649-4EFF-A23E-6C9F58D8BEF5.png",
+    "sha256": "164b3ded2bc6e1e9df116ff754710cd1a896a77394ac11dd96775c9525bd4226"
+  },
+  {
+    "file": "native-manual-fr-buttons-9.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "207A957C-6143-48CB-BB60-FBBAFED8FE42.txt",
+    "sha256": "8e6450220d20b1d1c21469ea281e159f2259fcfeb818a7aed6be461f338ba22b"
+  },
+  {
+    "file": "native-spend-es.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "322EA97A-163C-48B4-8275-F25F16464175.png",
+    "sha256": "cc0ac25ee874b660cab23d32cf5e72e3ba4fa424eb2a487d0b7121aa9a2ac266"
+  },
+  {
+    "file": "native-spend-es-buttons-10.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "6DEFA440-C732-4633-9F8F-C2CA8C02B996.txt",
+    "sha256": "5fa14de95fab27ac11f0ce56f5162fe28a0f1df33b2e2146d3719dfbc165f74f"
+  },
+  {
+    "file": "native-manual-es.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "C6E00DF0-42FF-445A-8A5F-9BB6755C72F6.png",
+    "sha256": "21f7046c217c9ab593fa0f1a6a6078632ed5349de12ae52715a7a4a3be7cc6be"
+  },
+  {
+    "file": "native-manual-es-buttons-9.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "5AA869B8-803D-4E5B-8E35-94D22219E571.txt",
+    "sha256": "ea73e42fee148b2e81a75812cfb48e4343f04344743f744e1e2bb39697f1f0f9"
+  },
+  {
+    "file": "native-spend-ru.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "3B305FB7-5011-444F-ACF0-0F13E7D33D34.png",
+    "sha256": "2cc9bcbeeba15a7c295fdf64ce1f315810d21ff202471c0dd43b4d600460df8d"
+  },
+  {
+    "file": "native-spend-ru-buttons-9.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "6949AF67-4817-4A51-AA24-25F76CCF9467.txt",
+    "sha256": "49177a315082e7e1c04e6187b4195160c5815a8b6ba95cdca0fe990635c68fdd"
+  },
+  {
+    "file": "native-manual-ru.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "2824DE41-9C74-4F5B-AA2B-30AA9C869CE7.png",
+    "sha256": "7a01d67c93c676b2d5e5b28b4a897fe46e0702cd0a4a6627b2ea2520c263a08a"
+  },
+  {
+    "file": "native-manual-ru-buttons-9.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "ABCF4A64-7117-4C54-AA29-5666AC60D677.txt",
+    "sha256": "1658fa800e32c26eaceca5d3906239a31e20c50a6073f39d43252ce0ee5e9551"
+  },
+  {
+    "file": "native-spend-de.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "3DEA9EAC-D1BD-4E8F-8147-B17E08ABF9E5.png",
+    "sha256": "2f3ff3c2d35a5446d57326c28c5cc3f690037d0e026de8a22285f8bd8d0c5c12"
+  },
+  {
+    "file": "native-spend-de-buttons-8.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "43384C1C-4040-4D0D-928A-17F91A78AF64.txt",
+    "sha256": "01348344549dee7bb88e0d1bb88748ee0ae839635ef4e1e0b2ad94e8d8717a1a"
+  },
+  {
+    "file": "native-manual-de.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "6C7F1CF5-1FFC-4B96-810D-9204A6607587.png",
+    "sha256": "96d4227022524b0a76dd0b1e8538fc9ea715d50cfe282056cbaa54d3de2e5db0"
+  },
+  {
+    "file": "native-manual-de-buttons-9.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "E61B6EDF-BD9D-4D06-9092-D3C897A1DAE7.txt",
+    "sha256": "7001aa98a44a635892ec517e8e55a920edc8dd72b085bc33aeb6e60227711ced"
+  },
+  {
+    "file": "native-spend-en.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "C19B8869-F38F-4B83-A0A2-603ED459E6BF.png",
+    "sha256": "e29ee77065893d166b03c1b2260f8c6befe80b90b3bf90474a093e3a2c0304f6"
+  },
+  {
+    "file": "native-spend-en-buttons-7.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "3F7AF716-62E5-4960-922F-95B6750187FA.txt",
+    "sha256": "f3e66e790af1af53350cc59cb786709e6164b47dcf8ae19d5df1e1336301017b"
+  },
+  {
+    "file": "native-manual-en.png",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "4A5CB089-2085-4714-847B-F899AACFD71F.png",
+    "sha256": "bf3614d19f9ddd78bd70094ec3420730d39cbaf406cc768f3ae71c461146ce29"
+  },
+  {
+    "file": "native-manual-en-buttons-9.txt",
+    "test": "DictationManualUITests/testFiveLocaleManualSurfaceAndUnknownSpend()",
+    "original": "9E558957-7899-4ED4-9175-E3348145F130.txt",
+    "sha256": "7eaa3f0ee101d3e34197255e076ec95e080be6af42d8317c06a110709237a8ea"
+  },
+  {
+    "file": "native-policy-two-stopped-draft.png",
+    "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+    "original": "01CB4934-8988-4A1F-8F75-01C77923AB46.png",
+    "sha256": "43d03fa7044ef9625166edf01a4740476ce4aab06999fe252bc1af92fd05078e"
+  },
+  {
+    "file": "native-policy-two-stopped-draft-buttons-9.txt",
+    "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+    "original": "0D659460-975C-404B-B80F-582177750DF6.txt",
+    "sha256": "a9774828f7cf80d144557729d90aa2d69dceaf27c6aa1756147c0062817552c6"
+  },
+  {
+    "file": "native-policy-two-global-coach.png",
+    "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+    "original": "983015AD-CE48-40C7-B58D-2F9AF9E0B0F7.png",
+    "sha256": "899e6b84e8e5968696ec3a21998379440912cfb2400503c96010b1b4e829a657"
+  },
+  {
+    "file": "native-policy-two-global-coach-buttons-10.txt",
+    "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+    "original": "405D10D5-A0A2-40D4-84BE-B2122B2B87A0.txt",
+    "sha256": "e571c384bfbbfd1ea43e008e9f634dfa3608c18e4b10eae0e82ce7a66ff73d30"
+  },
+  {
+    "file": "native-compact-back-player.png",
+    "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+    "original": "70F6CAE2-BAC9-4800-A823-5DC359A2A193.png",
+    "sha256": "e797797e5ee1d3fad7c2cc834ac878ea6511093515f663cc5793dd56fb3a7fce"
+  },
+  {
+    "file": "native-compact-back-player-buttons-14.txt",
+    "test": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+    "original": "FD9F3E33-E1B8-4178-B866-D2ED1C9893DB.txt",
+    "sha256": "0bb5edbd1c775a78da45dfa5ca14643df77a4a7e9dbc5b2d4962675ad3d44345"
+  },
+  {
+    "file": "native-manual-hybrid-failed-recovered.png",
+    "test": "DictationManualUITests/testHybridFailurePreservesComparisonAndGetRecovery()",
+    "original": "F5194E9B-DB49-4659-ACD0-9885FC86D126.png",
+    "sha256": "63b6adf109e9c2c533d2340c018f5d08dc6bdd4ea6bf8f6f34cee259120c4a28"
+  },
+  {
+    "file": "native-manual-hybrid-failed-recovered-buttons-9.txt",
+    "test": "DictationManualUITests/testHybridFailurePreservesComparisonAndGetRecovery()",
+    "original": "13A7CC1A-BE61-4DAB-973C-2A775852BFBA.txt",
+    "sha256": "e2a8c9c4d74488a39f8d6c1eb2e8035765fb0d1be41d099ec97f41506ba01791"
+  },
+  {
+    "file": "native-manual-largest-keyboard-fr.png",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "FADB9BD6-8983-4064-A59E-96174D491465.png",
+    "sha256": "e9c5bd6acadec52e6d52f3bc0dcc7227fca66109139493db7c470dd47f12228f"
+  },
+  {
+    "file": "native-manual-largest-keyboard-fr-buttons-12.txt",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "A07E958D-16D1-4F3C-A868-0DF13F83DE32.txt",
+    "sha256": "8270a9f243d2e13fb4f5c8f1d97c65af897d9c7b95e5c9cda6c6fc6c888d44a5"
+  },
+  {
+    "file": "native-manual-largest-keyboard-es.png",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "52EF1604-537B-4D60-A923-8C03265B5A2E.png",
+    "sha256": "3591199b4d5b0b561c8d96000da4c6a4d06ee75c0889c1521de3cd4964cb171b"
+  },
+  {
+    "file": "native-manual-largest-keyboard-es-buttons-12.txt",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "8EEDB0D7-F3F6-4BB3-B9C5-349D132B5255.txt",
+    "sha256": "91980cdcf7cd6a97d05ace683c852c86b04f42c7aa63f63b211d8fd3069c96e2"
+  },
+  {
+    "file": "native-manual-largest-keyboard-ru.png",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "B9C352C7-4E9C-4E29-912B-9E1CEB5BCBE8.png",
+    "sha256": "15eba9030974bcef434f0d853afbd7c1e9bc762d0107cf00c4753d9535f93bf9"
+  },
+  {
+    "file": "native-manual-largest-keyboard-ru-buttons-13.txt",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "5830A62A-2686-4197-95C5-D6C218009B41.txt",
+    "sha256": "afe7e81fdb981d60752d948e9488292438b9ed6004f056c7b56d7819557724c2"
+  },
+  {
+    "file": "native-manual-largest-keyboard-de.png",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "478B6A7B-F257-4676-ABBA-329D288BFDE7.png",
+    "sha256": "3b79b51dfe3c82382ea023e98ddb801fe43f4bf4612331f2838188c374c032ae"
+  },
+  {
+    "file": "native-manual-largest-keyboard-de-buttons-12.txt",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "6FA35944-F7BA-4C5F-B0E4-72FCB9D1C8BE.txt",
+    "sha256": "7a00ce54c6464b2578761562f3bd4dbca883b8c3d80c1049430a242e7b5663da"
+  },
+  {
+    "file": "native-manual-largest-keyboard-en.png",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "00604C69-06D4-4CA6-A461-E52CCB411B00.png",
+    "sha256": "1ed861fe6b09440ed46523f885e385c7c05a0baca73316572f359cccdaebe3e1"
+  },
+  {
+    "file": "native-manual-largest-keyboard-en-buttons-12.txt",
+    "test": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+    "original": "0B1134A0-5849-46B6-846A-72A08287D2DD.txt",
+    "sha256": "644fdabfde8f170a615b30b4b39d6a4c0f98582d7d89ad0fd0f6bf54b74b3ab1"
+  },
+  {
+    "file": "native-manual-hybrid-completed.png",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "3EF205B1-1838-41C3-8AD0-488F6AFE0900.png",
+    "sha256": "d09b53994777d25afd239b6c9b254fe12b12f980ef2d7ec127e1a786b995eb69"
+  },
+  {
+    "file": "native-manual-hybrid-completed-buttons-9.txt",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "23A6A8BC-F6DC-4B5C-BA0C-777CC887FD40.txt",
+    "sha256": "8225f7ae1ede91c3908d044ea91602118d9c24c41fe1b06f58dd67f83b88d431"
+  },
+  {
+    "file": "native-manual-hybrid-pending.png",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "B7C5E7C3-13C7-434A-85BF-4DF74680070F.png",
+    "sha256": "00ebf42df4b2e67c41db72d8c3838b1215ef100ad087ae1bbcd8f755eb8e9340"
+  },
+  {
+    "file": "native-manual-hybrid-pending-buttons-7.txt",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "6BE48F1B-50C3-44B2-93FE-969B55FEEB54.txt",
+    "sha256": "0ed70e4b61c2014b162c3e373d80494ad1d1162839c317cb9719b2b248ece853"
+  },
+  {
+    "file": "native-manual-fragment-next.png",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "9348DF76-CCD3-4DCF-BE7A-360D86BF6C2F.png",
+    "sha256": "b7e7250427ad65c4c435de03c13b359354d1e23ffe2e2c0f46937d836ecb9335"
+  },
+  {
+    "file": "native-manual-fragment-next-buttons-9.txt",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "DC7B41F8-DB4B-428F-A34D-6EA952D1A17F.txt",
+    "sha256": "8aaaa4c670ebc62f16c7c23ae7a2cd04e596d9dc54c47ec09d1c362e01851e5e"
+  },
+  {
+    "file": "native-compact-gap.png",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "1123D570-A638-40CD-B029-4BC2EAD6BE64.png",
+    "sha256": "424336c3937a5a8078fbd9149f0cf36fd3237d76347d1595d400b19aee315095"
+  },
+  {
+    "file": "native-compact-gap-buttons-9.txt",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "1C79BEE1-1DE1-490A-ADD5-3DBF287772B0.txt",
+    "sha256": "6d9f45559f8c4a5df16a6188a90d79006a8a93e54925c29fe73a164a9c58ce17"
+  },
+  {
+    "file": "native-manual-introduction-next.png",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "1F587EDC-0FF7-4A6A-A66E-28FB33C7AE2F.png",
+    "sha256": "78cc1ec1761249fdaf42ebde5edabc2c9eddd6196f0a1bff2627c95f6b74682a"
+  },
+  {
+    "file": "native-manual-introduction-next-buttons-9.txt",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "54DC2242-2672-40B6-8770-3CF6BB507F39.txt",
+    "sha256": "8aaaa4c670ebc62f16c7c23ae7a2cd04e596d9dc54c47ec09d1c362e01851e5e"
+  },
+  {
+    "file": "native-compact-playing.png",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "51675A20-9AE3-4128-A27B-E6AD2DCC9442.png",
+    "sha256": "b2dac233c1284a2de6e5ee73a0afa708995c6906ae0c6ef144005fc8170ce53d"
+  },
+  {
+    "file": "native-compact-playing-buttons-9.txt",
+    "test": "DictationManualUITests/testManualNextExtraReplayAndProgressiveHybrid()",
+    "original": "7AEF3381-A68E-4680-898F-F257E6DA94EA.txt",
+    "sha256": "6d9f45559f8c4a5df16a6188a90d79006a8a93e54925c29fe73a164a9c58ce17"
+  },
+  {
+    "file": "native-hybrid-canceled.png",
+    "test": "DictationManualUITests/testPendingCancellationRetainsComparisonAfterLateProvider()",
+    "original": "3B16E6D8-5793-4AB1-A11C-9E4878575822.png",
+    "sha256": "2323dd3a7a99d7201dbac5d13e0607027e3f17e9e68629775e8756edf0b602ce"
+  },
+  {
+    "file": "native-hybrid-canceled-buttons-9.txt",
+    "test": "DictationManualUITests/testPendingCancellationRetainsComparisonAfterLateProvider()",
+    "original": "86E456DB-B825-45A5-9E87-4836ECE0EC77.txt",
+    "sha256": "aac121f7accc925fabeec280394544312b1251a5853029f3884a03f7dfa05bab"
+  },
+  {
+    "file": "native-transport-disabled-dark.png",
+    "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+    "original": "7D1CF260-3B85-48EB-8729-9823897E6535.png",
+    "sha256": "cef5f4178dad7e199c2390c3d43085101aa75e0003bf5c1b553cc217e6041176"
+  },
+  {
+    "file": "native-transport-disabled-dark-buttons-9.txt",
+    "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+    "original": "32F5CDCA-2A8B-47AB-A27D-2ADF0D7D10CF.txt",
+    "sha256": "e5251ca4a43c6b8827f951f4ff6508e68338926ced45c2127591e587b441a8dd"
+  },
+  {
+    "file": "native-transport-contrast-dark.png",
+    "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+    "original": "71C89B6E-935C-48E0-BF79-934A15CC0C51.png",
+    "sha256": "979aa07f775d619d6089e6257910a12e91df76ec1847b3f7a6ecba26a8a70e1f"
+  },
+  {
+    "file": "native-transport-contrast-dark-buttons-9.txt",
+    "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+    "original": "985BD545-EDDC-4867-BED8-3D5C1E427362.txt",
+    "sha256": "8aaaa4c670ebc62f16c7c23ae7a2cd04e596d9dc54c47ec09d1c362e01851e5e"
+  },
+  {
+    "file": "native-transport-disabled-light.png",
+    "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+    "original": "214CAD4A-E565-4126-8D66-7837FFE95AD2.png",
+    "sha256": "aa9db3ad0af8781d6c649a81b77d6245f50d21901c41c41a876758f2f2d5bec5"
+  },
+  {
+    "file": "native-transport-disabled-light-buttons-9.txt",
+    "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+    "original": "88E375CC-0567-4947-92B3-B1BE9C0F5D61.txt",
+    "sha256": "e5251ca4a43c6b8827f951f4ff6508e68338926ced45c2127591e587b441a8dd"
+  },
+  {
+    "file": "native-transport-contrast-light.png",
+    "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+    "original": "BF044670-49AC-481C-B144-AA2B31CD073D.png",
+    "sha256": "e948af66181b00f4aa3daae575829eaf05c34a0274472a18a4af86451de0b2c2"
+  },
+  {
+    "file": "native-transport-contrast-light-buttons-9.txt",
+    "test": "DictationManualUITests/testTransportContrastInLightAndDark()",
+    "original": "C3F733AE-8FA9-40DE-A34B-5B5D92B31563.txt",
+    "sha256": "8aaaa4c670ebc62f16c7c23ae7a2cd04e596d9dc54c47ec09d1c362e01851e5e"
+  }
+]

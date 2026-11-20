@@ -154,20 +154,22 @@ struct DictationNativeAccessory: View {
 
 struct DictationGlobalAccessory: ViewModifier {
     let session: DictationPlaybackCoordinator
+    let detailVisible: Bool
     let open: () -> Void
+    private var enabled: Bool { session.visible && !detailVisible }
     @ViewBuilder func body(content:Content) -> some View {
         if #available(iOS 26.1, *) {
-            content.tabViewBottomAccessory(isEnabled:session.visible) {
+            content.tabViewBottomAccessory(isEnabled:enabled) {
                 DictationNativeAccessory(session:session,open:open)
             }
         } else if #available(iOS 26.0, *) {
             content.tabViewBottomAccessory {
-                if session.visible { DictationNativeAccessory(session:session,open:open) }
+                if enabled { DictationNativeAccessory(session:session,open:open) }
             }
         } else {
             // iOS 17–18 compatibility only, not an imitation of Liquid Glass.
             content.safeAreaInset(edge:.bottom) {
-                if session.visible { DictationAudioToolbar(session:session,inline:false,open:open).background(.bar) }
+                if enabled { DictationAudioToolbar(session:session,inline:false,open:open).background(.bar) }
             }
         }
     }

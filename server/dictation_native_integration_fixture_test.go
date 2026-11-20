@@ -88,6 +88,11 @@ func TestDictationNativeIntegrationFixture(t *testing.T) {
 								binary.LittleEndian.PutUint32(wav[4:], uint32(len(wav)-8))
 								binary.LittleEndian.PutUint32(wav[40:], uint32(len(wav)-44))
 							}
+							if strings.HasPrefix(v.Title, "Timeline") {
+								wav = append(wav, make([]byte, 4*16000)...)
+								binary.LittleEndian.PutUint32(wav[4:], uint32(len(wav)-8))
+								binary.LittleEndian.PutUint32(wav[40:], uint32(len(wav)-44))
+							}
 							return os.WriteFile(path, wav, 0600)
 						}
 					}

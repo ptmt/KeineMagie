@@ -39,7 +39,14 @@ with tempfile.TemporaryDirectory(prefix='manual-pacing-',dir=os.environ['TMPDIR'
    page.goto('https://dictation.test/tests/dictation-policy-fixture.html');page.get_by_role('button',name='Manual pacing fixture').click()
    assert state()['mode']=='sentences';assert state()['playback']['cursor']==0
    assert not page.evaluate('calls.some(c=>c.method==="POST")')
-   page.get_by_label('Longer gaps (8 s)').check();expect(page.get_by_label('Longer gaps (8 s)')).to_be_checked()
+   expect(page.locator('.dictation-hint')).to_have_count(0)
+   expect(page.get_by_role('button',name='Show timeline')).to_have_count(0)
+   expect(page.locator('.dictation-timeline')).to_contain_text('Sentence 1')
+   expect(page.locator('.dictation-timeline')).to_contain_text('Fragment 1.2')
+   expect(page.locator('.dictation-timeline')).to_contain_text('Sentence 2')
+   page.get_by_label('More options').click()
+   assert not page.evaluate('calls.some(c=>c.method==="POST")')
+   page.get_by_label('Longer gaps (8 s)').check()
    page.wait_for_function('calls.some(c=>c.path.endsWith("/pacing"))');page.wait_for_timeout(200);assert state()['pacing']=={'repeats':2,'gap_seconds':8}
    page.screenshot(path=str(out/'setup-390-en.png'),full_page=True)
    page.get_by_role('button',name='Prepare audio',exact=True).click();expect(page.get_by_role('button',name='Play',exact=True)).to_be_enabled()
@@ -64,6 +71,7 @@ with tempfile.TemporaryDirectory(prefix='manual-pacing-',dir=os.environ['TMPDIR'
    assert all(abs(playing_slot[k]-next_slot[k])<1 for k in ['x','y','width','height']),(playing_slot,next_slot)
    page.wait_for_timeout(3500);assert page.evaluate('events.filter(e=>e.event==="play").length')==3
    assert page.locator('.dictation-timeline .is-complete').count()==2
+   page.get_by_label('More options').click()
    page.get_by_role('button',name='Replay fragment once',exact=True).click()
    page.wait_for_function('events.filter(e=>e.event==="ended").length===4')
    expect(page.get_by_role('button',name='Next',exact=True)).to_be_enabled()
@@ -107,6 +115,7 @@ with tempfile.TemporaryDirectory(prefix='manual-pacing-',dir=os.environ['TMPDIR'
    page.screenshot(path=str(out/'integrated-assistance-390-en.png'),full_page=True)
    assert call('POST','/v1/learning/dictations',dict(id='triples',title='Three-repeat fixture',text='Hallo Welt.',language='de',playback_policy_version=2))['status']==200
    page.reload();page.get_by_role('button',name='Three-repeat fixture').click()
+   page.get_by_label('More options').click()
    page.get_by_label('Plays per fragment').select_option('3');page.wait_for_timeout(250);assert state('triples')['pacing']['repeats']==3
    page.get_by_role('button',name='Prepare audio',exact=True).click();expect(page.get_by_role('button',name='Play',exact=True)).to_be_enabled()
    page.get_by_role('button',name='Play',exact=True).click();page.wait_for_function('events.filter(e=>e.event==="ended").length===1')

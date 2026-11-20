@@ -1,0 +1,8 @@
+character.bubble|Übersetzer|(25.0, 795.0, 95.0, 54.0)
+waveform|Diktat|(110.66666666666669, 795.0, 94.99999999999997, 54.0)
+headphones|Podcasts|(196.33333333333334, 795.0, 95.00000000000003, 54.0)
+bubble.left.and.bubble.right|Coach|(282.0, 795.0, 95.0, 54.0)
+dictation-add|Text hinzufügen|(287.3333333333333, 66.0, 37.333333333333314, 36.0)
+main-settings|Einstellungen|(340.66666666666663, 66.0, 41.333333333333314, 36.0)
+dictation-row|Manual 2184E, In Bearbeitung|(16.0, 151.0, 370.0, 66.66666666666666)
+dictation-row|Manual E33D6, In Bearbeitung|(16.0, 217.66666666666666, 370.0, 66.66666666666666)

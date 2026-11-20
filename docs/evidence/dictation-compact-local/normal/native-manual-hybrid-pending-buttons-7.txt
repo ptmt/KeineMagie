@@ -1,0 +1,7 @@
+character.bubble|Translator|(25.0, 795.0, 95.0, 54.0)
+waveform|Dictation|(110.66666666666669, 795.0, 94.99999999999997, 54.0)
+headphones|Podcasts|(196.33333333333334, 795.0, 95.00000000000003, 54.0)
+bubble.left.and.bubble.right|Coach|(282.0, 795.0, 95.0, 54.0)
+BackButton|Dictation|(16.0, 62.0, 44.0, 44.0)
+dictation-menu|More options|(346.0, 66.0, 36.0, 36.0)
+|Not yet attempted · 8|(16.0, 705.3333333333334, 370.0, 28.333333333333258)

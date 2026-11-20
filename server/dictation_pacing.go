@@ -135,19 +135,21 @@ func dictationPacingPlan(text string, previous []dictationSegment, repeats int) 
 		}
 	}
 	out := []dictationSegment{{Kind: "whole", Text: text, Asset: 0}}
-	for _, fragment := range dictationFragments(text) {
-		asset, ok := assets[fragment]
-		if !ok {
-			asset = next
-			next++
-			assets[fragment] = asset
-		}
-		for repeat := 0; repeat < repeats; repeat++ {
-			kind := "sentence"
-			if repeat > 0 {
-				kind = "sentence_repeat"
+	for sentenceIndex, sentence := range dictationPacingSentences(text) {
+		for fragmentIndex, fragment := range dictationFragments(sentence) {
+			asset, ok := assets[fragment]
+			if !ok {
+				asset = next
+				next++
+				assets[fragment] = asset
 			}
-			out = append(out, dictationSegment{Kind: kind, Text: fragment, Asset: asset})
+			for repeat := 0; repeat < repeats; repeat++ {
+				kind := "sentence"
+				if repeat > 0 {
+					kind = "sentence_repeat"
+				}
+				out = append(out, dictationSegment{Kind: kind, Text: fragment, Asset: asset, Sentence: sentenceIndex + 1, Fragment: fragmentIndex + 1})
+			}
 		}
 	}
 	return append(out, dictationSegment{Kind: "final", Text: text, Asset: 0})

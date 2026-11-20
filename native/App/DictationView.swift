@@ -220,63 +220,33 @@ struct DictationView: View {
         ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Picker("Mode", selection: Binding(get:{record?.mode ?? "whole"},set:{ mode in transition(mode == "whole" ? .whole : .sentences) })) {
-                    Text("Whole text").tag("whole"); Text("By sentences").tag("sentences")
-                }.pickerStyle(.segmented).disabled(value.checked || busy || saving || policyPlayer?.busy == true).accessibilityIdentifier("dictation-mode")
-                DictationRules(record:value)
+                if value.playbackPolicyVersion != 2 { DictationRules(record:value) }
                 if value.playbackPolicyVersion == 2 {
                     DictationPacingTimeline(record:value,waiting:policyPlayer?.waiting == true)
-                    if !value.checked {
+                }
+                if !value.checked {
                         Button {
-                            if playbackSession.canStop { playbackSession.stop() } else { playbackSession.activate() }
-                        } label: { Text(AppL10n.text(playbackSession.canStop ? "Stop" : playbackSession.label)).frame(maxWidth:.infinity,minHeight:44) }
+                            if preparing { playbackSession.interrupt() } else if playbackSession.canStop { playbackSession.stop() } else { playbackSession.activate() }
+                        } label: { Text(AppL10n.text(preparing ? "Cancel preparation" : playbackSession.canStop ? "Stop" : playbackSession.label)).frame(maxWidth:.infinity,minHeight:44) }
                         .buttonStyle(.borderedProminent).tint(.primary)
                         .foregroundStyle(Color(uiColor: .systemBackground))
-                        .disabled(busy || saving || (!playbackSession.canStop && playbackSession.disabled))
+                        .disabled(busy || saving || (!preparing && !playbackSession.canStop && playbackSession.disabled))
                         .accessibilityIdentifier("dictation-manual-transport")
-                        if let step=value.lastCompletedFragment {
-                            Button("pacing.extra") {playbackSession.replay(step:step)}
-                                .frame(minHeight:44)
-                                .disabled(busy || saving || !playbackSession.canReplay(step:step))
-                                .accessibilityIdentifier("dictation-extra-replay")
-                        }
-                    }
-                }
-                if !value.checked && !player.playing && policyPlayer?.waiting != true && value.playback?.active == nil {
-                    if value.playbackPolicyVersion == 2 && (value.playback?.listens?.isEmpty != false) {
-                        Picker("pacing.repeats",selection:Binding(get:{value.pacing?.repeats ?? 2},set:{configurePacing(repeats:$0,gap:value.pacing?.gapSeconds ?? 3)})) {
-                            Text(verbatim:"2×").tag(2);Text(verbatim:"3×").tag(3)
-                        }.pickerStyle(.segmented).disabled(busy || saving).accessibilityIdentifier("dictation-pacing-repeats")
-                        Toggle("pacing.long",isOn:Binding(get:{value.pacing?.gapSeconds == 8},set:{configurePacing(repeats:value.pacing?.repeats ?? 2,gap:$0 ? 8 : 3)})).disabled(busy || saving).accessibilityIdentifier("dictation-pacing-long")
-                    } else if value.playbackPolicyVersion != 2 {
-                        Button("pacing.upgrade") {configurePacing(repeats:2,gap:3)}.disabled(busy || saving)
-                    }
-                    if model.dictationDrafts.pacingRequest(id:value.id) != nil {
-                        Button("pacing.retry") {configurePacing(repeats:value.pacing?.repeats ?? 2,gap:value.pacing?.gapSeconds ?? 3)}.disabled(busy || saving)
-                    }
-                }
-                if value.playbackPolicyVersion != 2 && value.segment != nil && !playbackSession.cached(value) && !preparing {
-                    HStack {
-                        Button("Prepare audio", systemImage:"waveform") { playbackSession.activate() }
-                            .frame(minHeight:44).accessibilityIdentifier("dictation-prepare")
-                            .disabled(busy || saving || playbackSession.disabled)
-                        Spacer()
-                        DictationAudioInformation()
-                    }
                 }
                 if let failure = playbackSession.error { Text(failure).font(.footnote).foregroundStyle(.secondary) }
                 if value.assisted { Text("With hint · assisted").font(.caption) }
                 if value.segment != nil {
                     if value.supportsPlaybackPolicy {
                         Text(AppL10n.text("dictation.listens").replacingOccurrences(of:"{n}",with:String(value.playback?.wholeStarts ?? 0)).replacingOccurrences(of:"{total}",with:"4")).font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("dictation-starts")
-                        if value.mode == "sentences" {Text(AppL10n.text("dictation.policy.step").replacingOccurrences(of:"{n}",with:String(value.policyStep)).replacingOccurrences(of:"{total}",with:String(max(1,value.plan.count-1)))).font(.caption).foregroundStyle(.secondary)}
+                        if value.mode == "sentences" && value.playbackPolicyVersion != 2 {Text(AppL10n.text("dictation.policy.step").replacingOccurrences(of:"{n}",with:String(value.policyStep)).replacingOccurrences(of:"{total}",with:String(max(1,value.plan.count-1)))).font(.caption).foregroundStyle(.secondary)}
                     }
                     if value.supportsPlaybackPolicy && (value.playback?.wholeStarts ?? 0) >= 4 {Text("dictation.limit").font(.footnote).foregroundStyle(.secondary)}
                     if value.playbackPolicyVersion == nil && !value.checked && value.mode == "sentences" && value.step < value.plan.count - 1 { Button("Next") { transition(.next) }.disabled(busy || saving).accessibilityIdentifier("dictation-next") }
                 }
+                TextField("", text: Binding(get:{record?.draft ?? ""},set:{ draft in
+                    editDraft(draft)
+                }),axis:.vertical).lineLimit((textSize.isAccessibilitySize ? 2 : 4)...14).focused($draftFocused).autocorrectionDisabled().textInputAutocapitalization(.never).padding(12).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius:8)).overlay(RoundedRectangle(cornerRadius:8).stroke(.quaternary,lineWidth:1)).disabled(value.checked || (busy && !preparing)).accessibilityLabel("What you heard").accessibilityIdentifier("dictation-draft").id("dictation-draft-field")
                 if !value.checked {
-                    Toggle("assessment.finished",isOn:$completeAttempt).disabled(busy).accessibilityIdentifier("dictation-complete")
-                    DisclosureGroup("assessment.context") {Text("assessment.budget").font(.footnote)}
                     HStack {
                         Button {
                             draftFocused = false
@@ -291,9 +261,6 @@ struct DictationView: View {
                         Button("Check") { action("check") }.buttonStyle(.borderedProminent).controlSize(.large).tint(.primary).foregroundStyle(Color(uiColor:.systemBackground)).frame(minHeight:44).disabled(value.draft.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || busy || saving).accessibilityIdentifier("dictation-check")
                     }.dynamicTypeSize(...DynamicTypeSize.xxxLarge).id("dictation-draft-header")
                 }
-                TextField("", text: Binding(get:{record?.draft ?? ""},set:{ draft in
-                    editDraft(draft)
-                }),axis:.vertical).lineLimit(6...14).focused($draftFocused).autocorrectionDisabled().textInputAutocapitalization(.never).padding(12).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius:8)).overlay(RoundedRectangle(cornerRadius:8).stroke(.quaternary,lineWidth:1)).disabled(value.checked || (busy && !preparing)).accessibilityLabel("What you heard").accessibilityIdentifier("dictation-draft").id("dictation-draft-field")
                 if let server = model.dictationDrafts.conflict(value.id) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Draft conflict").font(.headline)
@@ -319,16 +286,49 @@ struct DictationView: View {
             }.padding()
         }.scrollDismissesKeyboard(.interactively)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { _ in
-            // Keep the compact 44pt action header and full-size editable lines together
-            // above the transport, rather than scrolling Check behind system navigation.
-            if draftFocused && textSize.isAccessibilitySize {
-                proxy.scrollTo("dictation-draft-header", anchor: .top)
-            }
+            // The explicit Check lives below the answer. Keep it and the last
+            // editable line above the keyboard without adding a keyboard toolbar.
+            if draftFocused { proxy.scrollTo("dictation-draft-header", anchor: .bottom) }
         }
         }
     }
     private func attemptMenu(_ value: DictationRecord) -> some View {
         Menu {
+        if !value.checked {
+                    Toggle("assessment.finished",isOn:$completeAttempt).disabled(busy).accessibilityIdentifier("dictation-complete")
+                Menu("Mode") {
+                Picker("Mode", selection: Binding(get:{record?.mode ?? "whole"},set:{ mode in transition(mode == "whole" ? .whole : .sentences) })) {
+                    Text("Whole text").tag("whole"); Text("By sentences").tag("sentences")
+                }.disabled(value.checked || busy || saving || policyPlayer?.busy == true).accessibilityIdentifier("dictation-mode")
+                }
+                        if let step=value.lastCompletedFragment {
+                            Button("pacing.extra") {playbackSession.replay(step:step)}
+                                .frame(minHeight:44)
+                                .disabled(busy || saving || !playbackSession.canReplay(step:step))
+                                .accessibilityIdentifier("dictation-extra-replay")
+                        }
+            Menu("Speed") {
+            Picker("Speed",selection:Binding(get:{player.rate},set:{player.rate=$0})) {
+                Text(verbatim:"0.75×").tag(Float(0.75));Text(verbatim:"1×").tag(Float(1));Text(verbatim:"1.25×").tag(Float(1.25))
+            }
+            }
+        }
+                if !value.checked && !player.playing && policyPlayer?.waiting != true && value.playback?.active == nil {
+                    if value.playbackPolicyVersion == 2 && (value.playback?.listens?.isEmpty != false) {
+                        Menu("pacing.repeats") {
+                        Picker("pacing.repeats",selection:Binding(get:{value.pacing?.repeats ?? 2},set:{configurePacing(repeats:$0,gap:value.pacing?.gapSeconds ?? 3)})) {
+                            Text(verbatim:"2×").tag(2);Text(verbatim:"3×").tag(3)
+                        }.disabled(busy || saving).accessibilityIdentifier("dictation-pacing-repeats")
+                        }
+                        Toggle("pacing.long",isOn:Binding(get:{value.pacing?.gapSeconds == 8},set:{configurePacing(repeats:value.pacing?.repeats ?? 2,gap:$0 ? 8 : 3)})).disabled(busy || saving).accessibilityIdentifier("dictation-pacing-long")
+                    } else if value.playbackPolicyVersion != 2 {
+                        Button("pacing.upgrade") {configurePacing(repeats:2,gap:3)}.disabled(busy || saving)
+                    }
+                    if model.dictationDrafts.pacingRequest(id:value.id) != nil {
+                        Button("pacing.retry") {configurePacing(repeats:value.pacing?.repeats ?? 2,gap:value.pacing?.gapSeconds ?? 3)}.disabled(busy || saving)
+                    }
+                }
+        Menu("Audio details") { Text("dictation.paid.notice");Text("dictation.budget.notice");Text("assessment.budget") }
         Button("New attempt") { save { perform { api,current in
             let body = try model.dictationDrafts.pendingAttempt(source:value.id)
             let next = try await api.dictation(id:value.id,action:"attempts",method:"POST",body:body)

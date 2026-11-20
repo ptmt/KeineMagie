@@ -17,7 +17,7 @@ class DictationPolicyUI(unittest.TestCase):
   self.assertNotIn('Text("dictation.paid.notice").font(.caption)',source)
   self.assertIn('DictationRules',source)
   self.assertNotIn('DictationAudioToolbar',source)
-  self.assertIn('DictationGlobalAccessory(session:playback)',(ROOT/'App/MainTabsView.swift').read_text())
+  self.assertIn('DictationGlobalAccessory(session:playback,',(ROOT/'App/MainTabsView.swift').read_text())
   self.assertIn('Button("Check")',source)
   self.assertIn('.accessibilityIdentifier("dictation-camera")',source)
   self.assertIn('.id("dictation-draft-header")',source)

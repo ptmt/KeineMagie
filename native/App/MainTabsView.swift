@@ -31,7 +31,7 @@ struct MainTabsView: View {
                 }
             }.tabItem { Label("feature.coach", systemImage: "bubble.left.and.bubble.right") }.tag("coach")
         }
-        .modifier(DictationGlobalAccessory(session:playback) {
+        .modifier(DictationGlobalAccessory(session:playback, detailVisible: selected == "dictation" && dictationPath.last == playback.attemptID && playback.attemptID != nil) {
             selected = "dictation"
             if let id = playback.record?.id, dictationPath != [id] { dictationPath = [id] }
             playback.requestOpen()

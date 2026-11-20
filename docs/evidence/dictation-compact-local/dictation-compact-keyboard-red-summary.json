@@ -1,0 +1,52 @@
+{
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "architecture": "arm64",
+        "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName": "KeineMagie Dictation final isolated",
+        "modelName": "iPhone 17",
+        "osBuildNumber": "24B8117",
+        "osVersion": "27.2",
+        "platform": "iOS Simulator"
+      },
+      "expectedFailures": 0,
+      "failedTests": 1,
+      "passedTests": 0,
+      "skippedTests": 0,
+      "testPlanConfiguration": {
+        "configurationId": "1",
+        "configurationName": "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+  "expectedFailures": 0,
+  "failedTests": 1,
+  "finishTime": 1795183427.852,
+  "passedTests": 0,
+  "result": "Failed",
+  "runtimeWarnings": [
+    {
+      "issueType": "Runtime Warning",
+      "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-dictation-manual-hybrid-integration/native/App/DictationPlayer.swift"
+    }
+  ],
+  "skippedTests": 0,
+  "startTime": 1795183344.413,
+  "statistics": [],
+  "testFailures": [
+    {
+      "failureText": "XCTAssertGreaterThanOrEqual failed: (\"0.0\") is less than (\"116.0\") - The typed first line must not scroll behind navigation",
+      "targetName": "KeineMagieUITests",
+      "testIdentifier": 1,
+      "testIdentifierString": "DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn()",
+      "testIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationManualUITests/testLargestFiveLocaleKeyboardAndDraftReturn",
+      "testName": "testLargestFiveLocaleKeyboardAndDraftReturn()"
+    }
+  ],
+  "title": "Test - KeineMagie",
+  "topInsights": [],
+  "totalTestCount": 1
+}
