@@ -87,7 +87,7 @@ import Observation
     }
     private func configureTiming(_ record: DictationRecord) {
         timingSteps = record.timingSteps
-        timingTrack = DictationTimingTrack(assets: timingSteps.map { record.plan[$0].asset })
+        timingTrack = DictationTimingTrack(assets: timingSteps.map { record.plan[$0].asset },gapSeconds:record.repeatGap)
         timingIndex = timingSteps.firstIndex(of: record.policyStep) ?? 0
         stoppedPosition = record.playback?.active?.offset ?? 0
         gapBegan = nil; frozenGap = 0; pendingGap = false; timingCompleted = false
@@ -132,7 +132,7 @@ import Observation
             let active=ledger?.active
             let latest=active?.id == stamp.id ? active! : stamp
             let value: DictationPlayback
-            do {value=try await send(DictationPlaybackRequest(id:latest.id,client:client,action:action,step:latest.step,fence:latest.fence,offset:offset))}
+            do {value=try await send(DictationPlaybackRequest(id:latest.id,client:client,action:action,step:latest.step,fence:latest.fence,offset:offset,policyVersion:read()?.playbackPolicyVersion,reason:action == "release" ? "interrupted" : nil))}
             catch {if case APIError.http(401)=error,ownerCurrent() {failed(error)};throw error}
             try apply(value)
             if owned?.id == latest.id {owned=value.active}
@@ -142,7 +142,7 @@ import Observation
         return try await task.value
     }
     public func play() async {
-        guard !busy,!playing,!waiting,authorized(),let initial=read(),initial.playbackPolicyVersion == 1,!initial.checked else {return}
+        guard !busy,!playing,!waiting,authorized(),let initial=read(),initial.supportsPlaybackPolicy,!initial.checked else {return}
         busy=true;epoch += 1;let ticket=epoch
         defer {if ticket == epoch {busy=false}}
         do {
@@ -152,26 +152,26 @@ import Observation
             guard current(ticket) else { return }
             if pendingGap {
                 waiting = true; gapBegan = timingNow() - frozenGap
-                try await resumePause(max(0, 3 - frozenGap))
+                try await resumePause(max(0, (read()?.repeatGap ?? 3) - frozenGap))
                 guard current(ticket) else { return }
-                waiting = false; pendingGap = false; gapBegan = nil; frozenGap = 3
+                waiting = false; pendingGap = false; gapBegan = nil; frozenGap = read()?.repeatGap ?? 3
             }
             _ = try? await tail?.value
             guard current(ticket) else {return}
             let fresh=try await refresh()
-            guard current(ticket),fresh.id == initial.id,fresh.playbackPolicyVersion == 1,!fresh.checked,let value=fresh.playback else {return}
+            guard current(ticket),fresh.id == initial.id,fresh.supportsPlaybackPolicy,!fresh.checked,let value=fresh.playback else {return}
             try apply(value)
             if explicitlyStopped {
-                guard value.active == nil, initial.mode == "whole" || value.cursor == 1 else { throw APIError.http(409) }
+                guard value.active == nil, initial.mode == "whole" || value.cursor == (fresh.playbackPolicyVersion == 2 ? 0 : 1) else { throw APIError.http(409) }
                 explicitlyStopped=false
             }
             var selection=initial;selection.playback=value
             guard !selection.policyExhausted,let segment=selection.segment else {throw APIError.http(409)}
             let request: DictationPlaybackRequest
             if let active=value.active {
-                request=DictationPlaybackRequest(id:active.id,client:client,action:"resume",step:active.step,fence:active.fence)
+                request=DictationPlaybackRequest(id:active.id,client:client,action:"resume",step:active.step,fence:active.fence,policyVersion:fresh.playbackPolicyVersion)
             } else {
-                request=DictationPlaybackRequest(id:UUID().uuidString,client:client,action:"start",step:selection.policyStep,fence:0)
+                request=DictationPlaybackRequest(id:UUID().uuidString,client:client,action:"start",step:selection.policyStep,fence:0,policyVersion:fresh.playbackPolicyVersion,intent:fresh.playbackPolicyVersion == 2 ? "planned" : nil)
             }
             let requestTask = Task { @MainActor in try await send(request) }
             admission = requestTask;admissionRequest=request
@@ -239,7 +239,7 @@ import Observation
         // Freeze the gap clock. Continue waits only its remaining real seconds
         // before admitting the next sentence; background time never advances it.
         if let began = gapBegan {
-            frozenGap = min(3, max(0, timingNow() - began)); pendingGap = true
+            frozenGap = min(read()?.repeatGap ?? 3, max(0, timingNow() - began)); pendingGap = true
         }
         gapBegan = nil
         epoch += 1;timingEpoch += 1;clearTimers();busy=false;playing=false
@@ -267,7 +267,7 @@ import Observation
         if newIntent {
             var intent=DictationStopIntent(client:client,admission:stoppedAdmission)
             if let revision=[ledger?.revision,read()?.playback?.revision].compactMap({$0}).max() {
-                intent.request=DictationPlaybackRequest(id:intent.id,client:intent.client,action:"stop",step:0,fence:revision,admission:intent.admission)
+                intent.request=DictationPlaybackRequest(id:intent.id,client:intent.client,action:"stop",step:0,fence:revision,admission:intent.admission,policyVersion:read()?.playbackPolicyVersion)
             }
             localStop=intent
         }
@@ -288,7 +288,7 @@ import Observation
                 // its target. A refresh or a retry cannot adopt a foreign revision.
                 if newIntent, let revision=[admitted?.revision,commanded?.revision].compactMap({$0}).max(),
                    revision > (intent.request?.fence ?? -1) {
-                    intent.request=DictationPlaybackRequest(id:intent.id,client:intent.client,action:"stop",step:0,fence:revision,admission:intent.admission)
+                    intent.request=DictationPlaybackRequest(id:intent.id,client:intent.client,action:"stop",step:0,fence:revision,admission:intent.admission,policyVersion:read()?.playbackPolicyVersion)
                     localStop=intent;try saveStop(intent)
                 }
                 try await finishStop()
@@ -303,7 +303,7 @@ import Observation
         stoppedPosition=0;timingIndex=0
         pendingGap=false;gapBegan=nil;frozenGap=0;timingCompleted=false
         if let record=read() {
-            timingSteps = record.mode == "whole" ? Array(record.plan.indices.prefix(1)) : Array(record.plan.indices.dropFirst().dropLast())
+            timingSteps = record.playbackPolicyVersion == 2 ? [0] : (record.mode == "whole" ? Array(record.plan.indices.prefix(1)) : Array(record.plan.indices.dropFirst().dropLast()))
             timingTrack = DictationTimingTrack(assets:timingSteps.map {record.plan[$0].asset})
         }
     }
@@ -358,15 +358,17 @@ import Observation
             _ = try await command("ended",stamp:active,offset:position())
             guard current(ticket) else {return}
             owned=nil;busy=false
-            guard active.step > 0,let record=read(),let value=ledger,value.cursor < record.plan.count-1 else {
+            guard let record=read(),let value=ledger else { return }
+            let repeats = record.playbackPolicyVersion == 2 && active.intent != "extra" && value.cursor == active.step+1 && record.plan.indices.contains(value.cursor) && record.plan[value.cursor].kind == "sentence_repeat" && record.plan[value.cursor].asset == record.plan[active.step].asset
+            guard repeats || (record.playbackPolicyVersion == 1 && active.step > 0 && value.cursor < record.plan.count-1) else {
                 timingCompleted = true; return
             }
             waiting=true;frozenGap=0;gapBegan=timingNow()
             gap=Task { @MainActor [weak self] in
                 guard let self else {return}
-                do {try await self.pause()} catch {return}
+                do { if record.playbackPolicyVersion == 2 { try await self.resumePause(record.repeatGap) } else { try await self.pause() } } catch {return}
                 guard self.current(ticket) else {return}
-                self.waiting=false;self.gapBegan=nil;self.frozenGap=3;await self.play()
+                self.waiting=false;self.gapBegan=nil;self.frozenGap=record.repeatGap;await self.play()
             }
         } catch {if current(ticket) {await interrupt();failed(error)}}
     }

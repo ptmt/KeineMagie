@@ -4,7 +4,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright,expect
 repo=Path(__file__).resolve().parents[2]
-out=repo/'docs/evidence/dictation-manual-pacing';out.mkdir(parents=True,exist_ok=True)
+out=Path(os.environ.get('DICTATION_MANUAL_EVIDENCE',str(repo/'docs/evidence/dictation-manual-pacing')));out.mkdir(parents=True,exist_ok=True)
 with tempfile.TemporaryDirectory(prefix='manual-pacing-',dir=os.environ['TMPDIR']) as tmp:
  env=dict(os.environ,DICTATION_PLAYBACK_BRIDGE=tmp)
  binary=Path(tmp)/'fixture.test'
@@ -92,6 +92,19 @@ with tempfile.TemporaryDirectory(prefix='manual-pacing-',dir=os.environ['TMPDIR'
    expect(draft).to_have_value('Mein unveränderter Entwurf.')
    assert not state()['checked'];assert state()['playback']['whole_starts']==1
    assert not page.evaluate('calls.some(c=>c.path.endsWith("/check")||c.method==="POST"&&c.path.includes("/audio/"))')
+   # Integrated actual policy-2 replay ledger -> immutable assessment snapshot.
+   page.get_by_role('button',name='Check',exact=True).click()
+   expect(page.locator('.dictation-assessment')).to_be_visible()
+   assessment=state()['assessment'];summary=assessment['assistance_summary']
+   assert summary['tracking']=='partial' and summary['unreported']=='unknown'
+   fragment=next(s for s in summary['segments'] if s['step']==1)
+   assert fragment['planned_started']==2 and fragment['extra_requested']==1 and fragment['completed']==3,fragment
+   checks=page.evaluate('calls.filter(c=>c.path.endsWith("/check")).length')
+   page.reload();page.get_by_role('button',name='Manual pacing fixture').click()
+   expect(page.locator('.dictation-assessment')).to_be_visible()
+   assert not page.evaluate('calls.some(c=>c.path.endsWith("/check"))')
+   assert state()['assessment']==assessment
+   page.screenshot(path=str(out/'integrated-assistance-390-en.png'),full_page=True)
    assert call('POST','/v1/learning/dictations',dict(id='triples',title='Three-repeat fixture',text='Hallo Welt.',language='de',playback_policy_version=2))['status']==200
    page.reload();page.get_by_role('button',name='Three-repeat fixture').click()
    page.get_by_label('Plays per fragment').select_option('3');page.wait_for_timeout(250);assert state('triples')['pacing']['repeats']==3

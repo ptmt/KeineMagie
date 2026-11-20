@@ -53,7 +53,7 @@ func TestDictationAssessmentBrowserFixture(t *testing.T) {
 		result := dictationAssessmentResult{Notes: []dictationAssessmentNote{}}
 		for _, s := range input.Alignment.Spans {
 			if s.Kind != "equal" && s.Kind != "unattempted" {
-				result.Notes = append(result.Notes, dictationAssessmentNote{s.ID, "grammar", s.Original, s.Written, "Synthetic provider explanation for UI testing only. <img src=x onerror=alert(1)> The reference remains unchanged."})
+				result.Notes = append(result.Notes, dictationAssessmentNote{s.ID, "grammar", s.Original, s.Written, "Synthetic provider explanation for UI testing only. The reference remains unchanged."})
 				break
 			}
 		}

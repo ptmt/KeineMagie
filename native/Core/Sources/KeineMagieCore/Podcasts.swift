@@ -184,7 +184,7 @@ public struct PodcastAPI: Sendable {
     }
     public func dictationRequest(id: String = "", action: String = "", method: String = "GET", body: Data? = nil) throws -> URLRequest {
         guard id.isEmpty || id.range(of: "^[A-Za-z0-9_-]{1,80}$", options: .regularExpression) != nil,
-              action.isEmpty || ["check", "reveal", "attempts", "playback"].contains(action) || action.range(of: "^audio/(0|[1-9][0-9]{0,2})$", options: .regularExpression) != nil else { throw APIError.invalidResponse }
+              action.isEmpty || ["check", "cancel-assessment", "pacing", "reveal", "attempts", "playback"].contains(action) || action.range(of: "^audio/(0|[1-9][0-9]{0,2})$", options: .regularExpression) != nil else { throw APIError.invalidResponse }
         var r = try request(method: method)
         r.url = endpoint.url(path: "v1/learning/dictations" + (id.isEmpty ? "" : "/" + id) + (action.isEmpty ? "" : "/" + action))
         r.cachePolicy = .reloadIgnoringLocalCacheData

@@ -848,6 +848,7 @@ import Observation
  func stop(resetTiming: Bool = false) { playing=false;finished=nil;if resetTiming {position=0} }
 }
 ''')
+        (p/'Tests/LifecycleTests/DictationAssessmentTests.swift').write_text((ROOT/'ci/dictation_assessment_harness.swift').read_text())
         (p/'Tests/LifecycleTests/DictationGlobalTests.swift').write_text((ROOT/'ci/dictation_global_harness.swift').read_text())
         (p/'Sources/Lifecycle/TranslationProfileSync.swift').write_text((ROOT/'App/TranslationProfileSync.swift').read_text())
         (p/'Sources/Lifecycle/PodcastStore.swift').write_text((ROOT/'App/PodcastStore.swift').read_text())

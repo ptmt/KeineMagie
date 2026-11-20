@@ -57,6 +57,22 @@ import KeineMagieCore
     }
 }
 
+@Test @MainActor func policyTwoUsesRootTransportAndPreservesItsVersion() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at:root) }
+    let gate = GlobalPlaybackGate(), coordinator = DictationPlaybackCoordinator()
+    let model = try await gate.model(root)
+    var value = gate.values["one"]!; value.playbackPolicyVersion = 2
+    gate.values["one"] = value; try model.dictationDrafts.accept(value)
+    coordinator.select(value,model:model)
+    #expect(!coordinator.disabled)
+    #expect(coordinator.controller != nil)
+    await coordinator.controller?.play()
+    #expect(coordinator.player.playing)
+    #expect(model.dictationDrafts.record(value.id)?.playbackPolicyVersion == 2)
+    coordinator.reset()
+}
+
 @Test @MainActor func globalPlaybackSelectionAndOpenAreCachedOnlyNoAdmissionOrPreparation() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at:root) }

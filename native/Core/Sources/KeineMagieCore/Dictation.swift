@@ -14,7 +14,7 @@ public struct DictationRecord: Codable, Sendable, Identifiable {
  public let id: String; public let title: String; public let language: String; public let created: String
  public var text: String?; public var mode: String; public var step: Int; public var replays: Int; public var draft: String; public var revision: Int
  public var checked: Bool; public var assisted: Bool; public let plan: [DictationSegment]; public var ready: [Int]; public let differences: [DictationDifference]?
- public var segment: DictationSegment? { let index = playbackPolicyVersion == 1 ? policyStep : (mode == "whole" ? 0 : step); return plan.indices.contains(index) ? plan[index] : nil }
+ public var segment: DictationSegment? { let index = supportsPlaybackPolicy ? policyStep : (mode == "whole" ? 0 : step); return plan.indices.contains(index) ? plan[index] : nil }
  public mutating func transition(_ event: DictationEvent) {
   guard !checked else { return }
   if playbackPolicyVersion != nil {

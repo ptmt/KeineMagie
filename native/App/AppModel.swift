@@ -10,11 +10,66 @@ final class AppModel {
     let session: SessionController
     var podcasts = PodcastStore()
     let dictationDrafts = DictationDraftStore()
+    private(set) var dictationChecking: Set<String> = []
     private var dictationHydratedGeneration: Int?
+    private func acceptDictationAssessment(_ value: DictationRecord) throws {
+        guard dictationDrafts.record(value.id) != nil else { throw CancellationError() }
+        if let old = dictationDrafts.record(value.id)?.assessment, let next = value.assessment,
+           old.id == next.id, old.state != "pending", next.state == "pending" { return }
+        try dictationDrafts.accept(value)
+    }
+    /// Recovery is GET-only. Unknown results never authorize another paid request.
+    func recoverDictationAssessment(id: String) async throws {
+        let generation = session.generation, api = try podcastAPI()
+        do {
+            let value = try await api.dictation(id:id)
+            guard session.generation == generation, session.canWrite else { throw CancellationError() }
+            if value.assessment != nil { try acceptDictationAssessment(value) }
+        } catch {
+            if session.generation == generation, case APIError.http(401) = error { session.rejectUnauthorized();resetSessionContent() }
+            throw error
+        }
+    }
+    func cancelDictationAssessment(id: String) async throws {
+        guard let receipt = dictationDrafts.record(id)?.assessment, receipt.state == "pending" else { return }
+        let generation = session.generation, api = try podcastAPI()
+        _ = try await api.dictation(id:id,action:"cancel-assessment",method:"POST",body:JSONEncoder().encode(["revision":receipt.revision]))
+        guard session.generation == generation else { throw CancellationError() }
+        try await recoverDictationAssessment(id:id)
+    }
+    func checkDictation(id: String, complete: Bool, locale: String) async throws {
+        guard !dictationChecking.contains(id), let value = dictationDrafts.record(id), session.canWrite else { return }
+        if value.checked { try await recoverDictationAssessment(id:id); return }
+        guard dictationDrafts.playbackStop(id:id) == nil, dictationDrafts.conflict(id) == nil else { throw APIError.http(409) }
+        let generation = session.generation, api = try podcastAPI()
+        dictationChecking.insert(id)
+        defer { if session.generation == generation { dictationChecking.remove(id) } }
+        try await dictationDrafts.flush(id:id) { id, body in try await api.dictation(id:id,method:"PUT",body:body) }
+        guard session.generation == generation, session.canWrite, let saved = dictationDrafts.record(id) else { throw CancellationError() }
+        let poll = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                do { try await Task.sleep(for:.milliseconds(500)) } catch { return }
+                guard let self, self.session.generation == generation else { return }
+                try? await self.recoverDictationAssessment(id:id)
+            }
+        }
+        defer { poll.cancel() }
+        do {
+            let body = try JSONSerialization.data(withJSONObject:["revision":saved.revision,"hybrid":true,"complete":complete,"locale":locale])
+            let result = try await api.dictation(id:id,action:"check",method:"POST",body:body)
+            guard session.generation == generation, session.canWrite else { throw CancellationError() }
+            try acceptDictationAssessment(result)
+        } catch {
+            guard session.generation == generation else { throw CancellationError() }
+            if case APIError.http(401) = error { session.rejectUnauthorized();resetSessionContent();throw error }
+            try await recoverDictationAssessment(id:id)
+            if dictationDrafts.record(id)?.assessment == nil { throw error }
+        }
+    }
     func hydrateDictations() throws {
         guard session.phase == .signedIn, let owner = session.user?.id else { return }
         guard dictationHydratedGeneration != session.generation else { return }
-        dictationDrafts.reset()
+        dictationChecking.removeAll();dictationDrafts.reset()
         if let lease = cacheSession() {
             let cache = contentCache
             // A failed read must never leave the journal in memory-only mode.
@@ -1027,7 +1082,7 @@ final class AppModel {
         checkingTranslations.removeAll(); translationCheckNotices.removeAll()
         let previousDirection = outbox.direction
         outbox = TranslationOutbox(); outbox.direction = previousDirection; outboxScope = nil
-        dictationDrafts.reset(); dictationHydratedGeneration = nil
+        dictationChecking.removeAll();dictationDrafts.reset(); dictationHydratedGeneration = nil
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
         coachLoaded = false; coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil; coachOwnerScope = nil
         if let lease = cacheLease {

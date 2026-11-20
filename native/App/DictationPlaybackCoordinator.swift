@@ -44,26 +44,27 @@ import KeineMagieCore
     var disabled: Bool {
         guard let value = record else { return true }
         return model?.session.canWrite != true || busy || player.playing || controller?.busy == true || controller?.waiting == true ||
-            (value.playbackPolicyVersion == 1 && (value.checked || value.policyExhausted)) ||
-            (value.playbackPolicyVersion != nil && value.playbackPolicyVersion != 1)
+            (value.supportsPlaybackPolicy && (value.checked || value.policyExhausted)) ||
+            (value.playbackPolicyVersion != nil && !value.supportsPlaybackPolicy)
     }
     var label: String {
         guard let value = record else { return "Play" }
         if preparing { return "Preparing audio…" }
+        if value.needsManualNext { return "Next" }
         if !cached(value) { return "Prepare audio" }
         if controller?.waiting == true { return "dictation.pause" }
         if player.playing { return "dictation.listening" }
-        if controller?.explicitlyStopped != true && value.playbackPolicyVersion == 1 && (value.playback?.active != nil || controller?.canContinue == true) { return "dictation.resume" }
+        if controller?.explicitlyStopped != true && value.supportsPlaybackPolicy && (value.playback?.active != nil || controller?.canContinue == true) { return "dictation.resume" }
         return value.segment?.kind == "final" ? "Optional final reading" : "Play"
     }
     var timing: DictationTimingSnapshot? {
         guard let value = record, let segment = value.segment else { return nil }
-        if value.playbackPolicyVersion == 1 { return controller?.timing }
+        if value.supportsPlaybackPolicy { return controller?.timing }
         return DictationTimingTrack(assets:[segment.asset]).snapshot(
             durations:player.duration.map { [segment.asset:$0] } ?? [:], index:0, position:player.position)
     }
     func cached(_ value: DictationRecord) -> Bool {
-        let assets = value.playbackPolicyVersion == 1 ? value.policyAssets : value.segment.map { [$0.asset] } ?? []
+        let assets = value.supportsPlaybackPolicy ? value.policyAssets : value.segment.map { [$0.asset] } ?? []
         return !assets.isEmpty && assets.allSatisfy { value.ready.contains($0) }
     }
     func select(_ value: DictationRecord, model: AppModel) {
@@ -75,7 +76,7 @@ import KeineMagieCore
         interrupt()
         controller = nil; player.stop(resetTiming:true)
         attemptID = value.id; error = nil
-        if value.playbackPolicyVersion == 1 { controller = makeController(value, model:model) }
+        if value.supportsPlaybackPolicy { controller = makeController(value, model:model) }
     }
     func loadTiming() async { await controller?.loadTiming() }
     func requestOpen() { guard record != nil else { return }; openRequest += 1 }
@@ -90,7 +91,7 @@ import KeineMagieCore
     }
     func activate() {
         guard !disabled, let value = record, let model, let api = try? model.podcastAPI() else { return }
-        if cached(value), value.playbackPolicyVersion == 1 {
+        if cached(value), value.supportsPlaybackPolicy {
             let controller = controller
             Task { await controller?.play() }
             return
@@ -105,7 +106,7 @@ import KeineMagieCore
             let current = { self.operation == ticket && model.session.generation == generation && model.session.canWrite && self.attemptID == id && !Task.isCancelled }
             do {
                 if prepare {
-                    let assets = value.playbackPolicyVersion == 1 ? value.policyAssets : value.segment.map { [$0.asset] } ?? []
+                    let assets = value.supportsPlaybackPolicy ? value.policyAssets : value.segment.map { [$0.asset] } ?? []
                     for asset in assets where !value.ready.contains(asset) {
                         guard current() else { return }
                         _ = try await api.dictationAudio(id:id,index:asset,prepare:true)
@@ -152,7 +153,7 @@ import KeineMagieCore
             audio:{ try await api.dictationAudio(id:id,index:$0,prepare:false) },
             publish:{ [weak model] ledger in
                 guard let model, model.session.generation == generation, model.session.canWrite else { throw CancellationError() }
-                try model.dictationDrafts.acceptPlayback(id:id,policy:1,ledger:ledger)
+                try model.dictationDrafts.acceptPlayback(id:id,policy:value.playbackPolicyVersion ?? 1,ledger:ledger)
             }, play:{ [weak self] data, offset, completion in
                 guard let self, self.attemptID == id, self.record != nil else { throw CancellationError() }
                 try player.play(data,offset:offset); player.finished = completion

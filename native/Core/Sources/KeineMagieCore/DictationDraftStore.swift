@@ -15,7 +15,7 @@ import Observation
 
 /// Owner-scoped journal. AppModel supplies the protected, synchronous persistence callback.
 @MainActor @Observable public final class DictationDraftStore {
- public struct Entry: Codable { var acknowledged: DictationRecord; var local: DictationRecord; var pending: Data?; var playbackStop: DictationStopIntent? = nil }
+ public struct Entry: Codable { var acknowledged: DictationRecord; var local: DictationRecord; var pending: Data?; var playbackStop: DictationStopIntent? = nil; var pacingRequest: Data? = nil }
  public struct AddForm: Codable { public var title = ""; public var original = ""; public var id = UUID().uuidString; public var pending: Data? }
  public struct Recovery: Codable, Identifiable { public let id: String; public let title: String; public let draft: String; public let reason: String }
  private struct Snapshot: Codable {
@@ -35,6 +35,18 @@ import Observation
  public var recoveries: [Recovery] { Array(state.recovered.values) }
  public func record(_ id:String) -> DictationRecord? { state.entries[id]?.local }
  public func conflict(_ id:String) -> DictationRecord? { state.conflicts[id] }
+ public func pacingRequest(id:String) -> Data? { state.entries[id]?.pacingRequest }
+ public func pendingPacing(id:String,repeats:Int,gapSeconds:Int) throws -> Data {
+  guard let entry=state.entries[id] else {throw APIError.invalidResponse}
+  if let body=entry.pacingRequest {try commit();return body}
+  guard [2,3].contains(repeats),[3,8].contains(gapSeconds),entry.playbackStop == nil else {throw APIError.invalidResponse}
+  let body=try JSONSerialization.data(withJSONObject:["revision":entry.local.revision,"playback_revision":entry.local.playback?.revision ?? 0,"mutation_id":UUID().uuidString,"repeats":repeats,"gap_seconds":gapSeconds],options:.sortedKeys)
+  state.entries[id]?.pacingRequest=body;try commit();return body
+ }
+ public func finishPacing(id:String,body:Data,value:DictationRecord) throws {
+  guard state.entries[id]?.pacingRequest == body else {throw CancellationError()}
+  try accept(value);state.entries[id]?.pacingRequest=nil;try commit()
+ }
  public func playbackStop(id:String) -> DictationStopIntent? { state.entries[id]?.playbackStop }
  public func setPlaybackStop(id:String,intent:DictationStopIntent?) throws {
   guard state.entries[id] != nil else { throw CancellationError() }
@@ -70,7 +82,7 @@ import Observation
   guard state.recovered[value.id]==nil else { return }
   try acceptPlayback(id:value.id,policy:value.playbackPolicyVersion,ledger:value.playback)
   if let old=state.entries[value.id],old.pending != nil || !same(old.local,old.acknowledged) {return}
-  state.entries[value.id]=Entry(acknowledged:value,local:value,pending:nil,playbackStop:state.entries[value.id]?.playbackStop);try commit()
+  state.entries[value.id]=Entry(acknowledged:value,local:value,pending:nil,playbackStop:state.entries[value.id]?.playbackStop,pacingRequest:state.entries[value.id]?.pacingRequest);try commit()
  }
  /// Independent ledger revisions must never overwrite typed/offline draft state.
  public func acceptPlayback(id:String,policy:Int?,ledger:DictationPlayback?) throws {
@@ -105,7 +117,7 @@ import Observation
  public func useServer(_ id:String) throws {
   guard var server=state.conflicts[id] else{return}
   if let current=state.entries[id]?.local {server.preservePlayback(from:current)}
-  state.entries[id]=Entry(acknowledged:server,local:server,pending:nil,playbackStop:state.entries[id]?.playbackStop);state.conflicts[id]=nil;try commit()
+  state.entries[id]=Entry(acknowledged:server,local:server,pending:nil,playbackStop:state.entries[id]?.playbackStop,pacingRequest:state.entries[id]?.pacingRequest);state.conflicts[id]=nil;try commit()
  }
  public func flush(id:String,send: @escaping @MainActor (String, Data) async throws -> DictationRecord) async throws {
   if let task=flights[id] {return try await task.value}

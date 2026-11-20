@@ -1,0 +1,38 @@
+{
+  "result": "PASS",
+  "audio": "synthetic silent WAV; natural play/ended",
+  "captures": [
+    "setup-390-en.png",
+    "gap-390-en.png",
+    "next-390-de.png",
+    "next-390-en.png",
+    "next-390-ru.png",
+    "next-390-es.png",
+    "next-390-fr.png",
+    "next-1100-de.png",
+    "next-1100-en.png",
+    "next-1100-ru.png",
+    "next-1100-es.png",
+    "next-1100-fr.png"
+  ],
+  "initial_prepared_assets": 4,
+  "repeat_counts_verified": [
+    2,
+    3
+  ],
+  "primary_slot_verified": true,
+  "ranges": [
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-",
+    "bytes=0-"
+  ],
+  "lost_stop_ack_recovered": true,
+  "errors": []
+}

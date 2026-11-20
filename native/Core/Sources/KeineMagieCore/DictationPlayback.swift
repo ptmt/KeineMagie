@@ -1,6 +1,6 @@
 import Foundation
 
-/// Preservation-only v2 contract. Native transport remains gated to policy 1.
+/// Versioned pacing; existing attempts retain their stored policy.
 public struct DictationPacing: Codable, Sendable, Equatable {
     public let repeats: Int
     public let gapSeconds: Int
@@ -59,6 +59,10 @@ public struct DictationStopIntent: Codable, Sendable {
     }
 }
 public struct DictationPlaybackRequest: Codable, Sendable {
+    public let policyVersion: Int?
+    public let intent: String?
+    public let reason: String?
+    enum CodingKeys: String, CodingKey { case id, client, action, step, fence, offset, admission, intent, reason; case policyVersion = "policy_version" }
     public let id: String
     public let client: String
     public let action: String
@@ -66,7 +70,8 @@ public struct DictationPlaybackRequest: Codable, Sendable {
     public let fence: Int
     public let offset: Double
     public let admission: String?
-    public init(id: String, client: String, action: String, step: Int, fence: Int, offset: Double = 0, admission: String? = nil) {
+    public init(id: String, client: String, action: String, step: Int, fence: Int, offset: Double = 0, admission: String? = nil, policyVersion: Int? = nil, intent: String? = nil, reason: String? = nil) {
+        self.policyVersion=policyVersion; self.intent=intent; self.reason=reason
         self.admission=admission
         self.id=id; self.client=client; self.action=action; self.step=step; self.fence=fence
         self.offset=offset.isFinite ? min(7200, max(0, offset)) : 0
@@ -74,6 +79,9 @@ public struct DictationPlaybackRequest: Codable, Sendable {
 }
 
 public extension DictationRecord {
+    var supportsPlaybackPolicy: Bool { playbackPolicyVersion == 1 || playbackPolicyVersion == 2 }
+    var needsManualNext: Bool { playbackPolicyVersion == 2 && mode == "sentences" && playback?.active == nil && policyStep > 0 && segment?.kind == "sentence" }
+    var repeatGap: Double { playbackPolicyVersion == 2 ? Double(pacing?.gapSeconds ?? 3) : 3 }
     var policyStep: Int { playback?.active?.step ?? (mode == "whole" ? 0 : playback?.cursor ?? 1) }
     var policyAssets: [Int] {
         let segments = mode == "whole" ? Array(plan.prefix(1)) : Array(plan.dropFirst(playback?.cursor ?? 1))
@@ -93,9 +101,9 @@ public extension DictationRecord {
 
 struct DictationCreateRequest: Encodable {
     let id: String; let title: String; let text: String; let language = "de"
-    let playback_policy_version = 1
+    let playback_policy_version = 2
 }
 struct DictationAttemptRequest: Encodable {
     let id: String
-    let playback_policy_version = 1
+    let playback_policy_version = 2
 }
