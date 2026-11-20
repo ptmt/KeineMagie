@@ -6,8 +6,9 @@ public struct DictationRecord: Codable, Sendable, Identifiable {
 	public var pacing: DictationPacing?
  public var playbackPolicyVersion: Int?
  public var playback: DictationPlayback?
+ public var assessment: DictationAssessmentReceipt?
  enum CodingKeys: String, CodingKey {
-  case id, title, language, created, text, mode, step, replays, draft, revision, checked, assisted, plan, ready, differences
+  case assessment, id, title, language, created, text, mode, step, replays, draft, revision, checked, assisted, plan, ready, differences
   case playbackPolicyVersion = "playback_policy_version", playback, pacing
  }
  public let id: String; public let title: String; public let language: String; public let created: String

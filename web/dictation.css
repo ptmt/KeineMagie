@@ -11,6 +11,31 @@
 .dictation-pacing-settings input[type=checkbox]{width:20px;height:20px;margin:0}
 .dictation-pacing-settings select{max-width:100%}
 @media(prefers-color-scheme:dark){.dictation-timeline li{color:#aaaab4}.dictation-timeline li.is-current{color:#eeeef0}.dictation-timeline li.is-complete{color:#a1d7b2}}
+/* Assessment stays inline; a long unfinished suffix is one closed disclosure. */
+.dictation-assessment{margin:24px 0;line-height:1.6;color:var(--ink,#202124)}
+.dictation-assessment h2{font-size:1.125rem;margin-bottom:8px}
+.dictation-assessment h3{font-size:.875rem;margin:0 0 8px}
+.dictation-assessment p{overflow-wrap:anywhere}
+.dictation-alignment{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:20px 0}
+.dictation-alignment>div{min-width:0}
+.dictation-inline-diff{white-space:pre-wrap;margin:0;line-height:1.9}
+.dictation-diff-omission{background:#fce8e5;color:#842e24;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:4px}
+.dictation-diff-addition{background:#e7edf9;color:#24457e;text-decoration:underline;text-underline-offset:4px}
+.dictation-diff-substitution,.dictation-diff-spelling{background:#fff0cc;color:#75500b;text-decoration:underline;text-underline-offset:4px}
+.dictation-diff-punctuation{background:#f0e8f7;color:#633286;text-decoration:underline;text-underline-offset:4px}
+.dictation-diff-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.8125rem}
+.dictation-diff-legend span{padding:1px 5px;border-radius:3px}
+.dictation-unattempted{border-top:1px solid #b6b7bb;padding-top:8px}
+.dictation-unattempted p{max-height:12rem;overflow:auto;white-space:pre-wrap}
+.dictation-assessment-context{font-size:.875rem;margin:12px 0}
+.dictation-assessment-note{border-top:1px solid #b6b7bb;padding:12px 0}
+.dictation-assessment-note p{margin:6px 0;white-space:pre-wrap}
+.dictation-assessment .dictation-assessment-metrics{font-weight:600}
+.dictation-page .dictation-input-header{align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0}
+.dictation-page .dictation-complete-choice{display:flex;align-items:center;gap:8px;font-size:.875rem}
+.dictation-page .dictation-complete-choice input{width:20px;height:20px;flex:none}
+@media(max-width:560px){.dictation-alignment{grid-template-columns:1fr;gap:16px}}
+@media(prefers-color-scheme:dark){.dictation-assessment{color:var(--ink,#ededf0)}.dictation-diff-omission{background:#482c2b;color:#f9c4bd}.dictation-diff-addition{background:#28364f;color:#c0d4fa}.dictation-diff-substitution,.dictation-diff-spelling{background:#483b20;color:#f8d996}.dictation-diff-punctuation{background:#3d2e48;color:#e1c2f7}}
 /* Ordered milestones, not a checklist: skipped stages have no completion ticks. */
 .dictation-page .dictation-lifecycle{display:flex;flex-wrap:wrap;gap:6px 8px;max-width:100%;font-size:14px;line-height:1.5}
 .dictation-lifecycle .dictation-milestone{display:inline-block;padding:2px 6px;border-radius:4px;white-space:nowrap;color:#6b6b73;font-weight:400}

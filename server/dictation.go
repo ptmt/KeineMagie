@@ -13,35 +13,37 @@ import (
 )
 
 type dictationRecord struct {
-	Pacing                *dictationPacing        `json:"pacing,omitempty"`
-	PacingHistory         *dictationPacingHistory `json:"pacing_history,omitempty"`
-	PacingMutation        string                  `json:"pacing_mutation,omitempty"`
-	PlaybackPolicyVersion int                     `json:"playback_policy_version,omitempty"`
-	Playback              dictationPlayback       `json:"playback"`
-	ID                    string                  `json:"id"`
-	TextID                string                  `json:"text_id,omitempty"`
-	MutationID            string                  `json:"mutation_id,omitempty"`
-	Title                 string                  `json:"title"`
-	Text                  string                  `json:"text,omitempty"`
-	Language              string                  `json:"language"`
-	Created               string                  `json:"created"`
-	Mode                  string                  `json:"mode"`
-	Step                  int                     `json:"step"`
-	Replays               int                     `json:"replays"`
-	Draft                 string                  `json:"draft"`
-	Revision              int                     `json:"revision"`
-	Checked               bool                    `json:"checked"`
-	Assisted              bool                    `json:"assisted"`
-	Plan                  []dictationSegment      `json:"plan"`
-	Ready                 []int                   `json:"ready"`
-	Differences           []dictationDifference   `json:"differences,omitempty"`
+	Pacing                *dictationPacing            `json:"pacing,omitempty"`
+	PacingHistory         *dictationPacingHistory     `json:"pacing_history,omitempty"`
+	PacingMutation        string                      `json:"pacing_mutation,omitempty"`
+	PlaybackPolicyVersion int                         `json:"playback_policy_version,omitempty"`
+	Playback              dictationPlayback           `json:"playback"`
+	ID                    string                      `json:"id"`
+	TextID                string                      `json:"text_id,omitempty"`
+	MutationID            string                      `json:"mutation_id,omitempty"`
+	Title                 string                      `json:"title"`
+	Text                  string                      `json:"text,omitempty"`
+	Language              string                      `json:"language"`
+	Created               string                      `json:"created"`
+	Mode                  string                      `json:"mode"`
+	Step                  int                         `json:"step"`
+	Replays               int                         `json:"replays"`
+	Draft                 string                      `json:"draft"`
+	Revision              int                         `json:"revision"`
+	Checked               bool                        `json:"checked"`
+	Assisted              bool                        `json:"assisted"`
+	Plan                  []dictationSegment          `json:"plan"`
+	Ready                 []int                       `json:"ready"`
+	Differences           []dictationDifference       `json:"differences,omitempty"`
+	Assessment            *dictationAssessmentReceipt `json:"assessment,omitempty"`
 }
 type dictationData struct {
-	Items       []dictationRecord `json:"items"`
-	Deleted     map[string]bool   `json:"deleted,omitempty"`
-	Mutations   map[string]string `json:"mutations,omitempty"`
-	Day         string            `json:"day"`
-	Generations int               `json:"generations"`
+	Items              []dictationRecord `json:"items"`
+	Deleted            map[string]bool   `json:"deleted,omitempty"`
+	Mutations          map[string]string `json:"mutations,omitempty"`
+	Day                string            `json:"day"`
+	Generations        int               `json:"generations"`
+	AssessmentCanceled map[string]bool   `json:"assessment_canceled,omitempty"`
 }
 
 var dictationID = regexp.MustCompile(`^[A-Za-z0-9_-]{1,80}$`)
@@ -117,6 +119,7 @@ func dictationPublic(v dictationRecord, list bool) dictationRecord {
 	if list {
 		v.Draft = ""
 		v.Differences = nil
+		v.Assessment = nil
 		v.Plan = []dictationSegment{}
 	}
 	return v
@@ -166,7 +169,9 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 	if id == "" {
 		if r.Method == "GET" {
 			items := []dictationLibraryItem{}
+			var progress dictationProgressSummary
 			e := cfg.dictationTransaction(owner, false, func(d *dictationData) error {
+				progress = dictationProgress(d.Items)
 				for i := len(d.Items) - 1; i >= 0; i-- {
 					items = append(items, cfg.dictationLibraryItem(owner, d.Items[i]))
 				}
@@ -176,7 +181,7 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 				dictationError(w, e)
 				return
 			}
-			writeJSON(w, 200, map[string]any{"items": items, "speech_spend": cfg.dictationSpeechSpend(owner), "tts_available": dictationTTSAvailable(), "languages": []string{"de"}})
+			writeJSON(w, 200, map[string]any{"items": items, "progress": progress, "speech_spend": cfg.dictationSpeechSpend(owner), "tts_available": dictationTTSAvailable(), "languages": []string{"de"}})
 			return
 		}
 		if r.Method != "POST" {
@@ -246,6 +251,14 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 	}
 	if len(parts) > 2 {
 		writeError(w, 404, "not found")
+		return
+	}
+	if action == "check" && r.Method == "POST" {
+		cfg.dictationAssess(w, r, owner, id)
+		return
+	}
+	if action == "cancel-assessment" && r.Method == "POST" {
+		cfg.dictationCancelAssessment(w, r, owner, id)
 		return
 	}
 	if action == "playback" && r.Method == "POST" {

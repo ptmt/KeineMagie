@@ -1,0 +1,16 @@
+{
+  "provider": "synthetic, no live LLM",
+  "check_posts": 4,
+  "checks": [
+    "source hidden before check",
+    "actual handler receipt pending",
+    "literal markup inert",
+    "inline compact diff",
+    "closed unattempted suffix",
+    "390px no overflow",
+    "reload GET-only recovery",
+    "failure preserves answer/diff",
+    "complete declaration"
+  ],
+  "page_errors": []
+}
