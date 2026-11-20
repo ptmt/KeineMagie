@@ -1,0 +1,6 @@
+=== RUN   TestDictationLocalFixture
+    dictation_fixture_test.go:80: fixture-only cached WAV injection enabled; no paid transport
+    dictation_fixture_test.go:86: local fixture ready on 127.0.0.1:8799 ; no production stores
+--- PASS: TestDictationLocalFixture (1200.03s)
+PASS
+ok  	diktat/server	1200.315s

@@ -2,6 +2,109 @@ import XCTest
 import UIKit
 
 final class CoachUITests: XCTestCase {
+    @MainActor func testComposerMenuOpensWithoutSendingOrRevealing() {
+        let app = launch()
+        let answer = app.textFields["coach-answer-synthetic-coach"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 8))
+        let composer = app.textFields["coach-composer"]
+        composer.tap(); composer.typeText("keep my draft")
+        let actions = app.buttons["coach-actions"]
+        XCTAssertTrue(actions.waitForExistence(timeout: 3))
+        XCTAssertGreaterThanOrEqual(actions.frame.width, 44)
+        XCTAssertGreaterThanOrEqual(actions.frame.height, 44)
+        XCTAssertLessThanOrEqual(actions.frame.maxX, composer.frame.minX)
+        XCTAssertFalse(app.buttons["coach-reveal"].exists)
+        shot(app, "coach-composer-menu-closed-keyboard")
+        actions.tap()
+        XCTAssertTrue(app.buttons["coach-reveal"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["coach-progress"].exists)
+        XCTAssertFalse(app.staticTexts["Ich warte auf den Bus."].exists)
+        XCTAssertFalse(app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch.exists)
+        XCTAssertEqual(composer.value as? String, "keep my draft")
+        shot(app, "coach-composer-menu-open-keyboard")
+    }
+    @MainActor func testMenuSelectionUsesOriginalRoutesExactlyOnceAndKeepsFocus() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-menu-probe"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        let receipt = app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic commands:")).firstMatch
+        XCTAssertTrue(receipt.waitForExistence(timeout: 8))
+        let composer = app.textFields["coach-composer"]
+        composer.tap(); composer.typeText("draft")
+        let before = receipt.label
+        let actions = app.buttons["coach-actions"]
+        actions.tap()
+        XCTAssertTrue(app.buttons["coach-reveal"].waitForExistence(timeout: 3))
+        XCTAssertEqual(receipt.label, before)
+        app.navigationBars.staticTexts["Coach"].tap() // Dismiss without selecting.
+        XCTAssertTrue(app.buttons["coach-reveal"].waitForNonExistence(timeout: 3))
+        composer.typeText("!") // No second tap: native focus must survive dismissal.
+        XCTAssertEqual(composer.value as? String, "draft!")
+        XCTAssertEqual(receipt.label, before)
+        actions.tap(); app.buttons["coach-reveal"].tap()
+        XCTAssertTrue(app.staticTexts["Ich warte auf den Bus."].waitForExistence(timeout: 8))
+        XCTAssertEqual(receipt.label, before + ";reveal|source|synthetic-coach")
+        XCTAssertEqual(composer.value as? String, "draft!")
+        actions.tap(); app.buttons["coach-progress"].tap()
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch.waitForExistence(timeout: 8))
+        XCTAssertEqual(receipt.label, before + ";reveal|source|synthetic-coach;progress|My progress|")
+        XCTAssertEqual(composer.value as? String, "draft!")
+        let log = XCTAttachment(string: receipt.label); log.name = "coach-menu-transport-receipt"; log.lifetime = .keepAlways; add(log)
+    }
+    @MainActor func testMenuIncludesEveryAvailableAction() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach"
+        app.launchEnvironment["KM_SIMULATOR_COACH_ALL_ACTIONS"] = "1"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        XCTAssertTrue(app.buttons["coach-actions"].waitForExistence(timeout: 8))
+        app.buttons["coach-actions"].tap()
+        for action in ["reveal", "progress", "explain", "more", "practice"] {
+            XCTAssertTrue(app.buttons["coach-" + action].waitForExistence(timeout: 3))
+            XCTAssertTrue(app.buttons["coach-" + action].isHittable)
+            XCTAssertEqual(app.buttons.matching(identifier: "coach-" + action).count, 1)
+        }
+        shot(app, "coach-menu-all-available-actions")
+    }
+    @MainActor func testMenuDisabledDuringAssessmentAndOffline() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-assessment"
+        app.launchEnvironment["KM_SIMULATOR_COACH_CHECK_CAPTURE"] = "1"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        let answer = app.textFields["coach-answer-synthetic-coach"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 8)); answer.tap(); answer.typeText("beim")
+        app.buttons["coach-check-synthetic-coach"].tap()
+        XCTAssertTrue(app.staticTexts["Checking…"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["coach-actions"].isEnabled, "Keep the menu discoverable; disable its commands")
+        app.buttons["coach-actions"].tap()
+        XCTAssertTrue(app.buttons["coach-progress"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["coach-progress"].isEnabled)
+        XCTAssertFalse(app.buttons["coach-reveal"].isEnabled)
+        app.navigationBars.staticTexts["Coach"].tap()
+        XCTAssertFalse(app.buttons["coach-send"].isEnabled)
+        XCTAssertTrue(app.staticTexts["Incorrect"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["coach-actions"].isEnabled)
+        app.terminate()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-menu-offline"
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        XCTAssertTrue(app.textFields["coach-answer-synthetic-coach"].waitForExistence(timeout: 8))
+        XCUIDevice.shared.press(.home); sleep(1); app.activate()
+        XCTAssertTrue(app.staticTexts["Offline. Showing saved history"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["coach-actions"].isEnabled, "Keep the menu discoverable; disable its commands")
+        app.buttons["coach-actions"].tap()
+        XCTAssertTrue(app.buttons["coach-progress"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["coach-progress"].isEnabled)
+        XCTAssertFalse(app.buttons["coach-reveal"].isEnabled)
+        app.navigationBars.staticTexts["Coach"].tap()
+        XCTAssertFalse(app.buttons["coach-send"].isEnabled)
+        shot(app, "coach-menu-offline-disabled")
+    }
     @MainActor func testLargestRussianNativeComposerPlaceholderFits() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach"
@@ -50,15 +153,22 @@ final class CoachUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(skip.frame.height, 44)
         XCTAssertGreaterThanOrEqual(skip.frame.minX - check.frame.maxX, 32,
                                     "Quiet Skip belongs at the trailing edge, separate from Check")
-        XCTAssertEqual(app.buttons.matching(identifier: "coach-reveal").count, 1)
-        XCTAssertEqual(app.buttons.matching(identifier: "coach-progress").count, 1)
+        XCTAssertTrue(app.buttons["coach-actions"].exists)
+        XCTAssertFalse(app.buttons["coach-reveal"].exists)
+        XCTAssertFalse(app.buttons["coach-progress"].exists)
         XCTAssertFalse(check.isEnabled)
         answer.tap(); answer.typeText("auf")
         XCTAssertTrue(check.isEnabled)
-        XCTAssertLessThanOrEqual(check.frame.maxY, app.buttons["coach-reveal"].frame.minY - 8, "The whole Check target must remain above the contextual controls after keyboard presentation")
-        XCTAssertLessThanOrEqual(skip.frame.maxY, app.buttons["coach-reveal"].frame.minY - 8)
+        XCTAssertLessThanOrEqual(check.frame.maxY, app.otherElements["coach-composer-container"].frame.minY - 8, "The whole Check target must remain above the contextual controls after keyboard presentation")
+        XCTAssertLessThanOrEqual(skip.frame.maxY, app.otherElements["coach-composer-container"].frame.minY - 8)
         shot(app, "coach-design-filled-keyboard-before-or-after")
+        app.buttons["coach-actions"].tap()
+        XCTAssertTrue(app.buttons["coach-reveal"].waitForExistence(timeout: 3))
+        app.navigationBars.staticTexts["Coach"].tap()
+        answer.typeText(XCUIKeyboardKey.delete.rawValue); answer.typeText("f")
         XCTAssertEqual(answer.value as? String, "auf")
+        XCTAssertLessThanOrEqual(check.frame.maxY, app.otherElements["coach-composer-container"].frame.minY - 8)
+        XCTAssertLessThanOrEqual(skip.frame.maxY, app.otherElements["coach-composer-container"].frame.minY - 8)
         XCTAssertEqual(app.textFields["coach-composer"].label, "Message",
                        "Discussion stays distinct from the exercise answer")
         check.tap()
@@ -88,21 +198,23 @@ final class CoachUITests: XCTestCase {
         shot(app, "coach-design-assessment-error")
     }
 
-    @MainActor func testContextualChipsAndProgressRetainDraft() {
+    @MainActor func testContextualMenuAndProgressRetainDraft() {
         let app = launch()
-        XCTAssertTrue(app.buttons["coach-progress"].waitForExistence(timeout: 8))
-        XCTAssertFalse(app.buttons["coach-practice"].exists)
-        XCTAssertEqual(app.buttons.matching(identifier: "coach-reveal").count, 1)
+        XCTAssertTrue(app.buttons["coach-actions"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.buttons["coach-progress"].exists)
+        XCTAssertFalse(app.buttons["coach-reveal"].exists)
         let answer = app.textFields["coach-answer-synthetic-coach"]
         answer.tap(); answer.typeText("für"); app.buttons["coach-check-synthetic-coach"].tap()
-        XCTAssertTrue(app.buttons["coach-more"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Needs practice"].waitForExistence(timeout: 8))
         shot(app, "coach-contextual-after-feedback-release")
         let composer = app.textFields["coach-composer"]; composer.tap(); composer.typeText("keep my draft")
+        app.buttons["coach-actions"].tap()
+        XCTAssertTrue(app.buttons["coach-progress"].waitForExistence(timeout: 3))
         app.buttons["coach-progress"].tap()
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch.waitForExistence(timeout: 8))
         XCTAssertEqual(composer.value as? String, "keep my draft")
         let summary = app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch
-        XCTAssertLessThanOrEqual(summary.frame.maxY, composer.frame.minY - 44)
+        XCTAssertLessThanOrEqual(summary.frame.maxY, composer.frame.minY - 8)
         XCTAssertEqual(composer.value as? String, "keep my draft")
         shot(app, "coach-contextual-progress-release")
     }
@@ -171,7 +283,8 @@ final class CoachUITests: XCTestCase {
     @MainActor func testSourceControlsAreAbsent() {
         let app = launch()
         XCTAssertTrue(app.textFields["coach-answer-synthetic-coach"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.buttons["coach-reveal"].exists)
+        app.buttons["coach-actions"].tap()
+        XCTAssertTrue(app.buttons["coach-reveal"].waitForExistence(timeout: 3))
         app.buttons["coach-reveal"].tap()
         XCTAssertTrue(app.staticTexts["Ich warte auf den Bus."].waitForExistence(timeout: 8))
         XCTAssertFalse(app.buttons["Source"].exists)
@@ -187,6 +300,15 @@ final class CoachUITests: XCTestCase {
             let tab = app.tabBars.buttons[locale == "ru" ? "Тренер" : locale == "es" ? "Entrenador" : "Coach"]
             XCTAssertTrue(tab.waitForExistence(timeout: 10))
             tab.tap()
+            let actionLabels = ["en": "Coach actions", "de": "Coach-Aktionen", "ru": "Действия тренера", "es": "Acciones del entrenador", "fr": "Actions du coach"]
+            let actions = app.buttons["coach-actions"]
+            XCTAssertTrue(actions.waitForExistence(timeout: 8))
+            XCTAssertEqual(actions.label, actionLabels[locale])
+            actions.tap()
+            XCTAssertTrue(app.buttons["coach-reveal"].waitForExistence(timeout: 3))
+            XCTAssertTrue(app.buttons["coach-progress"].isHittable)
+            shot(app, "coach-menu-normal-\(locale)")
+            app.navigationBars.firstMatch.staticTexts.firstMatch.tap()
             let field = app.textFields["coach-answer-synthetic-coach"]
             XCTAssertTrue(field.waitForExistence(timeout: 8)); field.tap(); field.typeText("auf")
             app.buttons["coach-check-synthetic-coach"].tap()
@@ -204,15 +326,30 @@ final class CoachUITests: XCTestCase {
             app.launch()
             let tab = app.tabBars.buttons[locale == "ru" ? "Тренер" : locale == "es" ? "Entrenador" : "Coach"]
             XCTAssertTrue(tab.waitForExistence(timeout: 10)); tab.tap()
-            let progress = app.buttons["coach-progress"]
-            XCTAssertTrue(progress.waitForExistence(timeout: 8))
-            XCTAssertGreaterThanOrEqual(progress.frame.height, 44)
-            XCTAssertLessThanOrEqual(progress.frame.height, 70, "Context actions must not fragment into syllables at largest type")
-            XCTAssertGreaterThanOrEqual(progress.frame.minX, 0)
-            XCTAssertLessThanOrEqual(progress.frame.maxX, app.frame.maxX)
+            let actions = app.buttons["coach-actions"]
+            XCTAssertTrue(actions.waitForExistence(timeout: 8))
+            XCTAssertGreaterThanOrEqual(actions.frame.width, 44)
+            XCTAssertGreaterThanOrEqual(actions.frame.height, 44)
             let composer = app.textFields["coach-composer"]
+            let placeholder = composer.label
+            let font = UIFont.preferredFont(forTextStyle: .body, compatibleWith: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge))
+            XCTAssertGreaterThanOrEqual(composer.frame.width, ceil((placeholder as NSString).size(withAttributes: [.font: font]).width) + 4)
+            shot(app, "coach-largest-native-placeholder-\(locale)")
             composer.tap(); composer.typeText("exact draft")
             XCTAssertEqual(composer.value as? String, "exact draft")
+            XCTAssertTrue(actions.isHittable)
+            XCTAssertLessThanOrEqual(actions.frame.maxY, app.keyboards.firstMatch.frame.minY)
+            actions.tap()
+            let progress = app.buttons["coach-progress"]
+            XCTAssertTrue(progress.waitForExistence(timeout: 3))
+            XCTAssertGreaterThanOrEqual(progress.frame.height, 44)
+            // Native menus include system vertical padding, unlike the removed chips.
+            // Bound to ONE full-size line plus native padding, not an arbitrary chip height.
+            XCTAssertLessThanOrEqual(progress.frame.height, ceil(font.lineHeight) + 64, "Short menu title must remain one line at maximum type")
+            XCTAssertGreaterThanOrEqual(progress.frame.minY, app.frame.minY)
+            XCTAssertLessThanOrEqual(progress.frame.maxY, app.frame.maxY)
+            XCTAssertGreaterThanOrEqual(progress.frame.minX, 0)
+            XCTAssertLessThanOrEqual(progress.frame.maxX, app.frame.maxX)
             XCTAssertTrue(progress.isHittable)
             shot(app, "coach-largest-context-\(locale)")
             app.terminate()
@@ -275,7 +412,7 @@ final class CoachUITests: XCTestCase {
         let app = launch()
         XCTAssertTrue(app.textFields["coach-answer-synthetic-coach"].waitForExistence(timeout: 8))
         let snapshot = app.debugDescription
-        let expected = ["Ich warte ___ den Bus.", "coach-answer-synthetic-coach", "coach-check-synthetic-coach", "label: 'Skip'", "coach-progress", "coach-composer", "coach-send"]
+        let expected = ["Ich warte ___ den Bus.", "coach-answer-synthetic-coach", "coach-check-synthetic-coach", "label: 'Skip'", "identifier: 'coach-composer'", "coach-actions", "coach-send"]
         var previous = snapshot.startIndex
         for key in expected {
             guard let range = snapshot.range(of: key, range: previous..<snapshot.endIndex) else { XCTFail("Missing/out-of-order accessible element: \(key)"); continue }
@@ -296,12 +433,14 @@ final class CoachUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Synthetic exercise, not live AI."].waitForExistence(timeout: 8))
         shot(app, reduced ? "coach-reduced-initial" : "coach-motion-initial")
         sleep(2)
+        app.buttons["coach-actions"].tap()
+        XCTAssertTrue(app.buttons["coach-progress"].waitForExistence(timeout: 3))
         app.buttons["coach-progress"].tap()
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch.waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons["New messages"].waitForNonExistence(timeout: 8))
         sleep(2)
         shot(app, reduced ? "coach-reduced-arrived-seen" : "coach-motion-arrived-seen")
-        if reduced { XCTAssertEqual(app.buttons["coach-progress"].value as? String, "static;system=false;injected=true") }
+        if reduced { XCTAssertEqual(app.buttons["coach-actions"].value as? String, "static;system=false;injected=true") }
         app.tabBars.buttons["Translator"].tap(); app.tabBars.buttons["Coach"].tap()
         XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Synthetic progress:")).firstMatch.waitForExistence(timeout: 8))
         shot(app, reduced ? "coach-reduced-return" : "coach-motion-return")

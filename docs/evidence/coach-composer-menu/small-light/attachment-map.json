@@ -1,0 +1,164 @@
+[
+  {
+    "test": "CoachPresentationUITests/testHistoryBottomEarlierAndOwnSend()",
+    "file": "coach-history-earlier-revealed.png",
+    "original": "76DA6937-C407-4346-98D9-D341CBB94322.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testAccessibilityReadingOrderAndLabels()",
+    "file": "coach-accessibility-tree.txt",
+    "original": "EE4B8D64-22F6-4812-A8FF-8F5069F440A8.txt",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-correct-before-or-after.png",
+    "original": "CC3EA6F8-B6CF-417B-90F3-5CC30BEE3CE7.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-filled-keyboard-before-or-after.png",
+    "original": "18775A2F-1CE4-4F01-B11D-9ED11B138E80.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "file": "coach-design-active-before-or-after.png",
+    "original": "A8A97950-A43C-4715-94B6-2E56135A33B9.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "file": "coach-composer-menu-open-keyboard.png",
+    "original": "8B80B26A-7C98-4A3D-A1A4-D6C696291A1A.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "file": "coach-composer-menu-closed-keyboard.png",
+    "original": "8B55EB28-CD63-48E5-8620-383831BD342B.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-fr.png",
+    "original": "9ECB1123-55CC-4D56-BB41-BD679BB13B20.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-es.png",
+    "original": "8421B026-4880-48C0-9F0B-15A2A6B58276.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-ru.png",
+    "original": "0A5DFA8F-35D0-4986-8628-842B648D70B3.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-en.png",
+    "original": "4FA95FB5-FB6C-4562-8595-42F67C5FF074.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleCompactFeedback()",
+    "file": "coach-menu-normal-de.png",
+    "original": "EF20B196-0B13-4823-B6D3-ED7CBA0D4BD9.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-fr.png",
+    "original": "2E5EEE8F-3C4C-401B-8359-D675E5ECC254.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-fr.png",
+    "original": "2EE3585F-2C8D-4680-8548-88BB1FC2CD1B.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-es.png",
+    "original": "1E187F80-E4EF-4620-8641-77EB9ACCF45D.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-es.png",
+    "original": "1D7AE7D4-C8B1-45A4-94CC-7060C1FD573E.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-ru.png",
+    "original": "889DF52C-A185-43A8-ACAA-82874838EE3F.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-ru.png",
+    "original": "76DC3DCB-E7C8-4A5D-977F-43C3338C050F.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-de.png",
+    "original": "9ACC6B36-9A5D-4936-BB0B-E6F108E4BA94.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-de.png",
+    "original": "96691954-3A86-4A50-B14E-1874057E6870.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-context-en.png",
+    "original": "321C4554-AAD1-458F-BD79-11B123DF6C83.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testFiveLocaleLargestContextActions()",
+    "file": "coach-largest-native-placeholder-en.png",
+    "original": "D8DAD675-649B-4C75-BA28-7BA86049C36F.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testLargestRussianNativeComposerPlaceholderFits()",
+    "file": "coach-russian-native-placeholder-largest.png",
+    "original": "31A57AB5-57E2-47C2-A1BF-7D27F1716074.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testMenuDisabledDuringAssessmentAndOffline()",
+    "file": "coach-menu-offline-disabled.png",
+    "original": "B906D01B-FFCC-4C29-BB70-7719E0055BCD.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testMenuIncludesEveryAvailableAction()",
+    "file": "coach-menu-all-available-actions.png",
+    "original": "0DCA46D7-20F3-41DE-83E0-622BE9F2843A.png",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "CoachUITests/testMenuSelectionUsesOriginalRoutesExactlyOnceAndKeepsFocus()",
+    "file": "coach-menu-transport-receipt.txt",
+    "original": "28CF6DA3-A6FA-4168-AC15-32679B5E7AAF.txt",
+    "result": "small-final-acceptance.xcresult"
+  },
+  {
+    "test": "DictationPlayerUITests/testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt()",
+    "file": "global-coach.png",
+    "original": "C6943EE9-E25C-47DD-85E4-7F7C2672842E.png",
+    "result": "small-final-acceptance.xcresult"
+  }
+]

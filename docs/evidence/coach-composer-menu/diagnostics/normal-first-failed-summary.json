@@ -1,0 +1,80 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "modelName" : "iPhone 17",
+        "osBuildNumber" : "24B8117",
+        "osVersion" : "27.2",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 32,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "KeineMagie · Built with macOS 27.2.1",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1795164611.394,
+  "passedTests" : 32,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-coach-design-refresh/native/App/DictationPlayer.swift"
+    },
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-coach-design-refresh/native/App/DictationPlayer.swift"
+    },
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-coach-design-refresh/native/App/DictationPlayer.swift"
+    },
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-coach-design-refresh/native/App/DictationPlayer.swift"
+    },
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-coach-design-refresh/native/App/DictationPlayer.swift"
+    }
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1795163619.812,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "KeineMagieUITests",
+      "testIdentifier" : 8,
+      "testIdentifierString" : "CoachPresentationUITests/testLargeArchiveHasBoundedRenderedPage()",
+      "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachPresentationUITests/testLargeArchiveHasBoundedRenderedPage",
+      "testName" : "testLargeArchiveHasBoundedRenderedPage()"
+    }
+  ],
+  "title" : "Test - KeineMagie",
+  "topInsights" : [
+    {
+      "category" : "Longest Test Runs",
+      "impact" : "9% of duration",
+      "text" : "1 longest test run with outlier durations exceeding 87.40s (three standard deviations)"
+    }
+  ],
+  "totalTestCount" : 33
+}
