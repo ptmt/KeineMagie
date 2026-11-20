@@ -1,0 +1,80 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "56A70197-59DE-4410-9E76-25272244E9C8",
+        "deviceName" : "KeineMagie profiles integrated isolated",
+        "modelName" : "iPhone SE (3rd generation)",
+        "osBuildNumber" : "24B8117",
+        "osVersion" : "27.2",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 4,
+      "passedTests" : 19,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "KeineMagie · Built with macOS 27.2.1",
+  "expectedFailures" : 0,
+  "failedTests" : 4,
+  "finishTime" : 1795125258.042,
+  "passedTests" : 19,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+    {
+      "issueType" : "Runtime Warning",
+      "message" : "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL" : "file:///Users/tinyserve/Projects/KeineMagie-coach-design-refresh/native/App/DictationPlayer.swift"
+    }
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1795124592.86,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "KeineMagieUITests",
+      "testIdentifier" : 2,
+      "testIdentifierString" : "CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard()",
+      "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachDailyCandidateUITests/testCheckSkipTargetsAndSuccessKeyboard",
+      "testName" : "testCheckSkipTargetsAndSuccessKeyboard()"
+    },
+    {
+      "failureText" : "XCTAssertLessThanOrEqual failed: (\"116.5\") is greater than (\"70.0\") - Context actions must not fragment into syllables at largest type",
+      "targetName" : "KeineMagieUITests",
+      "testIdentifier" : 16,
+      "testIdentifierString" : "CoachUITests/testFiveLocaleLargestContextActions()",
+      "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachUITests/testFiveLocaleLargestContextActions",
+      "testName" : "testFiveLocaleLargestContextActions()"
+    },
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "KeineMagieUITests",
+      "testIdentifier" : 4,
+      "testIdentifierString" : "CoachPresentationUITests/testFiveLocaleLargestDarkHistory()",
+      "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachPresentationUITests/testFiveLocaleLargestDarkHistory",
+      "testName" : "testFiveLocaleLargestDarkHistory()"
+    },
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "KeineMagieUITests",
+      "testIdentifier" : 19,
+      "testIdentifierString" : "CoachUITests/testPopulatedChatExerciseAndKeyboard()",
+      "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachUITests/testPopulatedChatExerciseAndKeyboard",
+      "testName" : "testPopulatedChatExerciseAndKeyboard()"
+    }
+  ],
+  "title" : "Test - KeineMagie",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 23
+}

@@ -1,0 +1,14 @@
+{
+  "KeineMagie": {
+    "root": "/Users/tinyserve/Projects/KeineMagie",
+    "reference": "/Users/tinyserve/.hermes/cache/scratch/dictation-camera-player/protected-manifest.json",
+    "checked": 304,
+    "mismatches": []
+  },
+  "AnyProgress": {
+    "root": "/Users/tinyserve/Projects/anyring",
+    "reference": "/Users/tinyserve/.hermes/cache/scratch/saved-templates-native/original-start.json",
+    "checked": 13,
+    "mismatches": []
+  }
+}

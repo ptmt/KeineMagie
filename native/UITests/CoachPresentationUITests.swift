@@ -9,7 +9,8 @@ final class CoachPresentationUITests: XCTestCase {
             app.launch()
             let tab = app.tabBars.buttons[locale == "ru" ? "Тренер" : locale == "es" ? "Entrenador" : "Coach"]
             XCTAssertTrue(tab.waitForExistence(timeout: 10)); tab.tap()
-            XCTAssertTrue(app.staticTexts[label].waitForExistence(timeout: 8))
+            XCTAssertTrue(app.textFields["coach-answer-history-waiting"].waitForExistence(timeout: 8))
+            XCTAssertFalse(app.staticTexts[label].exists, "Editable answer replaces redundant status")
             XCTAssertTrue(app.textFields["coach-answer-history-waiting"].isHittable)
             XCTAssertLessThanOrEqual(app.textFields["coach-composer"].frame.maxX, app.frame.maxX)
             let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = "coach-history-largest-dark-" + locale; shot.lifetime = .keepAlways; add(shot)

@@ -1,6 +1,24 @@
 import XCTest
+import UIKit
 
 final class CoachUITests: XCTestCase {
+    @MainActor func testLargestRussianNativeComposerPlaceholderFits() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach"
+        app.launchArguments = ["-AppleLanguages", "(ru)", "-AppleLocale", "ru", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Тренер"].waitForExistence(timeout: 10))
+        app.tabBars.buttons["Тренер"].tap()
+        let composer = app.textFields["coach-composer"]
+        XCTAssertTrue(composer.waitForExistence(timeout: 8))
+        let font = UIFont.preferredFont(forTextStyle: .body, compatibleWith: UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge))
+        let required = ("Сообщение" as NSString).size(withAttributes: [.font: font]).width
+        XCTAssertGreaterThanOrEqual(composer.frame.width, ceil(required) + 4, "Native placeholder must fit without ellipsis")
+        shot(app, "coach-russian-native-placeholder-largest")
+        composer.tap(); composer.typeText("draft")
+        XCTAssertEqual(composer.value as? String, "draft")
+        XCTAssertTrue(app.buttons["coach-send"].isHittable)
+    }
     @MainActor private func launch(large: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach"
@@ -14,6 +32,62 @@ final class CoachUITests: XCTestCase {
     @MainActor private func shot(_ app: XCUIApplication, _ name: String) {
         let a = XCTAttachment(screenshot: app.screenshot()); a.name = name; a.lifetime = .keepAlways; add(a)
     }
+    // Run on the released-source baseline before changing CoachView. These
+    // assertions describe the requested compact chat controls, not model policy.
+    @MainActor func testChatDesignCompactAnswerControls() {
+        let app = launch()
+        let answer = app.textFields["coach-answer-synthetic-coach"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 8))
+        let check = app.buttons["coach-check-synthetic-coach"]
+        let skip = app.buttons["Skip"]
+        shot(app, "coach-design-active-before-or-after")
+        XCTAssertFalse(app.staticTexts["Awaiting answer"].exists,
+                       "The editable answer already communicates the awaiting state")
+        XCTAssertGreaterThanOrEqual(answer.frame.height, 44)
+        XCTAssertGreaterThanOrEqual(check.frame.height, 44)
+        XCTAssertLessThanOrEqual(check.frame.height, 52,
+                                 "Check should have a compact 44-point target, not a padded oversized pill")
+        XCTAssertGreaterThanOrEqual(skip.frame.height, 44)
+        XCTAssertGreaterThanOrEqual(skip.frame.minX - check.frame.maxX, 32,
+                                    "Quiet Skip belongs at the trailing edge, separate from Check")
+        XCTAssertEqual(app.buttons.matching(identifier: "coach-reveal").count, 1)
+        XCTAssertEqual(app.buttons.matching(identifier: "coach-progress").count, 1)
+        XCTAssertFalse(check.isEnabled)
+        answer.tap(); answer.typeText("auf")
+        XCTAssertTrue(check.isEnabled)
+        XCTAssertLessThanOrEqual(check.frame.maxY, app.buttons["coach-reveal"].frame.minY - 8, "The whole Check target must remain above the contextual controls after keyboard presentation")
+        XCTAssertLessThanOrEqual(skip.frame.maxY, app.buttons["coach-reveal"].frame.minY - 8)
+        shot(app, "coach-design-filled-keyboard-before-or-after")
+        XCTAssertEqual(answer.value as? String, "auf")
+        XCTAssertEqual(app.textFields["coach-composer"].label, "Message",
+                       "Discussion stays distinct from the exercise answer")
+        check.tap()
+        XCTAssertTrue(app.staticTexts["Correct"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["coach-explanation"].exists)
+        shot(app, "coach-design-correct-before-or-after")
+    }
+
+    @MainActor func testDesignEmptyEntryAndAssessmentError() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach"
+        app.launchEnvironment["KM_SIMULATOR_COACH_DESIGN_ENTRY"] = "1"
+        app.launchEnvironment["KM_SIMULATOR_COACH_DESIGN_ERROR"] = "1"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        let pending = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Checking…")).firstMatch
+        XCTAssertTrue(pending.waitForExistence(timeout: 3))
+        shot(app, "coach-design-empty-daily-loading")
+        let answer = app.textFields["coach-answer-synthetic-coach"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 10))
+        answer.tap(); answer.typeText("literal answer")
+        app.buttons["coach-check-synthetic-coach"].tap()
+        XCTAssertTrue(app.staticTexts["coach-error"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["literal answer"].exists)
+        XCTAssertFalse(app.staticTexts["Incorrect"].exists)
+        shot(app, "coach-design-assessment-error")
+    }
+
     @MainActor func testContextualChipsAndProgressRetainDraft() {
         let app = launch()
         XCTAssertTrue(app.buttons["coach-progress"].waitForExistence(timeout: 8))
@@ -43,6 +117,8 @@ final class CoachUITests: XCTestCase {
         app.buttons["coach-check-synthetic-coach"].tap()
         XCTAssertTrue(app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Checking…")).firstMatch.waitForExistence(timeout: 2))
         XCTAssertFalse(app.staticTexts["AI check pending…"].exists)
+        XCTAssertTrue(app.staticTexts["Checking…"].exists, "Checking must be visible, not only a spinner accessibility label")
+        XCTAssertEqual(app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Checking…")).count, 1)
         shot(app, "coach-assessment-pending-synthetic")
         XCTAssertTrue(app.staticTexts["Incorrect"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["beim"].exists)
