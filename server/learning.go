@@ -200,6 +200,29 @@ func (cfg *serverConfig) handleLearning(w http.ResponseWriter, r *http.Request) 
 		cfg.dictationHTTP(w, r, owner)
 		return
 	}
+	if r.URL.Path == "/v1/learning/activity" {
+		if expected := r.Header.Get("X-Activity-Owner"); expected != "" && expected != owner {
+			writeError(w, 403, "owner changed")
+			return
+		}
+		if r.Method != "GET" {
+			writeError(w, 405, "method not allowed")
+			return
+		}
+		zone := r.URL.Query().Get("time_zone")
+		loc, e := time.LoadLocation(zone)
+		if e != nil || zone == "" || zone == "Local" {
+			writeError(w, 400, "valid time_zone required")
+			return
+		}
+		start, e := time.ParseInLocation("2006-01-02", r.URL.Query().Get("start"), loc)
+		if e != nil {
+			writeError(w, 400, "valid start date required")
+			return
+		}
+		writeJSON(w, 200, cfg.activityWeek(owner, start, loc))
+		return
+	}
 	if r.URL.Path == "/v1/learning/coach" {
 		cfg.coachHTTP(w, r, owner)
 		return

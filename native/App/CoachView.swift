@@ -98,6 +98,7 @@ struct CoachView: View {
                     .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { contentHeight = $0 }
 
             }
+            .safeAreaInset(edge: .top, spacing: 0) { ActivityStrip(isSelected: isSelected).background(.background) }
             .scrollDismissesKeyboard(.interactively)
             .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frame in
                 let shrank = frame.height < viewport.height

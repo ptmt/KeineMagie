@@ -289,6 +289,21 @@ actor SimulatorSessionFixture {
             historyItems[index]["favorite"] = body?["favorite"] ?? false
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: historyItems[index]), status: 200)
         }
+        if request.url?.path == "/v1/learning/activity", ProcessInfo.processInfo.environment["KM_SIMULATOR_ACTIVITY_FIXTURE"] == "1" {
+            // Explicit synthetic UI evidence only; no production activity implied.
+            let query = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            let start = query.first(where: { $0.name == "start" })?.value ?? ""
+            let zone = query.first(where: { $0.name == "time_zone" })?.value ?? "UTC"
+            let format = DateFormatter(); format.calendar = Calendar(identifier: .gregorian); format.locale = Locale(identifier: "en_US_POSIX"); format.timeZone = TimeZone(identifier: zone); format.dateFormat = "yyyy-MM-dd"
+            var calendar = Calendar(identifier: .gregorian); calendar.timeZone = format.timeZone
+            let base = format.date(from: start) ?? Date()
+            let days = (0..<7).map { index -> [String:Any] in
+                let day = calendar.date(byAdding: .day, value: index, to: base)!
+                let increment = coachAnswered && calendar.isDateInToday(day) ? 1 : 0
+                return ["date": format.string(from: day), "known_count": [0,1,2,4,0,7,0][index] + increment, "coverage": "partial"]
+            }
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["version":1,"time_zone":zone,"days":days,"sources":["coach":"retained","dictation":"retained","translator":"unsupported","podcasts":"unsupported"],"undated":1]), status:200)
+        }
         if request.url?.path == "/v1/learning/coach" {
             if mode == "coach-stable" { return try await stableCoach.send(request) }
             if !mode.hasPrefix("coach") { return AuthResponse(data: Data(#"{"turns":[],"observations":[],"model":"gpt-6.1-terra"}"#.utf8), status: 200) }

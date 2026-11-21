@@ -141,6 +141,19 @@ final class AppModel {
     private var coachTask: Task<Void, Never>?
     private var coachHydratedGeneration: Int?
     private var coachOwnerScope: String?
+    func loadActivity(start: String, timeZone: String) async -> ActivitySnapshot? {
+        guard !Task.isCancelled, session.canWrite, let owner = session.user?.id else { return nil }
+        let generation = session.generation
+        do {
+            let value = try await podcastAPI().activity(start: start, timeZone: timeZone, owner: owner)
+            guard !Task.isCancelled, generation == session.generation, owner == session.user?.id, value.version == 1 else { return nil }
+            return value
+        } catch {
+            // Identity revocation is processed even when a week read is obsolete.
+            if generation == session.generation { _ = learningFailure(error) }
+            return nil
+        }
+    }
     private func scopeCoach() {
         let scope = session.serverURL + "\u{0}" + (session.user?.id ?? "")
         guard coachOwnerScope != scope else { return }

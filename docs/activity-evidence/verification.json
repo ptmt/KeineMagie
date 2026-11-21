@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "normal_light": {
+    "tests": 2,
+    "failed": 0,
+    "xcresult": "/Users/tinyserve/.hermes/cache/scratch/activity-final-light2.xcresult"
+  },
+  "normal_dark": {
+    "tests": 2,
+    "failed": 0,
+    "xcresult": "/Users/tinyserve/.hermes/cache/scratch/activity-final-dark.xcresult"
+  },
+  "se": "not executed: found booted outside this task; no exclusive ownership established",
+  "go_race": "passed ./...",
+  "go_vet": "passed ./...",
+  "swift_testing": 88,
+  "swift_xctest": {
+    "tests": 108,
+    "skipped": 5,
+    "failures": 0
+  },
+  "appmodel": 124
+}

@@ -343,6 +343,19 @@ public struct PodcastAPI: Sendable {
     public func profile(language: String, assessment: String? = nil) async throws -> LearningProfile {
         try JSONDecoder().decode(LearningProfile.self, from: await send(learningRequest(resource: .profile(language), assessment: assessment)))
     }
+    public func activity(start: String, timeZone: String, owner: String) async throws -> ActivitySnapshot {
+        try Task.checkCancellation()
+        var value = try request()
+        var url = URLComponents(url: endpoint.url(path: "v1/learning/activity"), resolvingAgainstBaseURL: false)!
+        url.queryItems = [URLQueryItem(name: "start", value: start), URLQueryItem(name: "time_zone", value: timeZone)]
+        value.url = url.url
+        value.cachePolicy = .reloadIgnoringLocalCacheData
+        value.setValue("no-store", forHTTPHeaderField: "Cache-Control")
+        value.setValue(owner, forHTTPHeaderField: "X-Activity-Owner")
+        let data = try await send(value)
+        try Task.checkCancellation()
+        return try JSONDecoder().decode(ActivitySnapshot.self, from: data)
+    }
     public func coach(action: CoachAction? = nil) async throws -> CoachSnapshot {
         var value = try request()
         value.url = endpoint.url(path: "v1/learning/coach")
