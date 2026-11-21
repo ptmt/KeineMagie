@@ -30,7 +30,7 @@ class TabsAndShortcutsTests(unittest.TestCase):
         self.assertNotIn('Capsule(', source)
         self.assertNotIn('.background(', source)
         self.assertIn('.font(.footnote)', source)
-        self.assertIn('.frame(minHeight: 44)', source)
+        self.assertIn('.frame(minHeight: 48)', source)
         self.assertIn('.fixedSize(horizontal: true, vertical: false)', source)
         self.assertIn('.accessibilityAddTraits(selected ? [.isSelected] : [])', source)
 

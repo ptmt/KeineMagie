@@ -5,7 +5,7 @@ import UIKit
 /// is synthetic; this is not a live-account or speech-quality acceptance test.
 final class DictationManualUITests:XCTestCase {
     @MainActor private func launch(locale:String="en", large:Bool=false, titlePrefix:String="Manual", theme:String?=nil) throws -> XCUIApplication {
-        let path="/Users/tinyserve/.hermes/cache/scratch/dictation-acceptance-resume/fixture.json"
+        let path=ProcessInfo.processInfo.environment["KM_DICTATION_NATIVE_FIXTURE_PATH"] ?? "/Users/tinyserve/.hermes/cache/scratch/dictation-acceptance-resume/fixture.json"
         let config=try JSONDecoder().decode([String:String].self,from:Data(contentsOf:URL(fileURLWithPath:path)))
         let app=XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="dictation-local"

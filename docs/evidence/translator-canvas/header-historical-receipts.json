@@ -1,0 +1,793 @@
+{
+  "scope": "Existing corrected-header runs, read directly from xcresult; final rebuilt coherent acceptance recorded separately",
+  "screenshots": [
+    {
+      "file": "docs/evidence/translator-canvas/header-normal-light-runtime-00.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-normal-light-runtime-00.png",
+      "sha256": "c0c08b288174f99f47d8b5889ebc8d4ef93d1a1d54cda9892b6ffa9f5fadc474",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-normal-light-filled-05.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-normal-light-filled-05.png",
+      "sha256": "681995f355622657321489282247a0ad6fcdf49aeafe9a22ba157ccd95feb71f",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-normal-dark-runtime-10.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-normal-dark-runtime-10.png",
+      "sha256": "447a2321b4d6558d22a36072fce1e26b34a335f1deff062b2b07733f1174de73",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-normal-dark-runtime-20.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-normal-dark-runtime-20.png",
+      "sha256": "7abcd7c75ea8f1481554fd2de43e1a12302ee1de5b4390e52fa8a929ba31fa55",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-small-light-empty.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-small-light-empty.png",
+      "sha256": "1d9080c9060c81bfbe1c851872c3c7d827c8d63d2fcf7bc0e7bed92523eeb6b7",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-small-light-runtime-01.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-small-light-runtime-01.png",
+      "sha256": "d1d2cb1e06ee21221e297fa472b334bd9dc1646cd58cdbad95161bed11535774",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-small-dark-runtime-12.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-small-dark-runtime-12.png",
+      "sha256": "985ffce0dc9ad8d2664bfba9f4d26afa93b934a8289837d437220efb8e8c8e0a",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-small-dark-runtime-23.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-small-dark-runtime-23.png",
+      "sha256": "ad51719817277b3233a441908969874da0e752b6033e529c6083308a9b3038c3",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-normal-dark-runtime-26.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-normal-dark-runtime-26.png",
+      "sha256": "07e9490e11400ab1c042942a0bc46287863b337d8fb3286c199a3c4d0e30d22d",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-small-dark-runtime-30.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-small-dark-runtime-30.png",
+      "sha256": "ebf38ca1cac1af38dbc3a15e842c0909f2dbec3ee7590f6b179a1dc04a4ef4e1",
+      "synthetic": true,
+      "pixel_edits": false
+    },
+    {
+      "file": "docs/evidence/translator-canvas/header-small-light-runtime-08.png",
+      "source": "/Users/tinyserve/.hermes/cache/scratch/km-header-small-light-runtime-08.png",
+      "sha256": "093571163bf93767713ea149f7721480ca9406bcfc4af5e4f7577c5ef919b428",
+      "synthetic": true,
+      "pixel_edits": false
+    }
+  ],
+  "runs": {
+    "normal-light-final": {
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-header-normal-light-final.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+              "deviceName": "KeineMagie Dictation final isolated",
+              "modelName": "iPhone 17",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 9,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795267344.656,
+        "passedTests": 9,
+        "result": "Passed",
+        "runtimeWarnings": [
+          {
+            "issueType": "Runtime Warning",
+            "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+            "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift"
+          }
+        ],
+        "skippedTests": 0,
+        "startTime": 1795267035.907,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 9
+      },
+      "tests": {
+        "devices": [
+          {
+            "architecture": "arm64",
+            "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+            "deviceName": "KeineMagie Dictation final isolated",
+            "modelName": "iPhone 17",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          }
+        ],
+        "testNodes": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "duration": "14s",
+                        "durationInSeconds": 14.051136016845703,
+                        "name": "testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "children": [
+                          {
+                            "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                            "nodeType": "Runtime Warning",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift",
+                              "lineNumber": 28
+                            }
+                          }
+                        ],
+                        "duration": "23s",
+                        "durationInSeconds": 23.176856994628906,
+                        "name": "testHeaderDirectionAllChoicesKeepsKeyboardDraft()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testHeaderDirectionAllChoicesKeepsKeyboardDraft()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testHeaderDirectionAllChoicesKeepsKeyboardDraft",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "2m 22s",
+                        "durationInSeconds": 142.80098700523376,
+                        "name": "testLocalizedHeaderDirectionAndAccessibility()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testLocalizedHeaderDirectionAndAccessibility()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testLocalizedHeaderDirectionAndAccessibility",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "18s",
+                        "durationInSeconds": 18.26908302307129,
+                        "name": "testOtherTabToolbarsRemainReachable()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testOtherTabToolbarsRemainReachable()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testOtherTabToolbarsRemainReachable",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "CompactTranslatorUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "duration": "21s",
+                        "durationInSeconds": 21.71238100528717,
+                        "name": "testCompactKeyboardSendPreviewAndApplyPair()",
+                        "nodeIdentifier": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "20s",
+                        "durationInSeconds": 20.116848945617676,
+                        "name": "testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn()",
+                        "nodeIdentifier": "TranslationFollowupUITests/testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests/testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslationFollowupUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "duration": "6s",
+                        "durationInSeconds": 6.767269015312195,
+                        "name": "testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "13s",
+                        "durationInSeconds": 13.451050043106079,
+                        "name": "testFilledCanvasPreview()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testFilledCanvasPreview()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "9s",
+                        "durationInSeconds": 9.109574913978577,
+                        "name": "testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslatorCanvasUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  }
+                ],
+                "name": "KeineMagieUITests",
+                "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+                "nodeType": "UI test bundle",
+                "result": "Passed"
+              }
+            ],
+            "name": "KeineMagie",
+            "nodeType": "Test Plan",
+            "result": "Passed"
+          }
+        ],
+        "testPlanConfigurations": [
+          {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        ]
+      }
+    },
+    "small-dark-final": {
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-header-small-dark-final.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+              "deviceName": "KeineMagie profiles integrated isolated",
+              "modelName": "iPhone SE (3rd generation)",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 9,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795267704.285,
+        "passedTests": 9,
+        "result": "Passed",
+        "runtimeWarnings": [
+          {
+            "issueType": "Runtime Warning",
+            "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+            "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift"
+          }
+        ],
+        "skippedTests": 0,
+        "startTime": 1795267410.408,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 9
+      },
+      "tests": {
+        "devices": [
+          {
+            "architecture": "arm64",
+            "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+            "deviceName": "KeineMagie profiles integrated isolated",
+            "modelName": "iPhone SE (3rd generation)",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          }
+        ],
+        "testNodes": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "duration": "14s",
+                        "durationInSeconds": 14.585447072982788,
+                        "name": "testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "children": [
+                          {
+                            "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                            "nodeType": "Runtime Warning",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift",
+                              "lineNumber": 28
+                            }
+                          }
+                        ],
+                        "duration": "23s",
+                        "durationInSeconds": 23.010812997817993,
+                        "name": "testHeaderDirectionAllChoicesKeepsKeyboardDraft()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testHeaderDirectionAllChoicesKeepsKeyboardDraft()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testHeaderDirectionAllChoicesKeepsKeyboardDraft",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "2m 18s",
+                        "durationInSeconds": 138.04427802562714,
+                        "name": "testLocalizedHeaderDirectionAndAccessibility()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testLocalizedHeaderDirectionAndAccessibility()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testLocalizedHeaderDirectionAndAccessibility",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "18s",
+                        "durationInSeconds": 18.04924499988556,
+                        "name": "testOtherTabToolbarsRemainReachable()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testOtherTabToolbarsRemainReachable()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testOtherTabToolbarsRemainReachable",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "CompactTranslatorUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "duration": "21s",
+                        "durationInSeconds": 21.238629937171936,
+                        "name": "testCompactKeyboardSendPreviewAndApplyPair()",
+                        "nodeIdentifier": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "19s",
+                        "durationInSeconds": 19.395430088043213,
+                        "name": "testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn()",
+                        "nodeIdentifier": "TranslationFollowupUITests/testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests/testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslationFollowupUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "duration": "6s",
+                        "durationInSeconds": 6.673120975494385,
+                        "name": "testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "12s",
+                        "durationInSeconds": 12.88419497013092,
+                        "name": "testFilledCanvasPreview()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testFilledCanvasPreview()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "8s",
+                        "durationInSeconds": 8.893314003944397,
+                        "name": "testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslatorCanvasUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  }
+                ],
+                "name": "KeineMagieUITests",
+                "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+                "nodeType": "UI test bundle",
+                "result": "Passed"
+              }
+            ],
+            "name": "KeineMagie",
+            "nodeType": "Test Plan",
+            "result": "Passed"
+          }
+        ],
+        "testPlanConfigurations": [
+          {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        ]
+      }
+    },
+    "small-light-preview": {
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-header-small-light-preview.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+              "deviceName": "KeineMagie profiles integrated isolated",
+              "modelName": "iPhone SE (3rd generation)",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 3,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795267789.252,
+        "passedTests": 3,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1795267756.741,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 3
+      },
+      "tests": {
+        "devices": [
+          {
+            "architecture": "arm64",
+            "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+            "deviceName": "KeineMagie profiles integrated isolated",
+            "modelName": "iPhone SE (3rd generation)",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          }
+        ],
+        "testNodes": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "duration": "6s",
+                        "durationInSeconds": 6.179630994796753,
+                        "name": "testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "13s",
+                        "durationInSeconds": 13.066833019256592,
+                        "name": "testFilledCanvasPreview()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testFilledCanvasPreview()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "8s",
+                        "durationInSeconds": 8.857006072998047,
+                        "name": "testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslatorCanvasUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  }
+                ],
+                "name": "KeineMagieUITests",
+                "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+                "nodeType": "UI test bundle",
+                "result": "Passed"
+              }
+            ],
+            "name": "KeineMagie",
+            "nodeType": "Test Plan",
+            "result": "Passed"
+          }
+        ],
+        "testPlanConfigurations": [
+          {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        ]
+      }
+    },
+    "normal-dark-preview": {
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-header-normal-dark-preview.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+              "deviceName": "KeineMagie Dictation final isolated",
+              "modelName": "iPhone 17",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 3,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795267951.394,
+        "passedTests": 3,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1795267900.824,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 3
+      },
+      "tests": {
+        "devices": [
+          {
+            "architecture": "arm64",
+            "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+            "deviceName": "KeineMagie Dictation final isolated",
+            "modelName": "iPhone 17",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          }
+        ],
+        "testNodes": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "duration": "7s",
+                        "durationInSeconds": 7.694456934928894,
+                        "name": "testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "14s",
+                        "durationInSeconds": 14.734434962272644,
+                        "name": "testFilledCanvasPreview()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testFilledCanvasPreview()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "9s",
+                        "durationInSeconds": 9.312955975532532,
+                        "name": "testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslatorCanvasUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  }
+                ],
+                "name": "KeineMagieUITests",
+                "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+                "nodeType": "UI test bundle",
+                "result": "Passed"
+              }
+            ],
+            "name": "KeineMagie",
+            "nodeType": "Test Plan",
+            "result": "Passed"
+          }
+        ],
+        "testPlanConfigurations": [
+          {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        ]
+      }
+    },
+    "normal-light-filled": {
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-header-normal-light-filled.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+              "deviceName": "KeineMagie Dictation final isolated",
+              "modelName": "iPhone 17",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 1,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795268011.044,
+        "passedTests": 1,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1795267993.498,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 1
+      },
+      "tests": {
+        "devices": [
+          {
+            "architecture": "arm64",
+            "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+            "deviceName": "KeineMagie Dictation final isolated",
+            "modelName": "iPhone 17",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          }
+        ],
+        "testNodes": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "duration": "13s",
+                        "durationInSeconds": 13.241338014602661,
+                        "name": "testFilledCanvasPreview()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testFilledCanvasPreview()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslatorCanvasUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  }
+                ],
+                "name": "KeineMagieUITests",
+                "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+                "nodeType": "UI test bundle",
+                "result": "Passed"
+              }
+            ],
+            "name": "KeineMagie",
+            "nodeType": "Test Plan",
+            "result": "Passed"
+          }
+        ],
+        "testPlanConfigurations": [
+          {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        ]
+      }
+    }
+  }
+}

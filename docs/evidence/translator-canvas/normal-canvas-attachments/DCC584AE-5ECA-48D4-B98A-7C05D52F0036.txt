@@ -1,0 +1,118 @@
+Attributes: Application, 0x10a52dcc0, pid: 94412, label: 'Keine Magie'
+Element subtree:
+ →Application, 0x10a52dcc0, pid: 94412, label: 'Keine Magie'
+    Window (Main), 0x10a52f840, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x10a52fac0, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x10a52f200, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x10a52fe80, {{0.0, 0.0}, {402.0, 874.0}}
+          Other, 0x10a52ed00, {{0.0, 0.0}, {402.0, 874.0}}
+            Other, 0x10a52e080, {{0.0, 0.0}, {402.0, 874.0}}
+              Other, 0x10a52d040, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x10a52e580, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x10a52f340, {{0.0, 0.0}, {402.0, 874.0}}
+                    Other, 0x10a52ef80, {{0.0, 0.0}, {402.0, 874.0}}
+                      Other, 0x10a52ee40, {{0.0, 0.0}, {402.0, 874.0}}
+                        Other, 0x10a52e800, {{0.0, 0.0}, {402.0, 874.0}}
+                          Other, 0x10a52c8c0, {{0.0, 0.0}, {402.0, 874.0}}
+                            NavigationBar, 0x10a52ebc0, {{0.0, 62.0}, {402.0, 54.0}}, identifier: 'Translator'
+                              StaticText, 0x10a52fc00, {{160.3, 73.7}, {81.0, 20.7}}, label: 'Translator'
+                              Other, 0x10a52f0c0, {{266.0, 62.0}, {120.0, 44.0}}
+                                Other, 0x10a52d680, {{266.0, 62.0}, {120.0, 44.0}}
+                                  Button, 0x10a52da40, {{266.0, 62.0}, {76.0, 44.0}}, identifier: 'translator-direction', label: 'Russian to German'
+                                    StaticText, 0x10a52f480, {{277.7, 75.0}, {53.0, 18.0}}, label: 'ru → de'
+                                  Button, 0x10a52c780, {{342.0, 62.0}, {44.0, 44.0}}, identifier: 'main-settings', label: 'Settings'
+                            Other, 0x10a52d2c0, {{0.0, 0.0}, {402.0, 874.0}}
+                              Other, 0x10a52fd40, {{0.0, 0.0}, {402.0, 874.0}}
+                                Other, 0x10a52e1c0, {{0.0, 0.0}, {402.0, 874.0}}
+                                  Other, 0x10a52d540, {{0.0, 0.0}, {402.0, 874.0}}
+                                    CollectionView, 0x11625c000, {{0.0, 0.0}, {402.0, 874.0}}
+                                      Other, 0x11625c140, {{0.0, -1632.0}, {402.0, 2341.0}}
+                                      Other, 0x11625c280, {{0.0, 0.0}, {402.0, 874.0}}
+                                        Other, 0x11625c3c0, {{0.0, 0.0}, {402.0, 156.0}}
+                                        Other, 0x11625c500, {{0.0, 741.0}, {402.0, 133.0}}
+                                      Other, 0x11625c640, {{0.0, 0.0}, {402.0, 874.0}}
+                                        Other, 0x11625c780, {{0.0, 741.0}, {402.0, 133.0}}
+                                      Cell, 0x11625c8c0, {{0.0, 116.0}, {402.0, 593.0}}
+                                        Other, 0x11625ca00, {{0.0, 116.0}, {402.0, 593.0}}
+                                          Other, 0x11625cb40, {{0.0, 116.0}, {402.0, 593.0}}
+                                            Other, 0x11625cc80, {{0.0, 116.0}, {402.0, 593.0}}
+                                              Other, 0x11625cdc0, {{0.0, 116.0}, {402.0, 593.0}}
+                                        Other, 0x11625cf00, {{0.0, 116.0}, {402.0, 593.0}}
+                                          Other, 0x11625d040, {{0.0, 116.0}, {402.0, 593.0}}
+                                            Other, 0x11625d180, {{0.0, 116.0}, {402.0, 593.0}}
+                                              Other, 0x11625d2c0, {{16.0, 136.0}, {366.0, 553.0}}, identifier: 'translator-canvas'
+                                                Other, 0x11625d400, {{28.0, 136.0}, {302.0, 160.0}}, identifier: 'translator-input-container'
+                                                  TextView, 0x11625d540, {{28.0, 136.0}, {302.0, 160.0}}, identifier: 'translator-input', label: 'Text to translate'
+                                                    Other, 0x11625d680, {{297.0, 136.0}, {30.0, 160.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                                      Other, 0x11625d7c0, {{324.0, 258.0}, {3.0, 35.0}}
+                                                  StaticText, 0x11625d900, {{33.0, 144.0}, {122.3, 20.3}}, identifier: 'translator-placeholder', label: 'Text to translate'
+                                                Other, 0x11625da40, {{16.0, 328.3}, {354.0, 360.7}}, identifier: 'translation-output', label: 'Translation'
+                                                  StaticText, 0x11625db80, {{16.0, 328.3}, {32.0, 46.0}}, identifier: 'translation-result-text'
+                                                  Other, 0x11625dcc0, {{326.0, 344.3}, {44.0, 44.0}}
+                                                  Button, 0x11625de00, {{32.0, 645.0}, {120.7, 44.0}}, identifier: 'translation-clarify', label: 'Clarify translation', Disabled
+                                                Other, 0x11625df40, {{20.0, 324.0}, {362.0, 0.3}}
+                                      Other, 0x11625e080, {{0.0, 709.0}, {402.0, 1862.3}}
+                                      Cell, 0x11625e1c0, {{0.0, 731.0}, {402.0, 40.3}}
+                                        Other, 0x11625e300, {{0.0, 731.0}, {402.0, 40.3}}
+                                        Other, 0x11625e440, {{0.0, 731.0}, {402.0, 40.3}}
+                                          Other, 0x11625e580, {{0.0, 731.0}, {402.0, 40.3}}
+                                            Other, 0x11625e6c0, {{0.0, 731.0}, {402.0, 40.3}}
+                                              StaticText, 0x11625e800, {{0.0, 731.0}, {402.0, 40.3}}, label: 'Your history'
+                                      Cell, 0x11625e940, {{0.0, 771.3}, {402.0, 52.0}}
+                                        Other, 0x11625ea80, {{0.0, 771.3}, {402.0, 52.0}}
+                                          Other, 0x11625ebc0, {{0.0, 771.3}, {402.0, 52.0}}
+                                        Other, 0x11625ed00, {{0.0, 771.3}, {402.0, 52.0}}
+                                          Other, 0x11625ee40, {{0.0, 771.3}, {402.0, 52.0}}
+                                            Other, 0x11625ef80, {{0.0, 771.3}, {402.0, 52.0}}
+                                              StaticText, 0x11625f0c0, {{0.0, 771.3}, {402.0, 52.0}}, label: 'No translations yet.'
+                                      Other, 0x11625f200, {{16.0, 822.3}, {370.0, 1.0}}
+                                      Other, 0x11625f340, {{369.0, 116.0}, {30.0, 593.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                                        Other, 0x11625f480, {{396.0, 119.0}, {3.0, 548.0}}
+                                      Other, 0x11625f5c0, {{369.0, 116.0}, {30.0, 593.0}}, label: 'Vertical scroll bar, 2 pages', value: 0%
+                                        Other, 0x11625f700, {{396.0, 119.0}, {3.0, 548.0}}
+                                    Button, 0x11625f840, {{24.0, 718.0}, {44.0, 44.0}}, identifier: 'translator-styles', label: 'Shortcuts'
+                                    Button, 0x11625f980, {{80.0, 717.0}, {298.0, 46.0}}, identifier: 'translator-submit', label: 'Translate', Disabled
+                                      StaticText, 0x11625fac0, {{80.0, 717.0}, {298.0, 46.0}}, label: 'Translate', Disabled
+                                      Other, 0x11625fc00, {{0.0, 0.0}, {0.0, 0.0}}, Disabled
+                            Toolbar, 0x11625fd40, {{0.0, 0.0}, {402.0, 874.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                              Other, 0x11625fe80, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x116258000, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x116258140, {{0.0, 791.0}, {402.0, 83.0}}
+                    Other, 0x116258280, {{0.0, 0.0}, {402.0, 874.0}}
+                      TabBar, 0x1162583c0, {{0.0, 791.0}, {402.0, 83.0}}, label: 'Tab Bar'
+                        Other, 0x116258500, {{21.0, 791.0}, {360.0, 62.0}}
+                          Other, 0x116258640, {{21.0, 791.0}, {95.0, 54.0}}
+                          Other, 0x116258780, {{21.0, 791.0}, {360.0, 62.0}}
+                            Button, 0x1162588c0, {{25.0, 795.0}, {95.0, 54.0}}, label: 'Translator', Selected
+                              Image, 0x116258a00, {{57.0, 801.7}, {31.3, 27.7}}, identifier: 'character.bubble.fill', label: 'Character in a filled speech bubble'
+                            Button, 0x116258b40, {{110.7, 795.0}, {95.0, 54.0}}, label: 'Dictation'
+                              Image, 0x116258c80, {{144.7, 801.0}, {27.0, 28.0}}, identifier: 'waveform', label: 'Audio waveform'
+                            Button, 0x116258dc0, {{196.3, 795.0}, {95.0, 54.0}}, label: 'Podcasts'
+                              Image, 0x116258f00, {{229.3, 800.7}, {29.3, 28.3}}, identifier: 'headphones', label: 'audiobook'
+                            Button, 0x116259040, {{282.0, 795.0}, {95.0, 54.0}}, label: 'Coach'
+                              Image, 0x116259180, {{310.3, 800.0}, {38.3, 31.3}}, identifier: 'bubble.left.and.bubble.right.fill', label: 'conversation'
+                          Other, 0x1162592c0, {{21.0, 791.0}, {360.0, 62.0}}
+                          Other, 0x116259400, {{25.0, 795.0}, {95.0, 54.0}}
+                            Other, 0x116259540, {{25.0, 795.0}, {95.0, 54.0}}
+                              Other, 0x116259680, {{25.0, 795.0}, {95.0, 54.0}}
+                              Other, 0x1162597c0, {{25.0, 795.0}, {95.0, 54.0}}
+                                Other, 0x116259900, {{25.0, 795.0}, {95.0, 54.0}}
+                                  Other, 0x116259a40, {{25.0, 795.0}, {95.0, 54.0}}
+                                    Other, 0x116259b80, {{25.0, 795.0}, {95.0, 54.0}}
+                                  Other, 0x116259cc0, {{25.0, 795.0}, {95.0, 54.0}}
+                                Other, 0x116259e00, {{25.0, 795.0}, {95.0, 54.0}}
+                    Other, 0x116259f40, {{0.0, 791.0}, {402.0, 83.0}}
+                      Other, 0x11625a080, {{0.0, 791.0}, {402.0, 83.0}}
+                        Other, 0x11625a1c0, {{0.0, 791.0}, {402.0, 83.0}}
+                          Other, 0x11625a300, {{0.0, 791.0}, {402.0, 83.0}}
+                            Other, 0x11625a440, {{0.0, 791.0}, {402.0, 83.0}}
+                              Other, 0x11625a580, {{0.0, 791.0}, {402.0, 83.0}}
+                          Other, 0x11625a6c0, {{0.0, 791.0}, {402.0, 83.0}}
+                            Other, 0x11625a800, {{0.0, 791.0}, {402.0, 83.0}}
+Path to element:
+ →Application, 0x10a52dcc0, pid: 94412, label: 'Keine Magie'
+Query chain:
+ →Find: Target Application 'de.keinemagie.app'
+  Output: {
+    Application, 0x11625a940, pid: 94412, label: 'Keine Magie'
+  }

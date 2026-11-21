@@ -3,7 +3,6 @@ import KeineMagieCore
 
 struct TranslationShortcutsView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.scenePhase) private var scenePhase
     @State private var adding = false
     @State private var managing = false
     var body: some View {
@@ -20,7 +19,7 @@ struct TranslationShortcutsView: View {
             }
             .accessibilityIdentifier("shortcut-strip")
             Button { adding = true } label: {
-                Image(systemName: "plus").frame(width: 44, height: 44).contentShape(Rectangle())
+                Image(systemName: "plus").frame(width: 48, height: 48).contentShape(Rectangle())
             }.buttonStyle(.plain).foregroundStyle(.secondary)
                 .accessibilityLabel("shortcut.add")
                 .accessibilityIdentifier("shortcut-add")
@@ -32,7 +31,7 @@ struct TranslationShortcutsView: View {
                 }
             if !model.shortcuts.isEmpty {
                 Button { managing = true } label: {
-                    Image(systemName: "ellipsis").frame(width: 44, height: 44).contentShape(Rectangle())
+                    Image(systemName: "ellipsis").frame(width: 48, height: 48).contentShape(Rectangle())
                 }.buttonStyle(.plain).foregroundStyle(.secondary)
                     .accessibilityLabel("shortcut.edit")
                     .accessibilityIdentifier("shortcut-manage")
@@ -42,13 +41,6 @@ struct TranslationShortcutsView: View {
         .font(.footnote)
         .sheet(isPresented: $adding) { ShortcutEditor() }
         .sheet(isPresented: $managing) { ShortcutManager() }
-        .task(id: "\(model.session.generation)-\(scenePhase)") {
-            guard scenePhase == .active else { return }
-            while !Task.isCancelled {
-                await model.syncShortcuts()
-                do { try await Task.sleep(for: .seconds(30)) } catch { break }
-            }
-        }
         if let issue = model.shortcutSyncIssue {
             Button(LocalizedStringKey(issue)) { Task { await model.syncShortcuts() } }.font(.caption).buttonStyle(.plain)
             if issue == "shortcut.sync.conflict" {
@@ -67,7 +59,7 @@ struct TranslationShortcutsView: View {
                 .lineLimit(1).fixedSize(horizontal: true, vertical: false)
                 .fontWeight(selected ? .semibold : .regular)
                 .foregroundStyle(selected ? Color.primary : Color.secondary)
-                .frame(minHeight: 44)
+                .frame(minHeight: 48)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

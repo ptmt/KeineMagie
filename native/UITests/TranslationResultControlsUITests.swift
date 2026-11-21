@@ -16,7 +16,7 @@ final class TranslationResultControlsUITests: XCTestCase {
     }
     @MainActor private func revealEntireControl(_ control: XCUIElement, in app: XCUIApplication) {
         let top = app.navigationBars.firstMatch.frame.maxY + 8
-        let bottom = app.keyboards.firstMatch.exists ? app.keyboards.firstMatch.frame.minY - 8 : app.tabBars.firstMatch.frame.minY
+        let bottom = min(app.keyboards.firstMatch.exists ? app.keyboards.firstMatch.frame.minY - 8 : app.tabBars.firstMatch.frame.minY, app.buttons["translator-submit"].frame.minY - 8)
         for _ in 0..<6 {
             let frame = control.frame
             if frame.minY >= top && frame.maxY <= bottom { break }
@@ -125,7 +125,7 @@ final class TranslationResultControlsUITests: XCTestCase {
         for index in 1...2 {
             let id = "history-control-\(index)"
             let copy = app.buttons["history-copy-" + id]
-            for _ in 0..<6 { if copy.isHittable { break }; app.swipeUp() }
+            revealEntireControl(copy, in: app)
             XCTAssertTrue(copy.isHittable); copy.tap()
             XCTAssertEqual(copy.value as? String, "pasteboard-exact-" + id)
             app.buttons["history-clarify-" + id].tap()
@@ -139,14 +139,17 @@ final class TranslationResultControlsUITests: XCTestCase {
         app.swipeDown(); app.swipeDown()
         XCTAssertEqual(app.textViews["translator-input"].value as? String, "")
     }
-    @MainActor func testStylesInsideSourceFooter() {
+    @MainActor func testStylesInContextualSheet() {
         let app = launch()
-        let source = app.otherElements["translator-input-container"]
+        let styles = app.buttons["translator-styles"]
+        XCTAssertGreaterThanOrEqual(styles.frame.height, 44)
+        styles.tap()
         let add = app.buttons["shortcut-add"]
-        XCTAssertTrue(source.frame.contains(add.frame), "Styles belong inside the source card footer")
-        XCTAssertGreaterThan(add.frame.minY, app.textViews["translator-input"].frame.maxY)
+        XCTAssertTrue(add.waitForExistence(timeout: 5))
         XCTAssertGreaterThanOrEqual(add.frame.height, 44)
-        capture(app, "source-footer")
+        capture(app, "canvas-styles-sheet")
+        app.buttons["translator-styles-done"].tap()
+        XCTAssertTrue(app.textViews["translator-input"].exists)
     }
     @MainActor func testHistoryDarkLargeText() {
         let app = launch(locale: "ru", large: true)

@@ -1,0 +1,74 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "DCC584AE-5ECA-48D4-B98A-7C05D52F0036.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "canvas-empty-synthetic-AX_0_40BCAD08-53B1-48C2-A5F8-3A739C3D562D.txt",
+        "timestamp" : 1795270374.056
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "86C96B8C-3AB3-4E65-BB1F-9482711C5959.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "canvas-empty-synthetic_0_035DF9FE-D4EA-4E3D-8C7C-373BD298739F.png",
+        "timestamp" : 1795270373.898
+      }
+    ],
+    "testIdentifier" : "TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "CB1CFF52-35A9-407A-8668-153D49DAABB7.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "canvas-filled-synthetic-AX_0_54A35499-FB27-4A6A-A0F5-445B9B4BD927.txt",
+        "timestamp" : 1795270387.792
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "1EE0CA4D-1B7B-4014-A6C5-2911D73FA29A.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "canvas-filled-synthetic_0_6804B676-9D51-4FFE-9F5F-BBAE3B651224.png",
+        "timestamp" : 1795270387.635
+      }
+    ],
+    "testIdentifier" : "TranslatorCanvasUITests/testFilledCanvasPreview()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "923854D0-0C9A-47B0-AC26-18AC0CFBC919.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "canvas-large-keyboard-synthetic-AX_0_11F48121-E3BF-4CF3-8F5E-94E3820F1FDF.txt",
+        "timestamp" : 1795270396.471
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "7324E317-DEF3-4FE1-98C2-64A520831E02.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "canvas-large-keyboard-synthetic_0_8FB611A3-F03D-4236-999D-B70A9BF5D71D.png",
+        "timestamp" : 1795270396.249
+      }
+    ],
+    "testIdentifier" : "TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions"
+  }
+]

@@ -3,6 +3,7 @@ import XCTest
 final class TranslationFeedbackUITests: XCTestCase {
     @MainActor func testDelayedStoreRendersAndAcceptsInputBeforeCompletion() {
         let app = XCUIApplication()
+        // The delayed-store fixture already creates a unique protected probe root.
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "translation-delayed-store"
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en"]
         app.launch()
@@ -28,6 +29,7 @@ final class TranslationFeedbackUITests: XCTestCase {
     }
     @MainActor func testDelayedStoreFailureClearsPendingWithoutResult() {
         let app = XCUIApplication()
+        // The delayed-store fixture already creates a unique protected probe root.
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "translation-delayed-store-failure"
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en"]
         app.launch()
@@ -36,8 +38,20 @@ final class TranslationFeedbackUITests: XCTestCase {
         input.tap(); input.typeText("Storage failure")
         let submit = app.buttons["translator-submit"]; submit.tap()
         XCTAssertFalse(submit.isEnabled)
-        XCTAssertTrue(app.staticTexts["outbox-storage-error"].waitForExistence(timeout:15))
+        let error = app.staticTexts["outbox-storage-error"]
+        XCTAssertTrue(error.waitForExistence(timeout:15))
         XCTAssertTrue(submit.isEnabled)
+        let top = app.navigationBars.firstMatch.frame.maxY + 8
+        let bottom = submit.frame.minY - 8
+        for _ in 0..<6 {
+            let frame = error.frame
+            if frame.minY >= top && frame.maxY <= bottom { break }
+            let shift = frame.minY < top ? top - frame.minY : bottom - frame.maxY
+            let start = app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: app.frame.width - 4, dy: (top + bottom) / 2))
+            start.press(forDuration: 0.1, thenDragTo: start.withOffset(CGVector(dx: 0, dy: max(-140, min(140, shift)))))
+        }
+        XCTAssertGreaterThanOrEqual(error.frame.minY, top - 1)
+        XCTAssertLessThanOrEqual(error.frame.maxY, bottom + 1)
         let attachment = XCTAttachment(screenshot:app.screenshot()); attachment.name = "storage-failure-clears-pending"; attachment.lifetime = .keepAlways; add(attachment)
         app.terminate()
     }

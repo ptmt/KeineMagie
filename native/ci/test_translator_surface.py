@@ -29,11 +29,12 @@ class TranslatorSurfaceTests(unittest.TestCase):
         self.assertIn('ChatGPTConnectionView()', view)
         self.assertNotIn('bootstrapToken', view)
 
-    def test_compact_form_keeps_styles_below_input_without_duplicate_heading(self):
+    def test_styles_remain_available_in_contextual_sheet(self):
         view = (ROOT / 'App/TranslatorView.swift').read_text()
         styles = (ROOT / 'App/TranslationShortcutsView.swift').read_text()
         self.assertLess(view.index('TextEditor(text: $model.draft)'), view.index('TranslationShortcutsView()'))
-        self.assertLess(view.index('TranslationShortcutsView()'), view.index('model.beginTranslation()'))
+        self.assertIn('.sheet(isPresented: $showStyles)', view)
+        self.assertIn('translator-styles', view)
         self.assertNotIn('Label("feature.translator"', view)
         self.assertNotIn('frame(minHeight: 160)', view)
         self.assertIn('.scrollDismissesKeyboard(.interactively)', view)
@@ -53,7 +54,7 @@ class TranslatorSurfaceTests(unittest.TestCase):
         self.assertNotIn('ProgressView', history)
         self.assertIn('model.historyPhase == .loaded', history)
         self.assertIn('model.history.isEmpty', history)
-        self.assertNotIn('Task.sleep', view.split('private struct TranslationResultView')[0])
+        self.assertNotIn('Task.sleep', history)
         # Auxiliary status lives in settings, not a collapsing translator row.
         self.assertNotIn('Verbindung prüfen', view)
         self.assertLess(view.index('ForEach(model.history)'), view.index('if let error = model.historyLoadError'))

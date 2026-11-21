@@ -1,0 +1,316 @@
+Building for debugging...
+[Planning deferred tasks]
+[51 / 83]
+[52 / 84] KeineMagieCore
+[59 / 135]
+[62 / 135]
+[67 / 135]
+[72 / 135]
+[76 / 135]
+[79 / 135]
+[83 / 135]
+[86 / 135]
+[88 / 135]
+[89 / 135]
+[95 / 135] KeineMagieCore
+[103 / 135] KeineMagieCore
+[104 / 135] KeineMagieCore-product
+[105 / 135] KeineMagieCore-product
+[106 / 135] Lifecycle
+[109 / 135] KeineMagieCore
+[109 / 135]
+[110 / 136]
+[114 / 170]
+[117 / 170]
+[123 / 170]
+[127 / 170]
+[130 / 170]
+[132 / 170]
+[134 / 170]
+[137 / 170]
+[138 / 170]
+[141 / 170] Lifecycle
+[143 / 170] Lifecycle
+[149 / 170] Lifecycle
+[150 / 170] LifecycleTests-product
+[152 / 170]
+[154 / 170] Lifecycle
+[160 / 171] LifecycleTests-product
+[161 / 184]
+[165 / 184] LifecycleTests-product
+[172 / 184] LifecycleTests-product
+[174 / 184] LifecycleTests-product
+[175 / 184] LifecycleTests-product
+[176 / 184] LifecycleTests-product
+/Users/tinyserve/.hermes/cache/scratch/km-lifecycle-92nsszx0/Tests/LifecycleTests/DatasetTests.swift:198:9: [1;33mwarning: [1;39mno 'async' operations occur within 'await' expression[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker\UnnecessaryEffectMarker]8;;\]
+[0;36m196 |[0;0m     let oldJob = PodcastReadGate.libraryJob.replacingOccurrences(of: "\"title\":", with: "\"episode_title\":")
+[0;36m197 |[0;0m     let old = Data("{\"jobs\":[\(oldJob)],\"subscriptions\":[]}".utf8)
+[0;36m198 |[0;0m     try await cache.save(old, dataset: "podcasts", server: "https://synthetic.invalid", owner: gate.owner)
+    [0;36m|[0;0m         `- [1;33mwarning: [1;39mno 'async' operations occur within 'await' expression[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker\UnnecessaryEffectMarker]8;;\]
+[0;36m199 |[0;0m     let model = try await gate.model(cache: cache)
+[0;36m200 |[0;0m     await model.warmData()
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[177 / 184] LifecycleTests-product
+[178 / 184] AllIncludingTests
+[178 / 184] LifecycleTests-product
+[180 / 184] LifecycleTests-product
+Build complete! (17,14 sec)
+Test Suite 'All tests' started at 2026-11-21 12:43:31.323.
+Test Suite 'All tests' passed at 2026-11-21 12:43:31.331.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.009) seconds
+◇ Test run started.
+↳ Testing Library Version: 2403
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test freshDirectionDefaultsRussianToGermanAndExplicitChoiceSurvivesRefreshAndReset() started.
+◇ Test cancelledPassageWriteNeverReachesTransport() started.
+◇ Test advisoryFailureDoesNotBlockAutomaticSameOwnerRetry() started.
+◇ Test followupSnapshotsSavedPairAndDoesNotApplyAnUnrequestedProposal() started.
+◇ Test openingHistoryDiscussionDoesNotReplaceComposer() started.
+◇ Test cancelledLookupTaskDoesNotAcceptAnUncancellableResponse() started.
+◇ Test supersededPassageReadStillRevokesSameOwnerOn401() started.
+◇ Test followupQuotaKeepsDraftAndEditingNeverOverwritesOnCompletion() started.
+◇ Test coachWriteDominatesStaleReadAndCancellation() started.
+◇ Test acknowledgedFavoriteAndDeletionPersistBeforeRelaunch() started.
+◇ Test historyFailureStaysInHistoryAndProviderSettlesIndependently() started.
+◇ Test customStyleReachesActualAppModelRequestAndNeverCrossesAccounts() started.
+◇ Test dictationFailedHydrationBlocksJournalUntilSuccessfulRead() started.
+◇ Test outbox401RevokesIdentityAndLateOwnerCannotMutate() started.
+◇ Test recoveredAnswerSurvivesAnOlderEmptyRefreshAndCacheWrite() started.
+◇ Test podcastTitleUsesAssociatedFeedMetadataBeforeFilename() started.
+◇ Test coachReadOnlyCacheAndLateReset() started.
+◇ Test explicitFeedbackKeepsOldResultAndResetFencesLateCompletion() started.
+◇ Test idleResumeNeverPublishesFalsePending() started.
+◇ Test nativeHybridCheckPublishesPendingAndRecoversLostAckByGetOnly() started.
+◇ Test podcastUnauthorizedRevokesOwnerAndClearsContent() started.
+◇ Test backoffResumeNeverPublishesPendingOrPosts() started.
+◇ Test policyTwoExtraReplayUsesRootEngineAndExplicitIntent() started.
+◇ Test hiddenCompletedReceiptsDoNotBlockNewSubmission() started.
+◇ Test profileActualModelResetFencesDelayedServerSnapshot() started.
+◇ Test followupLegacyNullableProposalAppliesCapturedSourceNotLaterDraft() started.
+◇ Test followupOfflineReadsAndOwnerReplacementFence() started.
+◇ Test coachCancelledViewportCallbackNeverPosts() started.
+◇ Test globalPlaybackSelectionAndOpenAreCachedOnlyNoAdmissionOrPreparation() started.
+◇ Test cacheHydratesBeforeDelayedServerAndRefreshFailureRetainsIt() started.
+◇ Test programmaticBrowserDismissalDoesNotCancelCompletion() started.
+◇ Test followupExplicitSendPreservesBaselineAndPairedApply() started.
+◇ Test recoveryReadCoalescesAndOwnerResetFencesLateAnswer() started.
+◇ Test globalLate401FromReplacedAttemptRevokesCurrentOwnerAndHidesBar() started.
+◇ Test overviewProjectionIsPureAndRefreshUpdatesSavedCoverage() started.
+◇ Test disconnectedProviderRemainsDistinctFromCatalogFailure() started.
+◇ Test learningPersistsAcrossOfflineRelaunchAndPartialFailureRetainsWords() started.
+◇ Test outboxStorageFailureNeverSends() started.
+◇ Test dictationActualModelRestoresPendingBeforeNetwork() started.
+◇ Test coachAssessmentStorageFailureNeverSends() started.
+◇ Test resetRejectsLateUncancellablePreparation() started.
+◇ Test followupUnauthorizedClearsPrivateState() started.
+◇ Test podcastLegacyCacheRemainsOwnerAndOriginScopedDuringFailedReads() started.
+◇ Test followupOwnerGenerationAndDeletionIgnoreLateTransport() started.
+◇ Test catalogTransportFailureIsAdvisoryAndTranslationFailureStaysVisible() started.
+◇ Test refreshKeepsConnectionWhenHistoryFails() started.
+◇ Test historyResetRejectsOldUncancellableRefreshWhileReplacementCompletes() started.
+◇ Test userCloseWhileBrowsingCancelsWithoutCompleting() started.
+◇ Test completionFailureRemainsVisibleAfterDismissal() started.
+◇ Test profileActualModelStorageFailureDoesNotAcknowledgeEdit() started.
+◇ Test profileActualModelOldReadPreservesLocalDraftAndSingleFlight() started.
+◇ Test policyTwoUsesRootTransportAndPreservesItsVersion() started.
+◇ Test explicitTranslationFeedbackStartsSynchronouslyAndStopsWhenQueued() started.
+◇ Test provider401IsIdentityFailureNotCatalogAdvisory() started.
+◇ Test recoveryMatchesIdentityNotTextAndRetainsCompletedReceipts() started.
+◇ Test checkConnectionShowsBusyAndSafeHTTPFailure() started.
+◇ Test dueResumePublishesPendingAndRetainsExactReceipt() started.
+◇ Test unavailableCatalogKeepsConnectionButNoModel() started.
+◇ Test feedbackAllowsNewSnapshotWhileExistingRequestIsPending() started.
+◇ Test feedbackStorageFailureAndChangedOwnerNeverSend() started.
+◇ Test failedFeedEndpointRetainsPopulatedCachedSubscription() started.
+◇ Test coachAssessmentIsImmediateDurableAndFenced() started.
+◇ Test savedSummaryDoesNotWaitForVocabularyReadiness() started.
+◇ Test coachSeenReceiptFencesLogoutAndDoesNotReplaceConversation() started.
+◇ Test offlineColdRelaunchHydratesRealAppModelWithoutWaitingForIdentityNetwork() started.
+◇ Test coachExplicitResetRemovesUnacknowledgedAnswer() started.
+◇ Test historyDiscussionUsesEachExactRecordAndAppliedPairSurvivesClear() started.
+◇ Test passageFailureKeepsConfirmedStateAndResetRejectsLateWrite() started.
+◇ Test passageMutationPersistsOfflineAndIsOwnerScoped() started.
+◇ Test unauthorizedProfileInvalidatesOfflineProvenance() started.
+◇ Test clearInputKeepsResultAndAcceptedReceiptWithoutOverwritingNewDraft() started.
+◇ Test coachUnreceivedAnswerSurvivesRefreshAndRelaunchWithoutPosting() started.
+◇ Test mutationUnauthorizedInvalidatesSavedOfflineOwner() started.
+◇ Test profileSuperseded401PurgesCapturedScopeAfterReset() started.
+◇ Test followupStorageFailureDoesNotSendAndErrorsRetainExactRetry() started.
+◇ Test globalSameOwnerValidationKeepsSelectionClockAndReservation() started.
+◇ Test cancelledRecoveryRejectsLateAnswerAndLateFailureNotice() started.
+◇ Test passageWriteCoalescesAndOlderReadCannotUndoIt() started.
+◇ Test coachStaleViewportTurnCannotSendAfterOwnerReplacement() started.
+◇ Test profileRefreshCannotSupersedePendingAssessment() started.
+◇ Test nativeManualPlaybackAndHybridUseActualGoHTTP() started.
+◇ Test recoveryRoutesServerErrorsToGETAndProviderRetryReusesKey() started.
+◇ Test podcastsIndependentOfBlockedProviderAndHistory() started.
+◇ Test coachUnacknowledgedAnswerDoesNotCrossAccounts() started.
+◇ Test staleGenerationDoesNotSendPreparation() started.
+◇ Test coachTwoIndependentClientsUseActualGoStore() started.
+◇ Test translatorDoesNotWaitForSessionCheckOrStaleOffline() started.
+◇ Test followupCoalescesAndIgnoresCancelledLateReplyAndEdits() started.
+◇ Test profileAssessmentSupersedesOlderReadAndRejectsLateReset() started.
+◇ Test profilesTwoActualAppModelsAgainstGoWire() started.
+◇ Test foregroundAndBackgroundRefreshShareOneEndpointPair() started.
+◇ Test followupRetryKeepsExactIdentityAcrossRelaunch() started.
+◇ Test delayedJournalKeepsInputResponsiveAndLogoutCannotResurrectIt() started.
+◇ Test unauthorizedLearningClearsProvenanceAndPrivateState() started.
+◇ Test explicitCancellationDuringCompletionSuppressesLateState() started.
+◇ Test outboxOfflineRestoreRetryAndAmbiguousResponse() started.
+◇ Test partialPodcastFailurePreservesFailedDatasetAndAppliesSuccessfulDataset() started.
+◇ Test podcastReadsApplyBeforeSiblingLibraryFinishes() started.
+◇ Test outboxDoubleTapTypingAndLateCompletionPreserveDraft() started.
+◇ Test failedPreparationClearsPendingAndExplicitRetryMakesOneNewRequest() started.
+◇ Test coachMissingTurnsRetainLiteralUntilExplicitRemoval() started.
+◇ Test outboxOrdersQueuedSnapshotsAndNeverSendsTyping() started.
+◇ Test followupLogoutCannotRestorePendingPrivateContent() started.
+◇ Test coachQuickSendKeepsDraftAndCoalesces() started.
+◇ Test coachSeenRevocationClearsOwnerAndCachedConversation() started.
+◇ Test translatorPersistsTypingAndSubmissionBeforeRequest() started.
+◇ Test recoveryRejectsSameTextWrongReceiptAndOwnerThenPersistsExactMatch() started.
+◇ Test profileExplicitLogoutPurgesBeforeScopeReset() started.
+◇ Test dictationConflict401RejectsIdentityAndClearsPrivateContent() started.
+◇ Test preparationCoalescesAcrossCallersAndSurvivesCallerCancellation() started.
+◇ Test inFlightRequestCannotBeHiddenAndResubmitted() started.
+◇ Test globalOwnerResetFencesLateAudioAndPurgesSelectionImmediately() started.
+◇ Test globalReplacementStopsOneEngineAndReleasesOnlyOldAttempt() started.
+◇ Test headerDirectionEditsRetainResultAndNeverMutateAcceptedSnapshot() started.
+◇ Test learningIsReadOnlyCoalescedAndRejectsLateReset() started.
+◇ Test podcastStageErrorsRetainCachedFeedRetryOnlyReadsAndRecover() started.
+◇ Test globalOfflineStopSurvivesActualOwnerCacheAndResetsBeforeNewStart() started.
+◇ Test translationJournalRunsOffMain() started.
+◇ Test uncertainRecoveryOnlyReadsHistoryAndKeepsOriginalIdentity() started.
+◇ Test overviewLateReadAfterResetCannotResurrectCoverage() started.
+◇ Test coachUnreceivedRecheckKeepsIdentityUntilMatchingAcknowledgement() started.
+◇ Test profileActualModel401PurgesCacheAndLateResponseCannotRestore() started.
+◇ Test historyRefreshCoalescesAndCancellationRetainsSavedRows() started.
+✔ Test nativeManualPlaybackAndHybridUseActualGoHTTP() passed after 0.005 seconds.
+✔ Test coachTwoIndependentClientsUseActualGoStore() passed after 0.005 seconds.
+✔ Test profilesTwoActualAppModelsAgainstGoWire() passed after 0.006 seconds.
+✔ Test dictationFailedHydrationBlocksJournalUntilSuccessfulRead() passed after 0.035 seconds.
+✔ Test globalPlaybackSelectionAndOpenAreCachedOnlyNoAdmissionOrPreparation() passed after 0.035 seconds.
+✔ Test profileActualModelStorageFailureDoesNotAcknowledgeEdit() passed after 0.044 seconds.
+✔ Test staleGenerationDoesNotSendPreparation() passed after 0.046 seconds.
+✔ Test dictationActualModelRestoresPendingBeforeNetwork() passed after 0.074 seconds.
+✔ Test profileExplicitLogoutPurgesBeforeScopeReset() passed after 0.082 seconds.
+✔ Test dictationConflict401RejectsIdentityAndClearsPrivateContent() passed after 0.082 seconds.
+✔ Test freshDirectionDefaultsRussianToGermanAndExplicitChoiceSurvivesRefreshAndReset() passed after 0.086 seconds.
+✔ Test disconnectedProviderRemainsDistinctFromCatalogFailure() passed after 0.087 seconds.
+✔ Test failedFeedEndpointRetainsPopulatedCachedSubscription() passed after 0.090 seconds.
+✔ Test resetRejectsLateUncancellablePreparation() passed after 0.090 seconds.
+✔ Test refreshKeepsConnectionWhenHistoryFails() passed after 0.092 seconds.
+✔ Test profileActualModelResetFencesDelayedServerSnapshot() passed after 0.101 seconds.
+✔ Test globalLate401FromReplacedAttemptRevokesCurrentOwnerAndHidesBar() passed after 0.105 seconds.
+✔ Test coachCancelledViewportCallbackNeverPosts() passed after 0.108 seconds.
+✔ Test cancelledPassageWriteNeverReachesTransport() passed after 0.108 seconds.
+✔ Test profileSuperseded401PurgesCapturedScopeAfterReset() passed after 0.109 seconds.
+✔ Test profileActualModel401PurgesCacheAndLateResponseCannotRestore() passed after 0.109 seconds.
+✔ Test podcastTitleUsesAssociatedFeedMetadataBeforeFilename() passed after 0.110 seconds.
+✔ Test globalOwnerResetFencesLateAudioAndPurgesSelectionImmediately() passed after 0.109 seconds.
+✔ Test outboxStorageFailureNeverSends() passed after 0.113 seconds.
+✔ Test feedbackStorageFailureAndChangedOwnerNeverSend() passed after 0.115 seconds.
+✔ Test unauthorizedProfileInvalidatesOfflineProvenance() passed after 0.115 seconds.
+✔ Test preparationCoalescesAcrossCallersAndSurvivesCallerCancellation() passed after 0.115 seconds.
+✔ Test coachAssessmentStorageFailureNeverSends() passed after 0.116 seconds.
+✔ Test provider401IsIdentityFailureNotCatalogAdvisory() passed after 0.116 seconds.
+✔ Test failedPreparationClearsPendingAndExplicitRetryMakesOneNewRequest() passed after 0.115 seconds.
+✔ Test coachStaleViewportTurnCannotSendAfterOwnerReplacement() passed after 0.116 seconds.
+✔ Test foregroundAndBackgroundRefreshShareOneEndpointPair() passed after 0.117 seconds.
+✔ Test coachSeenRevocationClearsOwnerAndCachedConversation() passed after 0.117 seconds.
+✔ Test profileActualModelOldReadPreservesLocalDraftAndSingleFlight() passed after 0.122 seconds.
+✔ Test checkConnectionShowsBusyAndSafeHTTPFailure() passed after 0.123 seconds.
+✔ Test policyTwoUsesRootTransportAndPreservesItsVersion() passed after 0.323 seconds.
+✔ Test partialPodcastFailurePreservesFailedDatasetAndAppliesSuccessfulDataset() passed after 0.328 seconds.
+✔ Test learningIsReadOnlyCoalescedAndRejectsLateReset() passed after 0.329 seconds.
+✔ Test policyTwoExtraReplayUsesRootEngineAndExplicitIntent() passed after 0.332 seconds.
+✔ Test overviewLateReadAfterResetCannotResurrectCoverage() passed after 0.335 seconds.
+✔ Test delayedJournalKeepsInputResponsiveAndLogoutCannotResurrectIt() passed after 0.336 seconds.
+✔ Test coachQuickSendKeepsDraftAndCoalesces() passed after 0.338 seconds.
+✔ Test historyResetRejectsOldUncancellableRefreshWhileReplacementCompletes() passed after 0.339 seconds.
+✔ Test unauthorizedLearningClearsProvenanceAndPrivateState() passed after 0.340 seconds.
+✔ Test podcastUnauthorizedRevokesOwnerAndClearsContent() passed after 0.341 seconds.
+✔ Test backoffResumeNeverPublishesPendingOrPosts() passed after 0.343 seconds.
+✔ Test explicitTranslationFeedbackStartsSynchronouslyAndStopsWhenQueued() passed after 0.346 seconds.
+✔ Test supersededPassageReadStillRevokesSameOwnerOn401() passed after 0.347 seconds.
+✔ Test passageFailureKeepsConfirmedStateAndResetRejectsLateWrite() passed after 0.350 seconds.
+✔ Test userCloseWhileBrowsingCancelsWithoutCompleting() passed after 0.353 seconds.
+✔ Test followupUnauthorizedClearsPrivateState() passed after 0.353 seconds.
+✔ Test profileRefreshCannotSupersedePendingAssessment() passed after 0.354 seconds.
+✔ Test uncertainRecoveryOnlyReadsHistoryAndKeepsOriginalIdentity() passed after 0.353 seconds.
+✔ Test hiddenCompletedReceiptsDoNotBlockNewSubmission() passed after 0.368 seconds.
+✔ Test mutationUnauthorizedInvalidatesSavedOfflineOwner() passed after 0.371 seconds.
+✔ Test advisoryFailureDoesNotBlockAutomaticSameOwnerRetry() passed after 0.373 seconds.
+✔ Test translationJournalRunsOffMain() passed after 0.373 seconds.
+✔ Test cancelledLookupTaskDoesNotAcceptAnUncancellableResponse() passed after 0.375 seconds.
+✔ Test nativeHybridCheckPublishesPendingAndRecoversLostAckByGetOnly() passed after 0.376 seconds.
+✔ Test followupCoalescesAndIgnoresCancelledLateReplyAndEdits() passed after 0.376 seconds.
+✔ Test feedbackAllowsNewSnapshotWhileExistingRequestIsPending() passed after 0.380 seconds.
+✔ Test coachSeenReceiptFencesLogoutAndDoesNotReplaceConversation() passed after 0.381 seconds.
+✔ Test idleResumeNeverPublishesFalsePending() passed after 0.382 seconds.
+✔ Test profileAssessmentSupersedesOlderReadAndRejectsLateReset() passed after 0.382 seconds.
+✔ Test translatorPersistsTypingAndSubmissionBeforeRequest() passed after 0.382 seconds.
+✔ Test customStyleReachesActualAppModelRequestAndNeverCrossesAccounts() passed after 0.388 seconds.
+✔ Test openingHistoryDiscussionDoesNotReplaceComposer() passed after 0.388 seconds.
+✔ Test followupSnapshotsSavedPairAndDoesNotApplyAnUnrequestedProposal() passed after 0.388 seconds.
+✔ Test inFlightRequestCannotBeHiddenAndResubmitted() passed after 0.389 seconds.
+✔ Test dueResumePublishesPendingAndRetainsExactReceipt() passed after 0.390 seconds.
+✔ Test followupLegacyNullableProposalAppliesCapturedSourceNotLaterDraft() passed after 0.392 seconds.
+✔ Test followupExplicitSendPreservesBaselineAndPairedApply() passed after 0.392 seconds.
+✔ Test outboxDoubleTapTypingAndLateCompletionPreserveDraft() passed after 0.391 seconds.
+✔ Test overviewProjectionIsPureAndRefreshUpdatesSavedCoverage() passed after 0.393 seconds.
+✔ Test catalogTransportFailureIsAdvisoryAndTranslationFailureStaysVisible() passed after 0.393 seconds.
+✔ Test passageMutationPersistsOfflineAndIsOwnerScoped() passed after 0.393 seconds.
+✔ Test followupOwnerGenerationAndDeletionIgnoreLateTransport() passed after 0.394 seconds.
+✔ Test followupOfflineReadsAndOwnerReplacementFence() passed after 0.395 seconds.
+✔ Test passageWriteCoalescesAndOlderReadCannotUndoIt() passed after 0.394 seconds.
+✔ Test learningPersistsAcrossOfflineRelaunchAndPartialFailureRetainsWords() passed after 0.395 seconds.
+✔ Test unavailableCatalogKeepsConnectionButNoModel() passed after 0.395 seconds.
+✔ Test coachExplicitResetRemovesUnacknowledgedAnswer() passed after 0.395 seconds.
+✔ Test historyRefreshCoalescesAndCancellationRetainsSavedRows() passed after 0.395 seconds.
+✔ Test recoveredAnswerSurvivesAnOlderEmptyRefreshAndCacheWrite() passed after 0.398 seconds.
+✔ Test recoveryReadCoalescesAndOwnerResetFencesLateAnswer() passed after 0.400 seconds.
+✔ Test recoveryRejectsSameTextWrongReceiptAndOwnerThenPersistsExactMatch() passed after 0.399 seconds.
+✔ Test explicitFeedbackKeepsOldResultAndResetFencesLateCompletion() passed after 0.402 seconds.
+✔ Test coachUnreceivedAnswerSurvivesRefreshAndRelaunchWithoutPosting() passed after 0.401 seconds.
+✔ Test followupLogoutCannotRestorePendingPrivateContent() passed after 0.402 seconds.
+✔ Test cacheHydratesBeforeDelayedServerAndRefreshFailureRetainsIt() passed after 0.404 seconds.
+✔ Test followupQuotaKeepsDraftAndEditingNeverOverwritesOnCompletion() passed after 0.406 seconds.
+✔ Test offlineColdRelaunchHydratesRealAppModelWithoutWaitingForIdentityNetwork() passed after 0.407 seconds.
+✔ Test globalOfflineStopSurvivesActualOwnerCacheAndResetsBeforeNewStart() passed after 0.409 seconds.
+✔ Test recoveryMatchesIdentityNotTextAndRetainsCompletedReceipts() passed after 0.411 seconds.
+✔ Test outbox401RevokesIdentityAndLateOwnerCannotMutate() passed after 0.411 seconds.
+✔ Test clearInputKeepsResultAndAcceptedReceiptWithoutOverwritingNewDraft() passed after 0.411 seconds.
+✔ Test coachUnacknowledgedAnswerDoesNotCrossAccounts() passed after 0.412 seconds.
+✔ Test outboxOfflineRestoreRetryAndAmbiguousResponse() passed after 0.412 seconds.
+✔ Test outboxOrdersQueuedSnapshotsAndNeverSendsTyping() passed after 0.412 seconds.
+✔ Test cancelledRecoveryRejectsLateAnswerAndLateFailureNotice() passed after 0.413 seconds.
+✔ Test translatorDoesNotWaitForSessionCheckOrStaleOffline() passed after 0.413 seconds.
+✔ Test coachUnreceivedRecheckKeepsIdentityUntilMatchingAcknowledgement() passed after 0.413 seconds.
+✔ Test podcastLegacyCacheRemainsOwnerAndOriginScopedDuringFailedReads() passed after 0.414 seconds.
+✔ Test followupRetryKeepsExactIdentityAcrossRelaunch() passed after 0.414 seconds.
+✔ Test recoveryRoutesServerErrorsToGETAndProviderRetryReusesKey() passed after 0.414 seconds.
+✔ Test coachMissingTurnsRetainLiteralUntilExplicitRemoval() passed after 0.414 seconds.
+✔ Test headerDirectionEditsRetainResultAndNeverMutateAcceptedSnapshot() passed after 0.417 seconds.
+✔ Test acknowledgedFavoriteAndDeletionPersistBeforeRelaunch() passed after 0.418 seconds.
+✔ Test globalSameOwnerValidationKeepsSelectionClockAndReservation() passed after 0.418 seconds.
+✔ Test podcastStageErrorsRetainCachedFeedRetryOnlyReadsAndRecover() passed after 0.417 seconds.
+✔ Test historyDiscussionUsesEachExactRecordAndAppliedPairSurvivesClear() passed after 0.418 seconds.
+✔ Test globalReplacementStopsOneEngineAndReleasesOnlyOldAttempt() passed after 0.418 seconds.
+✔ Test historyFailureStaysInHistoryAndProviderSettlesIndependently() passed after 0.419 seconds.
+✔ Test coachAssessmentIsImmediateDurableAndFenced() passed after 0.421 seconds.
+✔ Test coachReadOnlyCacheAndLateReset() passed after 0.421 seconds.
+✔ Test podcastsIndependentOfBlockedProviderAndHistory() passed after 0.421 seconds.
+✔ Test savedSummaryDoesNotWaitForVocabularyReadiness() passed after 0.421 seconds.
+✔ Test coachWriteDominatesStaleReadAndCancellation() passed after 0.422 seconds.
+✔ Test podcastReadsApplyBeforeSiblingLibraryFinishes() passed after 0.425 seconds.
+✔ Test followupStorageFailureDoesNotSendAndErrorsRetainExactRetry() passed after 0.430 seconds.
+✔ Test explicitCancellationDuringCompletionSuppressesLateState() passed after 0.471 seconds.
+✔ Test completionFailureRemainsVisibleAfterDismissal() passed after 0.471 seconds.
+✔ Test programmaticBrowserDismissalDoesNotCancelCompletion() passed after 0.472 seconds.
+✔ Test run with 123 tests in 0 suites passed after 0.473 seconds.
+.
+----------------------------------------------------------------------
+Ran 1 test in 20.326s
+
+OK

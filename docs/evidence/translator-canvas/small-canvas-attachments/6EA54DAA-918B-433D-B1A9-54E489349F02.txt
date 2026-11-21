@@ -1,0 +1,122 @@
+Attributes: Application, 0x11482ae40, pid: 95340, label: 'Keine Magie'
+Element subtree:
+ →Application, 0x11482ae40, pid: 95340, label: 'Keine Magie'
+    Window (Main), 0x11482af80, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x11482b0c0, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x11482b200, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x11482b340, {{0.0, 0.0}, {375.0, 667.0}}
+          Other, 0x11482b480, {{0.0, 0.0}, {375.0, 667.0}}
+            Other, 0x11482b5c0, {{0.0, 0.0}, {375.0, 667.0}}
+              Other, 0x11482b700, {{0.0, 0.0}, {375.0, 667.0}}
+                Other, 0x11482b840, {{0.0, 0.0}, {375.0, 667.0}}
+                  Other, 0x11482b980, {{0.0, 0.0}, {375.0, 667.0}}
+                    Other, 0x11482bac0, {{0.0, 0.0}, {375.0, 667.0}}
+                      Other, 0x11482bc00, {{0.0, 0.0}, {375.0, 667.0}}
+                        Other, 0x11482bd40, {{0.0, 0.0}, {375.0, 667.0}}
+                          Other, 0x11482be80, {{0.0, 0.0}, {375.0, 667.0}}
+                            NavigationBar, 0x109806940, {{0.0, 20.0}, {375.0, 54.0}}, identifier: 'Translator'
+                              StaticText, 0x109806e40, {{16.0, 31.5}, {81.0, 21.0}}, label: 'Translator'
+                              Other, 0x1098070c0, {{239.0, 20.0}, {120.0, 44.0}}
+                                Other, 0x109807200, {{239.0, 20.0}, {120.0, 44.0}}
+                                  Button, 0x109804f00, {{239.0, 20.0}, {76.0, 44.0}}, identifier: 'translator-direction', label: 'Russian to German'
+                                    StaticText, 0x109807480, {{250.5, 33.0}, {53.0, 18.0}}, label: 'ru → de'
+                                  Button, 0x1098052c0, {{315.0, 20.0}, {44.0, 44.0}}, identifier: 'main-settings', label: 'Settings'
+                            Other, 0x1098075c0, {{0.0, 0.0}, {375.0, 667.0}}
+                              Other, 0x109806580, {{0.0, 0.0}, {375.0, 667.0}}
+                                Other, 0x109806440, {{0.0, 0.0}, {375.0, 667.0}}
+                                  Other, 0x109806800, {{0.0, 0.0}, {375.0, 667.0}}
+                                    CollectionView, 0x1098066c0, {{0.0, 0.0}, {375.0, 667.0}}
+                                      Other, 0x109804500, {{0.0, -1260.0}, {375.0, 1883.5}}
+                                      Other, 0x109806300, {{0.0, 0.0}, {375.0, 667.0}}
+                                        Other, 0x109805f40, {{0.0, 0.0}, {375.0, 114.0}}
+                                        Other, 0x109807c00, {{0.0, 534.0}, {375.0, 133.0}}
+                                      Other, 0x109807e80, {{0.0, 0.0}, {375.0, 667.0}}
+                                        Other, 0x109807d40, {{0.0, 534.0}, {375.0, 133.0}}
+                                      Cell, 0x109805180, {{0.0, 74.0}, {375.0, 549.5}}
+                                        Other, 0x109807ac0, {{0.0, 74.0}, {375.0, 549.5}}
+                                          Other, 0x109805900, {{0.0, 74.0}, {375.0, 549.5}}
+                                            Other, 0x109805cc0, {{0.0, 74.0}, {375.0, 549.5}}
+                                              Other, 0x109805e00, {{0.0, 74.0}, {375.0, 549.5}}
+                                        Other, 0x109806a80, {{0.0, 74.0}, {375.0, 549.5}}
+                                          Other, 0x109806bc0, {{0.0, 74.0}, {375.0, 549.5}}
+                                            Other, 0x1137b8000, {{0.0, 74.0}, {375.0, 549.5}}
+                                              Other, 0x1137b8140, {{16.0, 94.0}, {339.0, 509.5}}, identifier: 'translator-canvas'
+                                                Other, 0x1137b8280, {{28.0, 94.0}, {319.0, 160.0}}, identifier: 'translator-input-container'
+                                                  TextView, 0x1137b83c0, {{28.0, 94.0}, {275.0, 160.0}}, identifier: 'translator-input', label: 'Text to translate', value: Пожалуйста, провер...
+                                                    Other, 0x1137b8500, {{28.0, 94.0}, {0.0, 0.0}}, identifier: '_UITextSelectionRangeAdjustmentContainerView'
+                                                      Other, 0x1137b8640, {{28.0, 94.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                                        Other, 0x1137b8780, {{20.8, 80.5}, {16.5, 16.5}}
+                                                        Other, 0x1137b88c0, {{28.0, 94.0}, {2.0, 0.0}}
+                                                      Other, 0x1137b8a00, {{28.0, 94.0}, {0.0, 0.0}}, identifier: 'com.apple.text.grabber.leading'
+                                                        Other, 0x1137b8b40, {{20.8, 80.5}, {16.5, 16.5}}
+                                                        Other, 0x1137b8c80, {{28.0, 94.0}, {2.0, 0.0}}
+                                                    Other, 0x1137b8dc0, {{270.0, 94.0}, {30.0, 160.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                                      Other, 0x1137b8f00, {{297.0, 216.0}, {3.0, 35.0}}
+                                                  Button, 0x1137b9040, {{303.0, 94.0}, {44.0, 44.0}}, identifier: 'translator-clear', label: 'Clear text'
+                                                Other, 0x1137b9180, {{16.0, 286.5}, {327.0, 317.0}}, identifier: 'translation-output', label: 'Translation'
+                                                  StaticText, 0x1137b92c0, {{16.0, 286.5}, {291.0, 281.0}}, identifier: 'translation-result-text', label: 'Einschränkungen der Anforderungen: Bitte prüfen Sie alle Bedingungen und bewahren Sie die genaue Bedeutung des Ausgangstextes.
+
+Zusätzliche Zeile zur Prüfung des Eingabefelds. (Synthetic fixture)'
+                                                  Button, 0x1137b9400, {{299.0, 302.5}, {44.0, 44.0}}, identifier: 'translation-copy', label: 'Copy'
+                                                  Button, 0x1137b9540, {{32.0, 559.5}, {120.5, 44.0}}, identifier: 'translation-clarify', label: 'Clarify translation'
+                                                Other, 0x1137b9680, {{20.0, 282.0}, {335.0, 0.5}}
+                                      Other, 0x1137b97c0, {{0.0, 623.5}, {375.0, 1665.5}}
+                                      Cell, 0x1137b9900, {{0.0, 645.5}, {375.0, 40.5}}
+                                        Other, 0x1137b9a40, {{0.0, 645.5}, {375.0, 40.5}}
+                                        Other, 0x1137b9b80, {{0.0, 645.5}, {375.0, 40.5}}
+                                          Other, 0x1137b9cc0, {{0.0, 645.5}, {375.0, 40.5}}
+                                            Other, 0x1137b9e00, {{0.0, 645.5}, {375.0, 40.5}}
+                                              StaticText, 0x1137b9f40, {{0.0, 645.5}, {375.0, 40.5}}, label: 'Your history'
+                                      Other, 0x1137ba080, {{342.0, 74.0}, {30.0, 428.0}}, label: 'Vertical scroll bar, 3 pages', value: 0%
+                                        Other, 0x1137ba1c0, {{369.0, 77.0}, {3.0, 251.5}}
+                                      Other, 0x1137ba300, {{342.0, 74.0}, {30.0, 428.0}}, label: 'Vertical scroll bar, 3 pages', value: 0%
+                                        Other, 0x1137ba440, {{369.0, 77.0}, {3.0, 251.5}}
+                                    Button, 0x1137ba580, {{24.0, 511.0}, {44.0, 44.0}}, identifier: 'translator-styles', label: 'Shortcuts'
+                                    Button, 0x1137ba6c0, {{80.0, 510.0}, {271.0, 46.0}}, identifier: 'translator-submit', label: 'Translate'
+                                      StaticText, 0x1137ba800, {{80.0, 510.0}, {271.0, 46.0}}, label: 'Translate'
+                                      Other, 0x1137ba940, {{0.0, 0.0}, {0.0, 0.0}}
+                            Toolbar, 0x1137baa80, {{0.0, 0.0}, {375.0, 667.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                              Other, 0x1137babc0, {{0.0, 0.0}, {375.0, 667.0}}
+                Other, 0x1137bad00, {{0.0, 0.0}, {375.0, 667.0}}
+                  Other, 0x1137bae40, {{0.0, 584.0}, {375.0, 83.0}}
+                    Other, 0x1137baf80, {{0.0, 0.0}, {375.0, 667.0}}
+                      TabBar, 0x1137bb0c0, {{0.0, 584.0}, {375.0, 83.0}}, label: 'Tab Bar'
+                        Other, 0x1137bb200, {{21.0, 584.0}, {333.0, 62.0}}
+                          Other, 0x1137bb340, {{21.0, 584.0}, {90.5, 54.0}}
+                          Other, 0x1137bb480, {{21.0, 584.0}, {333.0, 62.0}}
+                            Button, 0x1137bb5c0, {{25.0, 588.0}, {90.5, 54.0}}, identifier: 'character.bubble', label: 'Translator', Selected
+                              Image, 0x1137bb700, {{54.5, 594.5}, {31.5, 28.0}}, identifier: 'character.bubble.fill', label: 'Character in a filled speech bubble'
+                            Button, 0x1137bb840, {{103.2, 588.0}, {90.5, 54.0}}, identifier: 'waveform', label: 'Dictation'
+                              Image, 0x1137bb980, {{135.2, 594.0}, {27.0, 28.0}}, identifier: 'waveform', label: 'Audio waveform'
+                            Button, 0x1137bbac0, {{181.3, 588.0}, {90.5, 54.0}}, identifier: 'headphones', label: 'Podcasts'
+                              Image, 0x1137bbc00, {{211.8, 593.5}, {29.5, 28.5}}, identifier: 'headphones', label: 'audiobook'
+                            Button, 0x1137bbd40, {{259.5, 588.0}, {90.5, 54.0}}, identifier: 'bubble.left.and.bubble.right', label: 'Coach'
+                              Image, 0x1137bbe80, {{285.5, 593.0}, {38.5, 31.5}}, identifier: 'bubble.left.and.bubble.right.fill', label: 'conversation'
+                          Other, 0x113b10000, {{21.0, 584.0}, {333.0, 62.0}}
+                          Other, 0x113b10140, {{25.0, 588.0}, {90.5, 54.0}}
+                            Other, 0x113b10280, {{25.0, 588.0}, {90.5, 54.0}}
+                              Other, 0x113b103c0, {{25.0, 588.0}, {90.5, 54.0}}
+                              Other, 0x113b10500, {{25.0, 588.0}, {90.5, 54.0}}
+                                Other, 0x113b10640, {{25.0, 588.0}, {90.5, 54.0}}
+                                  Other, 0x113b10780, {{25.0, 588.0}, {90.5, 54.0}}
+                                    Other, 0x113b108c0, {{25.0, 588.0}, {90.5, 54.0}}
+                                  Other, 0x113b10a00, {{25.0, 588.0}, {90.5, 54.0}}
+                                Other, 0x113b10b40, {{25.0, 588.0}, {90.5, 54.0}}
+                    Other, 0x113b10c80, {{0.0, 584.0}, {375.0, 83.0}}
+                      Other, 0x113b10dc0, {{0.0, 584.0}, {375.0, 83.0}}
+                        Other, 0x113b10f00, {{0.0, 584.0}, {375.0, 83.0}}
+                          Other, 0x113b11040, {{0.0, 584.0}, {375.0, 83.0}}
+                            Other, 0x113b11180, {{0.0, 584.0}, {375.0, 83.0}}
+                              Other, 0x113b112c0, {{0.0, 584.0}, {375.0, 83.0}}
+                          Other, 0x113b11400, {{0.0, 584.0}, {375.0, 83.0}}
+                            Other, 0x113b11540, {{0.0, 584.0}, {375.0, 83.0}}
+    Window, 0x113b11680, {{0.0, 0.0}, {375.0, 667.0}}
+      Other, 0x113b117c0, {{0.0, 0.0}, {375.0, 667.0}}
+        Other, 0x113b11900, {{0.0, 0.0}, {375.0, 667.0}}
+Path to element:
+ →Application, 0x11482ae40, pid: 95340, label: 'Keine Magie'
+Query chain:
+ →Find: Target Application 'de.keinemagie.app'
+  Output: {
+    Application, 0x113b11a40, pid: 95340, label: 'Keine Magie'
+  }

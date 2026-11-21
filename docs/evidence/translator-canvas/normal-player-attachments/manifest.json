@@ -1,0 +1,62 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "9C9FF64A-BC13-485D-9183-AE1DFE6D4273.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "native-policy-two-stopped-draft_0_E5A9CC18-C116-489C-A389-934FFB97E0F0.png",
+        "timestamp" : 1795270367.808
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "DF255DB3-FC26-4E05-A044-84ACFCF74044.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "native-policy-two-stopped-draft-buttons-9_0_CFD1ED5B-E8DB-4DAF-BC65-A194D15E07D3.txt",
+        "timestamp" : 1795270367.717
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "6EBF5A73-A8EA-42B4-9F40-6FB68AABB2ED.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "native-policy-two-global-coach_0_5F575F7F-A7BC-4A8E-B853-8ECA5A580822.png",
+        "timestamp" : 1795270354.872
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "0E8569D0-160D-42A2-8B6E-DAB0E1D4B75C.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "native-policy-two-global-coach-buttons-10_0_8314C0B7-1835-4733-89A6-740442CB5EF6.txt",
+        "timestamp" : 1795270354.778
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "D5F5521F-BFF3-43AC-AB4D-CA9ACA4E8BB1.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "native-compact-back-player_0_687FBD4F-E376-4765-A914-274F292F3802.png",
+        "timestamp" : 1795270342.126
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "71876EA6-2C57-4D16-9F3E-CA06C298D9D7.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "native-compact-back-player-buttons-9_0_177CF8B3-1FD3-47BD-A378-184686A4FCD3.txt",
+        "timestamp" : 1795270342.032
+      }
+    ],
+    "testIdentifier" : "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs"
+  }
+]

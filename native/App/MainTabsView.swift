@@ -81,7 +81,7 @@ struct MainTabsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 0) {
                         TranslatorDirectionMenu(direction: model.direction) { model.direction = $0 }
-                            .frame(width: 60, height: 44)
+                            .frame(width: 76, height: 44)
                         Button { showSettings = true } label: {
                             Image(systemName: "gearshape").frame(width: 44, height: 44)
                                 .contentShape(Rectangle())
@@ -127,9 +127,8 @@ struct MainTabsView: View {
     }
 }
 
-/// A real 44pt UIKit menu target avoids the OS shrinking a SwiftUI toolbar
-/// Menu to the 36pt glass capsule, and does not resign the text editor.
-private struct TranslatorDirectionMenu: UIViewRepresentable {
+/// A native menu keeps the language pair keyboard-adaptive without resigning editing.
+struct TranslatorDirectionMenu: UIViewRepresentable {
     let direction: TranslationDirection
     let select: (TranslationDirection) -> Void
     func makeUIView(context: Context) -> UIButton {
@@ -138,16 +137,25 @@ private struct TranslatorDirectionMenu: UIViewRepresentable {
         button.accessibilityIdentifier = "translator-direction"
         return button
     }
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UIButton, context: Context) -> CGSize? {
+        CGSize(width: proposal.width ?? 0, height: 44)
+    }
     func updateUIView(_ button: UIButton, context: Context) {
-        button.setTitle(direction.compactTitle, for: .normal)
-        button.titleLabel?.font = .preferredFont(forTextStyle: .subheadline, compatibleWith: UITraitCollection(preferredContentSizeCategory: .large))
-        // Keep the compact code label inside the navigation bar at large type;
-        // the menu and spoken full language names remain fully accessible.
-        button.titleLabel?.adjustsFontSizeToFitWidth = true
-        button.titleLabel?.minimumScaleFactor = 0.8
+        // Native toolbar adaptation: compact codes normally, a language symbol
+        // when enlarged text cannot fit. Full names remain in the native menu/AX.
+        let font = UIFont.preferredFont(forTextStyle: .subheadline, compatibleWith: button.traitCollection)
+        let title = direction.compactTitle
+        let fits = !context.environment.dynamicTypeSize.isAccessibilitySize
+            && (title as NSString).size(withAttributes: [.font: font]).width <= 76
+        button.setTitle(fits ? title : nil, for: .normal)
+        button.setImage(fits ? nil : UIImage(systemName: "character.bubble"), for: .normal)
+        button.titleLabel?.font = font
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.tintColor = .label
+        button.setTitleColor(.label, for: .normal)
         button.accessibilityLabel = AppL10n.text("direction." + direction.rawValue)
         button.menu = UIMenu(children: [TranslationDirection.russianToGerman, .germanToRussian, .germanPolishing].map { value in
-            let action = UIAction(title: value.compactTitle, state: value == direction ? .on : .off) { _ in select(value) }
+            let action = UIAction(title: AppL10n.text("direction." + value.rawValue), state: value == direction ? .on : .off) { _ in select(value) }
             action.accessibilityLabel = AppL10n.text("direction." + value.rawValue)
             action.accessibilityIdentifier = "translator-direction-" + value.source.rawValue + "-" + value.target.rawValue
             return action

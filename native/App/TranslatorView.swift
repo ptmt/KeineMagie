@@ -5,22 +5,29 @@ import KeineMagieCore
 /// The signed-in landing screen is the real personal translator, not account setup.
 struct TranslatorView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @FocusState private var inputFocused: Bool
     @State private var restoreInputFocus = false
     @State private var historyPasteboardCheck = ""
     @Binding var showPending: Bool
-    @ScaledMetric(relativeTo: .body) private var editorHeight = 112
+    @State private var showStyles = false
+    @ScaledMetric(relativeTo: .body) private var editorHeight = 160
 
     var body: some View {
         @Bindable var model = model
+        GeometryReader { geometry in
         List {
-
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 20) {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                     TextEditor(text: $model.draft)
+                        .font(.title3)
+                        .scrollContentBackground(.hidden)
                         .focused($inputFocused)
-                        .frame(height: editorHeight)
+                        // Keep the native editor and its caret above bottom actions,
+                        // including the reduced keyboard viewport at accessibility sizes.
+                        .frame(height: min(editorHeight, max(64, geometry.size.height - 32)))
                         // Reserve a separate trailing lane, including while empty.
                         .padding(.trailing, 44)
                         .accessibilityLabel("Text zum Übersetzen")
@@ -57,37 +64,24 @@ struct TranslatorView: View {
                             .padding(8)
                         }
                     }
-                    TranslationShortcutsView()
-                        .padding(.horizontal, 12)
-                        .padding(.bottom, 4)
                 }
-                    .background(.background, in: RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(.quaternary))
                     .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("translator-input-container")
-                Button {
-                    model.beginTranslation()
-                } label: {
-                    ZStack {
-                        Text("outbox.quiet.sending").hidden().accessibilityHidden(true)
-                        HStack(spacing: 8) {
-                            if model.translationSubmitPending { TranslationPendingGlyph() }
-                            Text(LocalizedStringKey(model.translationSubmitPending ? "outbox.quiet.sending" : "Übersetzen"))
-                        }
-                    }.frame(maxWidth: .infinity)
-                }.buttonStyle(.borderedProminent).controlSize(.large)
-                    .accessibilityIdentifier("translator-submit")
-                    .disabled(model.translationSubmitPending || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.unicodeScalars.count > 8000)
+                Divider().accessibilityHidden(true)
+                // Same surface and stable footprint; keep the last output readable.
+                TranslationResultView(text: model.displayedTranslation, pending: model.translationPending, clarify: resultClarification)
                 if model.outboxStorageError { Text("outbox.storage").foregroundStyle(.red).accessibilityIdentifier("outbox-storage-error") }
                 if let error = model.translatorError { ErrorNotice(text: error) }
-
-            }.frame(maxWidth: 700).frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                Spacer(minLength: 0)
+            }
+                .frame(maxWidth: 700, minHeight: max(0, geometry.size.height - 12), alignment: .topLeading)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 12)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("translator-canvas")
+                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                 .listRowSeparator(.hidden)
-            // One stable output footprint; retain the last result throughout submission.
-            TranslationResultView(text: model.displayedTranslation, pending: model.translationPending, clarify: resultClarification)
-                .listRowSeparator(.hidden)
+                .listRowBackground(Color(uiColor: .systemBackground))
             Section {
                 // Initial/cache hydration and refresh are quiet. Only a completed load
                 // can claim emptiness; saved rows remain visible through refresh/error.
@@ -158,6 +152,48 @@ struct TranslatorView: View {
         }
 
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Color(uiColor: .systemBackground))
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 4) {
+                HStack(spacing: 12) {
+                    Button { showStyles = true } label: {
+                        Image(systemName: "slider.horizontal.3").font(.system(size: 20))
+                            .frame(width: 44, height: 44).contentShape(Rectangle())
+                    }.buttonStyle(.plain)
+                        .foregroundStyle(model.selectedShortcutID == nil ? Color.secondary : Color.primary)
+                        .accessibilityAddTraits(model.selectedShortcutID == nil ? [] : [.isSelected])
+                        .accessibilityLabel("shortcut.heading")
+                        .accessibilityIdentifier("translator-styles")
+                    Button { model.beginTranslation() } label: {
+                        ZStack {
+                            Text("outbox.quiet.sending").hidden().accessibilityHidden(true)
+                            HStack(spacing: 8) {
+                                if model.translationSubmitPending { TranslationPendingGlyph() }
+                                Text(LocalizedStringKey(model.translationSubmitPending ? "outbox.quiet.sending" : "Übersetzen"))
+                            }
+                        }.frame(maxWidth: .infinity, minHeight: 32)
+                    }.buttonStyle(.borderedProminent).controlSize(.regular)
+                        .accessibilityIdentifier("translator-submit")
+                        .disabled(model.translationSubmitPending || model.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.draft.unicodeScalars.count > 8000)
+                }
+            }.padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 4)
+                .frame(maxWidth: 700)
+                .frame(maxWidth: .infinity)
+                .background(Color(uiColor: .systemBackground))
+        }
+        .sheet(isPresented: $showStyles) {
+            NavigationStack {
+                TranslationShortcutsView().padding()
+                    .navigationTitle("shortcut.heading")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar { ToolbarItem(placement: .confirmationAction) {
+                        Button("shortcut.done") { showStyles = false }.accessibilityIdentifier("translator-styles-done")
+                    } }
+                    .frame(maxHeight: .infinity, alignment: .top)
+            }.presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.medium, .large])
+        }
         .sheet(isPresented: $model.discussionPresented, onDismiss: { model.closeTranslationDiscussion() }) {
             TranslationDiscussionView()
         }
@@ -173,6 +209,13 @@ struct TranslatorView: View {
         .environment(\.layoutDirection, .leftToRight)
         .scrollDismissesKeyboard(.interactively)
         .task { model.loadTranslationOutbox(); model.loadShortcuts() }
+        .task(id: "\(model.session.generation)-\(scenePhase)") {
+            guard scenePhase == .active else { return }
+            while !Task.isCancelled {
+                await model.syncShortcuts()
+                do { try await Task.sleep(for: .seconds(30)) } catch { break }
+            }
+        }
     }
     private var resultClarification: (() -> Void)? {
         guard let result = model.result, model.history.contains(where: { $0.id == result.id }) else { return nil }
@@ -335,8 +378,7 @@ private struct TranslationResultView: View {
         }
         // Reserve the footer in empty/pending states without another List row.
         .frame(minHeight: 122, alignment: .topLeading)
-        .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal, 12)
         .overlay {
             if pending { TranslationPendingPanel(empty: text.isEmpty).allowsHitTesting(false).accessibilityHidden(true) }
         }

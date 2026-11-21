@@ -1,0 +1,870 @@
+{
+  "scope": "Owner-authorized native-only continuous Translator canvas; top header direction. Web/backend unchanged. No paid provider calls.",
+  "base": "cacf2596cd66722d34e1f7c18baef9213df9c28f",
+  "source_sha256": {
+    "native/App/KeineMagieApp.swift": "e34d30159f5f23a33715c2869a47809785bc2dd17018200c2a911032a595ff4e",
+    "native/App/MainTabsView.swift": "2632410e55145627cff593cd846171a7c814b88ecc88273b546416377fdaa5cb",
+    "native/App/DictationPracticeComponents.swift": "20f3cb3299ba6fcbaef015230cff176819d8bc8a17a0470fbc25b9623a1c67df",
+    "native/App/DictationView.swift": "d72937fb469651bb1bb732157d981dc1905766d8d8ed98ee13ad662022b1c8ec",
+    "native/App/SettingsView.swift": "78c47152aea5342c8259c24e99433fa577bbcbe038aea98f16d6a52a12423671",
+    "native/App/TranslatorView.swift": "f60b8a90cc62e7d1a9a3497f5891c8cd9ad7375caaecd813248a9e42a14e3f94",
+    "native/App/ChatGPTSafariView.swift": "fc1efdd14799b2d42e6098d711e8e7be4327ccfd1730f5a1dab5e006f74a8266",
+    "native/App/Localization.swift": "f2d772dc67af586adf6bf65534d059339fdc1ed51e0dfb9c8de8b918ea2f369a",
+    "native/App/PodcastStore.swift": "9bd4092a5b82ae8affd459ab22bc6e47666e00ff5de294fc7a78d573aaf5b4ef",
+    "native/App/EpisodeReaderView.swift": "fae510076ca947b1ef219fc2164053a78570d66fb48a0f494525917893dd3c23",
+    "native/App/AppModel.swift": "0db2ae0b0009592789da0376dd85beeb5273eb6a090e95f12a4d08f8ddcd9f81",
+    "native/App/DictationCamera.swift": "cbb898ac8437bca79f812105f332b6e9419aa030fb4e020566e763ea8b993f17",
+    "native/App/SimulatorTranslationDeadlineServer.swift": "5849b7c8b834bff4b13596586ee649a4d813d70cc155ac292c8d5465763b459c",
+    "native/App/DictationPlayer.swift": "13dee6e80aafddf2803883398014d28b2dd2d27ee314e84b21fb56d2bed88fac",
+    "native/App/PodcastLibraryView.swift": "b1401c1fabeb43807aea7ab43ae2f9db1ca6e25b7ce7da588b7f201ec0a4bce3",
+    "native/App/DictationCameraOCR.swift": "df727cc6f5278231d0b5f43058c03c44c2d7d706eaa29b534ec5657c971eef06",
+    "native/App/TokenStore.swift": "f4608c1d3e7cc45a15034cf4dbab02168282b0c07641d2e39e856cde1d7ea4a6",
+    "native/App/DictationIntegratedComponents.swift": "6545e2676a814a0d7fdd5399daa06c94863b63f67e5bd1cb318efbdd4ac52d5f",
+    "native/App/TranslationDiscussionView.swift": "6f09ef38d0f0ac7db5859d010eb3bb8a4893a760af2efa323dd72ea1adfc6cbb",
+    "native/App/TranslationShortcutsView.swift": "2b16ee338fef4e372563b40a9fa7918c298d4c6e152e4b0fb6f9db16fc6ffd6d",
+    "native/App/SimulatorSessionFixture.swift": "842aa059f4c75b7d215809e2a90d2c00a24334374ab964e19428f37cc11f8be7",
+    "native/App/DictationPlaybackCoordinator.swift": "7942b7a844ce355e52c8e60b5b9e6dcc82b9f45e900d520fbc54232d68eb5a7d",
+    "native/App/AppleLoginCoordinator.swift": "57d35e75f1e76e58b0bea40d738628cd6dc50741cc5f07d944bd56156a136d5b",
+    "native/App/BrowserPairingView.swift": "89dd11e270b0a682ddeac61cb1bd38d15d51b3f1733fede1447d8ae9026f4768",
+    "native/App/ChatGPTConnectionView.swift": "d4d74c568e2a72176dcd103c3f74f7fcd3d3dad62d5d0f65911d40b5af826e36",
+    "native/App/CoachView.swift": "620b7765ac64ac142a2c9f7cdd96d0b1cec34fa93409cc671f55ba4c1db30194",
+    "native/App/TranslationProfileSync.swift": "ea2b9efb282f4d2c15034548fe0360cff88f45733c3228bd63028d78272e6618",
+    "native/App/SimulatorAppearance.swift": "952645414beb38a0b47ff97daf26ae3378a3117bbd8df3aa12d52dfb308bc06e",
+    "native/Core/Sources/KeineMagieCore/EpisodeLearning.swift": "ffbd1f4dd005a73bc5a42276b3310361ed88823624da3cdc826a95498b4b06c3",
+    "native/Core/Sources/KeineMagieCore/TranslationFollowup.swift": "8dd41dcb9b8ba10921c4cc077a9dceb8c78352db3fa395733987c1e430456289",
+    "native/Core/Sources/KeineMagieCore/ServerEndpoint.swift": "c8e68a685162e7b2ed4b3532c560234002da6336d0e482f8b8f8dfe96b46d027",
+    "native/Core/Sources/KeineMagieCore/DictationPhotoInsertion.swift": "8b16edc6f1004eb83316798724a9b6e737499c947480b495c02448382a396251",
+    "native/Core/Sources/KeineMagieCore/Localization.swift": "18e9c2a9d538776a6177d045fe44097dd6b86dd7515933ed904d38f5cfce2281",
+    "native/Core/Sources/KeineMagieCore/TranslationProfiles.swift": "2bb0b647b2024ce71f356aa8f8253e7fcb40c0fca7ec499bfbe1f54c0d9c5839",
+    "native/Core/Sources/KeineMagieCore/HistoryState.swift": "94654b9f257caec68ad4cfa8c7187cc20a03bae0480633ea4468811ecd0d3358",
+    "native/Core/Sources/KeineMagieCore/BrowserApproval.swift": "15343a47625712f8a70c1ba320689d9a7de894ca27cca5a573545270ccacf8d1",
+    "native/Core/Sources/KeineMagieCore/Podcasts.swift": "47e2b6f918b1c6767add9e0935879290f85f5179d0aade3067d0ec9fba9d4927",
+    "native/Core/Sources/KeineMagieCore/LoopbackPolicy.swift": "3a0d8866856492ac1e4d64480e07e7ac5e95a33911b0fc8ba73dc7a71dcd8cf6",
+    "native/Core/Sources/KeineMagieCore/APIClient.swift": "6e6767a080000e1ffe6f617640774089d3a8b03f8a83189f976824cd614c581f",
+    "native/Core/Sources/KeineMagieCore/TranslationOutbox.swift": "306f14a794c7ca48814de7727bab5ca6e2b9df8afbdcbf3b03a2e904b4b7fb75",
+    "native/Core/Sources/KeineMagieCore/SessionController.swift": "8953f6045bde4f7de2f27a28791edbe5d3de148408e4f6e55d714026bdcc4f99",
+    "native/Core/Sources/KeineMagieCore/Provider.swift": "6a4def13422a10be816c145fca5b6a4a0418f65631732afb2a07244af097ff04",
+    "native/Core/Sources/KeineMagieCore/Coach.swift": "796e67a2cfa4ad31f906a8a95423aefc22eaf465acaa78bf556efb5950f267e7",
+    "native/Core/Sources/KeineMagieCore/DictationPlaybackController.swift": "ade7298dff73171c9f56fb72e6f72549731d01d8a87e06cac27fed78b0656f24",
+    "native/Core/Sources/KeineMagieCore/DictationPlayback.swift": "abeb8eb74547d0473b1a69df386534efa36702e9b851671b553d8a678928f788",
+    "native/Core/Sources/KeineMagieCore/ContentCache.swift": "4bd9c07e641940f9e1977060237d4e867c29c0bb177fec86b2203d1ce8eca78c",
+    "native/Core/Sources/KeineMagieCore/SentenceSegmenter.swift": "61ea7babcd5622cb7e502b654afe2d910da3d663611bea2605530ce6a3a0eafc",
+    "native/Core/Sources/KeineMagieCore/DictationTiming.swift": "6ae212fd708892fae608675a36fa1afa077aef041296a9781fe0a36009e36d1d",
+    "native/Core/Sources/KeineMagieCore/Models.swift": "3f8a705d3b63e56284d3ba71ec243c045a5880bd1095d0f21bdf2f77944dafb2",
+    "native/Core/Sources/KeineMagieCore/DictationDraftStore.swift": "fd6ef53abe6b3450196c6c92c3ae7e04370daf9648cf97ca7651f53611665fdc",
+    "native/Core/Sources/KeineMagieCore/AuthClient.swift": "f0b97d33a4c3fcbaa23efc96b4690db0f97ba3e024ac580482bf6e2021a213d3",
+    "native/Core/Sources/KeineMagieCore/TranslationShortcut.swift": "f450427fe269b12b47e515897094275c4081578fb363a501af3abc9efda81bf6",
+    "native/Core/Sources/KeineMagieCore/Core.swift": "5170637d64c5e22614b443d4d79a93cd2323b716236e541042bcb9d884e3f514",
+    "native/Core/Sources/KeineMagieCore/OAuthLoopback.swift": "cf5f22b5093377c04ff5696a75184fda985ff9d25933f1325445b8e816101d53",
+    "native/Core/Sources/KeineMagieCore/Dictation.swift": "eabe6b7f4eac0ef0eaec24841499e80fa10ded76adad0beaeecaa409fc498f34",
+    "native/Core/Sources/KeineMagieCore/ChatGPTConnectionTasks.swift": "e0dbf8719c7f524edc5c3ded2cd27953273bbf89f5b5eb10bb5d566753c65001",
+    "native/Core/Sources/KeineMagieCore/DictationAssessment.swift": "32031486f9b268601470bdbb3ae1f7f20898b064625a79d408eb3397024b9e14",
+    "native/Core/Sources/KeineMagieCore/DictationAssistance.swift": "8ad74196adecd36792a80d16c886114436f2e94ffd05a98aa76d1bdab812201f",
+    "native/UITests/PassageGroupsUITests.swift": "b58ab3dc33ac39b09f86e87241eb5c0250f401f38ad660ad5aff424b4215d985",
+    "native/UITests/CoachDailyCandidateUITests.swift": "bb6b9118105c7b57321a26ccfb1de12576ace8db403a4659bb8077124f80dbfe",
+    "native/UITests/QuietTranslatorUITests.swift": "cca6db557a6010a917d9accfbd04e6646d6429a1bf6132866cd0c65a035098cc",
+    "native/UITests/TranslationFeedbackUITests.swift": "b6056bb3438e4d32fd3dd424e0af9b75494f82cdeea269010f00ade757b0eed8",
+    "native/UITests/TranslationFollowupUITests.swift": "1dc0185927c948c50802c067a39398b51e42f94ef91efb03638a0321ef747197",
+    "native/UITests/PodcastOverviewUITests.swift": "47e82a1b99d21e6464dc72fce422107d9707d989bb42a174d7039e0757a47108",
+    "native/UITests/DictationManualUITests.swift": "94aaec283dbef3e616204c8e1a2b5622353527d5944d59ca0c1b7a4932ce0ca1",
+    "native/UITests/TranslatorCanvasUITests.swift": "2e4c509d7ee8151cf21557a3112196e4977f6371895a88b4c0284e0b7db9e5c9",
+    "native/UITests/DictationCameraUITests.swift": "8c8006864976d87bc755667f2648613ae2d5e34a49e855fa14db18148fb6dc68",
+    "native/UITests/TranslationOutboxUITests.swift": "55ad44ba8f0a064389c3b777ec9279301ed85ead84be3846bf85c9c5b3d78095",
+    "native/UITests/DatasetLoadingUITests.swift": "abbed9248b7b1479b9c3244b76e11ce6c1a9f6d5ae36c0da4460630d82333094",
+    "native/UITests/TranslationResultControlsUITests.swift": "829fd219f8690f3ad9bf1be1d2d790c219e31500ab24f94712f87a92ebfeb4ad",
+    "native/UITests/TranslationProfileSyncUITests.swift": "7e5cd19b1658bdffac3e9b12fd2618be7d2f94c799abdd301be9867fca0401d4",
+    "native/UITests/TranslationDeadlineUITests.swift": "f5f2bed9ce8bed8f8f273a8ee141c5163de6769df3c83d61d6ead107645cd416",
+    "native/UITests/TranslatorInitialGeometryUITests.swift": "52b7c09afbc819a7c162c8cf1277346c37a7f16b857b943337caf61c07a9cf38",
+    "native/UITests/ForegroundUITests.swift": "347b120c3fb1a72cc97b915e8cea320448edc69636fbee6a0a8557d42b0f4cc9",
+    "native/UITests/TranslationCopyUITests.swift": "9c347e54f9a2dae4c064a4f4bf347031f9ac3f30ef7c2d51e67d67ce422b915e",
+    "native/UITests/CoachPresentationUITests.swift": "c7e2ba0e7e1d71ea460ef5b3cf36718eaf3ea22723c5ece0c4cca315cfd03e29",
+    "native/UITests/DictationPolicyUITests.swift": "af957f6690bb0dfcb35b499efbf210a9590ad41f22ddcc1a16de02f93f3c39c4",
+    "native/UITests/CatalogAdvisoryUITests.swift": "cd6d06b3f222a3d7ffc2e8cd564fd604466c8fe5164e319c65cacd06b7add842",
+    "native/UITests/CoachUITests.swift": "8a9b3e6c51a737793c63385a7f85684a8eb084f938b3d7825bedcdc5c2cc54f0",
+    "native/UITests/DictationUITests.swift": "9e8deb9f4bed33d67b21d4673e870749a4713807490b3bd8b37a02e22e994d17",
+    "native/UITests/OfflineHistoryUITests.swift": "e566ac4e75d4f767cc4cffab6be2f50cf1e907569cd2bc100156e69107150cef",
+    "native/UITests/HistoryUITests.swift": "9bd0c20524c348c6ef184720f98e356caa5e7484c50f27ecc578d8a17077e585",
+    "native/UITests/PodcastUITests.swift": "2b040e7ff091bbd981a6e8a9053411669051e566c1b4caa57a9f0ec8b1215a9d",
+    "native/UITests/DictationPlayerUITests.swift": "ec000291fdee3c28f2dca10f3b393017f7eebbb6a1f9f89eeab420b800d8fc02",
+    "native/UITests/CompactTranslatorUITests.swift": "6877e71c0785a9330fb5527ae50f60f06bdb457b0bde3b910ac7801726b6c016",
+    "native/UITests/TranslationShortcutUITests.swift": "9576e63ae436b2cff55f26c40b7e4a40ae92b37f058b225139c2c6e2e21baffd"
+  },
+  "runs": {
+    "normal-final": {
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+              "deviceName": "KeineMagie Dictation final isolated",
+              "modelName": "iPhone 17",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 8,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795270413.028,
+        "passedTests": 8,
+        "result": "Passed",
+        "runtimeWarnings": [
+          {
+            "issueType": "Runtime Warning",
+            "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+            "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift"
+          },
+          {
+            "issueType": "Runtime Warning",
+            "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+            "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift"
+          }
+        ],
+        "skippedTests": 0,
+        "startTime": 1795270119.499,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 8
+      },
+      "tests": {
+        "devices": [
+          {
+            "architecture": "arm64",
+            "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+            "deviceName": "KeineMagie Dictation final isolated",
+            "modelName": "iPhone 17",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          }
+        ],
+        "testNodes": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "duration": "12s",
+                        "durationInSeconds": 12.510738968849182,
+                        "name": "testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testCopySharesFirstTextRowAndRetainsOutputOnDirectionSwitch",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "children": [
+                          {
+                            "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                            "nodeType": "Runtime Warning",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift",
+                              "lineNumber": 28
+                            }
+                          }
+                        ],
+                        "duration": "23s",
+                        "durationInSeconds": 23.21718394756317,
+                        "name": "testHeaderDirectionAllChoicesKeepsKeyboardDraft()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testHeaderDirectionAllChoicesKeepsKeyboardDraft()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testHeaderDirectionAllChoicesKeepsKeyboardDraft",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "2m 21s",
+                        "durationInSeconds": 141.08217191696167,
+                        "name": "testLocalizedHeaderDirectionAndAccessibility()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testLocalizedHeaderDirectionAndAccessibility()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testLocalizedHeaderDirectionAndAccessibility",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "18s",
+                        "durationInSeconds": 18.449848890304565,
+                        "name": "testOtherTabToolbarsRemainReachable()",
+                        "nodeIdentifier": "CompactTranslatorUITests/testOtherTabToolbarsRemainReachable()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests/testOtherTabToolbarsRemainReachable",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "CompactTranslatorUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CompactTranslatorUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                            "nodeType": "Runtime Warning",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift",
+                              "lineNumber": 28
+                            }
+                          }
+                        ],
+                        "duration": "50s",
+                        "durationInSeconds": 50.52602195739746,
+                        "name": "testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+                        "nodeIdentifier": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "DictationManualUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationManualUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "duration": "5s",
+                        "durationInSeconds": 5.567234039306641,
+                        "name": "testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "13s",
+                        "durationInSeconds": 13.547581911087036,
+                        "name": "testFilledCanvasPreview()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testFilledCanvasPreview()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "9s",
+                        "durationInSeconds": 9.069087028503418,
+                        "name": "testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslatorCanvasUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  }
+                ],
+                "name": "KeineMagieUITests",
+                "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+                "nodeType": "UI test bundle",
+                "result": "Passed"
+              }
+            ],
+            "name": "KeineMagie",
+            "nodeType": "Test Plan",
+            "result": "Passed"
+          }
+        ],
+        "testPlanConfigurations": [
+          {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        ]
+      },
+      "path": "/Users/tinyserve/.hermes/cache/scratch/km-canvas-release/normal-final.xcresult",
+      "acceptance": true
+    },
+    "small-final": {
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+              "deviceName": "KeineMagie profiles integrated isolated",
+              "modelName": "iPhone SE (3rd generation)",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 6,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795270617.918,
+        "passedTests": 6,
+        "result": "Passed",
+        "runtimeWarnings": [
+          {
+            "issueType": "Runtime Warning",
+            "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+            "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift"
+          }
+        ],
+        "skippedTests": 0,
+        "startTime": 1795270448.278,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 6
+      },
+      "tests": {
+        "devices": [
+          {
+            "architecture": "arm64",
+            "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+            "deviceName": "KeineMagie profiles integrated isolated",
+            "modelName": "iPhone SE (3rd generation)",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          }
+        ],
+        "testNodes": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                            "nodeType": "Runtime Warning",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift",
+                              "lineNumber": 28
+                            }
+                          }
+                        ],
+                        "duration": "53s",
+                        "durationInSeconds": 53.59232199192047,
+                        "name": "testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+                        "nodeIdentifier": "DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTabs",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "DictationManualUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationManualUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "duration": "20s",
+                        "durationInSeconds": 20.429033041000366,
+                        "name": "testCompactKeyboardSendPreviewAndApplyPair()",
+                        "nodeIdentifier": "TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests/testCompactKeyboardSendPreviewAndApplyPair",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "19s",
+                        "durationInSeconds": 19.55186891555786,
+                        "name": "testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn()",
+                        "nodeIdentifier": "TranslationFollowupUITests/testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests/testErrorRetryPreservesQuestionAndUsesOneAcceptedTurn",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslationFollowupUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslationFollowupUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "duration": "6s",
+                        "durationInSeconds": 6.630069017410278,
+                        "name": "testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "12s",
+                        "durationInSeconds": 12.94107699394226,
+                        "name": "testFilledCanvasPreview()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testFilledCanvasPreview()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "8s",
+                        "durationInSeconds": 8.961315035820007,
+                        "name": "testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslatorCanvasUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  }
+                ],
+                "name": "KeineMagieUITests",
+                "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+                "nodeType": "UI test bundle",
+                "result": "Passed"
+              }
+            ],
+            "name": "KeineMagie",
+            "nodeType": "Test Plan",
+            "result": "Passed"
+          }
+        ],
+        "testPlanConfigurations": [
+          {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        ]
+      },
+      "path": "/Users/tinyserve/.hermes/cache/scratch/km-canvas-release/small-final.xcresult",
+      "acceptance": true
+    },
+    "normal-coexistence": {
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+              "deviceName": "KeineMagie Dictation final isolated",
+              "modelName": "iPhone 17",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 3,
+            "passedTests": 3,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 3,
+        "finishTime": 1795269991.519,
+        "passedTests": 3,
+        "result": "Failed",
+        "runtimeWarnings": [
+          {
+            "issueType": "Runtime Warning",
+            "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+            "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift"
+          },
+          {
+            "issueType": "Runtime Warning",
+            "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+            "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift"
+          },
+          {
+            "issueType": "Runtime Warning",
+            "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+            "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift"
+          }
+        ],
+        "skippedTests": 0,
+        "startTime": 1795269751.045,
+        "statistics": [],
+        "testFailures": [
+          {
+            "failureText": "XCTAssertTrue failed",
+            "targetName": "KeineMagieUITests",
+            "testIdentifier": 1,
+            "testIdentifierString": "DictationPlayerUITests/testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt()",
+            "testIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationPlayerUITests/testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt",
+            "testName": "testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt()"
+          },
+          {
+            "failureText": "XCTAssertTrue failed",
+            "targetName": "KeineMagieUITests",
+            "testIdentifier": 2,
+            "testIdentifierString": "DictationPlayerUITests/testExplicitStopFromAnotherTabRestartsAtZero()",
+            "testIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationPlayerUITests/testExplicitStopFromAnotherTabRestartsAtZero",
+            "testName": "testExplicitStopFromAnotherTabRestartsAtZero()"
+          },
+          {
+            "failureText": "XCTAssertTrue failed",
+            "targetName": "KeineMagieUITests",
+            "testIdentifier": 3,
+            "testIdentifierString": "DictationPlayerUITests/testNativeBackSwipeDraftAndGlobalAccessory()",
+            "testIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationPlayerUITests/testNativeBackSwipeDraftAndGlobalAccessory",
+            "testName": "testNativeBackSwipeDraftAndGlobalAccessory()"
+          }
+        ],
+        "title": "Test - KeineMagie",
+        "topInsights": [
+          {
+            "category": "Common Failures",
+            "impact": "100% of failures",
+            "text": "3 runs of 3 tests failed with Failed to get matching snapshot: No matches found for Elements matching predicate '\"dictation-prepare\" IN identifiers' from input {("
+          },
+          {
+            "category": "Common Failures",
+            "impact": "100% of failures",
+            "text": "3 runs of 3 tests failed with Asynchronous wait failed: Exceeded timeout of 25 seconds, with unfulfilled expectations: \"Expect predicate `enabled == 1` for object \"dictation-prepare\" Button\"."
+          }
+        ],
+        "totalTestCount": 6
+      },
+      "tests": {
+        "devices": [
+          {
+            "architecture": "arm64",
+            "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+            "deviceName": "KeineMagie Dictation final isolated",
+            "modelName": "iPhone 17",
+            "osBuildNumber": "24B8117",
+            "osVersion": "27.2",
+            "platform": "iOS Simulator"
+          }
+        ],
+        "testNodes": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "name": "XCTAssertTrue failed",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 500
+                            }
+                          },
+                          {
+                            "name": "Asynchronous wait failed: Exceeded timeout of 25 seconds, with unfulfilled expectations: \"Expect predicate `enabled == 1` for object \"dictation-prepare\" Button\".",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 502
+                            }
+                          },
+                          {
+                            "name": "Failed to get matching snapshot: No matches found for Elements matching predicate '\"dictation-prepare\" IN identifiers' from input {(\n    Button, identifier: 'character.bubble', label: 'Translator',\n    Button, identifier: 'waveform', label: 'Dictation', Selected,\n    Button, identifier: 'headphones', label: 'Podcasts',\n    Button, identifier: 'bubble.left.and.bubble.right', label: 'Coach',\n    Button, identifier: 'BackButton', label: 'Dictation',\n    Button, identifier: 'dictation-menu', label: 'More options',\n    Button, identifier: 'dictation-manual-transport', label: 'Prepare audio',\n    Button, identifier: 'dictation-camera', label: 'Photograph answer',\n    Button, identifier: 'dictation-check', label: 'Check', Disabled\n)}",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 506
+                            }
+                          },
+                          {
+                            "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                            "nodeType": "Runtime Warning",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift",
+                              "lineNumber": 28
+                            }
+                          }
+                        ],
+                        "duration": "59s",
+                        "durationInSeconds": 59.232820987701416,
+                        "name": "testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt()",
+                        "nodeIdentifier": "DictationPlayerUITests/testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationPlayerUITests/testActiveWAVPlaysAcrossAllTabsAndReturnsToExactAttempt",
+                        "nodeType": "Test Case",
+                        "result": "Failed"
+                      },
+                      {
+                        "children": [
+                          {
+                            "name": "XCTAssertTrue failed",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 500
+                            }
+                          },
+                          {
+                            "name": "Asynchronous wait failed: Exceeded timeout of 25 seconds, with unfulfilled expectations: \"Expect predicate `enabled == 1` for object \"dictation-prepare\" Button\".",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 502
+                            }
+                          },
+                          {
+                            "name": "Failed to get matching snapshot: No matches found for Elements matching predicate '\"dictation-prepare\" IN identifiers' from input {(\n    Button, identifier: 'character.bubble', label: 'Translator',\n    Button, identifier: 'waveform', label: 'Dictation', Selected,\n    Button, identifier: 'headphones', label: 'Podcasts',\n    Button, identifier: 'bubble.left.and.bubble.right', label: 'Coach',\n    Button, identifier: 'BackButton', label: 'Dictation',\n    Button, identifier: 'dictation-menu', label: 'More options',\n    Button, identifier: 'dictation-manual-transport', label: 'Prepare audio',\n    Button, identifier: 'dictation-camera', label: 'Photograph answer',\n    Button, identifier: 'dictation-check', label: 'Check', Disabled\n)}",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 506
+                            }
+                          },
+                          {
+                            "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                            "nodeType": "Runtime Warning",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift",
+                              "lineNumber": 28
+                            }
+                          }
+                        ],
+                        "duration": "49s",
+                        "durationInSeconds": 49.96005892753601,
+                        "name": "testExplicitStopFromAnotherTabRestartsAtZero()",
+                        "nodeIdentifier": "DictationPlayerUITests/testExplicitStopFromAnotherTabRestartsAtZero()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationPlayerUITests/testExplicitStopFromAnotherTabRestartsAtZero",
+                        "nodeType": "Test Case",
+                        "result": "Failed"
+                      },
+                      {
+                        "children": [
+                          {
+                            "name": "XCTAssertTrue failed",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 500
+                            }
+                          },
+                          {
+                            "name": "Asynchronous wait failed: Exceeded timeout of 25 seconds, with unfulfilled expectations: \"Expect predicate `enabled == 1` for object \"dictation-prepare\" Button\".",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 502
+                            }
+                          },
+                          {
+                            "name": "Failed to get matching snapshot: No matches found for Elements matching predicate '\"dictation-prepare\" IN identifiers' from input {(\n    Button, identifier: 'character.bubble', label: 'Translator',\n    Button, identifier: 'waveform', label: 'Dictation', Selected,\n    Button, identifier: 'headphones', label: 'Podcasts',\n    Button, identifier: 'bubble.left.and.bubble.right', label: 'Coach',\n    Button, identifier: 'BackButton', label: 'Dictation',\n    Button, identifier: 'dictation-menu', label: 'More options',\n    Button, identifier: 'dictation-manual-transport', label: 'Prepare audio',\n    Button, identifier: 'dictation-camera', label: 'Photograph answer',\n    Button, identifier: 'dictation-check', label: 'Check', Disabled\n)}",
+                            "nodeType": "Failure Message",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/UITests/DictationPlayerUITests.swift",
+                              "lineNumber": 506
+                            }
+                          },
+                          {
+                            "name": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+                            "nodeType": "Runtime Warning",
+                            "sourceLocation": {
+                              "filePath": "/Users/tinyserve/Projects/KeineMagie-translator-canvas/native/App/DictationPlayer.swift",
+                              "lineNumber": 28
+                            }
+                          }
+                        ],
+                        "duration": "50s",
+                        "durationInSeconds": 50.15691602230072,
+                        "name": "testNativeBackSwipeDraftAndGlobalAccessory()",
+                        "nodeIdentifier": "DictationPlayerUITests/testNativeBackSwipeDraftAndGlobalAccessory()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationPlayerUITests/testNativeBackSwipeDraftAndGlobalAccessory",
+                        "nodeType": "Test Case",
+                        "result": "Failed"
+                      }
+                    ],
+                    "name": "DictationPlayerUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/DictationPlayerUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Failed"
+                  },
+                  {
+                    "children": [
+                      {
+                        "duration": "6s",
+                        "durationInSeconds": 6.672088980674744,
+                        "name": "testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testContinuousCanvasAndHeaderDirection",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "13s",
+                        "durationInSeconds": 13.460093021392822,
+                        "name": "testFilledCanvasPreview()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testFilledCanvasPreview()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testFilledCanvasPreview",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      },
+                      {
+                        "duration": "9s",
+                        "durationInSeconds": 9.049383044242859,
+                        "name": "testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifier": "TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions()",
+                        "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests/testLargeKeyboardEditorStaysAboveActions",
+                        "nodeType": "Test Case",
+                        "result": "Passed"
+                      }
+                    ],
+                    "name": "TranslatorCanvasUITests",
+                    "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorCanvasUITests",
+                    "nodeType": "Test Suite",
+                    "result": "Passed"
+                  }
+                ],
+                "name": "KeineMagieUITests",
+                "nodeIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests",
+                "nodeType": "UI test bundle",
+                "result": "Failed"
+              }
+            ],
+            "name": "KeineMagie",
+            "nodeType": "Test Plan",
+            "result": "Failed"
+          }
+        ],
+        "testPlanConfigurations": [
+          {
+            "configurationId": "1",
+            "configurationName": "Test Scheme Action"
+          }
+        ]
+      },
+      "path": "/Users/tinyserve/.hermes/cache/scratch/km-canvas-release/normal-coexistence.xcresult",
+      "acceptance": false
+    }
+  },
+  "screenshots": [
+    {
+      "path": "docs/evidence/translator-canvas/normal-player-attachments/9C9FF64A-BC13-485D-9183-AE1DFE6D4273.png",
+      "sha256": "71773711545e65cdd8e4529bc957bfbaa89fb3ee47347bf473a96c23c92137ae",
+      "pixel_edits": false,
+      "synthetic": true
+    },
+    {
+      "path": "docs/evidence/translator-canvas/normal-player-attachments/6EBF5A73-A8EA-42B4-9F40-6FB68AABB2ED.png",
+      "sha256": "c22d67619d66408958b5955c772bcc4e75fdae58a5b254d478f91fe1357be76a",
+      "pixel_edits": false,
+      "synthetic": true
+    },
+    {
+      "path": "docs/evidence/translator-canvas/normal-player-attachments/D5F5521F-BFF3-43AC-AB4D-CA9ACA4E8BB1.png",
+      "sha256": "28e2336c13f2b9628592f0f476667593561616506c94f89b7d35273a6e052434",
+      "pixel_edits": false,
+      "synthetic": true
+    },
+    {
+      "path": "docs/evidence/translator-canvas/normal-canvas-attachments/1EE0CA4D-1B7B-4014-A6C5-2911D73FA29A.png",
+      "sha256": "9c1923ad08e8b161b6c4c5de6f942debf168eda18155e215c70098aea0934e96",
+      "pixel_edits": false,
+      "synthetic": true
+    },
+    {
+      "path": "docs/evidence/translator-canvas/normal-canvas-attachments/7324E317-DEF3-4FE1-98C2-64A520831E02.png",
+      "sha256": "7189fe7e244576ba8ebacf967894692c94daf934eff060b97be88b2a56d613d3",
+      "pixel_edits": false,
+      "synthetic": true
+    },
+    {
+      "path": "docs/evidence/translator-canvas/normal-canvas-attachments/86C96B8C-3AB3-4E65-BB1F-9482711C5959.png",
+      "sha256": "17022d185fa2499ab79aa4be9620f4162af6d0cb6a797fac6fe15426afeb1303",
+      "pixel_edits": false,
+      "synthetic": true
+    },
+    {
+      "path": "docs/evidence/translator-canvas/small-canvas-attachments/4E241057-7699-459A-9D0A-E1CF53B27CB8.png",
+      "sha256": "eb1016eedbfa5ce382db2c1a8486219e7c60e79d19d40f90d171b4641f85b66b",
+      "pixel_edits": false,
+      "synthetic": true
+    },
+    {
+      "path": "docs/evidence/translator-canvas/small-canvas-attachments/A62DD518-BEA3-42A1-BA5B-6DCB04C8C46D.png",
+      "sha256": "29c19ea176e0e9ce4a0513fd59d5a26cf1fbab6db286990feeca15cbafa9fd4a",
+      "pixel_edits": false,
+      "synthetic": true
+    },
+    {
+      "path": "docs/evidence/translator-canvas/small-canvas-attachments/7E602260-EC91-4D15-A55A-96ED5CE0B987.png",
+      "sha256": "31d492d109d2a838c17dca5aef97179b7c13c5c6a4d7d2f86d2d420378e8f823",
+      "pixel_edits": false,
+      "synthetic": true
+    }
+  ],
+  "protected_originals": {
+    "KeineMagie": {
+      "files_verified": 304,
+      "head": "df309d46d8760c61442220d10aac78049fe5e59c",
+      "status_sha256": "b9055c5d2a55a3327f90bb1c0024fccbbe02f5d5624c59cdfcaf747d8eb6dc83",
+      "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "AnyProgress": {
+      "files_verified": 13,
+      "head": "2552ee52e2339f00828e82615aaa63903af4cede",
+      "status_sha256": "30f21139f4f6a567e18fb13099e2d9098e065b8831739afb6ec31bb94d18ec70",
+      "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "fixture": {
+    "initial_records": 0,
+    "final_records": 2,
+    "synthetic": true,
+    "production_limits_unchanged": true
+  },
+  "fixture_diagnosis": "Legacy player tests expected dictation-prepare on newly created policy-2 records; actual released UI exposes dictation-manual-transport. Retained policy-2 real Go integration test used instead, no record downgrade or assertion weakening. Configurable fixture path is test-only.",
+  "core": {
+    "xctest": 108,
+    "skipped": 5,
+    "failed": 0,
+    "swift_testing": 84,
+    "source_unchanged": true
+  },
+  "appmodel": {
+    "passed": 123,
+    "injected_adapters": true
+  },
+  "native_ci": {
+    "executed": 66,
+    "prebuild_skips": 1,
+    "postbuild_metadata_passed": 3
+  },
+  "portable_guards": 16,
+  "cleanup": {
+    "borrowed_simulators_shutdown": true,
+    "fixture_stopped": true,
+    "simulator_slot_released": true
+  },
+  "publication": "Not uploaded yet; separate Apple receipt will record actual upload."
+}

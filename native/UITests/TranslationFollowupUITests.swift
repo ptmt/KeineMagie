@@ -14,6 +14,33 @@ final class TranslationFollowupUITests: XCTestCase {
     @MainActor private func capture(_ app: XCUIApplication, _ name: String) {
         let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = name; shot.lifetime = .keepAlways; add(shot)
     }
+    @MainActor private func reveal(_ control: XCUIElement, in app: XCUIApplication) {
+        // Finish native interactive keyboard dismissal before measuring the
+        // scroll viewport; its height changes while the dismissal is in flight.
+        if app.keyboards.firstMatch.exists {
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.30))
+            start.press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.95)))
+            expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.keyboards.firstMatch)
+            waitForExpectations(timeout: 5)
+        }
+        for _ in 0..<8 {
+            let top = app.navigationBars.firstMatch.frame.maxY + 8
+            let bottom = app.buttons["translator-submit"].frame.minY - 8
+            print("ENTRY GEOMETRY control=\(control.frame) top=\(top) bottom=\(bottom)")
+            if control.exists && control.frame.minY >= top && control.frame.maxY <= bottom { break }
+            let frame = control.frame
+            let shift = frame.minY < top ? top - frame.minY : bottom - frame.maxY
+            let start = app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: app.frame.width - 4, dy: (top + bottom) / 2))
+            // Native pan recognition ignores tiny correction drags.
+            let distance = (shift < 0 ? -1.0 : 1.0) * max(24, min(100, abs(shift)))
+            start.press(forDuration: 0.2, thenDragTo: start.withOffset(CGVector(dx: 0, dy: distance)))
+        }
+        let top = app.navigationBars.firstMatch.frame.maxY + 8
+        let bottom = app.buttons["translator-submit"].frame.minY - 8
+        capture(app, "followup-entry-full-bounds")
+        XCTAssertGreaterThanOrEqual(control.frame.minY, top - 1)
+        XCTAssertLessThanOrEqual(control.frame.maxY, bottom + 1)
+    }
     @MainActor private func translate(_ app: XCUIApplication) {
         let editor = app.textViews["translator-input"]
         editor.tap(); editor.typeText("Fragment")
@@ -21,7 +48,7 @@ final class TranslationFollowupUITests: XCTestCase {
         app.buttons["translator-submit"].tap()
         let button = app.buttons["translation-clarify"]
         XCTAssertTrue(button.waitForExistence(timeout: 12))
-        if !button.isHittable { app.swipeUp() }
+        reveal(button, in: app)
         button.tap()
     }
     @MainActor func testCompactKeyboardSendPreviewAndApplyPair() {

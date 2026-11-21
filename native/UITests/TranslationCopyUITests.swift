@@ -6,6 +6,7 @@ final class TranslationCopyUITests: XCTestCase {
         for (locale, label) in [("de", "Text löschen"), ("en", "Clear text"), ("ru", "Очистить текст"), ("es", "Borrar texto"), ("fr", "Effacer le texte")] {
             let app = XCUIApplication()
             app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "valid"
+        app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
             app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]
             app.launch()
             let editor = app.textViews["translator-input"]
@@ -36,6 +37,7 @@ final class TranslationCopyUITests: XCTestCase {
     func testClearPreservesCompletedOutput() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "translation-copy"
+        app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
         app.launchArguments = ["-AppleLanguages", "(en)"]
         app.launch()
         let editor = app.textViews["translator-input"]
@@ -56,6 +58,7 @@ final class TranslationCopyUITests: XCTestCase {
     func testClearDuringPendingTranslationKeepsAcceptedSnapshotAndKeyboard() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "translation-pending"
+        app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
         // Hold past editing and accessibility snapshots so the test exercises
         // a genuinely pending accepted request, not a completed fixture.
         app.launchEnvironment["KM_SIMULATOR_PENDING_GEOMETRY"] = "1"
@@ -86,11 +89,13 @@ final class TranslationCopyUITests: XCTestCase {
     func testRenderedQuietControlsWithLongInput() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "translation-controls"
+        app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
         app.launchArguments = ["-AppleLanguages", "(en)"]
         app.launch()
         let editor = app.textViews["translator-input"]
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         // Create the same custom tag as the supplied screenshot through the real UI.
+        app.buttons["translator-styles"].tap()
         app.buttons["shortcut-add"].tap()
         let title = app.textFields["shortcut-title"]
         XCTAssertTrue(title.waitForExistence(timeout: 5))
@@ -98,6 +103,7 @@ final class TranslationCopyUITests: XCTestCase {
         let instruction = app.textViews["shortcut-instruction"]
         instruction.tap(); instruction.typeText("Use bicycle vocabulary.")
         app.buttons["shortcut-save"].tap()
+        app.buttons["translator-styles-done"].tap()
         editor.tap()
         editor.typeText("ограничений к требованиям: пожалуйста, проверьте все условия и сохраните точный смысл исходного текста.\nДополнительная строка для проверки поля ввода.")
         let submit = app.buttons["translator-submit"]
@@ -129,6 +135,7 @@ final class TranslationCopyUITests: XCTestCase {
         for (locale, label, copied) in [("de", "Kopieren", "Kopiert"), ("en", "Copy", "Copied"), ("ru", "Копировать", "Скопировано"), ("es", "Copiar", "Copiado"), ("fr", "Copier", "Copié")] {
             let app = XCUIApplication()
             app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "translation-copy"
+        app.launchEnvironment["KM_SIMULATOR_CACHE_NAMESPACE"] = UUID().uuidString
             app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]
             app.launch()
             let editor = app.textViews["translator-input"]

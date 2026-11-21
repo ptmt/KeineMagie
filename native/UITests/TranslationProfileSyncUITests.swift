@@ -18,6 +18,8 @@ final class TranslationProfileSyncUITests: XCTestCase {
         app.launchArguments = ["-AppleLanguages", "(\(locale))", "-AppleLocale", locale]
         if large { app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryXXXL"] }
         app.launch()
+        XCTAssertTrue(app.buttons["translator-styles"].waitForExistence(timeout: 10))
+        app.buttons["translator-styles"].tap()
         XCTAssertTrue(app.buttons["shortcut-manage"].waitForExistence(timeout: 15))
         return app
     }
@@ -74,6 +76,7 @@ final class TranslationProfileSyncUITests: XCTestCase {
         replace(app.textFields["shortcut-title"], "Offline durable")
         app.buttons["shortcut-save"].tap(); app.buttons["shortcut-done"].tap()
         app.terminate(); app.launch()
+        app.buttons["translator-styles"].tap()
         XCTAssertTrue(app.buttons["shortcut-manage"].waitForExistence(timeout: 15))
         edit(app, title: "Offline durable")
         XCTAssertEqual(app.textFields["shortcut-title"].value as? String, "Offline durable")
@@ -112,6 +115,7 @@ final class TranslationProfileSyncUITests: XCTestCase {
             _ = try await control("reset")
             let app = launch(locale, large: true)
             _ = try await waitTitles(["Legacy native"])
+            app.buttons["translator-styles-done"].tap()
             let input = app.textViews["translator-input"]
             XCTAssertTrue(input.exists)
             XCTAssertFalse(input.label.isEmpty)
@@ -119,6 +123,7 @@ final class TranslationProfileSyncUITests: XCTestCase {
             // retain the observed AX value alongside the unmodified native image.
             _ = source
             capture(app, "profiles-translator-large-\(locale)")
+            app.buttons["translator-styles"].tap()
             edit(app)
             let title = app.textFields["shortcut-title"]
             title.tap(); title.typeText(" \(locale)")
