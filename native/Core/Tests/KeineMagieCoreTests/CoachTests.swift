@@ -47,7 +47,7 @@ final class CoachTests: XCTestCase {
         XCTAssertTrue(try turn("Use the formal register.").showsInstruction)
         var completed = try turn("Fill this gap.")
         completed.attempt = try JSONDecoder().decode(CoachAttempt.self, from: Data(#"{"id":"a","answer":"bei","outcome":"wrong","original_outcome":"wrong","assisted":false,"at":"now","excluded":false}"#.utf8))
-        XCTAssertFalse(completed.showsInstruction)
+        XCTAssertTrue(completed.showsInstruction, "The original exercise instruction remains immutable after submission")
         XCTAssertTrue(try turn("Fill in the missing preposition.", kind: "short_rephrase").showsInstruction)
     }
     func testSourceTargetsRejectMalformedIDs() {

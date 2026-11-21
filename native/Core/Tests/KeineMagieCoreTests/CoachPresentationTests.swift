@@ -18,6 +18,31 @@ final class CoachPresentationTests: XCTestCase {
         XCTAssertTrue(try turn("2027-01-01T00:00:00Z").isRecent(now: now))
         XCTAssertFalse(try turn("2026-10-20T00:00:00Z", state: "pending").isRecent(now: now))
     }
+    func testPendingOldTurnStaysVisibleWithoutOpeningEarlier() throws {
+        let now = ISO8601DateFormatter().date(from: "2026-10-25T12:00:00Z")!
+        var archived = try turn("2020-01-01T00:00:00Z"); archived.id = "archived"
+        let pending = try turn("2020-01-02T00:00:00Z", state: "pending")
+        XCTAssertEqual(CoachTurn.historyWindow([archived, pending], now: now, earlierLimit: 0).map(\.id), ["fixture"])
+    }
+    func testExplicitPinnedTurnDoesNotExpandOldHistory() throws {
+        let old = try turn("2020-01-01T00:00:00Z")
+        var other = old; other.id = "other"
+        XCTAssertEqual(CoachTurn.historyWindow([other, old], now: Date(), earlierLimit: 0, pinnedID: old.id).map(\.id), [old.id])
+    }
+    func testInstructionSurvivesAnswerSubmission() throws {
+        let row = #"{"id":"exercise","text":"","state":"completed","assisted":false,"language":"de","kind":"short_rephrase","prompt":"Say it politely.","message":"Use a request."}"#
+        var exercise = try JSONDecoder().decode(CoachTurn.self, from: Data(row.utf8))
+        exercise.attempt = try turn(attempt: [:]).attempt
+        XCTAssertTrue(exercise.showsInstruction)
+    }
+    func testContextTranslationTargetAndLanguageDecodeWithoutChangingLegacy() throws {
+        let row = #"{"id":"word","text":"","state":"completed","assisted":false,"language":"de","kind":"context_translation","prompt":"Ich muss das Paket abholen.","target_text":"abholen","answer_language":"en"}"#
+        let exercise = try JSONDecoder().decode(CoachTurn.self, from: Data(row.utf8))
+        XCTAssertEqual(exercise.targetText, "abholen")
+        XCTAssertEqual(exercise.answerLanguage, "en")
+        XCTAssertNil(try turn().targetText)
+        XCTAssertNil(try turn().answerLanguage)
+    }
     func testEarlierBoundsRenderingWithoutDroppingSavedGroups() throws {
         let now = ISO8601DateFormatter().date(from: "2026-10-25T12:00:00Z")!
         let old = try turn("2020-01-01T00:00:00Z")

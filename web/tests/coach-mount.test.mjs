@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture} from './coach-mount-fixture.mjs';
+test('context translation highlights only literal target without interpreting markup',async()=>{
+ const prompt='Ich muss das Paket abholen.';
+ const f=fixture({snapshot:{turns:[{id:'word',state:'completed',kind:'context_translation',prompt,target_text:'abholen',answer_language:'en',message:'Translate abholen into English.'}],observations:[]}});
+ f.controller.identity(f.session);await f.show();
+ assert.equal(f.messages.querySelector('.coach-prompt').textContent,prompt);
+ assert.equal(f.messages.querySelector('.coach-prompt').querySelector('strong')?.textContent,'abholen');
+ assert.ok(f.messages.querySelector('input'));
+});
 test('pending entry exposes cancellation and cancel wins over a late entry response',async()=>{
  let release;const f=fixture({request:async(_,options)=>options.body.action==='entry'?await new Promise(r=>release=r):{turns:[{id:'canceled',state:'canceled'}],observations:[]}});
  f.controller.identity(f.session);await f.show();

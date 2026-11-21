@@ -1,0 +1,113 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "107E79DC-0314-4C97-AF58-181429461B97.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "coach-history-earlier-revealed_0_E98E6405-9E0C-47A7-8D3A-F9B49421F1EB.png",
+        "timestamp" : 1795297459.958
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "A2CCDA1F-1ECA-4A07-9C6E-18711C7B58CB.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "coach-history-own-send-bottom_0_10C91E37-36BC-40D2-B305-E260C6C8478C.png",
+        "timestamp" : 1795297443.364
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "34D03F95-A1ED-45E1-8D4D-D679559C1211.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "coach-history-initial-bottom_0_2E48F54F-E463-49E4-8A64-6D73E4A70173.png",
+        "timestamp" : 1795297435.103
+      }
+    ],
+    "testIdentifier" : "CoachPresentationUITests/testHistoryBottomEarlierAndOwnSend()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachPresentationUITests/testHistoryBottomEarlierAndOwnSend"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "B67FB24F-0FF5-4FFC-B71C-05DDCA99A6D8.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "context-correct_0_CF36F988-D3FE-4A7C-86CC-EB122470CDDE.png",
+        "timestamp" : 1795297481.255
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "948C3B3C-7781-4FCC-ACF0-C161972BDA13.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "context-pending_0_978E83C4-9CDB-4D5D-AFBF-277CFD579646.png",
+        "timestamp" : 1795297473.962
+      }
+    ],
+    "testIdentifier" : "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "F4C47751-E8F6-477B-8268-19BA906965AB.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "context-canceled_0_08E40119-1987-400F-9D5D-EDFC37F30B0C.png",
+        "timestamp" : 1795297498.886
+      }
+    ],
+    "testIdentifier" : "CoachStableChatUITests/testStopPreservesAnswerAndDiscussionDraft()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachStableChatUITests/testStopPreservesAnswerAndDiscussionDraft"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "EDED63CE-D577-43ED-A6B9-4EA5E6D96D0D.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "stable-result_0_E0559127-1E8A-4CCF-9DBF-8ED85FB4CB1B.png",
+        "timestamp" : 1795297516.717
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "5BD3635B-C1D9-4BFE-8833-13563122C0A3.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "stable-pending_0_B637D659-FE04-4FBE-B5E0-2359C75D48E3.png",
+        "timestamp" : 1795297511.504
+      }
+    ],
+    "testIdentifier" : "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName" : "KeineMagie Dictation final isolated",
+        "exportedFileName" : "CBF14648-2736-44A2-A3A3-7A96E116ABAE.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "context-error_0_5A52727A-CDFC-4581-8E93-FE72693F7133.png",
+        "timestamp" : 1795297537.086
+      }
+    ],
+    "testIdentifier" : "CoachStableChatUITests/testTransportErrorPreservesAnswerAndDraft()",
+    "testIdentifierURL" : "test://com.apple.xcode/KeineMagie/KeineMagieUITests/CoachStableChatUITests/testTransportErrorPreservesAnswerAndDraft"
+  }
+]

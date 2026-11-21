@@ -134,7 +134,13 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
    if(turn.kind&&!['clarification','nudge'].includes(turn.kind)){
     const presentation=coachExerciseStatus(turn);bubble.classList.add('coach-'+presentation);
     if(!['completed','success','incorrect','working'].includes(presentation))bubble.append(el('small',pl(presentation,locale()),'coach-task-status'));
-    const card=el('section',undefined,'coach-exercise');card.setAttribute('aria-label',target(turn.target));card.append(el('p',turn.prompt,'coach-prompt'));
+    const card=el('section',undefined,'coach-exercise');card.setAttribute('aria-label',target(turn.target));
+    const prompt=el('p',turn.prompt,'coach-prompt'),word=turn.target_text;
+    if(turn.kind==='context_translation'&&typeof word==='string'&&word&&turn.prompt?.split(word).length===2){
+     const index=turn.prompt.indexOf(word);
+     prompt.replaceChildren(el('span',turn.prompt.slice(0,index)),el('strong',word),el('span',turn.prompt.slice(index+word.length)));
+    }
+    card.append(prompt);
     if(!turn.attempt){
      const answer=el('input');answer.value=answerDrafts.get(turn.id)||'';answer.maxLength=300;answer.setAttribute('aria-label',l(10));answer.placeholder=l(10);answer.disabled=state.busy;answer.oninput=e=>answerDrafts.set(turn.id,e.currentTarget.value);
      const check=button(l(6),()=>{const value=answerDrafts.get(turn.id)||'';if(value.trim())sendAssessment('answer',value,turn.id);});check.disabled=state.busy;

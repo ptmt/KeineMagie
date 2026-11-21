@@ -84,6 +84,17 @@ func TestCoachWireExport(t *testing.T) {
 		t.Fatal(w.Code)
 	}
 	save("progress")
+	vocabulary, err := decodeCoach(vocabularyFixture, vocabularySources(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = f.cfg.coachStore(f.owner).transaction(true, func(d *coachData) error {
+		d.Turns = append(d.Turns, coachTurn{ID: "context-word", State: "completed", Language: "de", Result: &vocabulary})
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	save("context-translation")
 	if f.calls.Load() != 2 {
 		t.Fatal("GET inferred")
 	}

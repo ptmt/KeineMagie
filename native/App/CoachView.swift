@@ -33,6 +33,7 @@ struct CoachView: View {
     @State private var presented = false
     @State private var viewport = CGRect.zero
     @State private var focusedAnswerID: String?
+    @State private var pinnedTurnID: String?
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @Environment(\.coachReduceMotionOverride) private var reduceMotionOverride
@@ -74,7 +75,7 @@ struct CoachView: View {
 
                         }.padding().background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
                     }
-                    ForEach(CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier)) { turn in
+                    ForEach(CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier, pinnedID: pinnedTurnID)) { turn in
                         if !turn.text.isEmpty { HStack { Spacer(minLength: 32); Text(turn.text).padding(14).foregroundStyle(.white).background(Color(white: 0.2), in: RoundedRectangle(cornerRadius: 18)) } }
                         CoachTurnView(turn: turn, focusedAnswerID: $focusedAnswerID)
                             .id(turn.id)
@@ -85,11 +86,8 @@ struct CoachView: View {
                                 if visible && nearBottom && presented && scenePhase == .active { Task { await model.seeCoach(turn) } }
                             }
                     }
-                    if model.coachBusy && !(model.coach?.turns.contains { $0.attempt?.assessmentState == "pending" } ?? false) {
-                        HStack {
-                            CoachCheckingView(reduceMotion: reduceMotion)
-                            if let id = model.coachPendingID { Button("coach.cancel") { model.sendCoach("cancel", turnID: id) } }
-                        }.padding(12)
+                    if model.coachBusy && !(model.coach?.turns.contains { $0.state == "pending" || $0.attempt?.assessmentState == "pending" } ?? false) {
+                        CoachCheckingView(reduceMotion: reduceMotion)
                     }
                     if let error = model.coachError { Text(error).font(.callout).foregroundStyle(.secondary).accessibilityIdentifier("coach-error") }
                     Color.clear.frame(height: 1).id("coach-bottom")
@@ -157,6 +155,7 @@ struct CoachView: View {
             if near && scenePhase == .active && presented { for turn in model.coach?.turns ?? [] where visibleTurns.contains(turn.id) { Task { await model.seeCoach(turn) } } }
         }
         .onChange(of: model.coachBusy) { _, busy in
+            if busy { pinnedTurnID = model.coach?.turns.last(where: { $0.isVisible && $0.kind != "clarification" && $0.kind != nil })?.id }
             if !busy && scenePhase == .active && nearBottom && presented { for turn in model.coach?.turns ?? [] where visibleTurns.contains(turn.id) { Task { await model.seeCoach(turn) } } }
         }
         .onAppear { presented = isSelected; model.coachForeground = isSelected && scenePhase == .active }
@@ -165,7 +164,7 @@ struct CoachView: View {
             if selected { historyNow = Date() } else { visibleTurns.removeAll() }
         }
         .onDisappear { presented = false; model.coachForeground = false; visibleTurns.removeAll() }
-        .onChange(of: model.session.generation) { _, _ in showEarlier = 0; hydrated = false; historyNow = Date(); visibleTurns.removeAll(); focusedAnswerID = nil }
+        .onChange(of: model.session.generation) { _, _ in showEarlier = 0; hydrated = false; historyNow = Date(); visibleTurns.removeAll(); focusedAnswerID = nil; pinnedTurnID = nil }
         .animation(reduceMotion || !hydrated ? nil : .easeOut(duration: 0.2), value: model.coach?.turns.map(\.id))
         .task(id: "\(model.session.generation)-\(model.session.canWrite)-\(isSelected)") { guard isSelected else { return }; await model.loadCoach(); if !Task.isCancelled && model.session.canWrite && scenePhase == .active && presented { model.sendCoach("entry") } }
         .refreshable { await Task { await model.loadCoach() }.value }
@@ -174,14 +173,25 @@ struct CoachView: View {
     private var scrollRevision: String {
         "\(model.coach?.turns.filter(\.isVisible).map { "\($0.id):\($0.state):\($0.messageVersion ?? ""):\($0.attempt?.id ?? ""):\($0.attempt?.assessmentState ?? "")" }.joined(separator: "|") ?? "")"
     }
-    private var sendButton: some View {
-        Button {
-            followQuickReply = true
-            model.sendCoach("message", text: model.coachDraft)
-            composerFocused = false
-        } label: { Image(systemName: "arrow.up.circle.fill").font(.system(size: 28)).frame(width: 44, height: 44) }
-            .accessibilityLabel("coach.send").accessibilityIdentifier("coach-send")
-            .disabled(!model.session.canWrite || model.coachBusy || model.coachDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.coachDraft.unicodeScalars.count > 2000)
+    private var pendingID: String? {
+        model.coachPendingID ?? model.coach?.turns.last(where: { $0.attempt?.assessmentState == "pending" })?.attempt?.id ?? model.coach?.turns.last(where: { $0.state == "pending" })?.id
+    }
+    @ViewBuilder private var sendButton: some View {
+        if let pendingID {
+            Button { model.sendCoach("cancel", turnID: pendingID) } label: {
+                Image(systemName: "stop.circle.fill").font(.system(size: 28)).frame(width: 44, height: 44)
+            }
+            .accessibilityLabel("coach.stop").accessibilityIdentifier("coach-stop")
+            .disabled(!model.session.canWrite || (model.coachBusy && model.coachPendingID == nil))
+        } else {
+            Button {
+                followQuickReply = true
+                model.sendCoach("message", text: model.coachDraft)
+                composerFocused = false
+            } label: { Image(systemName: "arrow.up.circle.fill").font(.system(size: 28)).frame(width: 44, height: 44) }
+                .accessibilityLabel("coach.send").accessibilityIdentifier("coach-send")
+                .disabled(!model.session.canWrite || model.coachBusy || model.coachDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.coachDraft.unicodeScalars.count > 2000)
+        }
     }
     private var actionsMenu: some View {
         Menu {
@@ -216,7 +226,7 @@ struct CoachView: View {
     private func historyControls(proxy: ScrollViewProxy) -> some View {
         let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6)) : AnyLayout(HStackLayout())
         return layout {
-            if let active = model.coach?.turns.last(where: { $0.isVisible && $0.kind != nil && !["clarification", "nudge"].contains($0.kind ?? "") }), active.attempt == nil, !active.isRecent(now: historyNow), !CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier).contains(where: { $0.id == active.id }) {
+            if let active = model.coach?.turns.last(where: { $0.isVisible && $0.kind != nil && !["clarification", "nudge"].contains($0.kind ?? "") }), active.attempt == nil, !active.isRecent(now: historyNow), !CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier, pinnedID: pinnedTurnID).contains(where: { $0.id == active.id }) {
                 Button("coach.awaiting") {
                     let older = (model.coach?.turns ?? []).filter { $0.isVisible && !$0.isRecent(now: historyNow) }
                     let index = older.firstIndex(where: { $0.id == active.id }) ?? 0
@@ -235,13 +245,27 @@ struct CoachView: View {
 private struct CoachCheckingView: View {
     let reduceMotion: Bool
     var body: some View {
-        HStack(spacing: 8) {
-            Group {
-                if reduceMotion { Text(verbatim: "•••").font(.caption) }
-                else { ProgressView().controlSize(.small) }
-            }.accessibilityHidden(true)
-            Text("coach.working").font(.footnote).foregroundStyle(CoachPalette.secondary)
-        }
+        Text(verbatim: "•••")
+            .font(.title3.weight(.semibold)).tracking(4)
+            .foregroundStyle(CoachPalette.secondary)
+            .padding(.horizontal, 16).padding(.vertical, 12)
+            .background(CoachPalette.surface, in: RoundedRectangle(cornerRadius: 18))
+            .accessibilityLabel("coach.working")
+            .accessibilityIdentifier("coach-typing")
+    }
+}
+
+private struct CoachAssistantBubble: ViewModifier {
+    var unread = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    func body(content: Content) -> some View {
+        content.padding(14)
+            .background(CoachPalette.surface, in: RoundedRectangle(cornerRadius: 18))
+            .overlay(alignment: .leading) {
+                if unread { RoundedRectangle(cornerRadius: 2).fill(.primary.opacity(0.65)).frame(width: 3).padding(.vertical, 12) }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.trailing, dynamicTypeSize.isAccessibilitySize ? 0 : 24)
     }
 }
 
@@ -260,42 +284,17 @@ private struct CoachTurnView: View {
     private var masked: Bool { turn.masksAnswer(latestID: model.coach?.turns.last(where: \.isVisible)?.id) }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let message = turn.message, turn.showsInstruction, turn.prompt == nil || ["clarification", "nudge"].contains(turn.kind ?? "") { Text(message).textSelection(.enabled) }
-            if turn.state == "pending" {
-                CoachCheckingView(reduceMotion: reduceMotion)
-                Button("coach.cancel") { model.sendCoach("cancel", turnID: turn.id) }.disabled(!model.session.canWrite)
-            } else if turn.state == "failed" || turn.state == "canceled" {
-                Text(LocalizedStringKey("coach." + turn.state)).font(.footnote)
-            }
             if let kind = turn.kind, !["clarification", "nudge"].contains(kind), let prompt = turn.prompt {
                 VStack(alignment: .leading, spacing: 12) {
-                    if !["completed", "success", "incorrect", "working", "awaiting"].contains(turn.presentationStatus) { Text(LocalizedStringKey("coach." + turn.presentationStatus)).font(.caption).foregroundStyle(CoachPalette.secondary) }
-                    Text(prompt).font(.body).textSelection(.enabled)
+                    Text(highlightedPrompt(prompt)).font(.body).textSelection(.enabled)
+                        .accessibilityIdentifier("coach-prompt-" + turn.id)
+                        .accessibilityValue(turn.kind == "context_translation" ? turn.targetText ?? "" : "")
                     if let message = turn.message, turn.showsInstruction {
                         Text(message).font(.footnote).foregroundStyle(CoachPalette.secondary).textSelection(.enabled)
                     }
                     if masked {
                         Button("coach.showAnswer") { model.sendCoach("reveal", text: "answer", turnID: turn.id) }.disabled(!writable)
-                    } else if let attempt = turn.attempt {
-                        Text(attempt.answer).italic()
-                        if attempt.assessmentState == "pending" {
-                            CoachCheckingView(reduceMotion: reduceMotion)
-                        } else {
-                            Text(LocalizedStringKey(attempt.feedbackKey)).font(.callout)
-                                .accessibilityIdentifier("coach-feedback")
-                        }
-                        if attempt.assessmentState == "pending" {
-                            Button("coach.cancel") { model.sendCoach("cancel", turnID: attempt.id) }.disabled(!model.session.canWrite)
-                        }
-                        if attempt.canRecheck {
-                            Menu { Button("coach.assessment.recheck") { confirmRecheck = true } } label: { Image(systemName: "ellipsis").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("coach.assessment.recheck").disabled(!writable)
-                        }
-                        if let assessment = attempt.assessment, assessment.verdict != "correct", !assessment.correctedAnswer.isEmpty {
-                            Text(assessment.correctedAnswer).textSelection(.enabled)
-                        }
-                        if attempt.assisted { Text("coach.assisted").font(.caption).foregroundStyle(.secondary) }
-
-                    } else {
+                    } else if turn.attempt == nil {
                         TextField("coach.answer", text: $answer, prompt: Text("coach.answer").foregroundStyle(CoachPalette.secondary), axis: .vertical).font(.title3).lineLimit(2...4)
                             .focused($answerFocused)
                             .onChange(of: answerFocused) { _, focused in
@@ -313,29 +312,67 @@ private struct CoachTurnView: View {
                         }
                         Color.clear.frame(height: 1).id("coach-answer-bottom-" + turn.id)
                     }
+                    if turn.attempt == nil, (turn.sourceReveals ?? 0) > 0, let quote = turn.quote {
+                        Text("coach.hint").font(.caption)
+                        Text(quote).textSelection(.enabled)
+                        if let explanation = turn.explanation { Text(explanation).font(.callout) }
+                    }
+                }.modifier(CoachAssistantBubble(unread: turn.isUnread))
+            } else if let message = turn.message, !message.isEmpty {
+                Text(message).textSelection(.enabled).modifier(CoachAssistantBubble(unread: turn.isUnread))
+            }
+            if let attempt = turn.attempt, !masked {
+                if !attempt.answer.isEmpty {
+                    HStack {
+                        Spacer(minLength: 32)
+                        Text(attempt.answer).textSelection(.enabled)
+                            .padding(14).foregroundStyle(.white)
+                            .background(Color(white: 0.2), in: RoundedRectangle(cornerRadius: 18))
+                            .accessibilityIdentifier("coach-submitted-" + turn.id)
+                    }
+                }
+                if attempt.assessmentState == "pending", model.coachError == nil {
+                    CoachCheckingView(reduceMotion: reduceMotion)
+                } else {
+                    VStack(alignment: .leading, spacing: 10) {
+                        if attempt.assessmentState != "pending" {
+                            Text(LocalizedStringKey(attempt.feedbackKey)).font(.callout.weight(.semibold))
+                                .accessibilityIdentifier("coach-feedback")
+                        }
+                        if let assessment = attempt.assessment, !assessment.correctedAnswer.isEmpty {
+                            Text(assessment.correctedAnswer).textSelection(.enabled)
+                                .accessibilityIdentifier("coach-correction")
+                        }
+                        if let explanation = attempt.assessment?.explanation ?? turn.explanation,
+                           attempt.assessmentState == nil || attempt.assessmentState == "completed" {
+                            Text(explanation).font(.callout).textSelection(.enabled)
+                                .accessibilityIdentifier("coach-explanation")
+                        }
+                        if attempt.assisted { Text("coach.assisted").font(.caption).foregroundStyle(CoachPalette.secondary) }
+                        if attempt.canRecheck {
+                            Menu { Button("coach.assessment.recheck") { confirmRecheck = true } } label: {
+                                Image(systemName: "ellipsis").frame(minWidth: 44, minHeight: 44)
+                            }.accessibilityLabel("coach.assessment.recheck").disabled(!writable)
+                        }
+                    }.modifier(CoachAssistantBubble())
                 }
             }
-            if turn.attempt == nil, (turn.sourceReveals ?? 0) > 0, let quote = turn.quote {
-                Text("coach.hint").font(.caption)
-                Text(quote).textSelection(.enabled)
-                if let explanation = turn.explanation { Text(explanation).font(.callout) }
+            if turn.state == "pending" { CoachCheckingView(reduceMotion: reduceMotion) }
+            else if turn.state == "failed" || turn.state == "canceled" {
+                Text(LocalizedStringKey("coach." + turn.state)).font(.footnote).modifier(CoachAssistantBubble())
             }
-            if let explanation = turn.explanation, turn.attempt != nil, !masked, turn.attempt?.assessmentState == nil || turn.attempt?.assessmentState == "completed" {
-                Text(explanation).font(.callout).textSelection(.enabled)
-                    .accessibilityIdentifier("coach-explanation")
-            }
-
-        }.padding(12)
-            .background(CoachPalette.surface, in: RoundedRectangle(cornerRadius: 18))
-            .overlay { if turn.presentationStatus == "incorrect" { RoundedRectangle(cornerRadius: 18).stroke(Color(red: 0.65, green: 0.42, blue: 0.42).opacity(0.65), lineWidth: 1) } }
-            .overlay(alignment: .leading) { if turn.presentationStatus == "working" { RoundedRectangle(cornerRadius: 2).fill(.secondary.opacity(0.5)).frame(width: 3).padding(.vertical, 12) } }
-            .overlay(alignment: .leading) { if turn.isUnread { RoundedRectangle(cornerRadius: 2).fill(.primary.opacity(0.65)).frame(width: 3).padding(.vertical, 12) } }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.trailing, dynamicTypeSize.isAccessibilitySize ? 0 : 24)
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: turn.attempt?.outcome)
-            .confirmationDialog("coach.assessment.confirm", isPresented: $confirmRecheck, titleVisibility: .visible) {
-                Button("coach.assessment.recheck") { model.sendCoach("recheck", turnID: turn.id) }
-            }
+        }
+        .confirmationDialog("coach.assessment.confirm", isPresented: $confirmRecheck, titleVisibility: .visible) {
+            Button("coach.assessment.recheck") { model.sendCoach("recheck", turnID: turn.id) }
+        }
+    }
+    private func highlightedPrompt(_ prompt: String) -> AttributedString {
+        var text = AttributedString(prompt)
+        if turn.kind == "context_translation", let target = turn.targetText, !target.isEmpty, let range = text.range(of: target) {
+            text[range].font = .body.bold()
+            text[range].underlineStyle = .single
+        }
+        return text
     }
     private var checkButton: some View {
         Button { model.sendCoach("answer", text: answer, turnID: turn.id) } label: {

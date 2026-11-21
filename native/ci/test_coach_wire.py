@@ -14,6 +14,10 @@ with tempfile.TemporaryDirectory(prefix='coach-wire-', dir=os.environ.get('TMPDI
   for path in CommandLine.arguments.dropFirst() {
    let data = try Data(contentsOf: URL(fileURLWithPath: path))
    let snapshot = try JSONDecoder().decode(CoachSnapshot.self, from: data)
+   if URL(fileURLWithPath:path).lastPathComponent == "context-translation.json" {
+    let word = snapshot.turns.first { $0.id == "context-word" }!
+    precondition(word.kind == "context_translation" && word.targetText == "abholen" && word.answerLanguage == "en")
+   }
    print("Decoded Go handler: \\(URL(fileURLWithPath:path).lastPathComponent), turns=\\(snapshot.turns.count), observations=\\(snapshot.observations.count)")
   }
  }
@@ -21,5 +25,5 @@ with tempfile.TemporaryDirectory(prefix='coach-wire-', dir=os.environ.get('TMPDI
 ''')
     subprocess.run(['swiftc', '-parse-as-library', str(ROOT/'native/Core/Sources/KeineMagieCore/Coach.swift'), str(folder/'main.swift'), '-o', str(folder/'decode')], check=True)
     paths = sorted(folder.glob('*.json'))
-    assert len(paths) == 9
+    assert len(paths) == 10
     subprocess.run([str(folder/'decode'), *map(str, paths)], check=True)

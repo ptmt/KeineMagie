@@ -41,7 +41,7 @@ func TestCoachSourcesRequireExplicitOwnerPassageMarks(t *testing.T) {
 
 func TestCoachConcreteSkillTaxonomy(t *testing.T) {
 	base := `{"message":"Practice","kind":"cloze","prompt":"Ich warte ___ den Bus.","target":"verb_government.preposition_case","source_id":"translation:original","quote":"Ich warte auf den Bus.","answers":["auf"],"incorrect_answers":[],"explanation":"warten auf"}`
-	sources := []coachSource{{"translation:original", "Ich warte auf den Bus.", "de"}}
+	sources := []coachSource{{ID: "translation:original", Text: "Ich warte auf den Bus.", Language: "de"}}
 	if _, e := decodeCoach(base, sources); e != nil {
 		t.Fatal("concrete skill rejected", e)
 	}
@@ -52,7 +52,7 @@ func TestCoachConcreteSkillTaxonomy(t *testing.T) {
 
 func TestCoachRejectsMalformedGroundingAndAnswerLeak(t *testing.T) {
 	valid := `{"message":"Ergänze den Satz.","kind":"cloze","prompt":"Ich warte ___ den Bus.","target":"verb_government.preposition_case","source_id":"translation:original","quote":"Ich warte auf den Bus.","answers":["auf"],"incorrect_answers":["für"],"explanation":"warten auf + Akkusativ"}`
-	sources := []coachSource{{"translation:original", "Ich warte auf den Bus.", "de"}}
+	sources := []coachSource{{ID: "translation:original", Text: "Ich warte auf den Bus.", Language: "de"}}
 	for name, text := range map[string]string{
 		"foreign":      strings.Replace(valid, "translation:original", "translation:foreign", 1),
 		"forged quote": strings.Replace(valid, `"quote":"Ich warte auf den Bus."`, `"quote":"invented"`, 1),

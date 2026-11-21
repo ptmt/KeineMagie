@@ -25,6 +25,7 @@ final class SimulatorTranslationJournalProbe: @unchecked Sendable {
 
 /// Test transport only. Device builds do not contain this fixture.
 actor SimulatorSessionFixture {
+    private let stableCoach = SimulatorCoachStableFixture()
     private var coachAnswered = false
     private var coachAnswer = ""
     private var coachAttemptID = ""
@@ -289,6 +290,7 @@ actor SimulatorSessionFixture {
             return AuthResponse(data: try JSONSerialization.data(withJSONObject: historyItems[index]), status: 200)
         }
         if request.url?.path == "/v1/learning/coach" {
+            if mode == "coach-stable" { return try await stableCoach.send(request) }
             if !mode.hasPrefix("coach") { return AuthResponse(data: Data(#"{"turns":[],"observations":[],"model":"gpt-6.1-terra"}"#.utf8), status: 200) }
             if ProcessInfo.processInfo.environment["KM_SIMULATOR_COACH_DESIGN_ENTRY"] == "1", request.httpMethod == "GET", coachEntryCount == 0 {
                 return AuthResponse(data: Data(#"{"turns":[],"observations":[],"actions":[]}"#.utf8), status: 200)
