@@ -10,7 +10,8 @@
     "failed": 0,
     "xcresult": "/Users/tinyserve/.hermes/cache/scratch/activity-final-dark.xcresult"
   },
-  "se": "not executed: found booted outside this task; no exclusive ownership established",
+  "se_light": {"tests": 2, "failed": 0, "xcresult": "/Users/tinyserve/.hermes/cache/scratch/activity-final-se.xcresult"},
+  "se_dark": {"tests": 2, "failed": 0, "xcresult": "/Users/tinyserve/.hermes/cache/scratch/activity-final-se-dark.xcresult"},
   "go_race": "passed ./...",
   "go_vet": "passed ./...",
   "swift_testing": 88,
