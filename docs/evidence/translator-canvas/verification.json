@@ -866,5 +866,5 @@
     "fixture_stopped": true,
     "simulator_slot_released": true
   },
-  "publication": "Not uploaded yet; separate Apple receipt will record actual upload."
+  "publication": "Apple upload verified: source a29ea59b49bf921dd8d136b2ff0772934be81d93; run 44913384708 attempt 1; 1.0 (2805.59.27); UPLOAD SUCCEEDED at 2026-11-21T14:36:15Z. See apple-upload.json. Processing/tester availability unverified."
 }

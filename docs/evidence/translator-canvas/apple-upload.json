@@ -1,0 +1,207 @@
+{
+  "source_sha": "a29ea59b49bf921dd8d136b2ff0772934be81d93",
+  "run": {
+    "conclusion": "success",
+    "createdAt": "2026-11-21T14:20:06Z",
+    "databaseId": 44913384708,
+    "headSha": "a29ea59b49bf921dd8d136b2ff0772934be81d93",
+    "jobs": [
+      {
+        "completedAt": "2026-11-21T14:31:40Z",
+        "conclusion": "success",
+        "databaseId": 136875342177,
+        "name": "validate",
+        "startedAt": "2026-11-21T14:26:17Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-11-21T14:26:19Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-11-21T14:26:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:26:27Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "number": 2,
+            "startedAt": "2026-11-21T14:26:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:26:30Z",
+            "conclusion": "success",
+            "name": "Select and report stable Xcode",
+            "number": 3,
+            "startedAt": "2026-11-21T14:26:27Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:26:32Z",
+            "conclusion": "success",
+            "name": "Install Go for actual server-to-Swift wire contracts",
+            "number": 4,
+            "startedAt": "2026-11-21T14:26:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:27:59Z",
+            "conclusion": "success",
+            "name": "Validate CI configuration",
+            "number": 5,
+            "startedAt": "2026-11-21T14:26:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:29:10Z",
+            "conclusion": "success",
+            "name": "Swift core tests",
+            "number": 6,
+            "startedAt": "2026-11-21T14:27:59Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:29:18Z",
+            "conclusion": "success",
+            "name": "Install XcodeGen and generate project",
+            "number": 7,
+            "startedAt": "2026-11-21T14:29:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:31:31Z",
+            "conclusion": "success",
+            "name": "Unsigned simulator build",
+            "number": 8,
+            "startedAt": "2026-11-21T14:29:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:31:32Z",
+            "conclusion": "success",
+            "name": "Verify effective app export-compliance metadata",
+            "number": 9,
+            "startedAt": "2026-11-21T14:31:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:31:33Z",
+            "conclusion": "success",
+            "name": "Post Install Go for actual server-to-Swift wire contracts",
+            "number": 17,
+            "startedAt": "2026-11-21T14:31:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:31:34Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "number": 18,
+            "startedAt": "2026-11-21T14:31:33Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:31:38Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 19,
+            "startedAt": "2026-11-21T14:31:34Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ptmt/KeineMagie/actions/runs/44913384708/job/136875342177"
+      },
+      {
+        "completedAt": "2026-11-21T14:36:20Z",
+        "conclusion": "success",
+        "databaseId": 136876752171,
+        "name": "testflight",
+        "startedAt": "2026-11-21T14:31:43Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-11-21T14:31:45Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-11-21T14:31:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:31:57Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "number": 2,
+            "startedAt": "2026-11-21T14:31:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:32:06Z",
+            "conclusion": "success",
+            "name": "Select and report stable Xcode; generate project",
+            "number": 3,
+            "startedAt": "2026-11-21T14:31:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:36:16Z",
+            "conclusion": "success",
+            "name": "Manually sign, export, validate, and upload",
+            "number": 4,
+            "startedAt": "2026-11-21T14:32:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:36:16Z",
+            "conclusion": "success",
+            "name": "Remove signing material and restore keychain search list",
+            "number": 5,
+            "startedAt": "2026-11-21T14:36:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:36:17Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "number": 10,
+            "startedAt": "2026-11-21T14:36:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-21T14:36:18Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 11,
+            "startedAt": "2026-11-21T14:36:17Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ptmt/KeineMagie/actions/runs/44913384708/job/136876752171"
+      }
+    ],
+    "status": "completed",
+    "updatedAt": "2026-11-21T14:36:21Z",
+    "url": "https://github.com/ptmt/KeineMagie/actions/runs/44913384708"
+  },
+  "attempt": 1,
+  "marketing_version": "1.0",
+  "build": "2805.59.27",
+  "marketing_version_evidence": "processed Release app plist, same tracked app metadata as archive",
+  "apple_markers": [
+    "2026-11-21T14:35:09.6029300Z VERIFY SUCCEEDED with no errors, 1 warning",
+    "2026-11-21T14:32:33.8105840Z Archiving build 2805.59.27 with manually validated signing",
+    "2026-11-21T14:34:03.4032250Z ** ARCHIVE SUCCEEDED **",
+    "2026-11-21T14:34:06.5102080Z ** EXPORT SUCCEEDED **",
+    "2026-11-21T14:35:09.6040200Z 2026-11-21 14:35:09.604  WARN: [altool.C13018380] SDK version issue. This app was built with the iOS 26.5 SDK. Starting April 2027, iOS and iPadOS apps must be built with the iOS 27 SDK or later, included in Xcode 27 or later, in order to be uploaded to App Store Connect or submitted for distribution. (90725)",
+    "2026-11-21T14:35:09.6042460Z       code : 90725",
+    "2026-11-21T14:36:15.8554790Z UPLOAD SUCCEEDED with no errors, 1 warning",
+    "2026-11-21T14:36:15.8558410Z 2026-11-21 14:36:15.856  WARN: [altool.821018380] SDK version issue. This app was built with the iOS 26.5 SDK. Starting April 2027, iOS and iPadOS apps must be built with the iOS 27 SDK or later, included in Xcode 27 or later, in order to be uploaded to App Store Connect or submitted for distribution. (90725)",
+    "2026-11-21T14:36:15.8576180Z       code : 90725",
+    "2026-11-21T14:36:15.8624210Z Apple upload command succeeded. Check App Store Connect processing and TestFlight availability."
+  ],
+  "processing_verified": false,
+  "tester_availability_verified": false,
+  "web_backend_changed": false
+}

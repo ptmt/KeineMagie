@@ -2,7 +2,7 @@
   "scope": "Historical pre-header candidate only; not final acceptance. Original export authorized and executed during release preparation.",
   "base": "cacf2596cd66722d34e1f7c18baef9213df9c28f",
   "branch": "candidate/translator-continuous-canvas",
-  "production_file_sha256": {
+  "export_time_production_file_sha256_not_historical_run_identity": {
     "native/App/TranslatorView.swift": "f60b8a90cc62e7d1a9a3497f5891c8cd9ad7375caaecd813248a9e42a14e3f94",
     "native/App/MainTabsView.swift": "2632410e55145627cff593cd846171a7c814b88ecc88273b546416377fdaa5cb",
     "native/App/TranslationShortcutsView.swift": "2b16ee338fef4e372563b40a9fa7918c298d4c6e152e4b0fb6f9db16fc6ffd6d"

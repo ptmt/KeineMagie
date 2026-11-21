@@ -1,0 +1,13 @@
+{
+  "removed_owned_regenerable_paths": [
+    "/Users/tinyserve/.hermes/cache/scratch/km-canvas-build",
+    "/Users/tinyserve/.hermes/cache/scratch/km-canvas-release/fixture.test",
+    "/Users/tinyserve/.hermes/cache/scratch/km-canvas-release/fixture/fixture.json",
+    "/Users/tinyserve/.hermes/cache/scratch/km-canvas-release/policy2-fixture/fixture.json"
+  ],
+  "build_allocated_kib_before": "432464\t/Users/tinyserve/.hermes/cache/scratch/km-canvas-build",
+  "old_fixtures_and_xcresults_preserved": true,
+  "borrowed_devices_shutdown": true,
+  "port8799_closed": true,
+  "production_secrets_and_ledger_untouched": true
+}

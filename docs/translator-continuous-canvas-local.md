@@ -47,10 +47,12 @@ The existing `DictationManualUITests/testGlobalPolicyTwoStopAndDraftAcrossAllTab
 
 Real light/dark normal/SE captures show the continuous canvas and top language direction. Maximum-text last line/caret remains above Translate and keyboard; long output remains scrollable, not falsely claimed to fit the full screen. Fresh final xcresult PNG/AX exports are under `normal-canvas-attachments`, `small-canvas-attachments`, and `normal-player-attachments`. Earlier corrected-header previews are `header-*.png`.
 
-Both borrowed simulators are shut down; the tracked fixture is stopped and port 8799 is closed. The shared local simulator slot is released before hosted CI. Old fixtures/results and unrelated worktrees are preserved.
+Both borrowed simulators are shut down; the tracked fixture is stopped and port 8799 is closed. The shared local simulator slot is released before hosted CI. Old fixtures/results and unrelated worktrees are preserved. After verified upload, the task-owned `km-canvas-build` cache, compiled fixture executable and two new synthetic fixture credential files were removed; exact owned paths are in `cleanup.json`. Original KM304/AP13 files, HEAD/index/status were reverified afterward; free space measured 74 GiB.
 
 ## Publication status
 
-Local gates are satisfied; publication is authorized. The exact pushed SHA, one `ios-testflight.yml` dispatch with `publish=UPLOAD`, validate/upload job IDs, archived marketing/build version and explicit Apple success marker will be recorded after actual upload. No upload is claimed at this checkpoint. Push validation does not itself upload, and the server workflow is path-filtered away from this native/docs-only change.
+**Apple upload verified:** native source `a29ea59b49bf921dd8d136b2ff0772934be81d93`, marketing/build **1.0 (2805.59.27)**. Normal non-force main push was read back. Push validation run **44913374243** passed; its upload job was correctly skipped. Exactly one explicit `ios-testflight.yml` dispatch with `publish=UPLOAD`: **44913384708**, attempt **1**, validate job **136875342177**, upload job **136876752171**, all successful, including signing cleanup.
+
+Actual archive/export markers passed; Apple `VERIFY SUCCEEDED with no errors, 1 warning` at **2026-11-21 14:35:09 UTC**, then **`UPLOAD SUCCEEDED with no errors, 1 warning` at 14:36:15 UTC**. Receipt: `docs/evidence/translator-canvas/apple-upload.json`. Warning **90725** is the future iOS 27 SDK requirement from April 2027, not an upload rejection. Apple processing and tester availability remain **unverified**. No duplicate upload was dispatched. No backend/web deployment occurred.
 
 Simulator rendering/AX and synthetic transport do not establish physical-device behavior, spoken VoiceOver, real provider quality, Apple processing or tester availability.
