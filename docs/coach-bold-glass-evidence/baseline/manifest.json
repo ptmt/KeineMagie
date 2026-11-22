@@ -1,0 +1,14 @@
+[
+  {
+    "file": "stable-result.png",
+    "sha256": "5c430855c7ffd46b9179d4831e65dd7485ca532ed7ef1845682eefa9c37d8b16",
+    "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+    "original": "1C22FABF-84A0-4B4E-87F8-BC3A64368C42.png"
+  },
+  {
+    "file": "stable-pending.png",
+    "sha256": "0461b98b4e0c881c116310be59019277f5c5bcfba31a8d8b62feab65c2c75c74",
+    "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+    "original": "7528772F-99F3-4FB0-8911-F7380B0D0CDD.png"
+  }
+]

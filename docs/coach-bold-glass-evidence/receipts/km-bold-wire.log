@@ -1,0 +1,11 @@
+ok  	diktat/server	0.520s
+Decoded Go handler: assessment.json, turns=1, observations=1
+Decoded Go handler: context-translation.json, turns=3, observations=0
+Decoded Go handler: exercise.json, turns=1, observations=0
+Decoded Go handler: failed.json, turns=1, observations=0
+Decoded Go handler: initial.json, turns=0, observations=0
+Decoded Go handler: legacy.json, turns=1, observations=0
+Decoded Go handler: offer.json, turns=1, observations=0
+Decoded Go handler: pending.json, turns=1, observations=0
+Decoded Go handler: progress.json, turns=2, observations=0
+Decoded Go handler: reset.json, turns=1, observations=0

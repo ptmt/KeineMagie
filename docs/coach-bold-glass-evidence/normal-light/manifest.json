@@ -1,0 +1,140 @@
+[
+  {
+    "file": "activity-source-details-synthetic.png",
+    "sha256": "ca6032ce9673218120d11551aeda5a195c814bf36343ba517e1c0f53436f1709",
+    "test": "ActivityUITests/testDayDetailsExposeEvidenceAndUnsupportedListening()",
+    "original": "B5CA8CC8-ECF8-45CD-8727-1938C2E497FC.png"
+  },
+  {
+    "file": "activity-week-synthetic.png",
+    "sha256": "7408d8140651d9a50966c86e5da30a83a613318930818e6efc63ad12d17bba56",
+    "test": "ActivityUITests/testStableThirtyPointWeekAndNavigation()",
+    "original": "35B71699-BAC6-491C-926E-5DC4C2E35A67.png"
+  },
+  {
+    "file": "activity-unknown-russian-AXXXL-synthetic.png",
+    "sha256": "e060ee3a9f51729cfd6cdd816043f67098346c9a852370292231a4cf3818abe4",
+    "test": "ActivityUITests/testUnknownDoesNotBecomeZeroAndLargeRussianStaysThirty()",
+    "original": "49641204-DBC2-466A-8A6C-05DC4E60C557.png"
+  },
+  {
+    "file": "glass-russian-AXXXL-tree.txt",
+    "sha256": "65ff66ecd87055f9c188acbe2025cccda475b1c8c812638a8b201cb2f35b674d",
+    "test": "CoachGlassUITests/testLargestComposerKeyboardAndTargets()",
+    "original": "30AC998D-FDBF-4E03-840E-88596DB283E7.txt"
+  },
+  {
+    "file": "glass-russian-AXXXL-keyboard.png",
+    "sha256": "37a188e0dae18da3cbbe88809c104ccc9c5873b1c051181ef07238ddc00e7a6c",
+    "test": "CoachGlassUITests/testLargestComposerKeyboardAndTargets()",
+    "original": "71BB3F42-44C3-46E5-A89C-F0047F0431EB.png"
+  },
+  {
+    "file": "glass-system-reduce-transparency-keyboard.png",
+    "sha256": "1cf0e46f6af7aac9d1db4e3328219893e5776a2b267111819a09975cb1c248b2",
+    "test": "CoachGlassUITests/testSystemReduceTransparencyComposer()",
+    "original": "1395689C-DF91-4555-B038-8F2F00F9DD6C.png"
+  },
+  {
+    "file": "reduce-transparency-system-setting-on.png",
+    "sha256": "b3ea6630f7c724c2c2c61d5e1aa21932cea6fe41bffe673a5e5dd2c4dd6ca86c",
+    "test": "CoachGlassUITests/testSystemReduceTransparencyComposer()",
+    "original": "1D920745-F43B-406F-88B4-EF24711324C2.png"
+  },
+  {
+    "file": "context-correct.png",
+    "sha256": "3b6316c284db491f9175f27f3d765806761853cfdfb0b9c5f5bd72dc5a200f4c",
+    "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+    "original": "80C42F86-4187-4878-9171-CFD3B807E5E3.png"
+  },
+  {
+    "file": "context-pending.png",
+    "sha256": "76802d9f24decd4d9ba99c5ac3658930c65c3cab8cc15cd79251290de1cd2c35",
+    "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+    "original": "3F4CDDF1-4206-41AA-B3BF-AB01328AE00A.png"
+  },
+  {
+    "file": "context-canceled.png",
+    "sha256": "f33b1fc9955cdea85353feeab128fec1630c574457ba4e39870fad08ed1f70f5",
+    "test": "CoachStableChatUITests/testStopPreservesAnswerAndDiscussionDraft()",
+    "original": "3846486E-D4BA-4E6B-8625-B25297200D3C.png"
+  },
+  {
+    "file": "stable-result.png",
+    "sha256": "6b30166b4c0a0c469ef9364f7c0d03122ef1235175d24bce736a2fc17736e207",
+    "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+    "original": "C5A4DFC9-4BF4-4107-A367-2CE42560F7FB.png"
+  },
+  {
+    "file": "stable-pending.png",
+    "sha256": "f6197024a9b52f4f3c64734b0ca210990e38b0f652b67099fc99f50f0de7b475",
+    "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+    "original": "AC8E1713-FFE6-49AE-B8D9-164AAAEFD6B7.png"
+  },
+  {
+    "file": "context-error.png",
+    "sha256": "98f99c235c6fe401618f0ef0b6403bd765cc965deb2efdaa55ce3b681e7e2e5b",
+    "test": "CoachStableChatUITests/testTransportErrorPreservesAnswerAndDraft()",
+    "original": "E088BE95-549A-4438-AF3F-C701D16CADDC.png"
+  },
+  {
+    "file": "coach-accessibility-order.png",
+    "sha256": "6c90e2396d1d214cde2efc750aefe56410eb0c62177417d668702e4d8aee3c2b",
+    "test": "CoachUITests/testAccessibilityReadingOrderAndLabels()",
+    "original": "076D2375-D457-451D-988B-6218A3E15DA1.png"
+  },
+  {
+    "file": "coach-accessibility-tree.txt",
+    "sha256": "cdfcca5e69b9e3d316c27f798d43a636a61e5c693b2bf2a4f6b8ceab6bf550ed",
+    "test": "CoachUITests/testAccessibilityReadingOrderAndLabels()",
+    "original": "E24E2326-F636-4770-8D8D-8C174C3D7FE5.txt"
+  },
+  {
+    "file": "coach-design-correct-before-or-after.png",
+    "sha256": "26eccae4d26769eec3d8ec4efb527a4b59d14127600fabccc2f94b16b21d2888",
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "original": "B2850D21-A16F-469E-AFF0-A1035DF422C0.png"
+  },
+  {
+    "file": "coach-design-filled-keyboard-before-or-after.png",
+    "sha256": "db6b98cb82c229016cd16b860cb21c558136d8f49da8e59b26390fce9285b12e",
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "original": "67C33059-3BF5-4674-B196-B06D0113C9B5.png"
+  },
+  {
+    "file": "coach-design-active-before-or-after.png",
+    "sha256": "6c90e2396d1d214cde2efc750aefe56410eb0c62177417d668702e4d8aee3c2b",
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "original": "47D2D0D7-690B-4A62-B8BD-D47028644560.png"
+  },
+  {
+    "file": "coach-composer-menu-open-keyboard.png",
+    "sha256": "f40117af7fd0220420574a110abc4831c25a4d73fd15732b90c96c8d2b0108f3",
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "original": "99A5CEDC-F6F8-4AE6-952C-4DE8EE32FD64.png"
+  },
+  {
+    "file": "coach-composer-menu-closed-keyboard.png",
+    "sha256": "a68947f69f0a8e3bd1219acece813b9f11004336e1bd724ad5625c28911065dd",
+    "test": "CoachUITests/testComposerMenuOpensWithoutSendingOrRevealing()",
+    "original": "010B10D5-BA49-4191-A8B2-D2622E5F7B6D.png"
+  },
+  {
+    "file": "coach-russian-native-placeholder-largest.png",
+    "sha256": "e885e1f106baa2d90c5483499287af114f2063e8a18bff49bc50e26157d05a77",
+    "test": "CoachUITests/testLargestRussianNativeComposerPlaceholderFits()",
+    "original": "8A3BDBCE-754B-4A16-9835-A540C34F264D.png"
+  },
+  {
+    "file": "coach-menu-all-available-actions.png",
+    "sha256": "8378ff2cf5c9c32ff5b274bd20be7568196763a719470f19be407d3f4bbba722",
+    "test": "CoachUITests/testMenuIncludesEveryAvailableAction()",
+    "original": "1F2CB16E-6084-4F22-9C5D-221E69425B51.png"
+  },
+  {
+    "file": "coach-menu-transport-receipt.txt",
+    "sha256": "f26b29d349eb82565897d2c951017948c4ba5311d079a4caa3d040179a71832b",
+    "test": "CoachUITests/testMenuSelectionUsesOriginalRoutesExactlyOnceAndKeepsFocus()",
+    "original": "AC1D117B-B52F-4C72-BBC9-86D3331266D7.txt"
+  }
+]

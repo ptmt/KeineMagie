@@ -1,0 +1,194 @@
+[
+  {
+    "file": "normal-light/stable-result.png",
+    "role": "incorrect",
+    "rgb": [
+      166,
+      46,
+      61
+    ],
+    "solid_pixels": 319903,
+    "white_pixels_in_bounds": 14260,
+    "contrast": 6.819
+  },
+  {
+    "file": "normal-light/stable-result.png",
+    "role": "user",
+    "rgb": [
+      87,
+      64,
+      199
+    ],
+    "solid_pixels": 119550,
+    "white_pixels_in_bounds": 5063,
+    "contrast": 7.087
+  },
+  {
+    "file": "normal-light/context-correct.png",
+    "role": "success",
+    "rgb": [
+      23,
+      99,
+      61
+    ],
+    "solid_pixels": 283529,
+    "white_pixels_in_bounds": 10021,
+    "contrast": 7.27
+  },
+  {
+    "file": "normal-light/context-correct.png",
+    "role": "user",
+    "rgb": [
+      87,
+      64,
+      199
+    ],
+    "solid_pixels": 29262,
+    "white_pixels_in_bounds": 1177,
+    "contrast": 7.087
+  },
+  {
+    "file": "normal-dark/stable-result.png",
+    "role": "incorrect",
+    "rgb": [
+      150,
+      46,
+      61
+    ],
+    "solid_pixels": 319905,
+    "white_pixels_in_bounds": 14260,
+    "contrast": 7.623
+  },
+  {
+    "file": "normal-dark/stable-result.png",
+    "role": "user",
+    "rgb": [
+      87,
+      64,
+      179
+    ],
+    "solid_pixels": 119546,
+    "white_pixels_in_bounds": 5063,
+    "contrast": 7.528
+  },
+  {
+    "file": "normal-dark/context-correct.png",
+    "role": "success",
+    "rgb": [
+      31,
+      97,
+      64
+    ],
+    "solid_pixels": 283535,
+    "white_pixels_in_bounds": 10021,
+    "contrast": 7.389
+  },
+  {
+    "file": "normal-dark/context-correct.png",
+    "role": "user",
+    "rgb": [
+      87,
+      64,
+      179
+    ],
+    "solid_pixels": 29259,
+    "white_pixels_in_bounds": 1177,
+    "contrast": 7.528
+  },
+  {
+    "file": "se-light/stable-result.png",
+    "role": "incorrect",
+    "rgb": [
+      166,
+      46,
+      61
+    ],
+    "solid_pixels": 142123,
+    "white_pixels_in_bounds": 5193,
+    "contrast": 6.819
+  },
+  {
+    "file": "se-light/stable-result.png",
+    "role": "user",
+    "rgb": [
+      87,
+      64,
+      199
+    ],
+    "solid_pixels": 52730,
+    "white_pixels_in_bounds": 1859,
+    "contrast": 7.087
+  },
+  {
+    "file": "se-light/context-correct.png",
+    "role": "success",
+    "rgb": [
+      23,
+      99,
+      61
+    ],
+    "solid_pixels": 126456,
+    "white_pixels_in_bounds": 3708,
+    "contrast": 7.27
+  },
+  {
+    "file": "se-light/context-correct.png",
+    "role": "user",
+    "rgb": [
+      87,
+      64,
+      199
+    ],
+    "solid_pixels": 12855,
+    "white_pixels_in_bounds": 434,
+    "contrast": 7.087
+  },
+  {
+    "file": "se-dark/stable-result.png",
+    "role": "incorrect",
+    "rgb": [
+      150,
+      46,
+      61
+    ],
+    "solid_pixels": 142131,
+    "white_pixels_in_bounds": 5193,
+    "contrast": 7.623
+  },
+  {
+    "file": "se-dark/stable-result.png",
+    "role": "user",
+    "rgb": [
+      87,
+      64,
+      179
+    ],
+    "solid_pixels": 52715,
+    "white_pixels_in_bounds": 1859,
+    "contrast": 7.528
+  },
+  {
+    "file": "se-dark/context-correct.png",
+    "role": "success",
+    "rgb": [
+      31,
+      97,
+      64
+    ],
+    "solid_pixels": 126464,
+    "white_pixels_in_bounds": 3708,
+    "contrast": 7.389
+  },
+  {
+    "file": "se-dark/context-correct.png",
+    "role": "user",
+    "rgb": [
+      87,
+      64,
+      179
+    ],
+    "solid_pixels": 12845,
+    "white_pixels_in_bounds": 434,
+    "contrast": 7.528
+  }
+]

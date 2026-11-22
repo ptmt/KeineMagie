@@ -1,0 +1,13 @@
+F
+======================================================================
+FAIL: test_semantic_surfaces_are_saturated_and_support_white_text (__main__.BoldCoachTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/tinyserve/Projects/KeineMagie-coach-bold-glass/native/ci/test_coach_bold_glass.py", line 18, in test_semantic_surfaces_are_saturated_and_support_white_text
+    self.assertGreaterEqual(max(rgb) - min(rgb), .20, name)
+AssertionError: 0.08299999999999999 not greater than or equal to 0.2 : success
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

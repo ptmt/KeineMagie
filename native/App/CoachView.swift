@@ -6,9 +6,10 @@ import KeineMagieCore
 private enum CoachPalette {
     static let secondary = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.78, alpha: 1) : UIColor(white: 0.32, alpha: 1) })
     static let surface = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.15, alpha: 1) : UIColor(white: 0.94, alpha: 1) })
-    static let success = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.125, green: 0.208, blue: 0.161, alpha: 1) : UIColor(red: 0.929, green: 0.965, blue: 0.937, alpha: 1) })
-    static let incorrect = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.26, green: 0.14, blue: 0.15, alpha: 1) : UIColor(red: 0.98, green: 0.92, blue: 0.92, alpha: 1) })
-    static let user = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.16, green: 0.20, blue: 0.28, alpha: 1) : UIColor(red: 0.90, green: 0.93, blue: 0.98, alpha: 1) })
+    static let onColor = Color.white
+    static let success = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.12, green: 0.38, blue: 0.25, alpha: 1) : UIColor(red: 0.09, green: 0.39, blue: 0.24, alpha: 1) })
+    static let incorrect = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.59, green: 0.18, blue: 0.24, alpha: 1) : UIColor(red: 0.65, green: 0.18, blue: 0.24, alpha: 1) })
+    static let user = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.34, green: 0.25, blue: 0.70, alpha: 1) : UIColor(red: 0.34, green: 0.25, blue: 0.78, alpha: 1) })
 }
 
 private struct CoachReduceMotionOverride: EnvironmentKey { static let defaultValue = false }
@@ -77,7 +78,7 @@ struct CoachView: View {
                         }.padding().background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
                     }
                     ForEach(CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier, pinnedID: pinnedTurnID)) { turn in
-                        if !turn.text.isEmpty { HStack { Spacer(minLength: 32); Text(turn.text).padding(14).foregroundStyle(.primary).background(CoachPalette.user, in: RoundedRectangle(cornerRadius: 18)) } }
+                        if !turn.text.isEmpty { HStack { Spacer(minLength: 32); Text(turn.text).padding(14).foregroundStyle(CoachPalette.onColor).background(CoachPalette.user, in: RoundedRectangle(cornerRadius: 18)) } }
                         CoachTurnView(turn: turn, focusedAnswerID: $focusedAnswerID)
                             .id(turn.id)
                             .transition(reduceMotion || !hydrated ? .identity : .opacity.combined(with: .move(edge: .bottom)))
@@ -130,10 +131,10 @@ struct CoachView: View {
                         if dynamicTypeSize.isAccessibilitySize {
                             HStack { actionsMenu; Spacer(minLength: 0); sendButton }
                         }
-                    }.padding(.horizontal, 4).background(CoachPalette.surface, in: RoundedRectangle(cornerRadius: 24))
+                    }.padding(.horizontal, 4).modifier(CoachComposerSurface())
                         .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("coach-composer-container")
-                }.padding(.horizontal).padding(.vertical, 8).background(.bar)
+                }.padding(.horizontal).padding(.vertical, 8)
             }
             .task(id: "\(scrollRevision)-\(model.coachOwnSendRevision)-\(model.coachLoaded)-\(viewport.height > 0)-\(contentHeight > 0)") {
                 guard model.coachLoaded, viewport.height > 0, contentHeight > 0 else { return }
@@ -244,6 +245,22 @@ struct CoachView: View {
     }
 }
 
+// Glass belongs to the floating control layer, never to the transcript.
+// Keep native editing/menu controls and one shared glass surface (no glass-on-glass).
+private struct CoachComposerSurface: ViewModifier {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *), !reduceTransparency {
+            GlassEffectContainer(spacing: 8) {
+                content.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
+            }
+        } else {
+            content.background(CoachPalette.surface, in: RoundedRectangle(cornerRadius: 26))
+                .overlay { RoundedRectangle(cornerRadius: 26).strokeBorder(Color.primary.opacity(0.2), lineWidth: 1) }
+        }
+    }
+}
+
 private struct CoachCheckingView: View {
     let reduceMotion: Bool
     var body: some View {
@@ -269,7 +286,7 @@ private struct CoachAssistantBubble: ViewModifier {
     }
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     func body(content: Content) -> some View {
-        content.foregroundStyle(.primary).padding(14)
+        content.foregroundStyle(status == "success" || status == "incorrect" ? CoachPalette.onColor : Color.primary).padding(14)
             .background(surface, in: RoundedRectangle(cornerRadius: 18))
             .overlay(alignment: .leading) {
                 if unread { RoundedRectangle(cornerRadius: 2).fill(.primary.opacity(0.65)).frame(width: 3).padding(.vertical, 12) }
@@ -336,7 +353,7 @@ private struct CoachTurnView: View {
                     HStack {
                         Spacer(minLength: 32)
                         Text(attempt.answer).textSelection(.enabled)
-                            .padding(14).foregroundStyle(.primary)
+                            .padding(14).foregroundStyle(CoachPalette.onColor)
                             .background(CoachPalette.user, in: RoundedRectangle(cornerRadius: 18))
                             .accessibilityIdentifier("coach-submitted-" + turn.id)
                     }
@@ -346,8 +363,14 @@ private struct CoachTurnView: View {
                 } else {
                     VStack(alignment: .leading, spacing: 10) {
                         if attempt.assessmentState != "pending" {
-                            Text(LocalizedStringKey(attempt.feedbackKey)).font(.callout.weight(.semibold))
-                                .accessibilityIdentifier("coach-feedback")
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                if turn.presentationStatus == "success" || turn.presentationStatus == "incorrect" {
+                                    Image(systemName: turn.presentationStatus == "success" ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                        .accessibilityHidden(true)
+                                }
+                                Text(LocalizedStringKey(attempt.feedbackKey))
+                                    .accessibilityIdentifier("coach-feedback")
+                            }.font(.callout.weight(.semibold))
                         }
                         if let assessment = attempt.assessment, !assessment.correctedAnswer.isEmpty {
                             Text(assessment.correctedAnswer).textSelection(.enabled)
@@ -358,7 +381,7 @@ private struct CoachTurnView: View {
                             Text(explanation).font(.callout).textSelection(.enabled)
                                 .accessibilityIdentifier("coach-explanation")
                         }
-                        if attempt.assisted { Text("coach.assisted").font(.caption).foregroundStyle(CoachPalette.secondary) }
+                        if attempt.assisted { Text("coach.assisted").font(.caption) }
                         if attempt.canRecheck {
                             Menu { Button("coach.assessment.recheck") { confirmRecheck = true } } label: {
                                 Image(systemName: "ellipsis").frame(minWidth: 44, minHeight: 44)

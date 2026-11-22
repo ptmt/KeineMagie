@@ -1,0 +1,116 @@
+Attributes: Application, 0x112fc8c80, pid: 40527, label: 'Keine Magie'
+Element subtree:
+ →Application, 0x112fc8c80, pid: 40527, label: 'Keine Magie'
+    Window (Main), 0x112fc8140, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x112fc83c0, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x112fc8500, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x112fc9680, {{0.0, 0.0}, {402.0, 874.0}}
+          Other, 0x112fcabc0, {{0.0, 0.0}, {402.0, 874.0}}
+            Other, 0x112fca6c0, {{0.0, 0.0}, {402.0, 874.0}}
+              Other, 0x112fca440, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x112fca580, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x112fcb340, {{0.0, 0.0}, {402.0, 874.0}}
+                    Other, 0x112fca800, {{0.0, 0.0}, {402.0, 874.0}}
+                      Other, 0x112fc8f00, {{0.0, 0.0}, {402.0, 874.0}}
+                        Other, 0x112fc9040, {{0.0, 0.0}, {402.0, 874.0}}
+                          Other, 0x112fc9180, {{0.0, 0.0}, {402.0, 874.0}}
+                            NavigationBar, 0x112fc92c0, {{0.0, 62.0}, {402.0, 54.0}}, identifier: 'Coach'
+                              StaticText, 0x112fc9400, {{175.3, 73.7}, {51.0, 20.7}}, label: 'Coach'
+                              Button, 0x112fc9540, {{275.7, 66.0}, {41.3, 36.0}}, identifier: 'main-settings', label: 'Settings'
+                              Button, 0x112fc8780, {{333.0, 66.0}, {49.0, 36.0}}, identifier: 'coach-profile', label: 'Skills'
+                            Other, 0x112fc88c0, {{0.0, 0.0}, {402.0, 874.0}}
+                              Other, 0x112fcaa80, {{0.0, 0.0}, {402.0, 874.0}}
+                                Other, 0x112fc8000, {{0.0, 0.0}, {402.0, 874.0}}
+                                  Other, 0x112fc8640, {{0.0, 0.0}, {402.0, 874.0}}
+                                    Other, 0x112fcb700, {{18.7, 116.0}, {364.7, 30.0}}, identifier: 'activity-strip'
+                                      Button, 0x112fcad00, {{52.7, 116.0}, {30.0, 30.0}}, identifier: 'activity-day-2026-11-22', label: 'Sunday, November 22, 2026. No completion data. Not a verified zero.'
+                                        StaticText, 0x112fcae40, {{63.8, 124.3}, {7.3, 13.3}}, label: 'S'
+                                        StaticText, 0x112fcaf80, {{75.8, 134.0}, {3.7, 12.0}}, label: '·'
+                                      Button, 0x112fcb0c0, {{97.0, 116.0}, {30.0, 30.0}}, identifier: 'activity-day-2026-11-23', label: 'Monday, November 23, 2026. No completion data. Not a verified zero.'
+                                        StaticText, 0x112fc8dc0, {{107.0, 124.3}, {10.0, 13.3}}, label: 'M'
+                                        StaticText, 0x112fc97c0, {{120.3, 134.0}, {3.7, 12.0}}, label: '·'
+                                      Button, 0x112fc9900, {{141.7, 116.0}, {30.0, 30.0}}, identifier: 'activity-day-2026-11-24', label: 'Tuesday, November 24, 2026. No completion data. Not a verified zero.'
+                                        StaticText, 0x112fc9a40, {{152.8, 124.3}, {7.3, 13.3}}, label: 'T'
+                                        StaticText, 0x112fc9b80, {{164.8, 134.0}, {3.7, 12.0}}, label: '·'
+                                      Button, 0x112fc9cc0, {{186.0, 116.0}, {30.0, 30.0}}, identifier: 'activity-day-2026-11-25', label: 'Wednesday, November 25, 2026. No completion data. Not a verified zero.'
+                                        StaticText, 0x112fc9e00, {{195.5, 124.3}, {11.0, 13.3}}, label: 'W'
+                                        StaticText, 0x112fc9f40, {{209.3, 134.0}, {3.7, 12.0}}, label: '·'
+                                      Button, 0x112fca080, {{230.7, 116.0}, {30.0, 30.0}}, identifier: 'activity-day-2026-11-26', label: 'Thursday, November 26, 2026. No completion data. Not a verified zero.'
+                                        StaticText, 0x112fca1c0, {{241.8, 124.3}, {7.3, 13.3}}, label: 'T'
+                                        StaticText, 0x112fcb200, {{253.8, 134.0}, {3.7, 12.0}}, label: '·'
+                                      Button, 0x112fcb840, {{275.0, 116.0}, {30.0, 30.0}}, identifier: 'activity-day-2026-11-27', label: 'Friday, November 27, 2026. No completion data. Not a verified zero.'
+                                        StaticText, 0x112fcb980, {{286.7, 124.3}, {6.7, 13.3}}, label: 'F'
+                                        StaticText, 0x112fcbac0, {{298.3, 134.0}, {3.7, 12.0}}, label: '·'
+                                      Button, 0x112fcbc00, {{319.7, 116.0}, {30.0, 30.0}}, identifier: 'activity-day-2026-11-28', label: 'Saturday, November 28, 2026. No completion data. Not a verified zero.'
+                                        StaticText, 0x112fcbd40, {{330.8, 124.3}, {7.3, 13.3}}, label: 'S'
+                                        StaticText, 0x112fc8a00, {{342.8, 134.0}, {3.7, 12.0}}, label: '·'
+                                      Button, 0x112fc8280, {{18.7, 125.0}, {7.0, 12.0}}, identifier: 'activity-previous', label: 'Previous week'
+                                      Button, 0x109c26080, {{376.3, 125.0}, {7.0, 12.0}}, identifier: 'activity-next', label: 'Next week', Disabled
+                                    ScrollView, 0x109c26940, {{0.0, 0.0}, {402.0, 874.0}}
+                                      Other, 0x109c275c0, {{0.0, 0.0}, {402.0, 874.0}}
+                                        Other, 0x109c26440, {{0.0, 0.0}, {402.0, 156.0}}
+                                        Other, 0x109c26d00, {{0.0, 741.0}, {402.0, 133.0}}
+                                      Other, 0x109c26bc0, {{0.0, 0.0}, {402.0, 874.0}}
+                                      Other, 0x109c27e80, {{0.0, 146.0}, {402.0, 315.3}}
+                                        StaticText, 0x109c266c0, {{173.7, 176.0}, {198.3, 20.3}}, label: 'Practice · synthetic fixture'
+                                        StaticText, 0x109c27840, {{14.0, 220.3}, {204.0, 52.3}}, identifier: 'coach-prompt-synthetic-coach', label: 'Ich warte ___ den Bus.'
+                                        StaticText, 0x109c26f80, {{30.0, 268.7}, {181.7, 15.7}}, label: 'Synthetic exercise, not live AI.'
+                                        TextField, 0x109c27c00, {{42.0, 298.3}, {294.0, 49.0}}, identifier: 'coach-answer-synthetic-coach', label: 'Answer', placeholderValue: 'Answer'
+                                          Other, 0x109c27ac0, {{42.0, 319.8}, {294.0, 24.5}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                                            Other, 0x109c25cc0, {{45.0, 341.3}, {288.0, 3.0}}
+                                        Button, 0x109c25b80, {{30.0, 361.3}, {81.7, 44.0}}, identifier: 'coach-check-synthetic-coach', label: 'Check', Disabled
+                                        Button, 0x109c25900, {{304.0, 361.3}, {44.0, 44.0}}, label: 'Skip'
+                                      Other, 0x109c24c80, {{369.0, 146.0}, {30.0, 571.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                        Other, 0x109c26e40, {{396.0, 622.7}, {3.0, 91.3}}
+                                      Other, 0x109c27480, {{369.0, 146.0}, {30.0, 571.0}}, label: 'Vertical scroll bar, 1 page', value: 0%
+                                        Other, 0x109c26300, {{396.0, 622.7}, {3.0, 91.3}}
+                                    Other, 0x109c261c0, {{16.0, 737.0}, {370.0, 46.0}}, identifier: 'coach-composer-container'
+                                      TextField, 0x109c27700, {{68.0, 749.0}, {266.0, 22.0}}, identifier: 'coach-composer', label: 'Message', placeholderValue: 'Message'
+                                        Other, 0x109c27d40, {{68.0, 757.0}, {266.0, 11.0}}, label: 'Horizontal scroll bar, 1 page', value: 0%
+                                          Other, 0x109c27980, {{71.0, 765.0}, {260.0, 3.0}}
+                                      Button, 0x109c26580, {{20.0, 739.0}, {44.0, 44.0}}, identifier: 'coach-actions', label: 'Coach actions'
+                                        Button, 0x109c26800, {{20.0, 739.0}, {44.0, 44.0}}
+                                          Image, 0x109c24a00, {{20.0, 739.0}, {44.0, 44.0}}, identifier: 'plus', label: 'Add'
+                                      Button, 0x109c27340, {{338.0, 739.0}, {44.0, 44.0}}, identifier: 'coach-send', label: 'Send', Disabled
+                            Toolbar, 0x109c270c0, {{0.0, 0.0}, {402.0, 874.0}}, identifier: 'Toolbar', label: 'Toolbar'
+                              Other, 0x109c25e00, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x109c25f40, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x10a6bc000, {{0.0, 791.0}, {402.0, 83.0}}
+                    Other, 0x10a6bc140, {{0.0, 0.0}, {402.0, 874.0}}
+                      TabBar, 0x10a6bc280, {{0.0, 791.0}, {402.0, 83.0}}, label: 'Tab Bar'
+                        Other, 0x10a6bc3c0, {{21.0, 791.0}, {360.0, 62.0}}
+                          Other, 0x10a6bc500, {{21.0, 791.0}, {95.0, 54.0}}
+                          Other, 0x10a6bc640, {{21.0, 791.0}, {360.0, 62.0}}
+                            Button, 0x10a6bc780, {{25.0, 795.0}, {95.0, 54.0}}, identifier: 'character.bubble', label: 'Translator'
+                              Image, 0x10a6bc8c0, {{57.0, 801.7}, {31.3, 27.7}}, identifier: 'character.bubble.fill', label: 'Character in a filled speech bubble'
+                            Button, 0x10a6bca00, {{110.7, 795.0}, {95.0, 54.0}}, identifier: 'waveform', label: 'Dictation'
+                              Image, 0x10a6bcb40, {{144.7, 801.0}, {27.0, 28.0}}, identifier: 'waveform', label: 'Audio waveform'
+                            Button, 0x10a6bcc80, {{196.3, 795.0}, {95.0, 54.0}}, identifier: 'headphones', label: 'Podcasts'
+                              Image, 0x10a6bcdc0, {{229.3, 800.7}, {29.3, 28.3}}, identifier: 'headphones', label: 'audiobook'
+                            Button, 0x10a6bcf00, {{282.0, 795.0}, {95.0, 54.0}}, identifier: 'bubble.left.and.bubble.right', label: 'Coach', Selected
+                              Image, 0x10a6bd040, {{310.3, 800.0}, {38.3, 31.3}}, identifier: 'bubble.left.and.bubble.right.fill', label: 'conversation'
+                          Other, 0x10a6bd180, {{21.0, 791.0}, {360.0, 62.0}}
+                          Other, 0x10a6bd2c0, {{282.0, 795.0}, {95.0, 54.0}}
+                            Other, 0x10a6bd400, {{282.0, 795.0}, {95.0, 54.0}}
+                              Other, 0x10a6bd540, {{282.0, 795.0}, {95.0, 54.0}}
+                              Other, 0x10a6bd680, {{282.0, 795.0}, {95.0, 54.0}}
+                                Other, 0x10a6bd7c0, {{282.0, 795.0}, {95.0, 54.0}}
+                                  Other, 0x10a6bd900, {{282.0, 795.0}, {95.0, 54.0}}
+                                    Other, 0x10a6bda40, {{282.0, 795.0}, {95.0, 54.0}}
+                                  Other, 0x10a6bdb80, {{282.0, 795.0}, {95.0, 54.0}}
+                                Other, 0x10a6bdcc0, {{282.0, 795.0}, {95.0, 54.0}}
+                    Other, 0x10a6bde00, {{0.0, 791.0}, {402.0, 83.0}}
+                      Other, 0x10a6bdf40, {{0.0, 791.0}, {402.0, 83.0}}
+                        Other, 0x10a6be080, {{0.0, 791.0}, {402.0, 83.0}}
+                          Other, 0x10a6be1c0, {{0.0, 791.0}, {402.0, 83.0}}
+                            Other, 0x10a6be300, {{0.0, 791.0}, {402.0, 83.0}}
+                              Other, 0x10a6be440, {{0.0, 791.0}, {402.0, 83.0}}
+                          Other, 0x10a6be580, {{0.0, 791.0}, {402.0, 83.0}}
+                            Other, 0x10a6be6c0, {{0.0, 791.0}, {402.0, 83.0}}
+Path to element:
+ →Application, 0x112fc8c80, pid: 40527, label: 'Keine Magie'
+Query chain:
+ →Find: Target Application 'de.keinemagie.app'
+  Output: {
+    Application, 0x10a6be800, pid: 40527, label: 'Keine Magie'
+  }

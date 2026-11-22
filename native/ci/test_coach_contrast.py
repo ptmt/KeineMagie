@@ -22,7 +22,9 @@ class CoachContrastTests(unittest.TestCase):
         source=(Path(__file__).resolve().parents[1]/'App/CoachView.swift').read_text()
         for token in ['UIColor(white: 0.78, alpha: 1)','UIColor(white: 0.32, alpha: 1)','UIColor(white: 0.15, alpha: 1)','UIColor(white: 0.94, alpha: 1)','prompt: Text("coach.message").foregroundStyle(CoachPalette.secondary)','prompt: Text("coach.answer").foregroundStyle(CoachPalette.secondary)']:
             self.assertIn(token,source)
-        for theme,fg,surfaces in [('dark',(.78,)*3,[(.15,)*3,(.26,.14,.15),(.125,.208,.161),(.16,.20,.28),(0,)*3]),('light',(.32,)*3,[(.94,)*3,(.98,.92,.92),(.929,.965,.937),(.90,.93,.98),(1,)*3])]:
+        # Secondary text appears only on neutral surfaces; semantic bubbles use
+        # opaque white, checked against parsed production RGB in test_coach_bold_glass.
+        for theme,fg,surfaces in [('dark',(.78,)*3,[(.15,)*3,(0,)*3]),('light',(.32,)*3,[(.94,)*3,(1,)*3])]:
             ratios=[contrast(fg,bg) for bg in surfaces]
             print('NATIVE_CONTRAST',theme,ratios)
             self.assertGreaterEqual(min(ratios),4.5)
