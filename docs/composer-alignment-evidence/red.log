@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/tinyserve/Projects/KeineMagie-web-composer-alignment/web/tests/coach_composer_alignment_browser.py", line 87, in <module>
+    assert not failures, 'Optical plus/text misalignment: '+json.dumps([(r['variant'],r['delta']) for r in failures])
+AssertionError: Optical plus/text misalignment: [["chromium-1280-light-single", 2.5], ["chromium-1280-light-multiline", 2.5], ["chromium-390-light-single", 2.5], ["chromium-390-light-multiline", 2.5], ["chromium-1280-dark-single", 3.0], ["chromium-1280-dark-multiline", 3.0], ["chromium-390-dark-single", 3.0], ["chromium-390-dark-multiline", 3.0]]

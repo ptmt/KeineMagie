@@ -1,0 +1,47 @@
+✔ server-authoritative actions and safe old snapshot fallback (2.300959ms)
+✔ active and pending tasks remain reachable outside rolling history without expanding unrelated old turns (1.770292ms)
+✔ locale calendar week uses local dates across DST and Sunday (4.273041ms)
+✔ a different owner/week/timezone clears old values before awaiting a response (0.521958ms)
+✔ late previous owner cannot repopulate activity; unavailable is not zero (0.212375ms)
+✔ quiet seen receipt revocation notifies the session owner (6.67475ms)
+✔ old answered turns collapse, latest feedback and explicit reveal survive (0.12125ms)
+✔ unread matches exact message revision, not fetch (0.070458ms)
+✔ hidden legacy greetings cannot mask the latest visible feedback (0.047667ms)
+✔ new client separates the exact legacy clue suffix without changing stored message (1.009291ms)
+✔ clue is literal supplied text in its supplied language; legacy missing remains absent (39.831916ms)
+✔ transport failure stops typing, retains literal answer and exposes neutral error with receipt Stop (26.398792ms)
+✔ context translation highlights only literal target without interpreting markup (22.850792ms)
+✔ pending entry exposes cancellation and cancel wins over a late entry response (3.606125ms)
+✔ Latest in expanded history collapses and requests bottom without a snapshot change (3.872958ms)
+✔ composer menu includes every command and a detached old-owner command cannot send (3.980417ms)
+✔ busy menu stays discoverable with disabled commands and opening sends nothing (2.271708ms)
+✔ only authenticated visible entry posts; hidden preload and background visibility do not (4.166583ms)
+✔ initial data anchors once; localization, profile receipts, and older reading do not follow (3.022375ms)
+✔ new messages follow near the bottom and own send follows from older reading (3.348583ms)
+✔ old greetings stay saved but never render, checking has an accessible label (2.1915ms)
+✔ profile and seen receipt changes preserve offset, explicit answer follows from history (3.858209ms)
+✔ task stays neutral and immutable; literal submitted answer and assessment are separate messages (25.742583ms)
+✔ rolling 24h retains complete groups by latest learner/assessment activity, pending remains visible (1.234208ms)
+✔ checked results differ from neutral waiting, uncertain and skipped (0.086166ms)
+✔ Earlier bounds rendering to a 50-group window without changing saved data (5.408292ms)
+✔ legacy offers and nudges are display-only filtered, snapshots stay intact (0.095583ms)
+✔ only checked correct and wrong get result colors; pending, failed, skipped stay neutral (0.058833ms)
+✔ pending answer stays visible even with later discussion, composer Stop cancels exact receipt (17.3535ms)
+✔ obvious cloze omits only redundant instructions, not useful context (1.341708ms)
+✔ source links are local, exact, and reject malformed identifiers (0.204208ms)
+✔ owner reset fences delayed responses and load never posts (0.119542ms)
+✔ mutation fences older reads (2.3965ms)
+✔ cancel owns mutation slot until durable acknowledgement and fences late send (0.102666ms)
+✔ errors use localizable codes, never provider text (0.143958ms)
+✔ failures distinguish server response, decoding, timeout and transport without provider blame (0.13125ms)
+✔ answer immediately shows verbatim pending attempt and cancels by assessment ID (0.125625ms)
+✔ explicit send uses stable id; failures do not silently retry (0.0925ms)
+✔ entry sends local IANA time zone, ordinary actions stay wire compatible (7.829208ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.050166
