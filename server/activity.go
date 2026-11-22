@@ -1,17 +1,19 @@
 package main
 
 import (
+	"path/filepath"
 	"strings"
 	"time"
 )
 
-// KnownCount is a LOWER BOUND from retained explicit checked workflows, never
+// KnownCount is a LOWER BOUND from retained successful translations and checked workflows, never
 // a claim of complete historical coverage. No source text or private IDs leave
 // this adapter. Unsupported modules are not silently counted as zero.
 type activityDay struct {
-	Date       string `json:"date"`
-	KnownCount int    `json:"known_count"`
-	Coverage   string `json:"coverage"`
+	Date       string         `json:"date"`
+	KnownCount int            `json:"known_count"`
+	Coverage   string         `json:"coverage"`
+	Counts     map[string]int `json:"counts"`
 }
 type activitySnapshot struct {
 	Version  int               `json:"version"`
@@ -22,20 +24,21 @@ type activitySnapshot struct {
 }
 
 func (cfg *serverConfig) activityWeek(owner string, start time.Time, loc *time.Location) activitySnapshot {
-	result := activitySnapshot{Version: 1, TimeZone: loc.String(), Days: []activityDay{}, Sources: map[string]string{"translator": "unsupported", "podcasts": "unsupported", "coach": "unavailable", "dictation": "unavailable"}}
+	result := activitySnapshot{Version: 1, TimeZone: loc.String(), Days: []activityDay{}, Sources: map[string]string{"translator": "unavailable", "podcasts": "unsupported", "coach": "unavailable", "dictation": "unavailable"}}
 	index := map[string]int{}
 	for i := 0; i < 7; i++ {
 		key := start.AddDate(0, 0, i).Format("2006-01-02")
 		index[key] = i
-		result.Days = append(result.Days, activityDay{Date: key, Coverage: "partial"})
+		result.Days = append(result.Days, activityDay{Date: key, Coverage: "partial", Counts: map[string]int{"coach": 0, "dictation": 0, "translator": 0, "podcasts": 0}})
 	}
-	add := func(at time.Time) {
+	add := func(source string, at time.Time) {
 		if at.IsZero() {
 			result.Undated++
 			return
 		}
 		if i, ok := index[at.In(loc).Format("2006-01-02")]; ok {
 			result.Days[i].KnownCount++
+			result.Days[i].Counts[source]++
 		}
 	}
 	// A completed assessment, including wrong/uncertain answers, settles a Check.
@@ -62,7 +65,7 @@ func (cfg *serverConfig) activityWeek(owner string, start time.Time, loc *time.L
 					continue
 				}
 				seen[turn.ID] = true
-				add(a.At)
+				add("coach", a.At)
 				break
 			}
 		}
@@ -82,9 +85,28 @@ func (cfg *serverConfig) activityWeek(owner string, start time.Time, loc *time.L
 			if v.Assessment != nil {
 				at, _ = time.Parse(time.RFC3339Nano, v.Assessment.At)
 			}
-			add(at) // Never use Created as a check date.
+			add("dictation", at) // Never use Created as a check date.
 		}
 		result.Sources["dictation"] = "retained"
+		return nil
+	})
+	// Only successfully saved account results count. Read the entire owner store:
+	// history.list is a presentation window capped at 100, not completion evidence.
+	history := &historyStore{path: filepath.Join(filepath.Dir(cfg.historyPath), "users", sessionHash(owner)+".json")}
+	_ = history.locked(func() error {
+		records, err := history.read()
+		if err != nil {
+			return err
+		}
+		seen := map[string]bool{}
+		for _, record := range records {
+			if record.ID == "" || seen[record.ID] || strings.TrimSpace(record.Translation) == "" {
+				continue
+			}
+			seen[record.ID] = true
+			add("translator", record.CreatedAt) // Saved only after successful result; zero dates stay undated.
+		}
+		result.Sources["translator"] = "retained"
 		return nil
 	})
 	return result

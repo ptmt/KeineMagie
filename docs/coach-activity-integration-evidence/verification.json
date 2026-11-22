@@ -1,0 +1,356 @@
+{
+  "base": "39ed59dc534c600c1d823f573ad7c35474791c54",
+  "synthetic_transport": true,
+  "publication": false,
+  "podcast_completion_supported": false,
+  "ui": [
+    {
+      "variant": "normal-light",
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-integrated-normal-light.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+              "deviceName": "KeineMagie Dictation final isolated",
+              "modelName": "iPhone 17",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 7,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795329134.534,
+        "passedTests": 7,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1795328938.999,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 7
+      }
+    },
+    {
+      "variant": "normal-dark",
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-integrated-normal-dark.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+              "deviceName": "KeineMagie Dictation final isolated",
+              "modelName": "iPhone 17",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 7,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795329267.084,
+        "passedTests": 7,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1795329150.683,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 7
+      }
+    },
+    {
+      "variant": "se-light",
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-integrated-se-light.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+              "deviceName": "KeineMagie profiles integrated isolated",
+              "modelName": "iPhone SE (3rd generation)",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 7,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795329456.59,
+        "passedTests": 7,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1795329324.708,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 7
+      }
+    },
+    {
+      "variant": "se-dark",
+      "xcresult": "/Users/tinyserve/.hermes/cache/scratch/km-integrated-se-dark.xcresult",
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+              "deviceName": "KeineMagie profiles integrated isolated",
+              "modelName": "iPhone SE (3rd generation)",
+              "osBuildNumber": "24B8117",
+              "osVersion": "27.2",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 7,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1795329591.949,
+        "passedTests": 7,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1795329476.411,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - KeineMagie",
+        "topInsights": [],
+        "totalTestCount": 7
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/activity-source-details-synthetic.png",
+      "test": "ActivityUITests/testDayDetailsExposeEvidenceAndUnsupportedListening()",
+      "sha256": "20d6caf1e2006bcfc0f73bcf5c48069a358b12ab536fdd74be6e70a3e1bf5a93"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/activity-week-synthetic.png",
+      "test": "ActivityUITests/testStableThirtyPointWeekAndNavigation()",
+      "sha256": "b5f54ed1c2dfc0e0ef1ce24a48233b1947b1563508b1396fe6ec9bf820535620"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/activity-unknown-russian-AXXXL-synthetic.png",
+      "test": "ActivityUITests/testUnknownDoesNotBecomeZeroAndLargeRussianStaysThirty()",
+      "sha256": "5f75bdf3dea49c5d47d941cd8d40c45f88f02a209f8d45d5147f1e8c714a5ecb"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/context-correct.png",
+      "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+      "sha256": "ba89e479a6b9759c9dc98bc53665d4b2551b3c7fda52e71f69fda8ba21c6e613"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/context-pending.png",
+      "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+      "sha256": "616ffcb8f4c242d26bd65992e3fe376ce59717eb69cee578bf3538627f137878"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/context-canceled.png",
+      "test": "CoachStableChatUITests/testStopPreservesAnswerAndDiscussionDraft()",
+      "sha256": "2993b001b434947e0c61a1e396f93a3478d855b940cb208ed83ea68ecf96102e"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/stable-result.png",
+      "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+      "sha256": "49f718d9fedadaa9eef66d20ce583803eaf63d5881eb7dbcd1a5dfd14b70cbd8"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/stable-pending.png",
+      "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+      "sha256": "d96a5c71c06394df393c074bdd3ce166e9e87417de6f53b4d030e0ebc4c49cd0"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-light/context-error.png",
+      "test": "CoachStableChatUITests/testTransportErrorPreservesAnswerAndDraft()",
+      "sha256": "33de3cc102f2945d1062d59c90d12d327e0538f6a1f0fe03dc7d2fa4245dfd93"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/activity-source-details-synthetic.png",
+      "test": "ActivityUITests/testDayDetailsExposeEvidenceAndUnsupportedListening()",
+      "sha256": "a0a99adba987daefbeb9021e2cf50b6608eab4532aca85824014562f00ade7ab"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/activity-week-synthetic.png",
+      "test": "ActivityUITests/testStableThirtyPointWeekAndNavigation()",
+      "sha256": "b162c738408ad920e1b917b6dc2b757e966a91936d14c89083b19446973dd5cd"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/activity-unknown-russian-AXXXL-synthetic.png",
+      "test": "ActivityUITests/testUnknownDoesNotBecomeZeroAndLargeRussianStaysThirty()",
+      "sha256": "a0a1463a0a606047aa0c88a98bd4bd93e9e2180ac7f1e5bfd12f31349b7c7a95"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/context-correct.png",
+      "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+      "sha256": "6611753323518891381a2b0ca6d7fc73ca0a328e6278b1a04dd623953049d4f0"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/context-pending.png",
+      "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+      "sha256": "a0dee903df42212db3d2c8f70998161083ee36402d8741d987a091f101e6f2aa"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/context-canceled.png",
+      "test": "CoachStableChatUITests/testStopPreservesAnswerAndDiscussionDraft()",
+      "sha256": "37b74900bd19f556fca12d741c454b5a2ed6c4daae0b9d1a765a489b4751ed06"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/stable-result.png",
+      "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+      "sha256": "5964f0a34ac3a720565b3f0b79e60214c1a2a1e88cb8bd3ca170db7b81e90bac"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/stable-pending.png",
+      "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+      "sha256": "51fb71c8744ec1b640b916ca90bbe251e7c63e53511e9b3fe6ac95256b84085b"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/normal-dark/context-error.png",
+      "test": "CoachStableChatUITests/testTransportErrorPreservesAnswerAndDraft()",
+      "sha256": "6b004f7c5a3a5d65954e44ca6f9544f504a62a872938465cb70e7871140ee088"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/activity-source-details-synthetic.png",
+      "test": "ActivityUITests/testDayDetailsExposeEvidenceAndUnsupportedListening()",
+      "sha256": "ae53158038ce379b02ce917263b0ce3fcd0f39d65aded37e305d8174c3654c90"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/activity-week-synthetic.png",
+      "test": "ActivityUITests/testStableThirtyPointWeekAndNavigation()",
+      "sha256": "340e109dc731393d613f3b9623e642c3403097384351e00913e969f9f2b42cce"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/activity-unknown-russian-AXXXL-synthetic.png",
+      "test": "ActivityUITests/testUnknownDoesNotBecomeZeroAndLargeRussianStaysThirty()",
+      "sha256": "3d08491d0dc5de70a7d5685a875f04bcbcea48f8238c10ce70e64e95cf32e6e4"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/context-correct.png",
+      "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+      "sha256": "6d0eadd32c6ae9dfca7078ea04324e0a897b9c91ddaed2802748ee5113710e0d"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/context-pending.png",
+      "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+      "sha256": "e2681cd6e0b0c6a26b1261dd65df5c47d19cb44995a408c7fa18d22c012b928b"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/context-canceled.png",
+      "test": "CoachStableChatUITests/testStopPreservesAnswerAndDiscussionDraft()",
+      "sha256": "35d584cf60e1a83886b510c37711bdf3af545dd9d237af42f41303962af965a5"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/stable-result.png",
+      "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+      "sha256": "f24d70085f2814fddc0cb5608bd6045256437ded34f3469e36cf0fe78732957d"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/stable-pending.png",
+      "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+      "sha256": "9c37591bb9a935669a14aa79dcd7dd749b387d87b6c5d8aa978aa9792f44a9c1"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-light/context-error.png",
+      "test": "CoachStableChatUITests/testTransportErrorPreservesAnswerAndDraft()",
+      "sha256": "ef05ce8a04591cc2df82a9d034e133f72ebb71abf6bcaa64cd8112237ad0ca96"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/activity-source-details-synthetic.png",
+      "test": "ActivityUITests/testDayDetailsExposeEvidenceAndUnsupportedListening()",
+      "sha256": "196af864d48e498370fbc896044caa7ce5d8a28fcf3b09edaecefb237eac2d7a"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/activity-week-synthetic.png",
+      "test": "ActivityUITests/testStableThirtyPointWeekAndNavigation()",
+      "sha256": "e47c3fb5ef1b4ad600a6b7411a5c23f98dba893f12ffc39228d90dae36f0b100"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/activity-unknown-russian-AXXXL-synthetic.png",
+      "test": "ActivityUITests/testUnknownDoesNotBecomeZeroAndLargeRussianStaysThirty()",
+      "sha256": "4ba2ede335e348b084ac0752f62756002d4f56fd0a76819a5872227e12fe644d"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/context-correct.png",
+      "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+      "sha256": "840ece6b24c4692326ebb1d1f32767d0d09bc61b06e765412901e69a54d5698a"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/context-pending.png",
+      "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+      "sha256": "39d6cb20b40e73cf11109dc68df12dcc21719c0ddc768f8eaa237ba10a522235"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/context-canceled.png",
+      "test": "CoachStableChatUITests/testStopPreservesAnswerAndDiscussionDraft()",
+      "sha256": "28a88e7f7227b5fc2f43a0202403fca7d25a67c065f014a1a325981626f553f1"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/stable-result.png",
+      "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+      "sha256": "7b46b6c209dbee744d680a4b21409de0f4a899ef692cdae79f8f797b1a20cbe8"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/stable-pending.png",
+      "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+      "sha256": "70caff5a0189a3787887d0a801ca98cf24c255c74dc6147ddfa1f49f4155f579"
+    },
+    {
+      "path": "docs/coach-activity-integration-evidence/se-dark/context-error.png",
+      "test": "CoachStableChatUITests/testTransportErrorPreservesAnswerAndDraft()",
+      "sha256": "0195b06e0e02787ff4731b219de5d113d0ef31a5f274080b47b645c296bb4143"
+    }
+  ],
+  "total_ui_passed": 28,
+  "screenshots_count": 36
+}

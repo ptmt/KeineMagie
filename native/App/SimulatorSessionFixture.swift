@@ -300,9 +300,11 @@ actor SimulatorSessionFixture {
             let days = (0..<7).map { index -> [String:Any] in
                 let day = calendar.date(byAdding: .day, value: index, to: base)!
                 let increment = coachAnswered && calendar.isDateInToday(day) ? 1 : 0
-                return ["date": format.string(from: day), "known_count": [0,1,2,4,0,7,0][index] + increment, "coverage": "partial"]
+                let total = [0,1,2,4,0,7,0][index] + increment
+                let translated = index == 2 ? 1 : 0
+                return ["date": format.string(from: day), "known_count": total, "coverage": "partial", "counts": ["coach":total-translated,"translator":translated,"dictation":0,"podcasts":0]]
             }
-            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["version":1,"time_zone":zone,"days":days,"sources":["coach":"retained","dictation":"retained","translator":"unsupported","podcasts":"unsupported"],"undated":1]), status:200)
+            return AuthResponse(data: try JSONSerialization.data(withJSONObject: ["version":1,"time_zone":zone,"days":days,"sources":["coach":"retained","dictation":"retained","translator":"retained","podcasts":"unsupported"],"undated":1]), status:200)
         }
         if request.url?.path == "/v1/learning/coach" {
             if mode == "coach-stable" { return try await stableCoach.send(request) }

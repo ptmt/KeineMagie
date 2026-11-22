@@ -4,8 +4,10 @@ public struct ActivityDay: Codable, Sendable {
  public let date: String
  public let knownCount: Int
  public let coverage: String
+ /// Missing on older servers: never infer a source breakdown from the total.
+ public let counts: [String:Int]?
  public var verifiedCount: Int? { coverage == "complete" ? knownCount : nil }
- enum CodingKeys:String,CodingKey {case date,knownCount="known_count",coverage}
+ enum CodingKeys:String,CodingKey {case date,knownCount="known_count",coverage,counts}
 }
 public struct ActivitySnapshot: Codable, Sendable {
  public let version: Int

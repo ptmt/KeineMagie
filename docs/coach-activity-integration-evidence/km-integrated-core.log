@@ -1,0 +1,519 @@
+Building for debugging...
+[Planning 7 / 124]
+[Planning deferred tasks]
+[44 / 71] KeineMagieCore_KeineMagieCore
+[46 / 71]
+[47 / 72] KeineMagieCore
+[56 / 123]
+[59 / 123]
+[62 / 123]
+[65 / 123]
+[66 / 123]
+[67 / 123]
+[70 / 123]
+[71 / 123]
+[72 / 123]
+[73 / 123]
+[74 / 123]
+[77 / 123]
+[78 / 123]
+[81 / 123]
+[82 / 123]
+[83 / 123]
+[84 / 123]
+[98 / 123] KeineMagieCore
+[106 / 123] KeineMagieCore
+[113 / 124] KeineMagieCoreTests-product
+[127 / 177]
+[135 / 177]
+[138 / 177]
+[143 / 177]
+[148 / 177]
+[150 / 177]
+[151 / 177]
+[154 / 177]
+[155 / 177]
+[166 / 177] KeineMagieCoreTests-product
+[171 / 177] KeineMagieCoreTests-product
+[173 / 177] KeineMagieCoreTests-product
+Build complete! (18,23 sec)
+Test Suite 'All tests' started at 2026-11-22 07:30:27.464.
+Test Suite 'KeineMagieCoreTests.xctest' started at 2026-11-22 07:30:27.471.
+Test Suite 'CoachPresentationTests' started at 2026-11-22 07:30:27.471.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testContextTranslationTargetAndLanguageDecodeWithoutChangingLegacy]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testContextTranslationTargetAndLanguageDecodeWithoutChangingLegacy]' passed (0.002 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testEarlierBoundsRenderingWithoutDroppingSavedGroups]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testEarlierBoundsRenderingWithoutDroppingSavedGroups]' passed (0.014 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testEntryTimeZoneIsOptionalAndLegacyCodingSurvives]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testEntryTimeZoneIsOptionalAndLegacyCodingSurvives]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testExplicitPinnedTurnDoesNotExpandOldHistory]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testExplicitPinnedTurnDoesNotExpandOldHistory]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testFailedAssessmentIsNeutralEvenWithOldCorrectOutcome]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testFailedAssessmentIsNeutralEvenWithOldCorrectOutcome]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testInstructionSurvivesAnswerSubmission]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testInstructionSurvivesAnswerSubmission]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testLegacyGreetingsAreFilteredWithoutMutatingHistory]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testLegacyGreetingsAreFilteredWithoutMutatingHistory]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testPendingOldTurnStaysVisibleWithoutOpeningEarlier]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testPendingOldTurnStaysVisibleWithoutOpeningEarlier]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testRollingDayBoundaryDSTUnknownFutureAndRecentAttempt]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testRollingDayBoundaryDSTUnknownFutureAndRecentAttempt]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testStatusesDoNotConfuseAttemptWithIncorrectOrWaiting]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testStatusesDoNotConfuseAttemptWithIncorrectOrWaiting]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testSyntheticHistoryPresentationBenchmark]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testSyntheticHistoryPresentationBenchmark]' passed (0.010 seconds).
+Test Suite 'CoachPresentationTests' passed at 2026-11-22 07:30:27.501.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.029 (0.030) seconds
+Test Suite 'CoachTests' started at 2026-11-22 07:30:27.501.
+Test Case '-[KeineMagieCoreTests.CoachTests testAssessmentPreservesVerbatimAndLegacyCompatibility]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testAssessmentPreservesVerbatimAndLegacyCompatibility]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testChatReceiptContract]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testChatReceiptContract]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testCoachFailureStagesAreNotAllNetwork]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testCoachFailureStagesAreNotAllNetwork]' passed (0.002 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testCompactInstructionRetainsUsefulContext]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testCompactInstructionRetainsUsefulContext]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testDifferentAuthoritativeAttemptAndMissingTurnDoNotEraseLiteral]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testDifferentAuthoritativeAttemptAndMissingTurnDoNotEraseLiteral]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testErrorsAreTypedAndDoNotExposeUpstreamText]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testErrorsAreTypedAndDoNotExposeUpstreamText]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testExplicitActionPreservesID]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testExplicitActionPreservesID]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testLegacyPendingCacheSurvivesMissingReceipt]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testLegacyPendingCacheSurvivesMissingReceipt]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testMatchingServerAcknowledgementAlwaysWins]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testMatchingServerAcknowledgementAlwaysWins]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testReadDoesNotPostAndDecodesEvidence]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testReadDoesNotPostAndDecodesEvidence]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testRecoveryPreservesPriorRecheckIdentityThroughCodingAndReads]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testRecoveryPreservesPriorRecheckIdentityThroughCodingAndReads]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testServerActionsAndLegacyFallback]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testServerActionsAndLegacyFallback]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testSourceTargetsRejectMalformedIDs]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testSourceTargetsRejectMalformedIDs]' passed (0.000 seconds).
+Test Suite 'CoachTests' passed at 2026-11-22 07:30:27.508.
+	 Executed 13 tests, with 0 failures (0 unexpected) in 0.006 (0.007) seconds
+Test Suite 'ContentCacheTests' started at 2026-11-22 07:30:27.508.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testLogoutRemovesCoachAnswerSnapshot]' started.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testLogoutRemovesCoachAnswerSnapshot]' passed (0.006 seconds).
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testLogoutRemovesLearningSnapshot]' started.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testLogoutRemovesLearningSnapshot]' passed (0.003 seconds).
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testNewSessionSupersedesQueuedOldWriteAndCleanup]' started.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testNewSessionSupersedesQueuedOldWriteAndCleanup]' passed (0.009 seconds).
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testOwnerAndServerIsolation]' started.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testOwnerAndServerIsolation]' passed (0.005 seconds).
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testRevisionFenceRejectsOutOfOrderWritesAndInvalidatedSession]' started.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testRevisionFenceRejectsOutOfOrderWritesAndInvalidatedSession]' passed (0.005 seconds).
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testSynchronousDictationJournalIsDurableAndLogoutPurged]' started.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testSynchronousDictationJournalIsDurableAndLogoutPurged]' passed (0.006 seconds).
+Test Suite 'ContentCacheTests' passed at 2026-11-22 07:30:27.542.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.033 (0.034) seconds
+Test Suite 'DictationAssessmentTests' started at 2026-11-22 07:30:27.542.
+Test Case '-[KeineMagieCoreTests.DictationAssessmentTests testActualGoHandlerReceipts]' started.
+/Users/tinyserve/Projects/KeineMagie-coach-activity-local/native/Core/Tests/KeineMagieCoreTests/DictationAssessmentTests.swift:6: -[KeineMagieCoreTests.DictationAssessmentTests testActualGoHandlerReceipts] : Test skipped - Set DICTATION_ASSESSMENT_FIXTURE to actual Go handler JSON
+Test Case '-[KeineMagieCoreTests.DictationAssessmentTests testActualGoHandlerReceipts]' skipped (0.001 seconds).
+Test Suite 'DictationAssessmentTests' passed at 2026-11-22 07:30:27.542.
+	 Executed 1 test, with 1 test skipped and 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'DictationGoBridgeTests' started at 2026-11-22 07:30:27.542.
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoLostStartAndProgressAcknowledgmentsStopColdRestart]' started.
+/Users/tinyserve/Projects/KeineMagie-coach-activity-local/native/Core/Tests/KeineMagieCoreTests/DictationGoBridgeTests.swift:50: -[KeineMagieCoreTests.DictationGoBridgeTests testActualGoLostStartAndProgressAcknowledgmentsStopColdRestart] : Test skipped - Real Go bridge executable required
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoLostStartAndProgressAcknowledgmentsStopColdRestart]' skipped (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoNativeRoundTripAdmissionRecoveryAndRevocation]' started.
+/Users/tinyserve/Projects/KeineMagie-coach-activity-local/native/Core/Tests/KeineMagieCoreTests/DictationGoBridgeTests.swift:143: -[KeineMagieCoreTests.DictationGoBridgeTests testActualGoNativeRoundTripAdmissionRecoveryAndRevocation] : Test skipped - Run native/ci/verify_dictation_policy_bridge.py; synthetic Go bridge only
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoNativeRoundTripAdmissionRecoveryAndRevocation]' skipped (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoStopRestartZeroAndFourStartCap]' started.
+/Users/tinyserve/Projects/KeineMagie-coach-activity-local/native/Core/Tests/KeineMagieCoreTests/DictationGoBridgeTests.swift:111: -[KeineMagieCoreTests.DictationGoBridgeTests testActualGoStopRestartZeroAndFourStartCap] : Test skipped - Run native/ci/verify_dictation_policy_bridge.py
+Test Case '-[KeineMagieCoreTests.DictationGoBridgeTests testActualGoStopRestartZeroAndFourStartCap]' skipped (0.000 seconds).
+Test Suite 'DictationGoBridgeTests' passed at 2026-11-22 07:30:27.544.
+	 Executed 3 tests, with 3 tests skipped and 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'DictationJournalTests' started at 2026-11-22 07:30:27.544.
+Test Case '-[KeineMagieCoreTests.DictationJournalTests testDiskFailureNeverSendsAndKeepsDraft]' started.
+Test Case '-[KeineMagieCoreTests.DictationJournalTests testDiskFailureNeverSendsAndKeepsDraft]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationJournalTests testDurablePendingSurvivesAcknowledgementLoss]' started.
+Test Case '-[KeineMagieCoreTests.DictationJournalTests testDurablePendingSurvivesAcknowledgementLoss]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationJournalTests testOwnerResetFencesSuspendedSave]' started.
+Test Case '-[KeineMagieCoreTests.DictationJournalTests testOwnerResetFencesSuspendedSave]' passed (0.000 seconds).
+Test Suite 'DictationJournalTests' passed at 2026-11-22 07:30:27.546.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'DictationManualIntegrationTests' started at 2026-11-22 07:30:27.546.
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testExplicitExtraReplayUsesChosenCachedFragmentWithoutAutoRepeating]' started.
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testExplicitExtraReplayUsesChosenCachedFragmentWithoutAutoRepeating]' passed (0.003 seconds).
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testIntroductionAndFragmentRequireExplicitNextButRepeatsUseConfiguredGap]' started.
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testIntroductionAndFragmentRequireExplicitNextButRepeatsUseConfiguredGap]' passed (0.005 seconds).
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testManualTimingContainsOnlyCurrentFragmentAndConfiguredRepeatGaps]' started.
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testManualTimingContainsOnlyCurrentFragmentAndConfiguredRepeatGaps]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testNewAttemptsOptIntoManualPacingWithoutChangingStoredAttempts]' started.
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testNewAttemptsOptIntoManualPacingWithoutChangingStoredAttempts]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testPacingMutationSurvivesColdRestoreWithExactBody]' started.
+Test Case '-[KeineMagieCoreTests.DictationManualIntegrationTests testPacingMutationSurvivesColdRestoreWithExactBody]' passed (0.000 seconds).
+Test Suite 'DictationManualIntegrationTests' passed at 2026-11-22 07:30:27.555.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.009 (0.009) seconds
+Test Suite 'DictationOperationJournalTests' started at 2026-11-22 07:30:27.555.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testAttemptRequestIsStablePerSourceAcrossRestart]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testAttemptRequestIsStablePerSourceAcrossRestart]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testCachedAttemptRequiresSuccessfulCommitBeforeReturn]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testCachedAttemptRequiresSuccessfulCommitBeforeReturn]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testCachedCreateRequiresSuccessfulCommitBeforeReturn]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testCachedCreateRequiresSuccessfulCommitBeforeReturn]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testCheckedConflictCannotRebaseIntoMutation]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testCheckedConflictCannotRebaseIntoMutation]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testConflictKeepsLocalUntilExplicitResolution]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testConflictKeepsLocalUntilExplicitResolution]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testConflictRequiresRebaseBeforeNewMutation]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testConflictRequiresRebaseBeforeNewMutation]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testCreateRequestSurvivesLostAcknowledgementAndRestart]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testCreateRequestSurvivesLostAcknowledgementAndRestart]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testHistorySummaryCannotEraseFullOfflineDraft]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testHistorySummaryCannotEraseFullOfflineDraft]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testLogoutDuringSave404CannotArchiveNewOwnersDraft]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testLogoutDuringSave404CannotArchiveNewOwnersDraft]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testRejectedCreateUnlocksFormButNetworkFailureKeepsIdentity]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testRejectedCreateUnlocksFormButNetworkFailureKeepsIdentity]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testRemoteDeleteArchivesDraftAndPreventsResurrection]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testRemoteDeleteArchivesDraftAndPreventsResurrection]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testSave404ArchivesDraftAndUnblocksHistory]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testSave404ArchivesDraftAndUnblocksHistory]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testSaveFenceCompletionInvalidatesObservedReadiness]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testSaveFenceCompletionInvalidatesObservedReadiness]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testSaveFenceSurvivesDownloadAndInterruptionButFencesLogout]' started.
+Test Case '-[KeineMagieCoreTests.DictationOperationJournalTests testSaveFenceSurvivesDownloadAndInterruptionButFencesLogout]' passed (0.000 seconds).
+Test Suite 'DictationOperationJournalTests' passed at 2026-11-22 07:30:27.559.
+	 Executed 14 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+Test Suite 'DictationPacingCompatibilityTests' started at 2026-11-22 07:30:27.559.
+Test Case '-[KeineMagieCoreTests.DictationPacingCompatibilityTests testNewPolicyRefreshIsNotDowngradedByCachedPolicyOne]' started.
+Test Case '-[KeineMagieCoreTests.DictationPacingCompatibilityTests testNewPolicyRefreshIsNotDowngradedByCachedPolicyOne]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPacingCompatibilityTests testPolicyTwoRoundTripPreservesPacingAndEvidenceWithoutClaimingTransportSupport]' started.
+Test Case '-[KeineMagieCoreTests.DictationPacingCompatibilityTests testPolicyTwoRoundTripPreservesPacingAndEvidenceWithoutClaimingTransportSupport]' passed (0.000 seconds).
+Test Suite 'DictationPacingCompatibilityTests' passed at 2026-11-22 07:30:27.560.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'DictationPlaybackControllerTests' started at 2026-11-22 07:30:27.560.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testCancelledTimingDownloadCannotPublishDurationOrAdmitPlayback]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testCancelledTimingDownloadCannotPublishDurationOrAdmitPlayback]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testCompletedGapRemainsCountedDuringNextAdmission]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testCompletedGapRemainsCountedDuringNextAdmission]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testContinuousSequenceUsesRealThreeSecondPauseAndStopsOnBackground]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testContinuousSequenceUsesRealThreeSecondPauseAndStopsOnBackground]' passed (3.304 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testDecodeFailureNeverCompletesAndRevokedOwnerCannotResume]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testDecodeFailureNeverCompletesAndRevokedOwnerCannotResume]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testExpiredLeaseStopsMediaWithoutEndedOrAnotherStart]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testExpiredLeaseStopsMediaWithoutEndedOrAnotherStart]' passed (0.197 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testExplicitStopImmediatelyResetsTimingAndNeverEnds]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testExplicitStopImmediatelyResetsTimingAndNeverEnds]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testGapClockFreezesOnCancellationAndRejectsLateGapCompletion]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testGapClockFreezesOnCancellationAndRejectsLateGapCompletion]' passed (0.003 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testInterruptedContinueUsesSameReservationAndDoesNotEnd]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testInterruptedContinueUsesSameReservationAndDoesNotEnd]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testLate401RevokesSameOwnerAfterAttemptNavigationButNotReplacementOwner]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testLate401RevokesSameOwnerAfterAttemptNavigationButNotReplacementOwner]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testLateStopAcknowledgmentPreservesNewerPersistedStop]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testLateStopAcknowledgmentPreservesNewerPersistedStop]' passed (0.003 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testLateTrackedAcknowledgmentDoesNotOverwriteNewerStopIntent]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testLateTrackedAcknowledgmentDoesNotOverwriteNewerStopIntent]' passed (0.002 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testModeCancellationWaitsForPendingExplicitReset]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testModeCancellationWaitsForPendingExplicitReset]' passed (0.002 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testOfflineGapStopColdRestartDoesNotResetNewerReleasedForeignReservation]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testOfflineGapStopColdRestartDoesNotResetNewerReleasedForeignReservation]' passed (0.002 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testOfflineStopColdRelaunchResetsBeforeNextStart]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testOfflineStopColdRelaunchResetsBeforeNextStart]' passed (0.002 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testRealCachedDurationsEndPersistsAndFinalStartsFresh]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testRealCachedDurationsEndPersistsAndFinalStartsFresh]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testReplacedAttemptReleasesLateAdmissionWithoutStartingOrEndingMedia]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testReplacedAttemptReleasesLateAdmissionWithoutStartingOrEndingMedia]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testSentenceChainWaitsThreeSecondsAndFinalIsExplicit]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testSentenceChainWaitsThreeSecondsAndFinalIsExplicit]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testStopAdvancesOnlyToHeldEndedAcknowledgment]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testStopAdvancesOnlyToHeldEndedAcknowledgment]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testStopIntentSurvivesColdJournalAndOwnerResetPurges]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testStopIntentSurvivesColdJournalAndOwnerResetPurges]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testStopWhileAdmissionIsHeldNeverPlaysLate]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testStopWhileAdmissionIsHeldNeverPlaysLate]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testTimingDownloadSurvivesPlaybackAdmission]' started.
+Test Case '-[KeineMagieCoreTests.DictationPlaybackControllerTests testTimingDownloadSurvivesPlaybackAdmission]' passed (0.001 seconds).
+Test Suite 'DictationPlaybackControllerTests' passed at 2026-11-22 07:30:31.087.
+	 Executed 21 tests, with 0 failures (0 unexpected) in 3.524 (3.527) seconds
+Test Suite 'DictationPolicyTests' started at 2026-11-22 07:30:31.087.
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testCleanRefreshAndStaleUIUpdateCannotRewindLedger]' started.
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testCleanRefreshAndStaleUIUpdateCannotRewindLedger]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testLedgerRefreshMergesThroughDirtyDraftAndColdRestore]' started.
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testLedgerRefreshMergesThroughDirtyDraftAndColdRestore]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testNewCreateAndAttemptOptInButPersistedLegacyRetryIsUnchanged]' started.
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testNewCreateAndAttemptOptInButPersistedLegacyRetryIsUnchanged]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testPlaybackRequestUsesExistingAuthenticatedRouteAndShortLeaseTimeout]' started.
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testPlaybackRequestUsesExistingAuthenticatedRouteAndShortLeaseTimeout]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testPolicySurvivesDecodeEncodeInsteadOfOldClientDroppingIt]' started.
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testPolicySurvivesDecodeEncodeInsteadOfOldClientDroppingIt]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testRevokedAudioIsNotHiddenByCancellation]' started.
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testRevokedAudioIsNotHiddenByCancellation]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testUseServerConflictCannotRewindPlaybackLedger]' started.
+Test Case '-[KeineMagieCoreTests.DictationPolicyTests testUseServerConflictCannotRewindPlaybackLedger]' passed (0.000 seconds).
+Test Suite 'DictationPolicyTests' passed at 2026-11-22 07:30:31.092.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.004 (0.005) seconds
+Test Suite 'DictationTests' started at 2026-11-22 07:30:31.092.
+Test Case '-[KeineMagieCoreTests.DictationTests testAuthenticatedPrivateAudioRequest]' started.
+Test Case '-[KeineMagieCoreTests.DictationTests testAuthenticatedPrivateAudioRequest]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationTests testCanceledDelayedAudioCannotReturnBytes]' started.
+Test Case '-[KeineMagieCoreTests.DictationTests testCanceledDelayedAudioCannotReturnBytes]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationTests testPracticeStopsAtWritingPauses]' started.
+Test Case '-[KeineMagieCoreTests.DictationTests testPracticeStopsAtWritingPauses]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationTests testRapidModeSwitchKeepsLastExplicitChoice]' started.
+Test Case '-[KeineMagieCoreTests.DictationTests testRapidModeSwitchKeepsLastExplicitChoice]' passed (0.000 seconds).
+Test Suite 'DictationTests' passed at 2026-11-22 07:30:31.094.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'DictationTimingTests' started at 2026-11-22 07:30:31.094.
+Test Case '-[KeineMagieCoreTests.DictationTimingTests testGapAndFinalBoundariesAreClampedAndNonseekable]' started.
+Test Case '-[KeineMagieCoreTests.DictationTimingTests testGapAndFinalBoundariesAreClampedAndNonseekable]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationTimingTests testInvalidDurationsAndPositionsDoNotProduceNaN]' started.
+Test Case '-[KeineMagieCoreTests.DictationTimingTests testInvalidDurationsAndPositionsDoNotProduceNaN]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.DictationTimingTests testUnknownDurationsNeverEstimateAndRepeatsCountEveryOccurrence]' started.
+Test Case '-[KeineMagieCoreTests.DictationTimingTests testUnknownDurationsNeverEstimateAndRepeatsCountEveryOccurrence]' passed (0.000 seconds).
+Test Suite 'DictationTimingTests' passed at 2026-11-22 07:30:31.096.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'DictationWAVTimingTests' started at 2026-11-22 07:30:31.096.
+Test Case '-[KeineMagieCoreTests.DictationWAVTimingTests testDecodedDurationsIncludeEachDistinctAssetRepeatAndOnlyInternalGaps]' started.
+Test Case '-[KeineMagieCoreTests.DictationWAVTimingTests testDecodedDurationsIncludeEachDistinctAssetRepeatAndOnlyInternalGaps]' passed (0.020 seconds).
+Test Suite 'DictationWAVTimingTests' passed at 2026-11-22 07:30:31.115.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.020 (0.020) seconds
+Test Suite 'PassageGroupTests' started at 2026-11-22 07:30:31.115.
+Test Case '-[KeineMagieCoreTests.PassageGroupTests testCoachGroupLinkKeepsOriginalAnchor]' started.
+Test Case '-[KeineMagieCoreTests.PassageGroupTests testCoachGroupLinkKeepsOriginalAnchor]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PassageGroupTests testGroupsRoundTripRetainsOriginalIndicesAndRevision]' started.
+Test Case '-[KeineMagieCoreTests.PassageGroupTests testGroupsRoundTripRetainsOriginalIndicesAndRevision]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PassageGroupTests testPassageProtocolAndLegacyCache]' started.
+Test Case '-[KeineMagieCoreTests.PassageGroupTests testPassageProtocolAndLegacyCache]' passed (0.000 seconds).
+Test Suite 'PassageGroupTests' passed at 2026-11-22 07:30:31.117.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'PodcastEpisodeStateTests' started at 2026-11-22 07:30:31.117.
+Test Case '-[KeineMagieCoreTests.PodcastEpisodeStateTests testLegacySourceAndIdentityAssociation]' started.
+Test Case '-[KeineMagieCoreTests.PodcastEpisodeStateTests testLegacySourceAndIdentityAssociation]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastEpisodeStateTests testLinkedImportCarriesActualIdentity]' started.
+Test Case '-[KeineMagieCoreTests.PodcastEpisodeStateTests testLinkedImportCarriesActualIdentity]' passed (0.000 seconds).
+Test Suite 'PodcastEpisodeStateTests' passed at 2026-11-22 07:30:31.117.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'PodcastOverviewTests' started at 2026-11-22 07:30:31.117.
+Test Case '-[KeineMagieCoreTests.PodcastOverviewTests testCoverageIsServerMetadataAndZeroUnknownDenominatorIsOmitted]' started.
+Test Case '-[KeineMagieCoreTests.PodcastOverviewTests testCoverageIsServerMetadataAndZeroUnknownDenominatorIsOmitted]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastOverviewTests testLatestThreeArePerFeedAndStableWithInvalidDates]' started.
+Test Case '-[KeineMagieCoreTests.PodcastOverviewTests testLatestThreeArePerFeedAndStableWithInvalidDates]' passed (0.007 seconds).
+Test Suite 'PodcastOverviewTests' passed at 2026-11-22 07:30:31.125.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.008 (0.008) seconds
+Test Suite 'PodcastTests' started at 2026-11-22 07:30:31.125.
+Test Case '-[KeineMagieCoreTests.PodcastTests testFeedRequestsAreAuthenticatedAndDiscoveryDoesNotEnqueue]' started.
+Test Case '-[KeineMagieCoreTests.PodcastTests testFeedRequestsAreAuthenticatedAndDiscoveryDoesNotEnqueue]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastTests testPodcastRequestUsesExplicitSessionAndSource]' started.
+Test Case '-[KeineMagieCoreTests.PodcastTests testPodcastRequestUsesExplicitSessionAndSource]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastTests testPublisherQueryAudioCanBeEnqueuedWithoutPrivateCapabilities]' started.
+Test Case '-[KeineMagieCoreTests.PodcastTests testPublisherQueryAudioCanBeEnqueuedWithoutPrivateCapabilities]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastTests testShareAcceptsOnlySinglePublicWebURL]' started.
+Test Case '-[KeineMagieCoreTests.PodcastTests testShareAcceptsOnlySinglePublicWebURL]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastTests testSubscriptionMetadataBackwardCompatibleAndAuthenticatedArtwork]' started.
+Test Case '-[KeineMagieCoreTests.PodcastTests testSubscriptionMetadataBackwardCompatibleAndAuthenticatedArtwork]' passed (0.000 seconds).
+Test Suite 'PodcastTests' passed at 2026-11-22 07:30:31.127.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'PodcastWireShapeTests' started at 2026-11-22 07:30:31.127.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testActualGoSerializedWire]' started.
+/Users/tinyserve/Projects/KeineMagie-coach-activity-local/native/Core/Tests/KeineMagieCoreTests/PodcastWireShapeTests.swift:24: -[KeineMagieCoreTests.PodcastWireShapeTests testActualGoSerializedWire] : Test skipped - Executed by native/ci/verify_podcast_wire.py with actual Go output
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testActualGoSerializedWire]' skipped (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testMalformedRequiredDataStillFailsRatherThanPretendingEmpty]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testMalformedRequiredDataStillFailsRatherThanPretendingEmpty]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testMissingSegmentsAndOldCachedTitleRemainCompatible]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testMissingSegmentsAndOldCachedTitleRemainCompatible]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testOptionalFieldsAndWrongTypesStayStrict]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testOptionalFieldsAndWrongTypesStayStrict]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testProductionSummaryNullSegmentsAndServerTitleDecode]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testProductionSummaryNullSegmentsAndServerTitleDecode]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testSubscriptionNullMissingCollectionsAndWrongTypes]' started.
+Test Case '-[KeineMagieCoreTests.PodcastWireShapeTests testSubscriptionNullMissingCollectionsAndWrongTypes]' passed (0.000 seconds).
+Test Suite 'PodcastWireShapeTests' passed at 2026-11-22 07:30:31.128.
+	 Executed 6 tests, with 1 test skipped and 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'KeineMagieCoreTests.xctest' passed at 2026-11-22 07:30:31.129.
+	 Executed 112 tests, with 5 tests skipped and 0 failures (0 unexpected) in 3.646 (3.657) seconds
+Test Suite 'All tests' passed at 2026-11-22 07:30:31.129.
+	 Executed 112 tests, with 5 tests skipped and 0 failures (0 unexpected) in 3.646 (3.664) seconds
+COACH_PRESENTATION_BENCH count=200 iterations=3 elapsed=0.001640125 seconds rendered=50
+COACH_PRESENTATION_BENCH count=1000 iterations=3 elapsed=0.007652292 seconds rendered=50
+◇ Test run started.
+↳ Testing Library Version: 2403
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ActivityTests started.
+◇ Test foregroundAccountChangeInvalidatesPreviousContentGeneration() started.
+◇ Test photoInsertionRejectsAnotherOwnerOrAttempt() started.
+◇ Test serverSwitchRejectsLateLoginAndClearsCredential() started.
+◇ Test photoReplaceIsExplicitAndCapacityNeverTruncatesExistingDraft() started.
+◇ Suite EpisodeNavigationTests started.
+◇ Test profileJournalMigratesAndPreservesOfflineEdit() started.
+◇ Test subsequentRefreshRemainsAuthoritativeForRecordsCreatedBeforeItStarted() started.
+◇ Test listenerAcceptsOneCallbackAndCloses() started.
+◇ Test buildsAuthenticatedRequestsAndExactTTSPayload() started.
+◇ Test profileScalarLimitsPreserveWhitespaceAndLegacyLongClusters() started.
+◇ Test browserPairingRequiresSeparateInspectionAndDecision() started.
+◇ Test canceledIssuanceFinishesBeforeReplacementStarts() started.
+◇ Test challengeIsUnauthenticatedAndPreservesNonceAndState() started.
+◇ Test signedOutStartupNeverRequestsHistoryOrAnyNetwork() started.
+◇ Test identityResetClearsHistoryAndRejectsPreviousIdentityResponse() started.
+◇ Test germanPolishingDirectionUsesRealTranslationRequestWithInstructions() started.
+◇ Test translationRealTransportHonorsNinetySecondDeadline() started.
+◇ Test logoutRevokesBeforeLocalClearAndExplainsFailure() started.
+◇ Test serverSwitchDuringBackgroundValidationRejectsLateResponse() started.
+◇ Test simultaneousForegroundEventsCoalesceValidation() started.
+◇ Test coldStartRestoresOnlySecurelyBoundPreviousOwnerBeforeNetworkCompletes() started.
+◇ Test outboxLogoutDeniesRestoreOfResidualFile() started.
+◇ Test outboxPersistsExactImmutableSnapshotAndRecoversSending() started.
+◇ Test listenerCancellationAndTimeoutCloseSocket() started.
+◇ Test deletedHistoryCannotBeResurrectedByDelayedGETEvenAfterNewerRefresh() started.
+◇ Test staleRefreshPreservesTranslationCreatedWhileGETWasSuspended() started.
+◇ Test foregroundMalformedCredentialFailsClosedEvenIfDeletionFails() started.
+◇ Test legacyHistoryDefaultsFavoriteToFalse() started.
+◇ Test logoutInvalidatesPendingExchangeBeforeCredentialCanPersist() started.
+◇ Test logoutDoesNotEraseCredentialBeforeServerResponds() started.
+◇ Test shortcutsPersistByStableOwnerAndServerNotSessionToken() started.
+◇ Test outboxLeaseRejectsInvalidatedAndOlderSnapshots() started.
+◇ Test followupRequestUsesBearerExactContextAndRuneLimits() started.
+◇ Test resultDecodesServerHistoryAndRFC3339Dates() started.
+◇ Test profileLostAcknowledgementDoesNotRebaseAcrossRemoteEdit() started.
+◇ Test refreshMergesByIDAndKeepsConcurrentPOSTResultInTimestampOrder() started.
+◇ Test loginPersistsOnlyRealSessionAndCancellationReturnsSignedOut() started.
+◇ Test translationRequestUsesContractAndSwapsLanguages() started.
+◇ Test packageLoadsRealTranslationsAndFormatsStatusCodes() started.
+◇ Test authRequestsKeepEightSecondDeadline() started.
+◇ Test logoutProofDeletionFailureStillAttemptsBearerDeletionAndRevocation() started.
+◇ Test profileDuplicateLegacyIDsPreserveDifferentContentsAndTombstoneReplay() started.
+◇ Test translationInstructionsAreOptionalAndBoundedWithoutChangingText() started.
+◇ Test foregroundTransientFailureRetainsValidatedSessionAndCredential() started.
+◇ Test ownerReplacementProofWriteFailureCannotResumePreviousOwnerWrites() started.
+◇ Test mismatchedOrMissingStateAndEmptyCredentialNeverReachTransport() started.
+◇ Test bootstrapPayloadUsesExactCallbackAndNoProviderCredentials() started.
+◇ Test suspendedGETCannotUndoAcknowledgedDeletionOrFavorite() started.
+◇ Test expiredPreviouslyVerifiedTokenRemainsReadOnlyOfflineButServer401ErasesProof() started.
+◇ Test profileCapacityAllowsIndependentDeleteWithoutReorderingDependentEdits() started.
+◇ Test listenerTaskCancellationClosesSocket() started.
+◇ Test authorizeTrustAndExactRedirect() started.
+◇ Test followupWireNullableAndLegacyPair() started.
+◇ Test actualTranslationTransportSendsBoundedStyleAndPreservesHistorySnapshot() started.
+◇ Test shortcutRejectsInvalidAndCorruptPersistedInstructions() started.
+◇ Test endpointValidatesTransportAndPreservesRoutePrefix() started.
+◇ Test oldAppleCancellationCannotCancelNewConfiguration() started.
+◇ Test followupActualGoWire() started.
+◇ Test insertedHistoryUsesTimestampOrderAndStableIDTiesWithoutDuplicates() started.
+◇ Test loginServerRejectionDoesNotSuggestManualTokenSettings() started.
+◇ Test segmentsGermanAndRussianWithoutLosingText() started.
+◇ Test appleExchangeSendsOnlyIdentityTokenChallengeAndMatchingState() started.
+◇ Test resetRejectsOldMutationAcknowledgementAndFailureForSameID() started.
+◇ Test providerUsesAccountBearerAndNoProviderSecret() started.
+◇ Test suspendedMutationResponseAfterOwnerResetCannotChangeNewOwnersRow() started.
+◇ Test foreground401ClearsIdentityAndCredentialEvenIfKeychainDeletionFails() started.
+◇ Test canceledWaiterNeverIssuesAfterSessionReset() started.
+◇ Test validatesSessionWithBearerAndRevokesWithEmpty204() started.
+◇ Test foregroundValidationPreservesTranslatorIdentityAndGeneration() started.
+◇ Test historyMutationRequestsEncodeSingleIDAndExactContract() started.
+◇ Test photoAppendUsesLatestDraftAndNeverCapturedDraft() started.
+◇ Test callbackParserRejectsMalformedAndDuplicate() started.
+◇ Test profileLegacyIDMatchesBrowserUTF8Fixture() started.
+◇ Test favoriteAcknowledgementWinsAgainstGETStartedDuringMutation() started.
+◇ Test wrongTokenOrOriginAndUnverifiedFirstLaunchNeverUnlockSavedOwner() started.
+◇ Test profileStoreOwnerOriginColdRelaunchAndPurge() started.
+◇ Test historyMutationTransportAccepts204AndDecodesUpdatedRecord() started.
+◇ Test legacyHistoryWithoutInstructionsStillDecodes() started.
+◇ Test historyMutationsWaitForAcknowledgementAndDeduplicatePerRow() started.
+◇ Test restoreRequiresServerValidationAnd401ClearsCredentialButOfflineRetainsIt() started.
+◇ Test outboxCoalescesNonAdjacentAndUncertainSnapshots() started.
+◇ Test dayBreakdownPreservesWireAndLegacy() started.
+◇ Test actualGoWireWhenProvided() started.
+◇ Test localeWeekAndDST() started.
+◇ Test unknownIsNotZero() started.
+◇ Test readOnlyWire() started.
+◇ Test citationsRejectNegativeOutOfBoundsAndFabricatedQuotes() started.
+◇ Test searchMatchesSourceAndTranslationWithoutDuplicatingSegment() started.
+◇ Test timestampJumpUsesStoredIndexIncludingLongTranscriptsAndGaps() started.
+◇ Test learningRequestsAreReadOnlyExceptExplicitAssessment() started.
+✔ Test photoInsertionRejectsAnotherOwnerOrAttempt() passed after 0.016 seconds.
+✔ Test photoReplaceIsExplicitAndCapacityNeverTruncatesExistingDraft() passed after 0.016 seconds.
+✔ Test subsequentRefreshRemainsAuthoritativeForRecordsCreatedBeforeItStarted() passed after 0.017 seconds.
+✔ Test deletedHistoryCannotBeResurrectedByDelayedGETEvenAfterNewerRefresh() passed after 0.017 seconds.
+✔ Test profileScalarLimitsPreserveWhitespaceAndLegacyLongClusters() passed after 0.017 seconds.
+✔ Test profileJournalMigratesAndPreservesOfflineEdit() passed after 0.017 seconds.
+✔ Test challengeIsUnauthenticatedAndPreservesNonceAndState() passed after 0.017 seconds.
+✔ Test germanPolishingDirectionUsesRealTranslationRequestWithInstructions() passed after 0.018 seconds.
+✔ Test profileLostAcknowledgementDoesNotRebaseAcrossRemoteEdit() passed after 0.020 seconds.
+✔ Test refreshMergesByIDAndKeepsConcurrentPOSTResultInTimestampOrder() passed after 0.020 seconds.
+✔ Test buildsAuthenticatedRequestsAndExactTTSPayload() passed after 0.020 seconds.
+✔ Test translationRequestUsesContractAndSwapsLanguages() passed after 0.020 seconds.
+✔ Test followupRequestUsesBearerExactContextAndRuneLimits() passed after 0.020 seconds.
+✔ Test browserPairingRequiresSeparateInspectionAndDecision() passed after 0.020 seconds.
+✔ Test authRequestsKeepEightSecondDeadline() passed after 0.020 seconds.
+✔ Test profileDuplicateLegacyIDsPreserveDifferentContentsAndTombstoneReplay() passed after 0.020 seconds.
+✔ Test mismatchedOrMissingStateAndEmptyCredentialNeverReachTransport() passed after 0.020 seconds.
+✔ Test bootstrapPayloadUsesExactCallbackAndNoProviderCredentials() passed after 0.024 seconds.
+✔ Test translationInstructionsAreOptionalAndBoundedWithoutChangingText() passed after 0.024 seconds.
+✔ Test authorizeTrustAndExactRedirect() passed after 0.024 seconds.
+✔ Test profileCapacityAllowsIndependentDeleteWithoutReorderingDependentEdits() passed after 0.024 seconds.
+✔ Test shortcutRejectsInvalidAndCorruptPersistedInstructions() passed after 0.024 seconds.
+✔ Test endpointValidatesTransportAndPreservesRoutePrefix() passed after 0.024 seconds.
+✔ Test insertedHistoryUsesTimestampOrderAndStableIDTiesWithoutDuplicates() passed after 0.024 seconds.
+✔ Test followupActualGoWire() passed after 0.024 seconds.
+✔ Test legacyHistoryDefaultsFavoriteToFalse() passed after 0.025 seconds.
+✔ Test shortcutsPersistByStableOwnerAndServerNotSessionToken() passed after 0.025 seconds.
+✔ Test providerUsesAccountBearerAndNoProviderSecret() passed after 0.024 seconds.
+✔ Test resetRejectsOldMutationAcknowledgementAndFailureForSameID() passed after 0.024 seconds.
+✔ Test appleExchangeSendsOnlyIdentityTokenChallengeAndMatchingState() passed after 0.024 seconds.
+✔ Test historyMutationRequestsEncodeSingleIDAndExactContract() passed after 0.025 seconds.
+✔ Test photoAppendUsesLatestDraftAndNeverCapturedDraft() passed after 0.025 seconds.
+✔ Test callbackParserRejectsMalformedAndDuplicate() passed after 0.025 seconds.
+✔ Test profileLegacyIDMatchesBrowserUTF8Fixture() passed after 0.025 seconds.
+✔ Test favoriteAcknowledgementWinsAgainstGETStartedDuringMutation() passed after 0.026 seconds.
+✔ Test actualTranslationTransportSendsBoundedStyleAndPreservesHistorySnapshot() passed after 0.026 seconds.
+✔ Test validatesSessionWithBearerAndRevokesWithEmpty204() passed after 0.026 seconds.
+✔ Test segmentsGermanAndRussianWithoutLosingText() passed after 0.026 seconds.
+✔ Test historyMutationsWaitForAcknowledgementAndDeduplicatePerRow() passed after 0.026 seconds.
+✔ Test outboxCoalescesNonAdjacentAndUncertainSnapshots() passed after 0.026 seconds.
+✔ Test outboxLogoutDeniesRestoreOfResidualFile() passed after 0.027 seconds.
+✔ Test outboxPersistsExactImmutableSnapshotAndRecoversSending() passed after 0.027 seconds.
+✔ Test signedOutStartupNeverRequestsHistoryOrAnyNetwork() passed after 0.027 seconds.
+✔ Test legacyHistoryWithoutInstructionsStillDecodes() passed after 0.027 seconds.
+✔ Test outboxLeaseRejectsInvalidatedAndOlderSnapshots() passed after 0.027 seconds.
+✔ Test historyMutationTransportAccepts204AndDecodesUpdatedRecord() passed after 0.027 seconds.
+✔ Test followupWireNullableAndLegacyPair() passed after 0.027 seconds.
+✔ Test dayBreakdownPreservesWireAndLegacy() passed after 0.012 seconds.
+✔ Test actualGoWireWhenProvided() passed after 0.012 seconds.
+✔ Test unknownIsNotZero() passed after 0.012 seconds.
+✔ Test citationsRejectNegativeOutOfBoundsAndFabricatedQuotes() passed after 0.012 seconds.
+✔ Test readOnlyWire() passed after 0.012 seconds.
+✔ Test searchMatchesSourceAndTranslationWithoutDuplicatingSegment() passed after 0.012 seconds.
+✔ Test learningRequestsAreReadOnlyExceptExplicitAssessment() passed after 0.015 seconds.
+✔ Test loginServerRejectionDoesNotSuggestManualTokenSettings() passed after 0.030 seconds.
+✔ Test localeWeekAndDST() passed after 0.015 seconds.
+✔ Test logoutRevokesBeforeLocalClearAndExplainsFailure() passed after 0.030 seconds.
+✔ Suite ActivityTests passed after 0.031 seconds.
+✔ Test logoutProofDeletionFailureStillAttemptsBearerDeletionAndRevocation() passed after 0.032 seconds.
+✔ Test expiredPreviouslyVerifiedTokenRemainsReadOnlyOfflineButServer401ErasesProof() passed after 0.032 seconds.
+✔ Test oldAppleCancellationCannotCancelNewConfiguration() passed after 0.032 seconds.
+✔ Test loginPersistsOnlyRealSessionAndCancellationReturnsSignedOut() passed after 0.032 seconds.
+✔ Test identityResetClearsHistoryAndRejectsPreviousIdentityResponse() passed after 0.033 seconds.
+✔ Test staleRefreshPreservesTranslationCreatedWhileGETWasSuspended() passed after 0.033 seconds.
+✔ Test wrongTokenOrOriginAndUnverifiedFirstLaunchNeverUnlockSavedOwner() passed after 0.033 seconds.
+✔ Test foregroundMalformedCredentialFailsClosedEvenIfDeletionFails() passed after 0.034 seconds.
+✔ Test profileStoreOwnerOriginColdRelaunchAndPurge() passed after 0.033 seconds.
+✔ Test resultDecodesServerHistoryAndRFC3339Dates() passed after 0.034 seconds.
+✔ Test foregroundTransientFailureRetainsValidatedSessionAndCredential() passed after 0.035 seconds.
+✔ Test suspendedGETCannotUndoAcknowledgedDeletionOrFavorite() passed after 0.035 seconds.
+✔ Test suspendedMutationResponseAfterOwnerResetCannotChangeNewOwnersRow() passed after 0.035 seconds.
+✔ Test restoreRequiresServerValidationAnd401ClearsCredentialButOfflineRetainsIt() passed after 0.035 seconds.
+✔ Test logoutDoesNotEraseCredentialBeforeServerResponds() passed after 0.036 seconds.
+✔ Test foregroundValidationPreservesTranslatorIdentityAndGeneration() passed after 0.036 seconds.
+✔ Test listenerTaskCancellationClosesSocket() passed after 0.036 seconds.
+✔ Test timestampJumpUsesStoredIndexIncludingLongTranscriptsAndGaps() passed after 0.021 seconds.
+✔ Suite EpisodeNavigationTests passed after 0.037 seconds.
+✔ Test coldStartRestoresOnlySecurelyBoundPreviousOwnerBeforeNetworkCompletes() passed after 0.037 seconds.
+✔ Test ownerReplacementProofWriteFailureCannotResumePreviousOwnerWrites() passed after 0.037 seconds.
+✔ Test canceledWaiterNeverIssuesAfterSessionReset() passed after 0.037 seconds.
+✔ Test canceledIssuanceFinishesBeforeReplacementStarts() passed after 0.038 seconds.
+✔ Test serverSwitchRejectsLateLoginAndClearsCredential() passed after 0.039 seconds.
+✔ Test logoutInvalidatesPendingExchangeBeforeCredentialCanPersist() passed after 0.039 seconds.
+✔ Test simultaneousForegroundEventsCoalesceValidation() passed after 0.040 seconds.
+✔ Test serverSwitchDuringBackgroundValidationRejectsLateResponse() passed after 0.041 seconds.
+✔ Test foregroundAccountChangeInvalidatesPreviousContentGeneration() passed after 0.041 seconds.
+✔ Test foreground401ClearsIdentityAndCredentialEvenIfKeychainDeletionFails() passed after 0.041 seconds.
+✔ Test packageLoadsRealTranslationsAndFormatsStatusCodes() passed after 0.043 seconds.
+✔ Test listenerAcceptsOneCallbackAndCloses() passed after 0.078 seconds.
+✔ Test listenerCancellationAndTimeoutCloseSocket() passed after 0.173 seconds.
+✔ Test translationRealTransportHonorsNinetySecondDeadline() passed after 10.743 seconds.
+✔ Test run with 89 tests in 2 suites passed after 10.744 seconds.

@@ -1,0 +1,94 @@
+warning: /Users/tinyserve/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/tinyserve/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/tinyserve/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'core': failed storing manifest for 'core' in cache: attempt to write a readonly database
+Building for debugging...
+Build complete! (0,22 sec)
+Test Suite 'Selected tests' started at 2026-11-22 07:26:42.764.
+Test Suite 'KeineMagieCoreTests.xctest' started at 2026-11-22 07:26:42.769.
+Test Suite 'CoachPresentationTests' started at 2026-11-22 07:26:42.769.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testContextTranslationTargetAndLanguageDecodeWithoutChangingLegacy]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testContextTranslationTargetAndLanguageDecodeWithoutChangingLegacy]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testEarlierBoundsRenderingWithoutDroppingSavedGroups]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testEarlierBoundsRenderingWithoutDroppingSavedGroups]' passed (0.012 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testEntryTimeZoneIsOptionalAndLegacyCodingSurvives]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testEntryTimeZoneIsOptionalAndLegacyCodingSurvives]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testExplicitPinnedTurnDoesNotExpandOldHistory]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testExplicitPinnedTurnDoesNotExpandOldHistory]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testFailedAssessmentIsNeutralEvenWithOldCorrectOutcome]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testFailedAssessmentIsNeutralEvenWithOldCorrectOutcome]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testInstructionSurvivesAnswerSubmission]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testInstructionSurvivesAnswerSubmission]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testLegacyGreetingsAreFilteredWithoutMutatingHistory]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testLegacyGreetingsAreFilteredWithoutMutatingHistory]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testPendingOldTurnStaysVisibleWithoutOpeningEarlier]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testPendingOldTurnStaysVisibleWithoutOpeningEarlier]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testRollingDayBoundaryDSTUnknownFutureAndRecentAttempt]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testRollingDayBoundaryDSTUnknownFutureAndRecentAttempt]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testStatusesDoNotConfuseAttemptWithIncorrectOrWaiting]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testStatusesDoNotConfuseAttemptWithIncorrectOrWaiting]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testSyntheticHistoryPresentationBenchmark]' started.
+Test Case '-[KeineMagieCoreTests.CoachPresentationTests testSyntheticHistoryPresentationBenchmark]' passed (0.010 seconds).
+Test Suite 'CoachPresentationTests' passed at 2026-11-22 07:26:42.794.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.025 (0.026) seconds
+Test Suite 'CoachTests' started at 2026-11-22 07:26:42.794.
+Test Case '-[KeineMagieCoreTests.CoachTests testAssessmentPreservesVerbatimAndLegacyCompatibility]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testAssessmentPreservesVerbatimAndLegacyCompatibility]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testChatReceiptContract]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testChatReceiptContract]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testCoachFailureStagesAreNotAllNetwork]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testCoachFailureStagesAreNotAllNetwork]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testCompactInstructionRetainsUsefulContext]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testCompactInstructionRetainsUsefulContext]' passed (0.001 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testDifferentAuthoritativeAttemptAndMissingTurnDoNotEraseLiteral]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testDifferentAuthoritativeAttemptAndMissingTurnDoNotEraseLiteral]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testErrorsAreTypedAndDoNotExposeUpstreamText]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testErrorsAreTypedAndDoNotExposeUpstreamText]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testExplicitActionPreservesID]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testExplicitActionPreservesID]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testLegacyPendingCacheSurvivesMissingReceipt]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testLegacyPendingCacheSurvivesMissingReceipt]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testMatchingServerAcknowledgementAlwaysWins]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testMatchingServerAcknowledgementAlwaysWins]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testReadDoesNotPostAndDecodesEvidence]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testReadDoesNotPostAndDecodesEvidence]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testRecoveryPreservesPriorRecheckIdentityThroughCodingAndReads]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testRecoveryPreservesPriorRecheckIdentityThroughCodingAndReads]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testServerActionsAndLegacyFallback]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testServerActionsAndLegacyFallback]' passed (0.000 seconds).
+Test Case '-[KeineMagieCoreTests.CoachTests testSourceTargetsRejectMalformedIDs]' started.
+Test Case '-[KeineMagieCoreTests.CoachTests testSourceTargetsRejectMalformedIDs]' passed (0.000 seconds).
+Test Suite 'CoachTests' passed at 2026-11-22 07:26:42.800.
+	 Executed 13 tests, with 0 failures (0 unexpected) in 0.004 (0.005) seconds
+Test Suite 'ContentCacheTests' started at 2026-11-22 07:26:42.800.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testLogoutRemovesCoachAnswerSnapshot]' started.
+Test Case '-[KeineMagieCoreTests.ContentCacheTests testLogoutRemovesCoachAnswerSnapshot]' passed (0.003 seconds).
+Test Suite 'ContentCacheTests' passed at 2026-11-22 07:26:42.803.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.003 (0.003) seconds
+Test Suite 'PassageGroupTests' started at 2026-11-22 07:26:42.803.
+Test Case '-[KeineMagieCoreTests.PassageGroupTests testCoachGroupLinkKeepsOriginalAnchor]' started.
+Test Case '-[KeineMagieCoreTests.PassageGroupTests testCoachGroupLinkKeepsOriginalAnchor]' passed (0.000 seconds).
+Test Suite 'PassageGroupTests' passed at 2026-11-22 07:26:42.803.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'KeineMagieCoreTests.xctest' passed at 2026-11-22 07:26:42.803.
+	 Executed 26 tests, with 0 failures (0 unexpected) in 0.032 (0.034) seconds
+Test Suite 'Selected tests' passed at 2026-11-22 07:26:42.803.
+	 Executed 26 tests, with 0 failures (0 unexpected) in 0.032 (0.039) seconds
+COACH_PRESENTATION_BENCH count=200 iterations=3 elapsed=0.001656 seconds rendered=50
+COACH_PRESENTATION_BENCH count=1000 iterations=3 elapsed=0.007741833 seconds rendered=50
+◇ Test run started.
+↳ Testing Library Version: 2403
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ActivityTests started.
+◇ Test actualGoWireWhenProvided() started.
+◇ Test unknownIsNotZero() started.
+◇ Test localeWeekAndDST() started.
+◇ Test readOnlyWire() started.
+◇ Test dayBreakdownPreservesWireAndLegacy() started.
+✔ Test unknownIsNotZero() passed after 0.001 seconds.
+✔ Test dayBreakdownPreservesWireAndLegacy() passed after 0.001 seconds.
+✔ Test actualGoWireWhenProvided() passed after 0.001 seconds.
+✔ Test localeWeekAndDST() passed after 0.001 seconds.
+✔ Test readOnlyWire() passed after 0.002 seconds.
+✔ Suite ActivityTests passed after 0.002 seconds.
+✔ Test run with 5 tests in 1 suite passed after 0.002 seconds.

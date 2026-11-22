@@ -6,7 +6,19 @@ struct ActivityTests {
  @Test func actualGoWireWhenProvided() throws {
   guard let path=ProcessInfo.processInfo.environment["ACTIVITY_WIRE_PATH"] else { return }
   let value=try JSONDecoder().decode(ActivitySnapshot.self,from:Data(contentsOf:URL(fileURLWithPath:path)))
-  #expect(value.days.count==7);#expect(value.days.allSatisfy{$0.verifiedCount == nil});#expect(value.sources["translator"]=="unsupported")
+  #expect(value.days.count==7);#expect(value.days.allSatisfy{$0.verifiedCount == nil});#expect(value.sources["translator"]=="retained")
+  #expect(value.days[0].counts?["translator"] == 1)
+  #expect(value.days[0].knownCount == 1)
+ }
+
+ @Test func dayBreakdownPreservesWireAndLegacy() throws {
+  let value = try JSONDecoder().decode(ActivitySnapshot.self, from: Data(#"{"version":1,"time_zone":"UTC","days":[{"date":"2026-11-16","known_count":3,"coverage":"partial","counts":{"coach":1,"dictation":0,"translator":2,"podcasts":0}}],"sources":{"podcasts":"unsupported"},"undated":0}"#.utf8))
+  let roundtrip = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(value)) as? [String:Any])
+  let days = try #require(roundtrip["days"] as? [[String:Any]])
+  let counts = try #require(days[0]["counts"] as? [String:Int])
+  #expect(counts["translator"] == 2)
+  let legacy = try JSONDecoder().decode(ActivityDay.self,from: Data(#"{"date":"2026-11-16","known_count":0,"coverage":"partial"}"#.utf8))
+  #expect(legacy.verifiedCount == nil)
  }
 
  @Test func readOnlyWire() async throws {

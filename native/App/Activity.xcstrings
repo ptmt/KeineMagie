@@ -147,31 +147,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Completed checks: %d"
+            "value": "Completed activities: %d"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abgeschlossene Prüfungen: %d"
+            "value": "Abgeschlossene Aktivitäten: %d"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Завершённых проверок: %d"
+            "value": "Завершённых занятий: %d"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comprobaciones completadas: %d"
+            "value": "Actividades completadas: %d"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vérifications terminées : %d"
+            "value": "Activités terminées : %d"
           }
         }
       }
@@ -182,31 +182,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Completed checks: at least %d. History incomplete."
+            "value": "Completed activities: at least %d. History incomplete."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abgeschlossene Prüfungen: mindestens %d. Verlauf unvollständig."
+            "value": "Abgeschlossene Aktivitäten: mindestens %d. Verlauf unvollständig."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Завершённых проверок: не менее %d. История неполная."
+            "value": "Завершённых занятий: не менее %d. История неполная."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comprobaciones completadas: al menos %d. Historial incompleto."
+            "value": "Actividades completadas: al menos %d. Historial incompleto."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vérifications terminées : au moins %d. Historique incomplet."
+            "value": "Activités terminées : au moins %d. Historique incomplet."
           }
         }
       }
@@ -252,31 +252,311 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saved Coach assessments and Dictation checks, including partial dictations. Not a mastery score. Translator and Podcasts have no exercise-completion event. Deleted or undated history is unavailable. A dot marks incomplete coverage."
+            "value": "One saved successful translation, one fully listened podcast episode, or one checked Coach/Dictation exercise regardless of correctness. Rechecks count once; partial Dictation checks count. Listening is not tracked by current podcast readers. Deleted or undated history is unavailable. A dot marks incomplete coverage, never a verified zero. Not a mastery score."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gespeicherte Coach-Bewertungen und Diktatprüfungen, auch unvollständige Diktate. Keine Kompetenzbewertung. Übersetzer und Podcasts haben kein Übungsabschlussereignis. Gelöschter oder undatierter Verlauf fehlt. Ein Punkt markiert unvollständige Daten."
+            "value": "Eine gespeicherte erfolgreiche Übersetzung, eine vollständig gehörte Podcastfolge oder eine geprüfte Coach-/Diktatübung unabhängig vom Ergebnis. Erneute Prüfungen zählen einmal; Teildiktate zählen. Die aktuellen Podcastleser erfassen kein Hören. Gelöschter oder undatierter Verlauf fehlt. Ein Punkt markiert unvollständige Daten, keinen bestätigten Nullwert. Keine Kompetenzbewertung."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сохранённые оценки Coach и проверки диктантов, включая частичные. Это не оценка знаний. В Переводчике и Подкастах нет события завершения упражнения. Удалённая история и записи без даты недоступны. Точка обозначает неполные данные."
+            "value": "Один сохранённый успешный перевод, один полностью прослушанный эпизод или одно проверенное упражнение Тренера/Диктанта независимо от правильности. Повторные проверки считаются один раз; частичные диктанты учитываются. Текущие экраны подкастов не отслеживают прослушивание. Удалённая история и записи без даты недоступны. Точка обозначает неполные данные, а не подтверждённый ноль. Это не оценка знаний."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Evaluaciones guardadas de Coach y dictados comprobados, incluidos los parciales. No mide el dominio. Traductor y Podcasts no registran ejercicios completados. El historial eliminado o sin fecha no está disponible. Un punto indica datos incompletos."
+            "value": "Una traducción completada con éxito y guardada, un episodio escuchado por completo o un ejercicio comprobado de Coach/Dictado, sea correcto o no. Las revisiones cuentan una vez; los dictados parciales cuentan. Los lectores actuales no registran la escucha. Falta el historial eliminado o sin fecha. Un punto indica datos incompletos, nunca un cero confirmado. No mide el dominio."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Évaluations Coach et vérifications de dictée enregistrées, y compris les dictées partielles. Ce n’est pas un niveau de maîtrise. Traducteur et Podcasts n’enregistrent pas de fin d’exercice. L’historique supprimé ou non daté est indisponible. Un point indique des données incomplètes."
+            "value": "Une traduction réussie enregistrée, un épisode écouté en entier ou un exercice Coach/Dictée vérifié, quelle que soit la correction. Les revérifications comptent une fois ; les dictées partielles comptent. Les lecteurs actuels ne suivent pas l’écoute. L’historique supprimé ou non daté manque. Un point indique des données incomplètes, jamais un zéro confirmé. Ce n’est pas un niveau de maîtrise."
+          }
+        }
+      }
+    },
+    "coach": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тренер"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach"
+          }
+        }
+      }
+    },
+    "dictation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dictation"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diktat"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Диктант"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dictado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dictée"
+          }
+        }
+      }
+    },
+    "translator": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translator"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übersetzer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переводчик"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traductor"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traducteur"
+          }
+        }
+      }
+    },
+    "podcasts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подкасты"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pódcasts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        }
+      }
+    },
+    "retained": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved evidence"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Nachweise"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранённые данные"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos guardados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Données enregistrées"
+          }
+        }
+      }
+    },
+    "unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data unavailable"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daten nicht verfügbar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Данные недоступны"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos no disponibles"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Données indisponibles"
+          }
+        }
+      }
+    },
+    "unsupported": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completion not tracked"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abschluss nicht erfasst"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершение не отслеживается"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finalización no registrada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fin non suivie"
+          }
+        }
+      }
+    },
+    "undated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved completions without a date (all history): %d"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Abschlüsse ohne Datum (gesamter Verlauf): %d"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранённые завершения без даты (вся история): %d"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finalizaciones sin fecha (todo el historial): %d"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fins enregistrées sans date (tout l’historique) : %d"
           }
         }
       }

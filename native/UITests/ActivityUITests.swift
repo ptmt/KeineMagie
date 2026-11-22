@@ -1,6 +1,24 @@
 import XCTest
 
 final class ActivityUITests: XCTestCase {
+ @MainActor func testDayDetailsExposeEvidenceAndUnsupportedListening() {
+  let app=XCUIApplication()
+  app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="coach"
+  app.launchEnvironment["KM_SIMULATOR_ACTIVITY_FIXTURE"]="1"
+  app.launchArguments=["-AppleLanguages","(en)","-AppleLocale","en_US"]
+  app.launch()
+  XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout:10))
+  app.tabBars.buttons["Coach"].tap()
+  let days=app.buttons.matching(NSPredicate(format:"identifier BEGINSWITH %@","activity-day-"))
+  XCTAssertTrue(days.element(boundBy:2).waitForExistence(timeout:8))
+  days.element(boundBy:2).tap()
+  let message=app.alerts.staticTexts.matching(NSPredicate(format:"label CONTAINS %@","Translator: Completed activities: at least 1"))
+  XCTAssertTrue(message.firstMatch.waitForExistence(timeout:5))
+  XCTAssertTrue(message.firstMatch.label.contains("Completion not tracked"))
+  XCTAssertTrue(message.firstMatch.label.contains("Saved completions without a date (all history): 1"))
+  let shot=XCTAttachment(screenshot:app.screenshot());shot.name="activity-source-details-synthetic";shot.lifetime = .keepAlways;add(shot)
+ }
+
  @MainActor func testUnknownDoesNotBecomeZeroAndLargeRussianStaysThirty() {
   let app=XCUIApplication()
   app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"]="coach"

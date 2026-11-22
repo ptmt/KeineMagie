@@ -13,6 +13,17 @@ struct ActivityStrip: View {
  @State private var detail: String?
  private func text(_ key:String) -> String { NSLocalizedString(key,tableName:"Activity",bundle:.main,comment:"") }
  private var revision: String { (model.coach?.turns ?? []).map { "\($0.id):\($0.attempt?.assessmentState ?? ""):\($0.attempt?.id ?? "")" }.joined(separator:"|") }
+ private func breakdown(entry: ActivityDay?, snapshot: ActivitySnapshot?) -> String {
+  let rows = ["translator", "podcasts", "coach", "dictation"].map { source in
+   let status = snapshot?.sources[source] ?? "unavailable"
+   let count = entry?.counts?[source]
+   // Unsupported/unavailable means unknown, even when the observed count is 0.
+   let value = status == "retained" && (count ?? 0) > 0 ? String(format:text("partial"),count ?? 0) : text("unknown")
+   return text(source) + ": " + value + " · " + text(status)
+  }
+  let undated = snapshot.map { String(format:text("undated"), $0.undated) } ?? ""
+  return (rows + [undated]).filter { !$0.isEmpty }.joined(separator:"\n")
+ }
  var body: some View {
   TimelineView(.periodic(from:Date(timeIntervalSinceReferenceDate:0),by:60)) { context in
    let calendar = Calendar.autoupdatingCurrent
@@ -31,7 +42,7 @@ struct ActivityStrip: View {
      let known = entry?.verifiedCount != nil
      let summary = known ? String(format:text("count"),count) : count > 0 ? String(format:text("partial"),count) : text("unknown")
      let label = day.formatted(.dateTime.weekday(.wide).day().month(.wide).year().locale(locale)) + ". " + summary
-     Button { detail = label + "\n\n" + text("semantics") } label: {
+     Button { detail = label + "\n\n" + breakdown(entry: entry, snapshot: snapshotKey == key ? snapshot : nil) + "\n\n" + text("semantics") } label: {
       ZStack(alignment:.bottomTrailing) {
        RoundedRectangle(cornerRadius:5).fill(Color.primary.opacity(count > 0 ? min(0.08 + Double(count)*0.04,0.35) : 0.035))
        Text(day.formatted(.dateTime.weekday(.narrow).locale(locale)))
@@ -59,6 +70,7 @@ struct ActivityStrip: View {
    }
   }
   .frame(height:30)
+  .onChange(of: model.session.generation) { _, _ in snapshot = nil; snapshotKey = ""; detail = nil }
   .alert(text("activity"),isPresented:Binding(get:{detail != nil},set:{if !$0 {detail=nil}})) { Button("OK",role:.cancel) {detail=nil} } message: {Text(detail ?? "")}
  }
 }

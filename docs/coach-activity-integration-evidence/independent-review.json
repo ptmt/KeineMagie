@@ -1,0 +1,20 @@
+{
+  "passed": false,
+  "security_concerns": [],
+  "logic_errors": [],
+  "suggestions": [
+    {
+      "type": "documented_acceptance_blocker",
+      "location": "server/activity.go:27",
+      "proof": "Podcasts is explicitly unsupported and has no completion-counting path. docs/COACH-ACTIVITY-INTEGRATION-LOCAL.md:12 documents the absent player/media contract.",
+      "action": "Keep podcast completion unknown until actual full-listening evidence exists. Generation and playback start cannot satisfy acceptance."
+    },
+    {
+      "type": "verification_gap",
+      "location": "native/App/CoachView.swift:330",
+      "proof": "Source separates neutral exercises, tinted user answers and semantic verdict bubbles at lines 340 and 367. Native rendering and interactions were not independently executed.",
+      "action": "Verify integrated light/dark presentation, accessibility and fixed 30pt geometry before release."
+    }
+  ],
+  "summary": "Reviewed actual diff against 39ed59dc534c600c1d823f573ad7c35474791c54 plus working-tree additions. No concrete correctness or security defect found in the delivered subset: retained evidence, local dates, recheck deduplication, unknown storage coverage, owner fences and context_translation compatibility are preserved. Full acceptance remains blocked by documented unsupported podcast completion. Source review only; no edits, simulators, network/provider calls or paid reviewer."
+}

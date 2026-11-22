@@ -7,7 +7,8 @@ private enum CoachPalette {
     static let secondary = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.78, alpha: 1) : UIColor(white: 0.32, alpha: 1) })
     static let surface = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.15, alpha: 1) : UIColor(white: 0.94, alpha: 1) })
     static let success = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.125, green: 0.208, blue: 0.161, alpha: 1) : UIColor(red: 0.929, green: 0.965, blue: 0.937, alpha: 1) })
-    static let unanswered = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.161, green: 0.145, blue: 0.149, alpha: 1) : UIColor(red: 0.973, green: 0.953, blue: 0.953, alpha: 1) })
+    static let incorrect = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.26, green: 0.14, blue: 0.15, alpha: 1) : UIColor(red: 0.98, green: 0.92, blue: 0.92, alpha: 1) })
+    static let user = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.16, green: 0.20, blue: 0.28, alpha: 1) : UIColor(red: 0.90, green: 0.93, blue: 0.98, alpha: 1) })
 }
 
 private struct CoachReduceMotionOverride: EnvironmentKey { static let defaultValue = false }
@@ -76,7 +77,7 @@ struct CoachView: View {
                         }.padding().background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
                     }
                     ForEach(CoachTurn.historyWindow(model.coach?.turns ?? [], now: historyNow, earlierLimit: showEarlier, pinnedID: pinnedTurnID)) { turn in
-                        if !turn.text.isEmpty { HStack { Spacer(minLength: 32); Text(turn.text).padding(14).foregroundStyle(.white).background(Color(white: 0.2), in: RoundedRectangle(cornerRadius: 18)) } }
+                        if !turn.text.isEmpty { HStack { Spacer(minLength: 32); Text(turn.text).padding(14).foregroundStyle(.primary).background(CoachPalette.user, in: RoundedRectangle(cornerRadius: 18)) } }
                         CoachTurnView(turn: turn, focusedAnswerID: $focusedAnswerID)
                             .id(turn.id)
                             .transition(reduceMotion || !hydrated ? .identity : .opacity.combined(with: .move(edge: .bottom)))
@@ -258,10 +259,18 @@ private struct CoachCheckingView: View {
 
 private struct CoachAssistantBubble: ViewModifier {
     var unread = false
+    var status = "neutral"
+    private var surface: Color {
+        switch status {
+        case "incorrect": CoachPalette.incorrect
+        case "success": CoachPalette.success
+        default: CoachPalette.surface
+        }
+    }
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     func body(content: Content) -> some View {
-        content.padding(14)
-            .background(CoachPalette.surface, in: RoundedRectangle(cornerRadius: 18))
+        content.foregroundStyle(.primary).padding(14)
+            .background(surface, in: RoundedRectangle(cornerRadius: 18))
             .overlay(alignment: .leading) {
                 if unread { RoundedRectangle(cornerRadius: 2).fill(.primary.opacity(0.65)).frame(width: 3).padding(.vertical, 12) }
             }
@@ -327,8 +336,8 @@ private struct CoachTurnView: View {
                     HStack {
                         Spacer(minLength: 32)
                         Text(attempt.answer).textSelection(.enabled)
-                            .padding(14).foregroundStyle(.white)
-                            .background(Color(white: 0.2), in: RoundedRectangle(cornerRadius: 18))
+                            .padding(14).foregroundStyle(.primary)
+                            .background(CoachPalette.user, in: RoundedRectangle(cornerRadius: 18))
                             .accessibilityIdentifier("coach-submitted-" + turn.id)
                     }
                 }
@@ -355,7 +364,7 @@ private struct CoachTurnView: View {
                                 Image(systemName: "ellipsis").frame(minWidth: 44, minHeight: 44)
                             }.accessibilityLabel("coach.assessment.recheck").disabled(!writable)
                         }
-                    }.modifier(CoachAssistantBubble())
+                    }.modifier(CoachAssistantBubble(status: turn.presentationStatus))
                 }
             }
             if turn.state == "pending" { CoachCheckingView(reduceMotion: reduceMotion) }

@@ -1,0 +1,186 @@
+=== RUN   TestActivityDatesAndFailures
+=== RUN   TestActivityDatesAndFailures/Europe/Berlin
+=== RUN   TestActivityDatesAndFailures/America/New_York
+=== RUN   TestActivityDatesAndFailures/Asia/Kathmandu
+=== RUN   TestActivityDatesAndFailures/Pacific/Kiritimati
+--- PASS: TestActivityDatesAndFailures (0.07s)
+    --- PASS: TestActivityDatesAndFailures/Europe/Berlin (0.03s)
+    --- PASS: TestActivityDatesAndFailures/America/New_York (0.02s)
+    --- PASS: TestActivityDatesAndFailures/Asia/Kathmandu (0.02s)
+    --- PASS: TestActivityDatesAndFailures/Pacific/Kiritimati (0.01s)
+=== RUN   TestActivityHTTPReadOnlyContract
+--- PASS: TestActivityHTTPReadOnlyContract (0.03s)
+=== RUN   TestActivityRetainedCompletionsLocalDays
+--- PASS: TestActivityRetainedCompletionsLocalDays (0.02s)
+=== RUN   TestActivitySuccessfulTranslationsRetainedBeyondListLimit
+--- PASS: TestActivitySuccessfulTranslationsRetainedBeyondListLimit (0.03s)
+=== RUN   TestActivityDaySourceBreakdown
+--- PASS: TestActivityDaySourceBreakdown (0.02s)
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/equivalent
+coach_request request_id=d7c4cf8a674363ba01f195789765f5f8 phase=inference status=200 duration_ms=60
+coach_request request_id=03b12620e958691d487f7172b88d563a phase=request status=200 duration_ms=10
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/partial
+coach_request request_id=2d738d80adb2ec88be2f931f0d73aa6e phase=inference status=200 duration_ms=64
+coach_request request_id=0df265778102f4d3ccd3fa775c0d3070 phase=request status=200 duration_ms=8
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/ambiguity
+coach_request request_id=62360603b8a48040ddc4ed3221790af0 phase=inference status=200 duration_ms=59
+coach_request request_id=d6588f184cb54fc102f2d0406e140828 phase=request status=200 duration_ms=9
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/missingcontext
+coach_request request_id=3bbde205bc5ffe89909688da2e5fd684 phase=inference status=200 duration_ms=61
+coach_request request_id=4afffc7d6c8861bac9a9917ebfd0a4ce phase=request status=200 duration_ms=9
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/listabsence
+coach_request request_id=65572f629724c9371a3a751041940bf2 phase=model_response status=200 duration_ms=60
+coach_request request_id=91b9f1ecb0e000f52812546fd5c44b70 phase=request status=200 duration_ms=10
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/inventedskill
+coach_request request_id=4090463e72707850b9080b0e33b1727f phase=model_response status=200 duration_ms=57
+coach_request request_id=4b7f53811f2a21497a9e718e3c9d149c phase=request status=200 duration_ms=8
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/citation
+coach_request request_id=f39b7a6287bea741fb6f1cc710214b8d phase=model_response status=200 duration_ms=59
+coach_request request_id=0f12d463c6fe22f3aa804f8fd9b3c65e phase=request status=200 duration_ms=10
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/duplicatekey
+coach_request request_id=c64ab5810cea895b252c0f5558a19d99 phase=model_response status=200 duration_ms=62
+coach_request request_id=186fb46bbd328f92d7603bc9a9104c08 phase=request status=200 duration_ms=9
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/trailing
+coach_request request_id=ed98c38d8f2ac26e68d58e9cdfe3e3d9 phase=model_response status=200 duration_ms=63
+coach_request request_id=4c18e3da7fbaa13c27051d2f0a91f66b phase=request status=200 duration_ms=9
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/null
+coach_request request_id=7a8d857d073a8a47c63e9b3986cf6218 phase=model_response status=200 duration_ms=49
+coach_request request_id=85ac8c06306387d349cdab0982f56cf1 phase=request status=200 duration_ms=9
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/emptycorrection
+coach_request request_id=79c6de18c29010ab4700c2d63dedbf96 phase=model_response status=200 duration_ms=50
+coach_request request_id=78db8f5237840f6e369233c2d8cb4d6c phase=request status=200 duration_ms=11
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/malformed
+coach_request request_id=d01b88fd4f2834c33b290d06d6dedc9a phase=model_response status=200 duration_ms=46
+coach_request request_id=98f914b63d3c53c3c2816b39a7c15d75 phase=request status=200 duration_ms=10
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/refusal
+coach_request request_id=c225d48b5db0cf83f9084894ecf4b171 phase=inference status=200 duration_ms=49
+coach_request request_id=9103a1e832b527b149f41d385ee10119 phase=request status=200 duration_ms=10
+=== RUN   TestAssessmentStrictResultsAndInfrastructureSeparation/timeout
+coach_request request_id=8a6d52142b291898432a2a4d034cdb27 phase=inference status=200 duration_ms=51
+coach_request request_id=232d4389f188d07e52b63a13f3d92c40 phase=request status=200 duration_ms=11
+--- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation (1.59s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/equivalent (0.12s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/partial (0.12s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/ambiguity (0.12s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/missingcontext (0.12s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/listabsence (0.12s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/inventedskill (0.11s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/citation (0.12s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/duplicatekey (0.12s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/trailing (0.12s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/null (0.10s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/emptycorrection (0.11s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/malformed (0.10s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/refusal (0.10s)
+    --- PASS: TestAssessmentStrictResultsAndInfrastructureSeparation/timeout (0.11s)
+=== RUN   TestAssessmentDoubleTapCancelRevocationAndQuota
+=== RUN   TestAssessmentDoubleTapCancelRevocationAndQuota/duplicate
+coach_request request_id=1677039086900c520432d57508266fae phase=request status=200 duration_ms=10
+coach_request request_id=e74da57524419185260b26c618282064 phase=request status=200 duration_ms=11
+coach_request request_id=64e2ba2d73052f88daad6f59fec9cc49 phase=inference status=200 duration_ms=90
+=== RUN   TestAssessmentDoubleTapCancelRevocationAndQuota/cancel
+coach_request request_id=fc46ceedd0b5db7d3cbb231f26b8a8cf phase=request status=200 duration_ms=10
+coach_request request_id=dca8262abf481bb199f52a8ae82227fc phase=inference status=200 duration_ms=76
+=== RUN   TestAssessmentDoubleTapCancelRevocationAndQuota/revocation
+coach_request request_id=d3a7c9ef11c7992582c72cc3f78a8b2b phase=session status=401 duration_ms=64
+=== RUN   TestAssessmentDoubleTapCancelRevocationAndQuota/old-owner
+coach_request request_id=37402cc1409fa803cd4c2c47c6f0424a phase=storage status=409 duration_ms=1
+coach_request request_id=33235b8ec7f89154faadc7cbcabab301 phase=inference status=200 duration_ms=73
+--- PASS: TestAssessmentDoubleTapCancelRevocationAndQuota (0.48s)
+    --- PASS: TestAssessmentDoubleTapCancelRevocationAndQuota/duplicate (0.14s)
+    --- PASS: TestAssessmentDoubleTapCancelRevocationAndQuota/cancel (0.12s)
+    --- PASS: TestAssessmentDoubleTapCancelRevocationAndQuota/revocation (0.11s)
+    --- PASS: TestAssessmentDoubleTapCancelRevocationAndQuota/old-owner (0.12s)
+=== RUN   TestAssessmentCancelBeforeAdmission
+coach_request request_id=815aeb1099316f0b4b2078b5956a5855 phase=request status=200 duration_ms=11
+coach_request request_id=af5554131ca77618640b6bc7abeaaa3b phase=request status=200 duration_ms=10
+--- PASS: TestAssessmentCancelBeforeAdmission (0.06s)
+=== RUN   TestAssessmentLateCanceledResultCannotOverwriteRecheck
+coach_request request_id=a2f3934052f22ca3396972c8fea21bbd phase=request status=200 duration_ms=10
+coach_request request_id=b0824c571a765085b9f76461c0c8b5b4 phase=sources status=200 duration_ms=22
+coach_request request_id=4f4cb12daaa4af60a001a4762893e9ac phase=inference status=200 duration_ms=101
+--- PASS: TestAssessmentLateCanceledResultCannotOverwriteRecheck (0.15s)
+=== RUN   TestAssessmentRecheckFailureKeepsPriorEvidence
+coach_request request_id=07dbec6aaa89e95d658629a445cd5660 phase=inference status=200 duration_ms=49
+--- PASS: TestAssessmentRecheckFailureKeepsPriorEvidence (0.10s)
+=== RUN   TestAssessmentAdmissionBudgetsOwnerAndSource
+=== RUN   TestAssessmentAdmissionBudgetsOwnerAndSource/budget
+coach_request request_id=86b7dbc9c0ca0204c099fc8cad069335 phase=inference status=200 duration_ms=62
+coach_request request_id=a7c9199653904f6461278b7af0d12bab phase=sources status=200 duration_ms=19
+=== RUN   TestAssessmentAdmissionBudgetsOwnerAndSource/owner
+coach_request request_id=d61cd5098cc46eb8de43f011861662c4 phase=storage status=409 duration_ms=0
+=== RUN   TestAssessmentAdmissionBudgetsOwnerAndSource/source
+coach_request request_id=8119c74f7c588fd01c57fa03d75b0fec phase=sources status=200 duration_ms=21
+=== RUN   TestAssessmentAdmissionBudgetsOwnerAndSource/catalog
+coach_request request_id=a468fcf05c8c63c9a469e9aaf9d5ae90 phase=catalog status=200 duration_ms=22
+=== RUN   TestAssessmentAdmissionBudgetsOwnerAndSource/repeated
+coach_request request_id=8e8e07f6f1778605512bc689a2a09e3b phase=inference status=200 duration_ms=64
+coach_request request_id=4214477e380e15ccc3b813f2d81f8583 phase=request status=200 duration_ms=9
+--- PASS: TestAssessmentAdmissionBudgetsOwnerAndSource (0.46s)
+    --- PASS: TestAssessmentAdmissionBudgetsOwnerAndSource/budget (0.14s)
+    --- PASS: TestAssessmentAdmissionBudgetsOwnerAndSource/owner (0.05s)
+    --- PASS: TestAssessmentAdmissionBudgetsOwnerAndSource/source (0.08s)
+    --- PASS: TestAssessmentAdmissionBudgetsOwnerAndSource/catalog (0.07s)
+    --- PASS: TestAssessmentAdmissionBudgetsOwnerAndSource/repeated (0.12s)
+=== RUN   TestAssessmentPassageExcerptAndLiteralSourceID
+--- PASS: TestAssessmentPassageExcerptAndLiteralSourceID (0.06s)
+=== RUN   TestAssessmentRecheckPreservesOriginalAndNoAutomaticInference
+coach_request request_id=aec0de1f2dddba33e7d08ed5807f8c65 phase=inference status=200 duration_ms=62
+--- PASS: TestAssessmentRecheckPreservesOriginalAndNoAutomaticInference (0.12s)
+=== RUN   TestCoachAssessmentContextAndIdempotency
+coach_request request_id=873e24d0625e98f93d80b2b571ac31bd phase=inference status=200 duration_ms=68
+coach_request request_id=a8a5e9ae8ea19f90046b1312241b78bd phase=request status=200 duration_ms=9
+coach_request request_id=6f467ac7fcf7cda4ebc851d1cad183a1 phase=storage status=200 duration_ms=0
+--- PASS: TestCoachAssessmentContextAndIdempotency (0.12s)
+=== RUN   TestCoachAdditiveFieldsDoNotRelaxRequiredLegacyArrays
+--- PASS: TestCoachAdditiveFieldsDoNotRelaxRequiredLegacyArrays (0.00s)
+=== RUN   TestCoachContextTranslationUsesEachSavedPairDirection
+--- PASS: TestCoachContextTranslationUsesEachSavedPairDirection (0.00s)
+=== RUN   TestCoachContextTranslationGroundedContract
+--- PASS: TestCoachContextTranslationGroundedContract (0.00s)
+=== RUN   TestCoachContextTranslationRejectsAmbiguousTargetAndDirection
+=== RUN   TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/missing_base_fields
+=== RUN   TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/foreign_target
+=== RUN   TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/wrong_direction
+=== RUN   TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/changed_context
+=== RUN   TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/whole_sentence_target
+=== RUN   TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/missing_target
+=== RUN   TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/partial_word
+--- PASS: TestCoachContextTranslationRejectsAmbiguousTargetAndDirection (0.00s)
+    --- PASS: TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/missing_base_fields (0.00s)
+    --- PASS: TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/foreign_target (0.00s)
+    --- PASS: TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/wrong_direction (0.00s)
+    --- PASS: TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/changed_context (0.00s)
+    --- PASS: TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/whole_sentence_target (0.00s)
+    --- PASS: TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/missing_target (0.00s)
+    --- PASS: TestCoachContextTranslationRejectsAmbiguousTargetAndDirection/partial_word (0.00s)
+=== RUN   TestCoachVocabularyGenerationAlternativeAndFailure
+coach_request request_id=d5c1c7c624de34f060c07a9f4b5cdb47 phase=inference status=200 duration_ms=70
+coach_request request_id=419ff3082f0cfaba5b5ae7c2ab13dca2 phase=inference status=200 duration_ms=51
+coach_request request_id=109a302dac2b08114c6f41b78dbeaf23 phase=request status=200 duration_ms=9
+coach_request request_id=d408d042ac6e54bc90a10d0654e215a8 phase=inference status=200 duration_ms=60
+coach_request request_id=e9b6673e01255c61e7592934c886b89f phase=inference status=200 duration_ms=44
+coach_request request_id=e8590139880bd54edb47168e1543dbbd phase=request status=200 duration_ms=10
+coach_request request_id=346951c4da8baf13fa93cad777a9d4a1 phase=storage status=200 duration_ms=1
+--- PASS: TestCoachVocabularyGenerationAlternativeAndFailure (0.28s)
+=== RUN   TestDictationHybridFailureRecoveryAndNoAutomaticInference
+--- PASS: TestDictationHybridFailureRecoveryAndNoAutomaticInference (0.13s)
+=== RUN   TestDictationHybridCancelAndLateResult
+=== RUN   TestDictationHybridCancelAndLateResult/before
+=== RUN   TestDictationHybridCancelAndLateResult/during
+--- PASS: TestDictationHybridCancelAndLateResult (0.24s)
+    --- PASS: TestDictationHybridCancelAndLateResult/before (0.10s)
+    --- PASS: TestDictationHybridCancelAndLateResult/during (0.15s)
+=== RUN   TestDictationHybridRejectUngroundedNotes
+--- PASS: TestDictationHybridRejectUngroundedNotes (0.00s)
+=== RUN   TestDictationHybridReceiptBeforeNetworkAndDuplicate
+--- PASS: TestDictationHybridReceiptBeforeNetworkAndDuplicate (0.15s)
+=== RUN   TestHistoryDeletePersistsAcrossClientsAndRestart
+--- PASS: TestHistoryDeletePersistsAcrossClientsAndRestart (0.04s)
+=== RUN   TestHistoryFavoritePersistsAcrossClientsAndRestart
+--- PASS: TestHistoryFavoritePersistsAcrossClientsAndRestart (0.06s)
+=== RUN   TestTranslationIdempotencyLostAckAndConflict
+--- PASS: TestTranslationIdempotencyLostAckAndConflict (0.24s)
+PASS
+ok  	diktat/server	5.877s

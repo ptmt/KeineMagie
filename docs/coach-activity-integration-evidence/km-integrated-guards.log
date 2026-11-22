@@ -1,0 +1,99 @@
+NATIVE_CONTRAST dark [8.914113934535434, 8.214026199277141, 7.741106116440131, 7.480139638053445, 12.409631909498186]
+NATIVE_CONTRAST light [6.881330810749521, 6.77488034096002, 7.127096915981074, 6.68674335932047, 7.863099547221424]
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.003s
+
+OK
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.003s
+
+OK
+Building for debugging...
+[Computing dependencies]
+[Constructing description]
+[Planning 1 / 125]
+[Planning deferred tasks]
+[2 / 83] AllIncludingTests
+[42 / 83]
+[49 / 83] KeineMagieCore_KeineMagieCore
+[51 / 83]
+[52 / 84] KeineMagieCore
+[56 / 135]
+[61 / 135]
+[62 / 135]
+[67 / 135]
+[70 / 135]
+[72 / 135]
+[75 / 135]
+[77 / 135]
+[79 / 135]
+[81 / 135]
+[85 / 135]
+[86 / 135]
+[88 / 135]
+[89 / 135]
+[92 / 135]
+[95 / 135] KeineMagieCore
+[104 / 135] KeineMagieCore
+[105 / 135] KeineMagieCore
+[106 / 135] KeineMagieCore-product
+[108 / 135] Lifecycle
+[109 / 135] Lifecycle
+[110 / 136]
+[113 / 141] Lifecycle
+[116 / 141] Lifecycle
+[121 / 141] Lifecycle
+[125 / 141] Lifecycle
+[131 / 142] LifecycleTests-product
+[132 / 148]
+[136 / 148] LifecycleTests-product
+[137 / 148] LifecycleTests-product
+[142 / 148] LifecycleTests-product
+[144 / 148] LifecycleTests-product
+Build complete! (15,32 sec)
+Test Suite 'All tests' started at 2026-11-22 07:30:33.355.
+Test Suite 'All tests' passed at 2026-11-22 07:30:33.361.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.006) seconds
+◇ Test run started.
+↳ Testing Library Version: 2403
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test coachAssessmentIsImmediateDurableAndFenced() started.
+◇ Test coachReadOnlyCacheAndLateReset() started.
+◇ Test coachStaleViewportTurnCannotSendAfterOwnerReplacement() started.
+◇ Test coachAssessmentStorageFailureNeverSends() started.
+◇ Test coachSeenRevocationClearsOwnerAndCachedConversation() started.
+◇ Test coachUnreceivedAnswerSurvivesRefreshAndRelaunchWithoutPosting() started.
+◇ Test coachCancelledViewportCallbackNeverPosts() started.
+◇ Test coachUnreceivedRecheckKeepsIdentityUntilMatchingAcknowledgement() started.
+◇ Test dailyEntryRequiresForegroundAndCarriesLocalZone() started.
+◇ Test dailyAssessmentHapticsCountOnlyExplicitForegroundTransitions() started.
+◇ Test coachUnacknowledgedAnswerDoesNotCrossAccounts() started.
+◇ Test coachWriteDominatesStaleReadAndCancellation() started.
+◇ Test coachSeenReceiptFencesLogoutAndDoesNotReplaceConversation() started.
+◇ Test coachMissingTurnsRetainLiteralUntilExplicitRemoval() started.
+◇ Test coachQuickSendKeepsDraftAndCoalesces() started.
+◇ Test coachExplicitResetRemovesUnacknowledgedAnswer() started.
+✔ Test coachCancelledViewportCallbackNeverPosts() passed after 0.025 seconds.
+✔ Test coachStaleViewportTurnCannotSendAfterOwnerReplacement() passed after 0.031 seconds.
+✔ Test coachSeenRevocationClearsOwnerAndCachedConversation() passed after 0.035 seconds.
+✔ Test coachAssessmentStorageFailureNeverSends() passed after 0.035 seconds.
+✔ Test dailyEntryRequiresForegroundAndCarriesLocalZone() passed after 0.040 seconds.
+✔ Test coachQuickSendKeepsDraftAndCoalesces() passed after 0.041 seconds.
+✔ Test coachSeenReceiptFencesLogoutAndDoesNotReplaceConversation() passed after 0.045 seconds.
+✔ Test coachUnreceivedAnswerSurvivesRefreshAndRelaunchWithoutPosting() passed after 0.051 seconds.
+✔ Test coachReadOnlyCacheAndLateReset() passed after 0.055 seconds.
+✔ Test coachExplicitResetRemovesUnacknowledgedAnswer() passed after 0.059 seconds.
+✔ Test coachAssessmentIsImmediateDurableAndFenced() passed after 0.060 seconds.
+✔ Test coachUnacknowledgedAnswerDoesNotCrossAccounts() passed after 0.060 seconds.
+✔ Test coachUnreceivedRecheckKeepsIdentityUntilMatchingAcknowledgement() passed after 0.063 seconds.
+✔ Test coachMissingTurnsRetainLiteralUntilExplicitRemoval() passed after 0.063 seconds.
+✔ Test coachWriteDominatesStaleReadAndCancellation() passed after 0.067 seconds.
+✔ Test dailyAssessmentHapticsCountOnlyExplicitForegroundTransitions() passed after 0.090 seconds.
+✔ Test run with 16 tests in 0 suites passed after 0.091 seconds.
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+OK
