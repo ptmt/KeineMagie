@@ -19,6 +19,7 @@ type learningPassageGroup struct {
 	End        float64 `json:"end"`
 }
 type learningPassageGroups struct {
+	StudiedAt          *time.Time             `json:"studied_at,omitempty"`
 	Version            int                    `json:"version"`
 	Revision           uint64                 `json:"revision"`
 	JobID              string                 `json:"job_id"`
@@ -101,6 +102,14 @@ func (cfg *serverConfig) passageTransactionChecked(owner, id string, mutate func
 				}
 			}
 			d.Passages = kept
+			for jobID := range d.StudiedEpisodes {
+				if _, exists := jobs[jobID]; !exists {
+					delete(d.StudiedEpisodes, jobID)
+				}
+			}
+			if at, exists := d.StudiedEpisodes[id]; exists {
+				out.StudiedAt = &at
+			}
 			byJob := map[string][]learningPassage{}
 			for _, m := range kept {
 				byJob[m.JobID] = append(byJob[m.JobID], m)

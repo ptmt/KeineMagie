@@ -103,13 +103,14 @@ export async function startAppleLogin(api, csrf, signal) {
 
 export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
   return {
-    async request(path, { method = 'GET', body, csrf, signal, onResponse, owner, activityOwner } = {}) {
+    async request(path, { method = 'GET', body, csrf, signal, onResponse, owner, activityOwner, passageOwner } = {}) {
       const vocabularyQuery = /^\/v1\/learning\/vocabulary\?language=(?:de|ru)&job_id=[A-Za-z0-9_-]{1,200}$/.test(path);
       const activityQuery = /^\/v1\/learning\/activity\?start=\d{4}-\d{2}-\d{2}&time_zone=[A-Za-z0-9_+-]+(?:(?:%2F)[A-Za-z0-9_+-]+)*$/.test(path);
       if ((!/^\/v1\/[A-Za-z0-9/_-]+$/.test(path) && !vocabularyQuery && !activityQuery) || path.split('/').some(part => part === '.' || part === '..')) throw new Error('Only same-origin API paths are allowed');
       const headers = { Accept: 'application/json' };
       if (owner) headers['X-Translation-Owner'] = owner;
       if (activityOwner) headers['X-Activity-Owner'] = activityOwner;
+      if (passageOwner) headers['X-Passage-Owner'] = passageOwner;
       if (body !== undefined) headers['Content-Type'] = 'application/json';
       if (csrf) headers['X-CSRF-Token'] = csrf;
       const response = await fetcher(path, { method, headers, credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });

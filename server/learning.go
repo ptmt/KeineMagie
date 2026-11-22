@@ -50,6 +50,7 @@ type learningVocabulary struct {
 	History     []learningAction `json:"history"`
 }
 type learningData struct {
+	StudiedEpisodes     map[string]time.Time       `json:"studied_episodes,omitempty"`
 	PassageGroupVersion int                        `json:"passage_group_version,omitempty"`
 	PassageRevision     uint64                     `json:"passage_revision,omitempty"`
 	PassageGroups       []learningPassageGroup     `json:"passage_groups,omitempty"`
@@ -229,6 +230,14 @@ func (cfg *serverConfig) handleLearning(w http.ResponseWriter, r *http.Request) 
 	}
 	parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, "/v1/learning/"), "/"), "/")
 	store := cfg.learningStore(owner)
+	if len(parts) == 3 && parts[0] == "episodes" && parts[2] == "studied" {
+		if expected := r.Header.Get("X-Passage-Owner"); expected != "" && expected != owner {
+			writeError(w, 403, "owner changed")
+			return
+		}
+		cfg.learningStudyHTTP(w, r, owner, parts[1])
+		return
+	}
 	if len(parts) == 3 && parts[0] == "episodes" && parts[2] == "passage-groups" {
 		if expected := r.Header.Get("X-Passage-Owner"); expected != "" && expected != owner {
 			writeError(w, 403, "owner changed")

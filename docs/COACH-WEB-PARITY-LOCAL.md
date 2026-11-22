@@ -1,5 +1,7 @@
 # Coach web parity + meaningful vocabulary clues — local candidate
 
+Historical parity record. See `PODCAST-ACTIVITY-STARS-LOCAL.md` for the subsequent local Podcast activity/study and prioritized starred-source extension; the unsupported Podcast statements below describe the earlier parity build.
+
 2026-11-22. Worktree `/Users/tinyserve/Projects/KeineMagie-coach-web-parity`, branch `candidate/coach-web-parity`, exact base `54fee24259c1bd6354e18e1434e45c77ac23a2e3`. This preserves the accepted native soft-red candidate, bold/glass ancestor and real activity/context-translation integration. No push, deployment, Apple upload, paid provider/TTS call or production-data mutation. Unrelated compact-audio candidate `ba61d0ec` was not cherry-picked. The original dirty worktree was not edited.
 
 ## Implemented

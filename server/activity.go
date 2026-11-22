@@ -24,7 +24,7 @@ type activitySnapshot struct {
 }
 
 func (cfg *serverConfig) activityWeek(owner string, start time.Time, loc *time.Location) activitySnapshot {
-	result := activitySnapshot{Version: 1, TimeZone: loc.String(), Days: []activityDay{}, Sources: map[string]string{"translator": "unavailable", "podcasts": "unsupported", "coach": "unavailable", "dictation": "unavailable"}}
+	result := activitySnapshot{Version: 1, TimeZone: loc.String(), Days: []activityDay{}, Sources: map[string]string{"translator": "unavailable", "podcasts": "unavailable", "coach": "unavailable", "dictation": "unavailable"}}
 	index := map[string]int{}
 	for i := 0; i < 7; i++ {
 		key := start.AddDate(0, 0, i).Format("2006-01-02")
@@ -65,13 +65,24 @@ func (cfg *serverConfig) activityWeek(owner string, start time.Time, loc *time.L
 					continue
 				}
 				seen[turn.ID] = true
-				add("coach", a.At)
+				// Categories describe source attribution, not the screen used.
+				// One settled exercise is never counted in both categories.
+				source := "coach"
+				if strings.HasPrefix(turn.Result.SourceID, "passage-group:") || strings.HasPrefix(turn.Result.SourceID, "passage:") {
+					source = "podcasts"
+				}
+				add(source, a.At)
 				break
 			}
 		}
 		result.Sources["coach"] = "retained"
+		result.Sources["podcasts"] = "retained"
 		return nil
 	})
+	// Explicit transcript study is separate from an exercise, never listening.
+	if err := cfg.podcastStudyActivity(owner, func(at time.Time) { add("podcasts", at) }); err != nil {
+		result.Sources["podcasts"] = "unavailable"
+	}
 	// Dictation already defines checked as a completed workflow (library stage),
 	// NOT a full-text completion or successful optional AI assessment.
 	_ = cfg.dictationTransaction(owner, false, func(d *dictationData) error {

@@ -121,6 +121,16 @@ struct EpisodeReaderView: View {
                     }
                 }
                 Text("episode.transcript.only").font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading)
+                if job.state == "completed", !job.segments.isEmpty {
+                    let studied = learning?.passageGroups?.studiedAt != nil
+                    Button {
+                        Task { await model.markEpisodeStudied(job) }
+                    } label: {
+                        Label { Text(studied ? "episode.studied" : "episode.mark.studied", tableName: "PodcastStudy") } icon: { Image(systemName: studied ? "checkmark.circle" : "circle") }
+                            .frame(minHeight: 44)
+                    }.disabled(studied || !canSavePassage)
+                        .accessibilityIdentifier(studied ? "episode-studied" : "episode-mark-studied")
+                }
                 HStack {
                     TextField("episode.search", text: $query).focused($editing).textInputAutocapitalization(.never)
                         .accessibilityIdentifier("episode-search").frame(minHeight: 44)

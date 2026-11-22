@@ -78,6 +78,9 @@ func TestNativePassageUIFixture(t *testing.T) {
 			return
 		}
 		if r.URL.Path == "/_fixture/reset" {
+			if err := cfg.learningStore(job.Owner).transaction(func(d *learningData) error { delete(d.StudiedEpisodes, job.ID); return nil }, true); err != nil {
+				t.Error(err)
+			}
 			for _, id := range readGroups(t, production, token, job.ID).FavoriteSegmentIDs {
 				starGroup(t, production, token, job.ID, id, false)
 			}
@@ -113,7 +116,7 @@ func TestNativePassageUIFixture(t *testing.T) {
 			respond(map[string]any{"requests": records, "groups": groups, "source_unchanged": bytes.Equal(original, data), "source_sha256": fmt.Sprintf("%x", sha256.Sum256(data)), "segment_count": len(current.Segments)})
 			return
 		}
-		if r.Method != "GET" && !(r.Method == "PUT" && strings.Contains(r.URL.Path, "/passages/")) {
+		if r.Method != "GET" && !(r.Method == "PUT" && (strings.Contains(r.URL.Path, "/passages/") || r.URL.Path == "/v1/learning/episodes/"+job.ID+"/studied")) {
 			http.Error(w, "fixture forbids provider or unrelated mutations", 403)
 			return
 		}

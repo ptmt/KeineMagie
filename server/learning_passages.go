@@ -16,11 +16,12 @@ type learningPassage struct {
 	Quote     string `json:"quote"`
 }
 type podcastCoverage struct {
-	PassageRevision uint64 `json:"passage_revision"`
-	Recognized      int    `json:"recognized_segments"`
-	Translated      int    `json:"translated_segments"`
-	Favorites       int    `json:"favorite_passages"`
-	FavoriteIDs     []int  `json:"favorite_segment_ids,omitempty"`
+	StudiedAt       *time.Time `json:"studied_at,omitempty"`
+	PassageRevision uint64     `json:"passage_revision"`
+	Recognized      int        `json:"recognized_segments"`
+	Translated      int        `json:"translated_segments"`
+	Favorites       int        `json:"favorite_passages"`
+	FavoriteIDs     []int      `json:"favorite_segment_ids,omitempty"`
 }
 
 func coverageFor(j podcastJob, marks []learningPassage) podcastCoverage {
@@ -51,6 +52,9 @@ func (cfg *serverConfig) podcastCoverage(owner string, jobs []podcastJob) error 
 		for i := range jobs {
 			c := coverageFor(jobs[i], byJob[jobs[i].ID])
 			c.PassageRevision = d.PassageRevision
+			if at, ok := d.StudiedEpisodes[jobs[i].ID]; ok {
+				c.StudiedAt = &at
+			}
 			jobs[i].Coverage = &c
 		}
 		return nil

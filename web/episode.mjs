@@ -62,7 +62,7 @@ export function createEpisodeClient({api, unauthorized=()=>{}}) {
     const run=epoch,controller=new AbortController();controllers.add(controller);
     const abort=()=>controller.abort();
     if(options.signal?.aborted)abort();else options.signal?.addEventListener('abort',abort,{once:true});
-    const task=Promise.resolve(api.request(path,{method:'GET',...options,csrf:session.csrf_token,signal:controller.signal})).then(value=>{
+    const task=Promise.resolve(api.request(path,{method:'GET',...options,passageOwner:session.user.id,csrf:session.csrf_token,signal:controller.signal})).then(value=>{
       if(run!==epoch)throw new DOMException('Stale account','AbortError');return value;
     }).catch(error=>{if(run===epoch&&error.status===401)unauthorized(error);throw error;}).finally(()=>{options.signal?.removeEventListener('abort',abort);controllers.delete(controller);if(flights.get(key)===task)flights.delete(key);});
     flights.set(key,task);return task;

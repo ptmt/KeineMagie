@@ -295,6 +295,21 @@ public struct PodcastAPI: Sendable {
         guard value.jobID == id else { throw APIError.invalidResponse }
         return value
     }
+    public func studyRequest(id: String, owner: String) throws -> URLRequest {
+        var value = try passageRequest(id: id, owner: owner)
+        value.url = endpoint.url(path: "v1/learning/episodes/" + id + "/studied")
+        value.httpMethod = "PUT"
+        value.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        value.httpBody = Data("{}".utf8)
+        return value
+    }
+    public func markStudied(id: String, owner: String) async throws -> PassageGroups {
+        let data = try await send(studyRequest(id: id, owner: owner))
+        try Task.checkCancellation()
+        let value = try JSONDecoder().decode(PassageGroups.self, from: data)
+        guard value.jobID == id, value.studiedAt != nil else { throw APIError.invalidResponse }
+        return value
+    }
     public func setPassage(id: String, segment: Int, favorite: Bool, owner: String) async throws -> PassageGroups {
         let data = try await send(passageRequest(id: id, segment: segment, favorite: favorite, owner: owner))
         try Task.checkCancellation()

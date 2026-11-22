@@ -71,6 +71,38 @@ final class PassageGroupsUITests: XCTestCase {
         let data = try JSONSerialization.data(withJSONObject: state, options: [.prettyPrinted, .sortedKeys])
         let a = XCTAttachment(data: data, uniformTypeIdentifier: "public.json"); a.name = "HTTP-groups-\(puts)"; a.lifetime = .keepAlways; add(a)
     }
+    @MainActor func testExplicitTranscriptStudyPersists() async throws {
+        _ = try await control("reset")
+        let app = launch(); defer { app.terminate() }
+        openEpisode(app)
+        let study = app.buttons["episode-mark-studied"]
+        XCTAssertTrue(study.waitForExistence(timeout: 5))
+        guard study.exists else { return }
+        XCTAssertTrue(study.isEnabled)
+        capture(app, "podcast-study-before-synthetic")
+        study.tap()
+        let saved = app.buttons["episode-studied"]
+        XCTAssertTrue(saved.waitForExistence(timeout: 8))
+        XCTAssertFalse(saved.isEnabled)
+        let state = try await control("state")
+        XCTAssertNotNil((state["groups"] as? [String: Any])?["studied_at"])
+        let requests = state["requests"] as! [[String: Any]]
+        XCTAssertEqual(requests.filter { ($0["path"] as? String)?.hasSuffix("/studied") == true && $0["method"] as? String == "PUT" }.count, 1)
+        capture(app, "podcast-study-saved-synthetic")
+        app.terminate(); app.launch(); openEpisode(app)
+        XCTAssertTrue(app.buttons["episode-studied"].waitForExistence(timeout: 8))
+        app.tabBars.buttons["Coach"].tap()
+        let format = DateFormatter(); format.dateFormat = "yyyy-MM-dd"
+        let day = app.buttons["activity-day-" + format.string(from: Date())]
+        XCTAssertTrue(day.waitForExistence(timeout: 8))
+        let ready = NSPredicate(format: "label CONTAINS %@", "at least 1")
+        let loaded = expectation(for: ready, evaluatedWith: day)
+        await fulfillment(of: [loaded], timeout: 8)
+        day.tap()
+        let detail = app.alerts.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Podcasts: ≥1")).firstMatch
+        XCTAssertTrue(detail.waitForExistence(timeout: 5))
+        capture(app, "podcast-study-activity-detail-synthetic")
+    }
     @MainActor func testBridgeSplitSearchRelaunchOwnerAndNavigation() async throws {
         _ = try await control("reset")
         let app = launch(); defer { app.terminate() }

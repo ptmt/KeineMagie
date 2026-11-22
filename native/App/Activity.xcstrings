@@ -252,31 +252,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "One saved successful translation, one fully listened podcast episode, or one checked Coach/Dictation exercise regardless of correctness. Rechecks count once; partial Dictation checks count. Listening is not tracked by current podcast readers. Deleted or undated history is unavailable. A dot marks incomplete coverage, never a verified zero. Not a mastery score."
+            "value": "One successful translation or one checked exercise, regardless of correctness. Podcast-source exercises count under Podcasts, not Coach. Mark transcript studied adds one completion per retained episode. Opening, starring and preparation do not count; listening is not tracked. Rechecks count once. Deleted or undated history remains incomplete. Not a mastery score."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eine gespeicherte erfolgreiche Übersetzung, eine vollständig gehörte Podcastfolge oder eine geprüfte Coach-/Diktatübung unabhängig vom Ergebnis. Erneute Prüfungen zählen einmal; Teildiktate zählen. Die aktuellen Podcastleser erfassen kein Hören. Gelöschter oder undatierter Verlauf fehlt. Ein Punkt markiert unvollständige Daten, keinen bestätigten Nullwert. Keine Kompetenzbewertung."
+            "value": "Eine erfolgreiche Übersetzung oder eine geprüfte Übung, unabhängig vom Ergebnis. Übungen aus Podcasts zählen unter Podcasts, nicht Coach. Ein als gelernt markiertes Transkript zählt einmal pro gespeicherter Folge. Öffnen, Markieren und Vorbereitung zählen nicht; Hören wird nicht erfasst. Erneute Prüfungen zählen einmal. Gelöschter oder undatierter Verlauf bleibt unvollständig. Keine Kompetenzbewertung."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Один сохранённый успешный перевод, один полностью прослушанный эпизод или одно проверенное упражнение Тренера/Диктанта независимо от правильности. Повторные проверки считаются один раз; частичные диктанты учитываются. Текущие экраны подкастов не отслеживают прослушивание. Удалённая история и записи без даты недоступны. Точка обозначает неполные данные, а не подтверждённый ноль. Это не оценка знаний."
+            "value": "Один успешный перевод или одно проверенное упражнение независимо от правильности. Упражнения по подкастам учитываются в Подкастах, а не в Тренере. Отметка изученной расшифровки добавляет одно завершение на сохранённый выпуск. Открытие, звёздочки и подготовка не считаются; прослушивание не отслеживается. Повторные проверки не увеличивают счётчик. Удалённая история и записи без даты остаются неполными. Это не оценка владения языком."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Una traducción completada con éxito y guardada, un episodio escuchado por completo o un ejercicio comprobado de Coach/Dictado, sea correcto o no. Las revisiones cuentan una vez; los dictados parciales cuentan. Los lectores actuales no registran la escucha. Falta el historial eliminado o sin fecha. Un punto indica datos incompletos, nunca un cero confirmado. No mide el dominio."
+            "value": "Una traducción correcta o un ejercicio revisado, independientemente del resultado. Los ejercicios basados en podcasts cuentan en Podcasts, no en Entrenador. Marcar una transcripción estudiada añade una finalización por episodio conservado. Abrir, marcar favoritos y preparar no cuenta; la escucha no se registra. Las revisiones repetidas cuentan una vez. El historial eliminado o sin fecha sigue incompleto. No mide el dominio."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une traduction réussie enregistrée, un épisode écouté en entier ou un exercice Coach/Dictée vérifié, quelle que soit la correction. Les revérifications comptent une fois ; les dictées partielles comptent. Les lecteurs actuels ne suivent pas l’écoute. L’historique supprimé ou non daté manque. Un point indique des données incomplètes, jamais un zéro confirmé. Ce n’est pas un niveau de maîtrise."
+            "value": "Une traduction réussie ou un exercice vérifié, quel que soit le résultat. Les exercices issus de podcasts comptent dans Podcasts, pas dans Coach. Marquer une transcription étudiée ajoute une activité par épisode conservé. Ouvrir, ajouter aux favoris et préparer ne compte pas ; l’écoute n’est pas suivie. Les vérifications répétées comptent une fois. L’historique supprimé ou sans date reste incomplet. Ce n’est pas un niveau de maîtrise."
           }
         }
       }

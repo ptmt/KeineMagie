@@ -119,9 +119,9 @@ actor SimulatorSessionFixture {
             return AuthResponse(data: data, status: status)
         }
         if mode == "passage-http", let path = request.url?.path,
-           path == "/v1/auth/session" || path.hasPrefix("/v1/podcasts") || path.contains("/passage") {
+           path == "/v1/auth/session" || path.hasPrefix("/v1/podcasts") || path.contains("/passage") || path.hasSuffix("/studied") || path == "/v1/learning/activity" {
             var local = request
-            local.url = URL(string: "http://127.0.0.1:18879" + path)
+            local.url = URL(string: "http://127.0.0.1:18879" + path + (request.url?.query.map { "?" + $0 } ?? ""))
             let configuration = URLSessionConfiguration.ephemeral
             configuration.urlCache = nil
             let session = URLSession(configuration: configuration)

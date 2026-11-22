@@ -2,6 +2,29 @@ import XCTest
 @testable import KeineMagieCore
 
 final class PassageGroupTests: XCTestCase {
+    func testActualGoStudyReceipt() throws {
+        guard let path = ProcessInfo.processInfo.environment["PODCAST_STUDY_WIRE_PATH"] else { throw XCTSkip("Explicit Go handler receipt required") }
+        let value = try JSONDecoder().decode(PassageGroups.self, from: Data(contentsOf: URL(fileURLWithPath: path)))
+        XCTAssertNotNil(value.studiedAt)
+        XCTAssertEqual(value.favoriteSegmentIDs, [0])
+        XCTAssertEqual(value.groups.count, 1)
+    }
+    func testStudyDateSurvivesOwnerCacheRoundTrip() throws {
+        let wire = #"{"version":1,"revision":9,"job_id":"job","favorite_segment_ids":[],"groups":[],"studied_at":"2026-11-22T12:00:00Z"}"#
+        let value = try JSONDecoder().decode(PassageGroups.self, from: Data(wire.utf8))
+        let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(value)) as? [String: Any])
+        XCTAssertEqual(saved["studied_at"] as? String, "2026-11-22T12:00:00Z")
+    }
+    func testExplicitStudyRequestIsOwnerScoped() throws {
+        let api = PodcastAPI(endpoint: try ServerEndpoint("https://example.com"), token: "synthetic")
+        let job = String(repeating: "a", count: 24)
+        let request = try api.studyRequest(id: job, owner: "owner-A")
+        XCTAssertEqual(request.httpMethod, "PUT")
+        XCTAssertEqual(request.url?.path, "/v1/learning/episodes/\(job)/studied")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Passage-Owner"), "owner-A")
+        XCTAssertEqual(request.httpBody, Data("{}".utf8))
+        XCTAssertThrowsError(try api.studyRequest(id: "../foreign", owner: "owner-A"))
+    }
     func testPassageProtocolAndLegacyCache() throws {
         let api = PodcastAPI(endpoint: try ServerEndpoint("https://example.com"), token: "synthetic")
         let job = String(repeating: "a", count: 24)

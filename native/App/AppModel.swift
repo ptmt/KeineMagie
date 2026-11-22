@@ -299,7 +299,16 @@ final class AppModel {
         }
     }
     func setPassage(_ job: PodcastJob, index: Int, favorite: Bool) async {
-        guard !Task.isCancelled, session.canWrite, job.segments.indices.contains(index), passageWrites[job.id] == nil,
+        guard job.segments.indices.contains(index) else { return }
+        await writeEpisodeLearning(job, index: index, favorite: favorite)
+    }
+    func markEpisodeStudied(_ job: PodcastJob) async {
+        guard job.state == "completed", !job.segments.isEmpty,
+              episodeLearning[job.id]?.passageGroups?.studiedAt == nil else { return }
+        await writeEpisodeLearning(job, index: nil, favorite: false)
+    }
+    private func writeEpisodeLearning(_ job: PodcastJob, index: Int?, favorite: Bool) async {
+        guard !Task.isCancelled, session.canWrite, passageWrites[job.id] == nil,
               episodeLearning[job.id]?.passageGroups != nil, let owner = session.user?.id else { return }
         let version = session.generation, request = UUID()
         passageWrites[job.id] = request
@@ -308,7 +317,12 @@ final class AppModel {
         defer { if passageWrites[job.id] == request { passageWrites[job.id] = nil } }
         func current() -> Bool { !Task.isCancelled && session.generation == version && session.phase == .signedIn && passageWrites[job.id] == request }
         do {
-            let value = try await podcastAPI().setPassage(id: job.id, segment: index, favorite: favorite, owner: owner)
+            let value: PassageGroups
+            if let index {
+                value = try await podcastAPI().setPassage(id: job.id, segment: index, favorite: favorite, owner: owner)
+            } else {
+                value = try await podcastAPI().markStudied(id: job.id, owner: owner)
+            }
             guard current() else { return }
             applyPassageGroups(value, job: job)
             // Persist the acknowledged snapshot through the existing revocable owner lease.

@@ -124,7 +124,7 @@ func (cfg *serverConfig) coachAssessmentSource(owner string, turn coachTurn) (co
 				}
 				text = append(text, j.Segments[index].Text)
 			}
-			s = coachSource{ID: x.SourceID, Text: strings.Join(text, " "), Language: j.SourceLanguage}
+			s = coachSource{ID: x.SourceID, Text: strings.Join(text, " "), Language: j.SourceLanguage, AnswerLanguage: j.TargetLanguage}
 		}
 	} else if strings.HasPrefix(x.SourceID, "passage:") {
 		parts := strings.Split(x.SourceID, ":")
@@ -151,7 +151,7 @@ func (cfg *serverConfig) coachAssessmentSource(owner string, turn coachTurn) (co
 			return s, e
 		}
 		if saved && index < len(j.Segments) {
-			s = coachSource{ID: x.SourceID, Text: j.Segments[index].Text, Language: j.SourceLanguage}
+			s = coachSource{ID: x.SourceID, Text: j.Segments[index].Text, Language: j.SourceLanguage, AnswerLanguage: j.TargetLanguage}
 		}
 	}
 	if s.ID == "" || s.Language != turn.Language || runeCount(s.Text) > 1800 || !strings.Contains(s.Text, x.Quote) {
@@ -350,8 +350,8 @@ func (cfg *serverConfig) coachAssess(w http.ResponseWriter, r *http.Request, own
 		fail(code)
 		return
 	}
-	if e = finish("completed", "", &result); e != nil {
-		coachError(w, e)
+	if e = cfg.coachPublishPodcast(owner, *turn.Result, []coachSource{source}, func() error { return finish("completed", "", &result) }); e != nil {
+		fail("sources_unavailable")
 		return
 	}
 	cfg.coachRead(w, owner)

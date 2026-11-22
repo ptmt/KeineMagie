@@ -18,8 +18,8 @@ struct ActivityStrip: View {
    let status = snapshot?.sources[source] ?? "unavailable"
    let count = entry?.counts?[source]
    // Unsupported/unavailable means unknown, even when the observed count is 0.
-   let value = status == "retained" && (count ?? 0) > 0 ? String(format:text("partial"),count ?? 0) : text("unknown")
-   return text(source) + ": " + value + " · " + text(status)
+   let value = status == "retained" ? count.map { "≥\($0)" } ?? "—" : text(status)
+   return text(source) + ": " + value
   }
   let undated = snapshot.map { String(format:text("undated"), $0.undated) } ?? ""
   return (rows + [undated]).filter { !$0.isEmpty }.joined(separator:"\n")

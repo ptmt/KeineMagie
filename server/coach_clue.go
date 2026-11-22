@@ -10,7 +10,8 @@ import (
 // contract; these deterministic checks reject missing/category-only/leaking data.
 func validateCoachClue(result coachResult, sources []coachSource, locale string) error {
 	vocabulary := result.Kind == "cloze" && strings.HasPrefix(result.Target, "vocabulary.")
-	if !vocabulary {
+	podcastClue := strings.HasPrefix(result.SourceID, "passage-group:") && (result.Kind == "cloze" || result.Kind == "context_translation")
+	if !vocabulary && !podcastClue {
 		if result.Clue != "" || result.ClueKind != "" || result.ClueLanguage != "" {
 			return errCoachResult
 		}
@@ -42,6 +43,9 @@ func validateCoachClue(result coachResult, sources []coachSource, locale string)
 		return errCoachResult
 	}
 	base := func(language string) string { return strings.ToLower(strings.Split(language, "-")[0]) }
+	if podcastClue && (result.ClueKind != "gloss" || base(result.ClueLanguage) != base(locale)) {
+		return errCoachResult
+	}
 	for _, source := range sources {
 		if source.ID != result.SourceID {
 			continue

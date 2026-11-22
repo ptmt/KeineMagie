@@ -74,6 +74,7 @@ public struct PassageGroup: Codable, Sendable, Identifiable {
     enum CodingKeys: String, CodingKey { case id, jobID = "job_id", segmentIDs = "segment_ids", start, end }
 }
 public struct PassageGroups: Codable, Sendable {
+	public let studiedAt: String?
     public let version: Int
     public let revision: UInt64
     public let jobID: String
@@ -81,10 +82,11 @@ public struct PassageGroups: Codable, Sendable {
     public let favoriteSegmentIDs: [Int]
     // Built once on decode, not once per SwiftUI row/render.
     public let starredIDs: Set<Int>
-    enum CodingKeys: String, CodingKey { case version, revision, jobID = "job_id", groups, favoriteSegmentIDs = "favorite_segment_ids" }
+    enum CodingKeys: String, CodingKey { case version, revision, jobID = "job_id", groups, favoriteSegmentIDs = "favorite_segment_ids", studiedAt = "studied_at" }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         version = try c.decode(Int.self, forKey: .version)
+        studiedAt = try c.decodeIfPresent(String.self, forKey: .studiedAt)
         revision = try c.decode(UInt64.self, forKey: .revision)
         jobID = try c.decode(String.self, forKey: .jobID)
         groups = try c.decode([PassageGroup].self, forKey: .groups)

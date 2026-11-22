@@ -1,5 +1,7 @@
 # Weekly activity — isolated local candidate
 
+Historical implementation record. The newer local Podcast-source attribution and explicit transcript-study contract is documented in `PODCAST-ACTIVITY-STARS-LOCAL.md`; the unsupported Podcast description below describes this earlier candidate, not that extension.
+
 Base: `39ed59d` (`origin/main` when work began). Branch `candidate/weekly-activity`; worktree `/Users/tinyserve/Projects/KeineMagie-weekly-activity`. No deployment, Apple upload, production account/data access or paid provider calls. Original dirty worktree was not edited.
 
 ## What the number means (important)

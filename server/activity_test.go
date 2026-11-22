@@ -142,7 +142,7 @@ func TestActivityRetainedCompletionsLocalDays(t *testing.T) {
 	if got.Days[6].Coverage != "partial" || got.Days[5].Coverage != "partial" {
 		t.Fatal("unknown history became verified zero")
 	}
-	if got.Sources["translator"] != "retained" || got.Sources["podcasts"] != "unsupported" {
+	if got.Sources["translator"] != "retained" || got.Sources["podcasts"] != "retained" {
 		t.Fatal("inferred exercise completions")
 	}
 	other := cfg.activityWeek("bob", start, loc)
