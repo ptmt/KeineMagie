@@ -23,6 +23,15 @@ final class CoachStableChatUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["coach-submitted-synthetic-coach"].exists)
         XCTAssertTrue(app.staticTexts["bei"].exists)
         XCTAssertTrue(app.buttons["coach-send"].exists)
+        let composer = app.otherElements["coach-composer-container"]
+        let boundary = composer.exists ? composer.frame.minY : app.textFields["coach-composer"].frame.minY
+        for id in ["coach-feedback", "coach-correction", "coach-explanation"] {
+            let text = app.staticTexts[id]
+            XCTAssertTrue(text.exists)
+            XCTAssertGreaterThanOrEqual(text.frame.minX, app.frame.minX)
+            XCTAssertLessThanOrEqual(text.frame.maxX, app.frame.maxX)
+            XCTAssertLessThan(text.frame.maxY, boundary)
+        }
         capture(app, "stable-result")
     }
     @MainActor func testContextTargetCorrectAlternativeAndCollapsedHistory() {

@@ -5,13 +5,15 @@ from collections import Counter
 import json
 from pathlib import Path
 import re
+import subprocess
 from typing import Iterable, cast
 from PIL import Image
 from test_coach_contrast import contrast
 
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = ROOT/'docs/coach-bold-glass-evidence'
-source = (ROOT/'native/App/CoachView.swift').read_text()
+# These are retained historical bold-glass screenshots, not the soft-red candidate.
+source = subprocess.check_output(['git', 'show', 'e542fda2d9be22792227e4c8676fe19d302f8b80:native/App/CoachView.swift'], cwd=ROOT, text=True)
 colors = {}
 for name in ('success', 'incorrect', 'user'):
     line = next(line for line in source.splitlines() if f'static let {name} =' in line)

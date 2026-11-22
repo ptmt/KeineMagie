@@ -1,0 +1,62 @@
+[
+  {
+    "file": "context-correct.png",
+    "sha256": "53357ed10649977ef7a68fb429c1104ca4ddefe9455e5b7f4cd675d2afcdcd5f",
+    "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+    "original": "B4E4EA49-7EEE-4A9E-95D2-8BD14E6AFF05.png"
+  },
+  {
+    "file": "context-pending.png",
+    "sha256": "1ba5864a0d8c495ce1eb9e026b8a9abd8488105bc492228b741ea1974f24e63d",
+    "test": "CoachStableChatUITests/testContextTargetCorrectAlternativeAndCollapsedHistory()",
+    "original": "65302045-D2E7-4A23-B4C1-357D327FFE1F.png"
+  },
+  {
+    "file": "context-canceled.png",
+    "sha256": "5e28718b50cae703f2f24d00f16a1c1adf6082c17e2c157eea2c68a49fb7e0c2",
+    "test": "CoachStableChatUITests/testStopPreservesAnswerAndDiscussionDraft()",
+    "original": "94ABD369-1C17-4BAE-9EA2-4DE14AF971DE.png"
+  },
+  {
+    "file": "stable-result.png",
+    "sha256": "3cc5d9943e435032f9d92a6c00b0ab66b8ba0bf43b24cb16d7e5c046e141c187",
+    "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+    "original": "1EA7B14D-B5FC-42BA-A68B-45ACD16CCAF5.png"
+  },
+  {
+    "file": "stable-pending.png",
+    "sha256": "f642cb6daa01f484e0634276722afb107b592d1e1d951fec5e83b217eed7b61c",
+    "test": "CoachStableChatUITests/testSubmittedAnswerPendingAndResultStaySeparate()",
+    "original": "6297E1E7-3373-434E-A1BD-870B17A3F844.png"
+  },
+  {
+    "file": "context-error.png",
+    "sha256": "030aebfd7b72bb3cbdcd9840010d59a4c42a6df27a6f76a092bed9d57457a6be",
+    "test": "CoachStableChatUITests/testTransportErrorPreservesAnswerAndDraft()",
+    "original": "E8C2A83F-73C3-47C4-8DC2-59B09B4128E1.png"
+  },
+  {
+    "file": "coach-design-correct-before-or-after.png",
+    "sha256": "5bff077a903e79ba8434747b443d2ddffb39462ffed5fb1ad19af82e31d053c5",
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "original": "5A3B541F-EA55-4D05-B4AF-C773EE0CCB61.png"
+  },
+  {
+    "file": "coach-design-filled-keyboard-before-or-after.png",
+    "sha256": "18099ba400dd91d2a1e3956e619f4b37c80a8bfd3043af352277eacdd71db46e",
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "original": "EA98BF45-000B-4A5C-B6EA-A60D35806CF8.png"
+  },
+  {
+    "file": "coach-design-active-before-or-after.png",
+    "sha256": "92d9f7b9c9a91cffb15b5dae94268220b1badf3540bf506da0594b43e444bb3b",
+    "test": "CoachUITests/testChatDesignCompactAnswerControls()",
+    "original": "9D51B1AE-57B8-4C9A-9F16-DBA0611B6C5F.png"
+  },
+  {
+    "file": "coach-russian-native-placeholder-largest.png",
+    "sha256": "a1840697313dbf812b98871b67a5449f35363bc17b94c62e97308b2ff64622b9",
+    "test": "CoachUITests/testLargestRussianNativeComposerPlaceholderFits()",
+    "original": "A2568854-976F-440F-82D4-827241A49686.png"
+  }
+]

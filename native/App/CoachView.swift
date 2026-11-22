@@ -8,7 +8,8 @@ private enum CoachPalette {
     static let surface = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.15, alpha: 1) : UIColor(white: 0.94, alpha: 1) })
     static let onColor = Color.white
     static let success = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.12, green: 0.38, blue: 0.25, alpha: 1) : UIColor(red: 0.09, green: 0.39, blue: 0.24, alpha: 1) })
-    static let incorrect = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.59, green: 0.18, blue: 0.24, alpha: 1) : UIColor(red: 0.65, green: 0.18, blue: 0.24, alpha: 1) })
+    static let incorrect = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.95, green: 0.40, blue: 0.44, alpha: 0.14) : UIColor(red: 0.85, green: 0.28, blue: 0.32, alpha: 0.08) })
+    static let incorrectBorder = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.80, green: 0.43, blue: 0.46, alpha: 1) : UIColor(red: 0.65, green: 0.30, blue: 0.33, alpha: 1) })
     static let user = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.34, green: 0.25, blue: 0.70, alpha: 1) : UIColor(red: 0.34, green: 0.25, blue: 0.78, alpha: 1) })
 }
 
@@ -286,8 +287,14 @@ private struct CoachAssistantBubble: ViewModifier {
     }
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     func body(content: Content) -> some View {
-        content.foregroundStyle(status == "success" || status == "incorrect" ? CoachPalette.onColor : Color.primary).padding(14)
+        content.foregroundStyle(status == "success" ? CoachPalette.onColor : Color.primary).padding(14)
             .background(surface, in: RoundedRectangle(cornerRadius: 18))
+            .overlay {
+                if status == "incorrect" {
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(CoachPalette.incorrectBorder, lineWidth: 1)
+                }
+            }
             .overlay(alignment: .leading) {
                 if unread { RoundedRectangle(cornerRadius: 2).fill(.primary.opacity(0.65)).frame(width: 3).padding(.vertical, 12) }
             }

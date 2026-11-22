@@ -1,5 +1,7 @@
 # Coach: bolder semantic color + native Liquid Glass (local)
 
+**Follow-up candidate:** [COACH-SOFT-RED-LOCAL.md](COACH-SOFT-RED-LOCAL.md) changes only the incorrect-result fill/text/border after user feedback. The saturated-red description and 60-test receipts below document the historical base, not the follow-up's current appearance or new test count.
+
 Isolated worktree: `/Users/tinyserve/Projects/KeineMagie-coach-bold-glass`, branch `candidate/coach-bold-glass`, exact base `6bf13f60252dc76e409342a424abbe99bc29fc98`. Original dirty `/Users/tinyserve/Projects/KeineMagie` and the integration worktree were not edited. Local candidate only: no push, release, Apple upload, production mutation or paid provider call.
 
 ## Design and platform verification

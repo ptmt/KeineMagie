@@ -22,7 +22,7 @@ class BoldCoachTests(unittest.TestCase):
 
     def test_semantic_surfaces_are_saturated_and_support_white_text(self):
         source = SOURCE.read_text()
-        for name in ('success', 'incorrect', 'user'):
+        for name in ('success', 'user'):
             line = next(line for line in source.splitlines() if f'static let {name} =' in line)
             colors = re.findall(r'UIColor\(red: ([\d.]+), green: ([\d.]+), blue: ([\d.]+), alpha: 1\)', line)
             self.assertEqual(len(colors), 2)
@@ -31,7 +31,17 @@ class BoldCoachTests(unittest.TestCase):
                 self.assertGreaterEqual(max(rgb) - min(rgb), .20, name)
                 self.assertGreaterEqual(contrast((1, 1, 1), rgb), 4.5, name)
         self.assertEqual(source.count('.foregroundStyle(CoachPalette.onColor)'), 2)
-        self.assertIn('status == "success" || status == "incorrect"', source)
+        self.assertIn('status == "success" ? CoachPalette.onColor : Color.primary', source)
+
+    def test_incorrect_is_soft_adaptive_fill_with_border_and_primary_text(self):
+        source = SOURCE.read_text()
+        line = next(line for line in source.splitlines() if 'static let incorrect =' in line)
+        alphas = [float(v) for v in re.findall(r'alpha: ([\d.]+)', line)]
+        self.assertEqual(len(alphas), 2)
+        self.assertTrue(all(0 < alpha <= .15 for alpha in alphas), alphas)
+        self.assertIn('status == "success" ? CoachPalette.onColor : Color.primary', source)
+        self.assertIn('if status == "incorrect" {', source)
+        self.assertIn('.strokeBorder(CoachPalette.incorrectBorder, lineWidth: 1)', source)
 
 if __name__ == '__main__':
     unittest.main()
