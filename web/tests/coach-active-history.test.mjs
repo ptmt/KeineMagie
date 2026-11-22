@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {coachRecentTurns} from '../coach-presentation.mjs';
+test('active and pending tasks remain reachable outside rolling history without expanding unrelated old turns',()=>{const old='2000-01-01T12:00:00Z';const turns=[{id:'old',at:old,kind:'cloze',attempt:{outcome:'correct'}},{id:'active',at:old,kind:'cloze'},{id:'pending',at:old,kind:'cloze',attempt:{assessment_state:'pending'}}];assert.deepEqual(coachRecentTurns(turns).map(t=>t.id),['active','pending']);});

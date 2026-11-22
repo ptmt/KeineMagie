@@ -2,6 +2,7 @@ export const coachVisibleTurns=turns=>turns.filter(t=>!t.is_offer&&t.kind!=='nud
 // Presentation only: never mutate snapshots, evidence, receipts or assistance.
 export function coachRecentTurns(turns,now=Date.now()){
  return coachVisibleTurns(turns).filter(t=>{
+  if(t.state==='pending'||t.attempt?.assessment_state==='pending'||(t.kind&&!['clarification','nudge'].includes(t.kind)&&!t.attempt))return true;
   const dates=[t.at,t.attempt?.at,t.attempt?.reviewed_at].map(v=>typeof v==='string'?Date.parse(v):NaN).filter(Number.isFinite);
   return !dates.length||Math.max(...dates)>=now-86400000;
  });

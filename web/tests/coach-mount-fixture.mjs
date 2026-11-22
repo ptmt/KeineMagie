@@ -36,7 +36,7 @@ export function fixture({snapshot={turns:[],observations:[]},request}={}){
  const frames=[];globalThis.requestAnimationFrame=fn=>frames.push(fn);globalThis.innerHeight=800;
  globalThis.matchMedia=()=>({matches:true});
  const host=new Node('main');host.hidden=true;const requests=[];
- const controller=mountCoach({host,document:doc,locale:()=> 'en',unauthorized:()=>{},account:()=>{},api:{request:async(path,options)=>{requests.push({path,...options});return request?request(path,options):structuredClone(snapshot);}}});
+ const controller=mountCoach({host,document:doc,locale:()=> 'en',unauthorized:()=>{},account:()=>{},api:{request:async(path,options)=>{if(path.startsWith('/v1/learning/activity'))return {days:[],sources:{}};requests.push({path,...options});return request?request(path,options):structuredClone(snapshot);}}});
  const messages=host.querySelector('.coach-messages');
  return {host,doc,controller,requests,messages,frames,session:{user:{id:'fixture'},csrf_token:'synthetic'},
  async flush(){await tick();while(frames.length)frames.shift()();await tick();},

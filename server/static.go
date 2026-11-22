@@ -25,7 +25,7 @@ func publicWeb(w http.ResponseWriter, r *http.Request) {
 		name = r.URL.Path[1:]
 	case "/profile-sync.mjs", "/translator-followup.mjs", "/translator-followup.css":
 		name = r.URL.Path[1:]
-	case "/coach.mjs", "/coach-state.mjs", "/coach-chat.mjs", "/coach-presentation.mjs", "/coach.css":
+	case "/coach.mjs", "/coach-state.mjs", "/coach-chat.mjs", "/coach-presentation.mjs", "/coach-activity.mjs", "/coach.css":
 		name = r.URL.Path[1:]
 	case "/dictation-assessment.mjs", "/dictation.mjs", "/dictation-playback.mjs", "/dictation-state.mjs", "/dictation-journal.mjs", "/dictation-cache.mjs", "/dictation-i18n.mjs", "/dictation.css":
 		name = r.URL.Path[1:]

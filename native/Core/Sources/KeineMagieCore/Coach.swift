@@ -33,6 +33,9 @@ public struct CoachAttempt: Codable, Sendable {
     enum CodingKeys: String, CodingKey { case id, answer, outcome, originalOutcome = "original_outcome", assisted, at, reviewedAt = "reviewed_at", excluded, assessmentState = "assessment_state", assessment, assessmentError = "assessment_error", sent, localRequest, localPriorAttemptID, localRetryAllowed }
 }
 public struct CoachTurn: Codable, Sendable, Identifiable {
+    public var clue: String? = nil
+    public var clueKind: String? = nil
+    public var clueLanguage: String? = nil
     public var targetText: String? = nil
     public var answerLanguage: String? = nil
     public var isOffer: Bool?; public var sourceReveals: Int?; public var answerReveals: Int?; public var messageVersion: String?; public var seenVersion: String?
@@ -40,7 +43,7 @@ public struct CoachTurn: Codable, Sendable, Identifiable {
     public let assisted: Bool; public let language: String
     public let message: String?; public let kind: String?; public let prompt: String?; public let target: String?
     public let sourceID: String?; public let quote: String?; public let explanation: String?; public var attempt: CoachAttempt?
-    enum CodingKeys: String, CodingKey { case targetText = "target_text", answerLanguage = "answer_language", isOffer = "is_offer", sourceReveals = "source_reveals", answerReveals = "answer_reveals", messageVersion = "message_version", seenVersion = "seen_version", id, text, state, at, assisted, language, message, kind, prompt, target, sourceID = "source_id", quote, explanation, attempt }
+    enum CodingKeys: String, CodingKey { case clue, clueKind = "clue_kind", clueLanguage = "clue_language", targetText = "target_text", answerLanguage = "answer_language", isOffer = "is_offer", sourceReveals = "source_reveals", answerReveals = "answer_reveals", messageVersion = "message_version", seenVersion = "seen_version", id, text, state, at, assisted, language, message, kind, prompt, target, sourceID = "source_id", quote, explanation, attempt }
 }
 extension CoachTurn {
     public var isVisible: Bool { isOffer != true && kind != "nudge" }
@@ -71,8 +74,12 @@ extension CoachTurn {
     }
     public var isUnread: Bool { state == "completed" && messageVersion != nil && messageVersion != seenVersion }
     public func masksAnswer(latestID: String?) -> Bool { attempt != nil && id != latestID && (answerReveals ?? 0) == 0 }
+    public var instructionText: String? {
+        guard let message, let clue, !clue.isEmpty, message.hasSuffix("\n" + clue) else { return message }
+        return String(message.dropLast(clue.count + 1))
+    }
     public var showsInstruction: Bool {
-        guard let message, !message.isEmpty else { return false }
+        guard let message = instructionText, !message.isEmpty else { return false }
         guard ["cloze", "preposition_case"].contains(kind ?? ""), prompt?.contains("___") == true else { return true }
         let generic = #"^(fill in (the )?missing (preposition|word)|ergänze (die fehlende präposition|den satz)|вставьте пропущенн(ый предлог|ое слово)|completa la preposición que falta|complète la préposition manquante)[.!]?$"#
         return message.trimmingCharacters(in: .whitespacesAndNewlines).range(of: generic, options: [.regularExpression, .caseInsensitive]) == nil

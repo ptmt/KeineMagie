@@ -323,8 +323,12 @@ private struct CoachTurnView: View {
                     Text(highlightedPrompt(prompt)).font(.body).textSelection(.enabled)
                         .accessibilityIdentifier("coach-prompt-" + turn.id)
                         .accessibilityValue(turn.kind == "context_translation" ? turn.targetText ?? "" : "")
-                    if let message = turn.message, turn.showsInstruction {
+                    if let message = turn.instructionText, turn.showsInstruction {
                         Text(message).font(.footnote).foregroundStyle(CoachPalette.secondary).textSelection(.enabled)
+                    }
+                    if let clue = turn.clue, !clue.isEmpty, turn.instructionText?.contains(clue) != true {
+                        Text(clue).font(.footnote).foregroundStyle(CoachPalette.secondary).textSelection(.enabled)
+                            .accessibilityIdentifier("coach-clue-" + turn.id)
                     }
                     if masked {
                         Button("coach.showAnswer") { model.sendCoach("reveal", text: "answer", turnID: turn.id) }.disabled(!writable)

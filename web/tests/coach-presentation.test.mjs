@@ -2,9 +2,9 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {coachRecentTurns,coachExerciseStatus,coachHistoryWindow} from '../coach-presentation.mjs';
 const now=Date.parse('2026-10-25T12:00:00Z');
-test('rolling 24h retains complete groups by latest learner/assessment activity, no active exception',()=>{
+test('rolling 24h retains complete groups by latest learner/assessment activity, pending remains visible',()=>{
  const turns=[{id:'old',at:'2026-10-24T11:59:59Z'}, {id:'edge',at:'2026-10-24T14:00:00+02:00'}, {id:'feedback',at:'2026-10-20T00:00:00Z',attempt:{at:'2026-10-25T11:00:00Z'}},{id:'future',at:'2027-01-01T00:00:00Z'},{id:'unknown'},{id:'legacy',at:'now'},{id:'pending',state:'pending',at:'2026-10-20T00:00:00Z'}];
- assert.deepEqual(coachRecentTurns(turns,now).map(t=>t.id),['edge','feedback','future','unknown','legacy']);
+ assert.deepEqual(coachRecentTurns(turns,now).map(t=>t.id),['edge','feedback','future','unknown','legacy','pending']);
  assert.equal(turns.length,7);
 });
 test('checked results differ from neutral waiting, uncertain and skipped',()=>{

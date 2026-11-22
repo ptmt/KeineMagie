@@ -1,3 +1,4 @@
+import {mountCoachActivity} from './coach-activity.mjs';
 import {createCoachState} from './coach-state.mjs';
 import {coachVisibleTurns,coachRecentTurns,coachHistoryWindow,coachExerciseStatus,coachPresentationLabel as pl} from './coach-presentation.mjs';
 import {reconcileDOM} from './core.mjs';
@@ -13,11 +14,12 @@ const coachStrings={"coach.openSource": {"de": "Original öffnen", "en": "Open o
 Object.assign(coachStrings,{"coach.assessment.pending": {"en": "AI check pending…", "de": "KI-Prüfung ausstehend…", "ru": "AI проверяет…", "es": "Evaluación de IA pendiente…", "fr": "Vérification IA en cours…"}, "coach.assessment.failed": {"en": "Assessment unavailable. Your answer is saved; no skill evidence added.", "de": "Prüfung nicht verfügbar. Antwort gespeichert; keine neue Beobachtung.", "ru": "Проверка недоступна. Ответ сохранён; данные о навыке не изменены.", "es": "Evaluación no disponible. Respuesta guardada; sin nuevas observaciones.", "fr": "Évaluation indisponible. Réponse enregistrée ; aucune observation ajoutée."}, "coach.assessment.canceled": {"en": "Assessment canceled. Your answer is saved.", "de": "Prüfung abgebrochen. Antwort gespeichert.", "ru": "Проверка отменена. Ответ сохранён.", "es": "Evaluación cancelada. Respuesta guardada.", "fr": "Évaluation annulée. Réponse enregistrée."}, "coach.assessment.recheck": {"en": "Check again with AI", "de": "Erneut mit KI prüfen", "ru": "Проверить заново с AI", "es": "Volver a evaluar con IA", "fr": "Vérifier à nouveau avec l’IA"}, "coach.assessment.confirm": {"en": "Make a new personal gpt-6.1-terra call? An earlier call may already have used quota. The saved answer stays unchanged.", "de": "Neuen persönlichen gpt-6.1-terra-Aufruf senden? Ein früherer Aufruf kann bereits Kontingent verbraucht haben. Die gespeicherte Antwort bleibt unverändert.", "ru": "Отправить новый личный запрос gpt-6.1-terra? Предыдущий запрос уже мог потратить лимит. Сохранённый ответ не изменится.", "es": "¿Hacer otra llamada personal a gpt-6.1-terra? La anterior puede haber consumido cuota. La respuesta guardada no cambia.", "fr": "Faire un nouvel appel personnel à gpt-6.1-terra ? Le précédent peut avoir utilisé du quota. La réponse enregistrée ne change pas."}, "coach.partially_correct": {"en": "Partially correct", "de": "Teilweise richtig", "ru": "Частично верно", "es": "Parcialmente correcto", "fr": "Partiellement correct"}, "coach.incorrect": {"en": "Incorrect", "de": "Nicht richtig", "ru": "Неверно", "es": "Incorrecto", "fr": "Incorrect"}, "coach.uncertain": {"en": "I can’t check this confidently", "de": "Das kann ich nicht sicher beurteilen", "ru": "Не могу уверенно проверить", "es": "No puedo evaluarlo con seguridad", "fr": "Je ne peux pas vérifier avec certitude"}, "coach.scope": {"en": "Saved translations and passages only. Each message and Check makes one personal gpt-6.1-terra call; shared daily limit 100.", "de": "Nur gespeicherte Übersetzungen und Textstellen. Jede Nachricht und Prüfung sendet einen persönlichen gpt-6.1-terra-Aufruf; gemeinsames Tageslimit 100.", "ru": "Только сохранённые переводы и фрагменты. Каждое сообщение и «Проверить» — один личный запрос gpt-6.1-terra; общий лимит 100 в день.", "es": "Solo traducciones y pasajes guardados. Cada mensaje y comprobación usa una llamada personal a gpt-6.1-terra; límite diario compartido de 100.", "fr": "Uniquement les traductions et passages enregistrés. Chaque message et vérification utilise un appel personnel gpt-6.1-terra ; limite commune de 100 par jour."}});
 const ct=(key,locale)=>coachStrings[key]?.[locale]||coachStrings[key]?.en||key;
 const targets={en:['Grammar','Verb government','Vocabulary','Word order','Register'],de:['Grammatik','Verbanschlüsse','Wortschatz','Wortstellung','Register'],ru:['Грамматика','Управление глаголов','Словарь','Порядок слов','Регистр'],es:['Gramática','Régimen verbal','Vocabulario','Orden de palabras','Registro'],fr:['Grammaire','Régime verbal','Vocabulaire','Ordre des mots','Registre']};
+export function coachInstruction(turn){const suffix="\n"+turn.clue;return turn.clue&&turn.message?.endsWith(suffix)?turn.message.slice(0,-suffix.length):turn.message;}
 export function coachShowsInstruction(turn){
- if(!turn.message||turn.attempt)return false;
+ if(!turn.message)return false;
  if(!['cloze','preposition_case'].includes(turn.kind)||!turn.prompt?.includes('___'))return true;
- const generic=/^(fill in (the )?missing (preposition|word)|ergänze (die fehlende präposition|den satz)|вставьте пропущенн(ый предлог|ое слово)|completa la preposición que falta|complète la préposition manquante)[.!]?$/iu;
- return !generic.test(turn.message.trim());
+ const generic=/^(fill this gap|fill in (the )?missing (preposition|word)|ergänze (die fehlende präposition|den satz)|вставьте пропущенн(ый предлог|ое слово)|completa la preposición que falta|complète la préposition manquante)[.!]?$/iu;
+ return !generic.test(coachInstruction(turn).trim());
 }
 export function coachSourceLink(id){
  const translation=/^translation:([A-Za-z0-9_-]{1,128})$/.exec(id||'');
@@ -29,7 +31,7 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  const el=(tag,text,cls)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
  const l=i=>(words[locale()]||words.en)[i],target=t=>coachStrings['coach.target.'+t]?ct('coach.target.'+t,locale()):(targets[locale()]||targets.en)[['grammar','verb_government','vocabulary','word_order','register'].indexOf(t)]||t;
  let owner=null,signature='',answerDrafts=new Map(),turnCount=0,returnSource=null,showEarlier=0,follow=true,ownSend=false,latestScroll=false,wasVisible=false,historyNow=Date.now();
- const resize=()=>{if(host.hidden)return;const viewport=globalThis.visualViewport;host.style.height=Math.max(240,(viewport?.height||globalThis.innerHeight)-Math.max(0,host.getBoundingClientRect().top)+ (viewport?.offsetTop||0)-12)+'px';};
+ const resize=()=>{if(host.hidden)return;const viewport=globalThis.visualViewport;host.style.height=Math.max(240,(viewport?.height||globalThis.innerHeight)-Math.max(0,host.getBoundingClientRect().top+(globalThis.scrollY||0))+ (viewport?.offsetTop||0)-12)+'px';};
  globalThis.visualViewport?.addEventListener('resize',resize);
  globalThis.addEventListener?.('resize',resize);
  host.className='coach-page';host.replaceChildren();
@@ -42,6 +44,8 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  const send=el('button');send.type='submit';form.append(input,send);host.append(header,messages,status,form);
  const checking=()=>{const e=el('span','•••','coach-checking');e.setAttribute('role','status');e.setAttribute('aria-label',pl('working',locale()));return e;};
  const state=createCoachState(api,render,unauthorized,locale);
+ const activityHost=el('div',undefined,'coach-activity-host');host.insertBefore(activityHost,messages);
+ const activity=mountCoachActivity({host:activityHost,api,locale,document:doc});
  function sendAssessment(action,text='',turnID=''){if(state.busy||!state.signedIn)return;ownSend=true;follow=true;return state.act(action,text,turnID);}
  doc.getElementById('learning-profile')?.append(profile);
  const refresh=button('',()=>state.load()),quick=el('div',undefined,'coach-command-menu');
@@ -100,11 +104,13 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  const observer=globalThis.IntersectionObserver?new IntersectionObserver(checkSeen,{root:messages,threshold:[0,.6,1]}):null;
  messages.addEventListener('touchstart',e=>{messages.dataset.touch=String(e.touches[0].clientY);},{passive:true});
  messages.addEventListener('touchend',e=>{if(messages.scrollTop===0&&e.changedTouches[0].clientY-Number(messages.dataset.touch)>70)void state.load();},{passive:true});
- form.onsubmit=async e=>{e.preventDefault();const draft=input.value;if(!draft.trim())return;ownSend=true;follow=true;const success=await state.act('message',draft);if(success&&input.value===draft){input.value='';grow();}input.focus({preventScroll:true});};
+ const cancelID=()=>state.pendingID||state.value?.turns?.find(t=>t.attempt?.assessment_state==='pending')?.attempt.id||state.value?.turns?.find(t=>t.state==='pending')?.id;
+ form.onsubmit=async e=>{e.preventDefault();if(cancelID()){await state.act('cancel','',cancelID());return;}const draft=input.value;if(!draft.trim())return;ownSend=true;follow=true;const success=await state.act('message',draft);if(success&&input.value===draft){input.value='';grow();}input.focus({preventScroll:true});};
  const grow=()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';};input.oninput=grow;
  function render(){
+  activity.sync(owner,JSON.stringify((state.value?.turns||[]).filter(t=>t.attempt?.assessment_state==='completed').map(t=>t.attempt.id)));
   summary.textContent=l(8);refresh.textContent=l(11);input.placeholder=l(1);input.setAttribute('aria-label',l(1));send.textContent=l(2);
-  input.disabled=!state.signedIn;send.disabled=!state.signedIn||state.busy;
+  input.disabled=!state.signedIn;const pending=cancelID();send.className=pending?'coach-stop':'coach-send';send.textContent=pending?'■':'↑';send.setAttribute('aria-label',pending?({en:'Stop',de:'Stoppen',ru:'Остановить',es:'Detener',fr:'Arrêter'}[locale()]||'Stop'):l(2));send.disabled=!state.signedIn||(state.busy&&!pending);
   menuTrigger.setAttribute('aria-label',coachChatLabel('actions',locale()));quick.setAttribute('aria-label',coachChatLabel('actions',locale()));
   const focusedCommand=quick.hidden?-1:[...quick.children].indexOf(doc.activeElement);
   quick.replaceChildren(...coachQuickActions(state.value).map(a=>{const actionOwner=owner;const b=button(a.action==='progress'?coachChatLabel('progressMenu',locale()):coachQuickLabel(a.action,locale()),async()=>{if(owner!==actionOwner||!state.signedIn||state.busy)return;closeMenu(true);ownSend=a.action!=='reveal';if(ownSend)follow=true;await state.act(a.action,a.action==='reveal'?'source':coachQuickLabel(a.action,locale()),a.turn_id);});b.setAttribute('role','menuitem');b.tabIndex=-1;b.disabled=!state.signedIn||state.busy;return b;}));refresh.disabled=!state.signedIn||state.busy;
@@ -112,9 +118,9 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
   const activeEarlier=lastExercise&&!lastExercise.attempt&&!coachRecentTurns([lastExercise],historyNow).length?lastExercise:null;
   if(activeEarlier){const open=button(pl('awaiting',locale()),()=>{const older=coachVisibleTurns(state.value?.turns||[]).filter(t=>!coachRecentTurns([t],historyNow).length),index=older.indexOf(activeEarlier);showEarlier=(Math.floor((older.length-index-1)/50)+1)*50;follow=false;render();[...messages.querySelectorAll('[data-turn]')].find(e=>e.dataset.turn===activeEarlier.id)?.scrollIntoView({block:'center'});});open.className='coach-active-earlier';open.setAttribute('role','menuitem');open.tabIndex=-1;open.addEventListener('click',()=>closeMenu(true));quick.append(open);}
   menuTrigger.disabled=quick.children.length===0;if(!state.signedIn)closeMenu(false);if(!quick.hidden&&focusedCommand>=0)quick.children[focusedCommand]?.focus({preventScroll:true});
-  status.textContent=state.error?ct('coach.error.'+state.error,locale()):'';
-  const next=JSON.stringify([state.value,state.busy,state.pendingID,state.signedIn,locale(),showEarlier]);if(next===signature)return;signature=next;
-  const active=doc.activeElement, focusedTurn=active?.closest?.('[data-turn]')?.dataset.turn, selection=focusedTurn&&active.tagName==='INPUT'?[active.selectionStart,active.selectionEnd]:null;
+  status.textContent=state.error&&!state.value?.turns?.some(t=>t.attempt?.assessment_state==='pending')?ct('coach.error.'+state.error,locale()):'';
+  const next=JSON.stringify([state.value,state.busy,state.pendingID,state.signedIn,state.error,locale(),showEarlier]);if(next===signature)return;signature=next;
+  const active=doc.activeElement, focusedTurn=(active?.closest?.('[data-turn]')?.dataset.turn||active?.closest?.('[data-edit-turn]')?.dataset.editTurn), selection=focusedTurn&&active.tagName==='INPUT'?[active.selectionStart,active.selectionEnd]:null;
   const expanded=[...messages.querySelectorAll?.('details[open]')||[]].map(e=>e.closest('[data-turn]')?.dataset.turn);
   const scroll=messages.scrollTop,nearBottom=messages.scrollHeight-messages.clientHeight-scroll<80;
   const nextMessages=el('div');
@@ -124,16 +130,16 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
   if(!coachVisibleTurns(state.value?.turns||[]).length){const bubble=el('div',undefined,'coach-bubble');bubble.append(el('p',state.signedIn?l(0):l(26)));nextMessages.append(bubble);}
   for(const turn of coachHistoryWindow(state.value?.turns||[],historyNow,showEarlier)){
    if(turn.text){const user=el('div',turn.text,'coach-bubble coach-user');user.dataset.key='user:'+turn.id;nextMessages.append(user);}
+   let answerBubble=null,resultBubble=null,answerEditor=null;
    const bubble=el('div',undefined,'coach-bubble');bubble.dataset.turn=turn.id;bubble.dataset.key='coach:'+turn.id;
    if(coachUnread(turn))bubble.classList.add('coach-unread');
    if(hydrated&&!known.has(turn.id)&&!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches)arriving.add(turn.id);
    if(arriving.has(turn.id))bubble.classList.add('coach-arrival');
-   if(coachShowsInstruction(turn))bubble.append(el('p',turn.message));
-   if(turn.state==='pending'){bubble.append(checking(),button(l(7),()=>state.act('cancel','',turn.id)));}
+   if(coachShowsInstruction(turn))bubble.append(el('p',coachInstruction(turn)));
+   if(turn.state==='pending'){bubble.append(checking());}
    if(turn.state==='failed'||turn.state==='canceled')bubble.append(el('p',l(turn.state==='failed'?19:20)));
    if(turn.kind&&!['clarification','nudge'].includes(turn.kind)){
-    const presentation=coachExerciseStatus(turn);bubble.classList.add('coach-'+presentation);
-    if(!['completed','success','incorrect','working'].includes(presentation))bubble.append(el('small',pl(presentation,locale()),'coach-task-status'));
+    const presentation=coachExerciseStatus(turn);
     const card=el('section',undefined,'coach-exercise');card.setAttribute('aria-label',target(turn.target));
     const prompt=el('p',turn.prompt,'coach-prompt'),word=turn.target_text;
     if(turn.kind==='context_translation'&&typeof word==='string'&&word&&turn.prompt?.split(word).length===2){
@@ -141,39 +147,43 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
      prompt.replaceChildren(el('span',turn.prompt.slice(0,index)),el('strong',word),el('span',turn.prompt.slice(index+word.length)));
     }
     card.append(prompt);
+    if(typeof turn.clue==='string'&&turn.clue&&!coachInstruction(turn)?.includes(turn.clue)){const clue=el('p',turn.clue,'coach-clue');if(turn.clue_language)clue.setAttribute('lang',turn.clue_language);card.append(clue);}
     if(!turn.attempt){
+     answerEditor=el('div',undefined,'coach-answer-editor coach-exercise');answerEditor.dataset.key='editor:'+turn.id;answerEditor.dataset.editTurn=turn.id;
      const answer=el('input');answer.value=answerDrafts.get(turn.id)||'';answer.maxLength=300;answer.setAttribute('aria-label',l(10));answer.placeholder=l(10);answer.disabled=state.busy;answer.oninput=e=>answerDrafts.set(turn.id,e.currentTarget.value);
      const check=button(l(6),()=>{const value=answerDrafts.get(turn.id)||'';if(value.trim())sendAssessment('answer',value,turn.id);});check.disabled=state.busy;
      answer.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();check.click();}};
-     const skip=button(l(4),()=>sendAssessment('skip','',turn.id));skip.disabled=state.busy;card.append(answer,check,skip);
+     const skip=button(l(4),()=>sendAssessment('skip','',turn.id));skip.disabled=state.busy;answerEditor.append(answer,check,skip);
     }else if(coachMasksAnswer(turn,state.value.turns)){
      const reveal=button(coachChatLabel('answer',locale()),()=>state.act('reveal','answer',turn.id));reveal.disabled=state.busy;card.append(reveal);
     }else{
      const a=turn.attempt, pending=a.assessment_state&&a.assessment_state!=='completed';
      const feedback=pending?ct('coach.assessment.'+a.assessment_state,locale()):a.assessment&&!a.excluded&&!a.reviewed_at?(a.assessment.verdict==='correct'?l(13):ct('coach.'+a.assessment.verdict,locale())):l(a.excluded?17:({correct:13,wrong:14,ambiguous:15,skipped:16}[a.outcome]||15));
-     card.append(el('p',a.answer,'coach-answer'),a.assessment_state==='pending'?checking():el(pending||a.outcome==='ambiguous'?'p':'strong',feedback));
-     if(a.assessment_state==='pending')card.append(button(l(7),()=>state.act('cancel','',a.id)));
+     answerBubble=el('div',a.answer,'coach-bubble coach-user coach-answer');answerBubble.dataset.key='answer:'+turn.id;
+     resultBubble=el('div',undefined,'coach-bubble coach-assessment coach-'+presentation);resultBubble.dataset.key='assessment:'+turn.id;
+     resultBubble.append(a.assessment_state==='pending'?(state.error?el('p',ct('coach.error.'+state.error,locale())):checking()):el(pending||a.outcome==='ambiguous'?'p':'strong',feedback));
+
      if(a.outcome!=='skipped'&&!['pending','completed'].includes(a.assessment_state)){
-      const recheck=button(ct('coach.assessment.recheck',locale()),()=>{if(window.confirm(ct('coach.assessment.confirm',locale())))sendAssessment('recheck','',turn.id);});recheck.disabled=state.busy;const menu=el('details',undefined,'coach-secondary');menu.append(el('summary','•••'),recheck);card.append(menu);
+      const recheck=button(ct('coach.assessment.recheck',locale()),()=>{if(window.confirm(ct('coach.assessment.confirm',locale())))sendAssessment('recheck','',turn.id);});recheck.disabled=state.busy;const menu=el('details',undefined,'coach-secondary');menu.append(el('summary','•••'),recheck);resultBubble.append(menu);
      }
-     if(a.assessment?.corrected_answer&&a.assessment.verdict!=='correct')card.append(el('p',a.assessment.corrected_answer));
-     if(a.assisted)card.append(el('small',l(21)));
-     if(turn.explanation&&!pending)card.append(el('p',turn.explanation,'coach-explanation'));
+     if(a.assessment?.corrected_answer&&a.assessment.verdict!=='correct')resultBubble.append(el('p',a.assessment.corrected_answer));
+     if(a.assisted)resultBubble.append(el('small',l(21)));
+     if(turn.explanation&&!pending)resultBubble.append(el('p',turn.explanation,'coach-explanation'));
     }
     bubble.append(card);
    }
 
    if(!turn.attempt&&turn.source_reveals&&turn.quote){const hint=el('div',undefined,'coach-hint');hint.append(el('small',coachQuickLabel('reveal',locale())),el('p',turn.quote));if(turn.explanation)hint.append(el('p',turn.explanation));bubble.append(hint);}
-   nextMessages.append(bubble);
+   nextMessages.append(bubble);if(answerEditor)nextMessages.append(answerEditor);if(answerBubble)nextMessages.append(answerBubble);if(resultBubble)nextMessages.append(resultBubble);
   }
-  if(state.busy&&!state.value?.turns?.some(t=>t.attempt?.assessment_state==='pending')){const busy=el('div',undefined,'coach-bubble');busy.append(checking());if(state.pendingID)busy.append(button(l(7),()=>state.act('cancel','',state.pendingID)));nextMessages.append(busy);}
+  if(state.busy&&!state.value?.turns?.some(t=>t.state==='pending'||t.attempt?.assessment_state==='pending')){const busy=el('div',undefined,'coach-bubble');busy.append(checking());nextMessages.append(busy);}
   // Reconcile stable keyed bubbles: refreshing/pending state must not replay
   // every entry animation or discard the currently edited input.
   nextMessages.className=messages.className;nextMessages.setAttribute('role','log');nextMessages.setAttribute('aria-live','polite');
   const handlers=[...nextMessages.querySelectorAll('input')].map(e=>({oninput:e.oninput,onkeydown:e.onkeydown}));
   reconcileDOM(messages,nextMessages);
   [...messages.querySelectorAll('input')].forEach((e,i)=>{e.oninput=handlers[i]?.oninput;e.onkeydown=handlers[i]?.onkeydown;});
-  for(const row of messages.children){if(expanded.includes(row.dataset?.turn))for(const d of row.querySelectorAll?.('details')||[])d.open=true;if(selection&&row.dataset?.turn===focusedTurn){const field=row.querySelector('input');if(field&&!field.disabled){field.focus({preventScroll:true});field.setSelectionRange(...selection);}}}
+  for(const row of messages.children){if(expanded.includes(row.dataset?.turn))for(const d of row.querySelectorAll?.('details')||[])d.open=true;if(selection&&(row.dataset?.turn||row.dataset?.editTurn)===focusedTurn){const field=row.querySelector('input');if(field&&!field.disabled){field.focus({preventScroll:true});field.setSelectionRange(...selection);}}}
   messages.scrollTop=scroll;
   const revision=JSON.stringify(coachVisibleTurns(state.value?.turns||[]).map(t=>[t.id,t.state,t.message,t.prompt,t.attempt?.id,t.attempt?.assessment_state]));
   const changedMessages=revision!==messageRevision;messageRevision=revision;
@@ -200,6 +210,6 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  }
  doc.addEventListener('visibilitychange',()=>{if(doc.visibilityState==='visible')enter();else entered=false;});
  render();
- function enter(){if(host.hidden||!state.signedIn){entered=false;return;}if(doc.visibilityState!=='visible')return;if(!entered){entered=true;void state.act('entry');}else void state.load();}
+ function enter(){if(host.hidden||!state.signedIn){entered=false;return;}if(doc.visibilityState!=='visible')return;activity.refresh();if(!entered){entered=true;void state.act('entry');}else void state.load();}
  return {identity(session){const id=session?.user?.id||null;if(id!==owner){closeMenu(false);owner=id;input.value='';answerDrafts.clear();signature='';returnSource=null;hydrated=false;showEarlier=false;follow=true;known.clear();seeing.clear();entered=false;}state.identity(session);enter();},route(){if(!host.hidden&&!wasVisible){historyNow=Date.now();showEarlier=false;hydrated=false;follow=true;signature='';render();}wasVisible=!host.hidden;if(host.hidden){entered=false;closeMenu(false);}resize();enter();if(!host.hidden&&returnSource){const link=[...messages.querySelectorAll('[data-coach-source]')].find(e=>e.dataset.coachSource===returnSource);link?.closest('details')?.setAttribute('open','');link?.focus({preventScroll:true});}},localize(){signature='';render();grow();}};
 }

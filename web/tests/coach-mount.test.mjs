@@ -12,9 +12,9 @@ test('context translation highlights only literal target without interpreting ma
 test('pending entry exposes cancellation and cancel wins over a late entry response',async()=>{
  let release;const f=fixture({request:async(_,options)=>options.body.action==='entry'?await new Promise(r=>release=r):{turns:[{id:'canceled',state:'canceled'}],observations:[]}});
  f.controller.identity(f.session);await f.show();
- const entry=f.requests[0];const cancel=f.messages.querySelectorAll('button').find(b=>b.textContent==='Cancel');
- assert.ok(cancel,'pending entry must expose Cancel');
- await cancel.onclick();await f.flush();
+ const entry=f.requests[0];const cancel=f.host.querySelector('.coach-stop');
+ assert.ok(cancel,'pending entry must expose composer Stop');
+ await f.host.querySelector('form').onsubmit({preventDefault(){}});await f.flush();
  assert.equal(entry.signal.aborted,true);
  assert.equal(f.requests[1].body.action,'cancel');
  assert.equal(f.requests[1].body.turn_id,entry.body.request_id);
