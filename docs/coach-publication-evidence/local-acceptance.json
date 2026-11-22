@@ -1,0 +1,131 @@
+{
+  "authorized_candidate": "9257b94147a2d1fca440b5a58b0808ba1eac64c7",
+  "final_release_ui": [
+    {
+      "label": "normal-light-finalcatalog",
+      "code": 0,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0,
+      "result": "/Users/tinyserve/.hermes/cache/scratch/km-publish-9257-final-normal-light-finalcatalog.xcresult",
+      "runtime_warnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+          "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-web-composer-alignment/native/App/DictationPlayer.swift"
+        }
+      ]
+    },
+    {
+      "label": "normal-dark",
+      "code": 0,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0,
+      "result": "/Users/tinyserve/.hermes/cache/scratch/km-publish-9257-final-normal-dark.xcresult",
+      "runtime_warnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+          "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-web-composer-alignment/native/App/DictationPlayer.swift"
+        }
+      ]
+    },
+    {
+      "label": "se-light",
+      "code": 0,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0,
+      "result": "/Users/tinyserve/.hermes/cache/scratch/km-publish-9257-final-se-light.xcresult",
+      "runtime_warnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+          "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-web-composer-alignment/native/App/DictationPlayer.swift"
+        }
+      ]
+    },
+    {
+      "label": "se-dark",
+      "code": 0,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0,
+      "result": "/Users/tinyserve/.hermes/cache/scratch/km-publish-9257-final-se-dark.xcresult",
+      "runtime_warnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+          "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-web-composer-alignment/native/App/DictationPlayer.swift"
+        }
+      ]
+    }
+  ],
+  "passed_ui": 64,
+  "screenshots": [
+    {
+      "file": "normal-light-finalcatalog-clue-rechecked.png",
+      "sha256": "db877d4466cf0d6a6a7ceb89adb7b76bf81cb9f8113bbf65fb2b8aa34258d61e"
+    },
+    {
+      "file": "normal-light-finalcatalog-stable-result.png",
+      "sha256": "96aece10e4df146af04896114d95c1480b3261041e0c52e8da4dd730d0c10461"
+    },
+    {
+      "file": "normal-dark-clue-rechecked.png",
+      "sha256": "a922330eddedfa42d491f0f56d2d20e9f20f47ef629433dbad0da48bdac7870d"
+    },
+    {
+      "file": "normal-dark-stable-result.png",
+      "sha256": "416a31c33d3aa15ec3aa733b64fe24e8482dd740ac0066487addd4a33d6dd136"
+    },
+    {
+      "file": "se-light-clue-rechecked.png",
+      "sha256": "431c16e5a01eaf4200c929690f3a63cea5b7abec72bac017157f081cce529fb5"
+    },
+    {
+      "file": "se-light-stable-result.png",
+      "sha256": "125de7cd3c39b7c2f7ac89d5c6e68b98ab4d3d5fcf594d08b201e27ad939f782"
+    },
+    {
+      "file": "se-dark-clue-rechecked.png",
+      "sha256": "20841a999512a8a510c954bd9113884c8a611b54a578480e72656db5baeb1da8"
+    },
+    {
+      "file": "se-dark-stable-result.png",
+      "sha256": "93788e67d6b8c9a81d3d500d00955784d4331b10bcf17205ab630ddc4ffb745a"
+    }
+  ],
+  "protected": {
+    "KeineMagie": {
+      "files": 304,
+      "mismatches": 0,
+      "manifest_sha256": "0dc9d166bed3f88d36f45bf4624618726c27c7c4138a74b612d27eb635a1eafc"
+    },
+    "AnyProgress": {
+      "files": 13,
+      "mismatches": 0,
+      "manifest_sha256": "5a25956ecab149147cdcd87c917d8c08a439cfa7f72ebf78c0b6f6f6b04b8b2b"
+    }
+  },
+  "go": "race and vet pass",
+  "native_ci": {
+    "tests": 73,
+    "skipped": 1,
+    "failed": 0
+  },
+  "node": {
+    "tests": 188,
+    "passed": 187,
+    "skipped": 1,
+    "failed": 0
+  },
+  "core": {
+    "xctest": 113,
+    "skipped": 5,
+    "failed": 0,
+    "swift_testing_passed": 89
+  },
+  "paid_inference": false
+}

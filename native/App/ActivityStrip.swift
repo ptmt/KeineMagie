@@ -47,7 +47,7 @@ struct ActivityStrip: View {
        RoundedRectangle(cornerRadius:5).fill(Color.primary.opacity(count > 0 ? min(0.08 + Double(count)*0.04,0.35) : 0.035))
        Text(day.formatted(.dateTime.weekday(.narrow).locale(locale)))
         .font(.system(size:11,weight:.medium)).frame(width:30,height:30)
-       if !known { Text("·").font(.system(size:10,weight:.bold)).padding(.trailing,3).accessibilityHidden(true) }
+       if !known { Text(verbatim: "·").font(.system(size:10,weight:.bold)).padding(.trailing,3).accessibilityHidden(true) }
       }
       .frame(width:30,height:30)
       .overlay { RoundedRectangle(cornerRadius:5).strokeBorder(calendar.isDate(day,inSameDayAs:context.date) ? Color.primary : Color.clear,lineWidth:1.5) }
