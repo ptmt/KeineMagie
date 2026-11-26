@@ -7,8 +7,9 @@ from urllib.parse import urlsplit,parse_qs
 from datetime import date,timedelta
 import json
 from playwright.sync_api import sync_playwright
-OUT=Path(__file__).resolve().parents[2]/'docs/monthly-activity-evidence'
-OUT.mkdir(exist_ok=True)
+BASE=Path(__file__).resolve().parents[2]/'docs/monthly-activity-evidence'
+OUT=Path(__file__).resolve().parents[2]/'docs/responsive-activity-evidence/month-regression'
+OUT.mkdir(parents=True,exist_ok=True)
 MODE='ready';CALLS=[]
 SNAP={'turns':[],'observations':[],'actions':[]}
 class App(Handler):
@@ -20,7 +21,7 @@ class App(Handler):
   if self.path.startswith('/v1/learning/activity?'):
    q=parse_qs(urlsplit(self.path).query);CALLS.append(q)
    if MODE=='offline':return self.reply({},503)
-   if MODE=='go':return self.reply(json.loads((OUT/'go-month-wire.json').read_text()))
+   if MODE=='go':return self.reply(json.loads((BASE/'go-month-wire.json').read_text()))
    start=date.fromisoformat(q['start'][0]);n=7 if MODE=='old' else int(q.get('days',['7'])[0])
    days=[]
    for i in range(n):
@@ -39,7 +40,7 @@ try:
  with sync_playwright() as p:
   for engine in ['chromium','webkit']:
    browser=getattr(p,engine).launch()
-   for width in [1280,390]:
+   for width in [1280,1000]: # Month is desktop-only; narrow coverage lives in activity_responsive_browser.py.
     for theme in ['light','dark']:
      MODE='ready'
      page=browser.new_page(viewport={'width':width,'height':900 if width>500 else 844},color_scheme=theme,timezone_id='Europe/Berlin')

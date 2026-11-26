@@ -49,16 +49,32 @@ const monthLabels={en:['Activity','Previous month','Next month','This month','Re
 export function mountCoachActivity({host,api,locale,document:doc,now=()=>new Date()}){
  const bar=doc.createElement('div');bar.className='coach-activity';const detail=doc.createElement('div');detail.className='coach-activity-detail';detail.hidden=true;detail.setAttribute('role','dialog');const body=doc.createElement('p'),close=doc.createElement('button');close.type='button';detail.append(body,close);host.append(bar,detail);
  const header=doc.createElement('div'),summary=doc.createElement('div'),legend=doc.createElement('div');header.className='activity-month-header';summary.className='activity-month-summary';legend.className='activity-legend';host.insertBefore(header,bar);host.append(summary,legend);
+ const viewport=doc.defaultView?.matchMedia('(min-width: 1000px)');
+ let wide=viewport?.matches??false,resizeTimer;
  let owner=null,selected=null,month=now(),follow=true,revision='',dayKey=calendarKey();const state=createActivityState(api,render);
  function calendarKey(){return localDate(now())+'|'+Intl.DateTimeFormat().resolvedOptions().timeZone;}
  const copy=()=>monthLabels[locale().split('-')[0]]||monthLabels.en;
- function load(){if(owner){const m=activityMonth(month,locale());void state.load(owner,m.dates[0],Intl.DateTimeFormat().resolvedOptions().timeZone,revision,m.dates.length);}}
+ function range(){return wide?activityMonth(month,locale()).dates:activityWeek(month,locale());}
+ function load(){doc.defaultView?.clearTimeout(resizeTimer);if(owner){const dates=range();void state.load(owner,dates[0],Intl.DateTimeFormat().resolvedOptions().timeZone,revision,dates.length);}}
+ function resize(){
+  if(wide===viewport.matches)return;
+  wide=viewport.matches;
+  // Preserve an explicitly selected day; otherwise return to the current period.
+  month=selected?new Date(selected+'T12:00:00'):now();follow=!selected;
+  // Fence the old range immediately, even during the debounce window.
+  state.clear();
+  doc.defaultView.clearTimeout(resizeTimer);
+  resizeTimer=doc.defaultView.setTimeout(()=>{if(!doc.hidden&&!host.closest('[hidden]'))load();},150);
+ }
+ viewport?.addEventListener('change',resize);
  function move(delta){dismiss();month=new Date(month.getFullYear(),month.getMonth()+delta,1,12);follow=false;render();load();}
  function dismiss(restore=false){const date=selected;detail.hidden=true;selected=null;if(restore)[...bar.children].find(b=>b.dataset.activityDate===date)?.focus({preventScroll:true});}
  close.onclick=()=>dismiss(true);detail.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();dismiss(true);}});
  doc.addEventListener('pointerdown',e=>{if(!detail.hidden&&!detail.contains(e.target)&&!bar.contains(e.target))dismiss();});
  function observed(date){const day=state.value?.days?.find(d=>d.date===date),sources=day?.sources||state.value?.sources;return day&&(day.known_count>0||Object.values(sources||{}).includes('retained'))?day:undefined;}
- function render(){const focusedDate=doc.activeElement?.dataset?.activityDate,focusedControl=[...header.children].includes(doc.activeElement)?doc.activeElement.getAttribute('aria-label'):null;const l=text(locale()),c=copy(),m=activityMonth(month,locale()),dates=m.dates;bar.setAttribute('aria-label',c[0]);bar.replaceChildren();close.textContent=l[6];detail.setAttribute('aria-label',c[0]);header.replaceChildren();
+ function render(){const focusedDate=doc.activeElement?.dataset?.activityDate,focusedControl=[...header.children].includes(doc.activeElement)?doc.activeElement.getAttribute('aria-label'):null;const l=text(locale()),c=copy(),m=activityMonth(month,locale()),dates=range();bar.setAttribute('aria-label',wide?c[0]:l[0]);bar.replaceChildren();close.textContent=l[6];detail.setAttribute('aria-label',wide?c[0]:l[0]);header.replaceChildren();
+ header.hidden=summary.hidden=legend.hidden=!wide;
+ if(wide){
  const title=doc.createElement('strong');title.textContent=new Intl.DateTimeFormat(locale(),{month:'long',year:'numeric'}).format(month);header.append(title);
  for(const [label,glyph,action] of [[c[1],'‹',()=>move(-1)],[c[2],'›',()=>move(1)],[c[3],c[3],()=>{month=now();follow=true;dismiss();render();load();}],[c[4],'↻',()=>{state.invalidate();load();}]]){const b=doc.createElement('button');b.type='button';b.textContent=glyph;b.setAttribute('aria-label',label);if(label===c[4]){b.disabled=state.pending;b.setAttribute('aria-busy',String(state.pending));}b.onclick=action;header.append(b);}
  for(const date of m.week){const h=doc.createElement('span');h.className='activity-weekday';h.textContent=new Intl.DateTimeFormat(locale(),{weekday:'short'}).format(new Date(date+'T12:00:00'));bar.append(h);}
@@ -66,12 +82,13 @@ export function mountCoachActivity({host,api,locale,document:doc,now=()=>new Dat
  const known=dates.map(observed).filter(d=>activityIntensity(d)!=='unknown');
  summary.textContent=state.error?(state.value?c[8]:l[4]):!state.value?c[9]:!known.length?l[4]:`${c[5]}: ${known.reduce((n,d)=>n+d.known_count,0)} · ${c[6]}: ${known.filter(d=>d.known_count>0).length}`;
  legend.textContent=`1–2 · 3–4 · 5–9 · 10+ | ${c[7]} · ${l[2]}${state.value&&known.length!==dates.length?' · '+c[10]:''}`;
- for(const date of dates){const day=observed(date),b=doc.createElement('button');b.type='button';b.dataset.activityDate=date;b.className='coach-activity-day';b.textContent=String(Number(date.slice(-2)));b.dataset.intensity=activityIntensity(day);if(date===localDate(now()))b.setAttribute('aria-current','date');b.setAttribute('aria-label',`${date}: ${day?l[1]+': '+day.known_count+' · '+l[2]:l[4]}`);b.disabled=!owner;b.onclick=()=>{selected=date;body.textContent=day?activityDetails(day,state.value,locale()):`${date}\n${l[4]}`;detail.hidden=false;close.focus({preventScroll:true});};bar.append(b);}
+ }
+ for(const date of dates){const day=observed(date),b=doc.createElement('button');b.type='button';b.dataset.activityDate=date;b.className='coach-activity-day';b.textContent=wide?String(Number(date.slice(-2))):new Intl.DateTimeFormat(locale(),{weekday:'narrow'}).format(new Date(date+'T12:00:00'));b.dataset.intensity=activityIntensity(day);if(date===localDate(now()))b.setAttribute('aria-current','date');b.setAttribute('aria-label',`${date}: ${day?l[1]+': '+day.known_count+' · '+l[2]:l[4]}`);b.disabled=!owner;b.onclick=()=>{selected=date;body.textContent=day?activityDetails(day,state.value,locale()):`${date}\n${l[4]}`;detail.hidden=false;close.focus({preventScroll:true});};bar.append(b);}
   if(focusedDate)[...bar.children].find(b=>b.dataset.activityDate===focusedDate)?.focus({preventScroll:true});
   if(focusedControl)[...header.children].find(b=>b.getAttribute('aria-label')===focusedControl)?.focus({preventScroll:true});
   if(selected){const day=observed(selected);body.textContent=day?activityDetails(day,state.value,locale()):l[4];}
  }
  function tick(){const next=calendarKey();if(next!==dayKey){dayKey=next;if(follow)month=now();state.invalidate();render();load();}}
  const timer=doc.defaultView?.setInterval(tick,30000);doc.addEventListener('visibilitychange',()=>{if(!doc.hidden)tick();});
- render();return {refresh(){state.invalidate();load();},sync(id,nextRevision=''){revision=nextRevision;if(owner!==id){owner=id;month=now();follow=true;dismiss();state.clear();}tick();render();load();},clear(){owner=null;dismiss();state.clear();},destroy(){doc.defaultView?.clearInterval(timer);owner=null;state.clear();}};
+ render();return {refresh(){state.invalidate();load();},sync(id,nextRevision=''){revision=nextRevision;if(owner!==id){owner=id;month=now();follow=true;dismiss();state.clear();}tick();render();load();},clear(){owner=null;dismiss();state.clear();},destroy(){doc.defaultView?.clearInterval(timer);doc.defaultView?.clearTimeout(resizeTimer);viewport?.removeEventListener('change',resize);owner=null;state.clear();}};
 }

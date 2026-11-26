@@ -1,5 +1,7 @@
 # Web monthly activity — local candidate
 
+> Уточнение пользователя применено поверх `9fb0ce7`: месяц только при viewport **≥1000 CSS px**; ниже — прежняя компактная недельная полоса. Актуальная проверка: `WEB-RESPONSIVE-ACTIVITY-LOCAL.md`. Мобильные месячные скриншоты ниже сохранены как исторические свидетельства, не как текущий дизайн.
+
 Base: `a120d641165586eb9e5ceee0b624f7906e17da98` (includes the unpublished Podcast study/star candidate). Worktree: `/Users/tinyserve/Projects/KeineMagie-web-monthly-activity`, branch `candidate/web-monthly-activity`. Local only: no push, deployment, production account/store access, paid AI, native build or simulator changes.
 
 ## Behavior
