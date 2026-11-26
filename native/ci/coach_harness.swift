@@ -37,6 +37,20 @@ import KeineMagieCore
         return AppModel(session: session, client: APIClient(endpoint: endpoint, token: "synthetic", transport: transport), podcastClient: PodcastAPI(endpoint: endpoint, token: "synthetic", transport: transport), cache: ContentCache(root: root))
     }
 }
+@Test @MainActor func coachReadOnlyRefreshRecoversWithGETOnlyAndKeepsDraft() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    await model.loadCoach(); gate.calls.removeAll()
+    model.coachDraft = "keep literal draft"
+    model.session.recordNetworkFailure(URLError(.timedOut))
+    await model.loadCoach()
+    #expect(model.session.canWrite)
+    #expect(model.coach?.turns.first?.id == "saved")
+    #expect(model.coachDraft == "keep literal draft")
+    #expect(gate.calls == ["GET"])
+    #expect(gate.actions.isEmpty)
+}
 @Test @MainActor func coachWriteDominatesStaleReadAndCancellation() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }

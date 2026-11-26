@@ -170,7 +170,13 @@ struct CoachView: View {
         .onDisappear { presented = false; model.coachForeground = false; visibleTurns.removeAll() }
         .onChange(of: model.session.generation) { _, _ in showEarlier = 0; hydrated = false; historyNow = Date(); visibleTurns.removeAll(); focusedAnswerID = nil; pinnedTurnID = nil }
         .animation(reduceMotion || !hydrated ? nil : .easeOut(duration: 0.2), value: model.coach?.turns.map(\.id))
-        .task(id: "\(model.session.generation)-\(model.session.canWrite)-\(isSelected)") { guard isSelected else { return }; await model.loadCoach(); if !Task.isCancelled && model.session.canWrite && scenePhase == .active && presented { model.sendCoach("entry") } }
+        .task(id: "\(model.session.generation)-\(isSelected)") {
+            guard isSelected else { return }
+            // Identity recovery is GET-only, not a new daily admission intent.
+            let enteredReady = model.session.canWrite
+            await model.loadCoach()
+            if enteredReady && !Task.isCancelled && model.session.canWrite && scenePhase == .active && presented { model.sendCoach("entry") }
+        }
         .refreshable { await Task { await model.loadCoach() }.value }
 
     }

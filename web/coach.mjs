@@ -105,12 +105,41 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  messages.addEventListener('touchstart',e=>{messages.dataset.touch=String(e.touches[0].clientY);},{passive:true});
  messages.addEventListener('touchend',e=>{if(messages.scrollTop===0&&e.changedTouches[0].clientY-Number(messages.dataset.touch)>70)void state.load();},{passive:true});
  const cancelID=()=>state.pendingID||state.value?.turns?.find(t=>t.attempt?.assessment_state==='pending')?.attempt.id||state.value?.turns?.find(t=>t.state==='pending')?.id;
- form.onsubmit=async e=>{e.preventDefault();if(cancelID()){await state.act('cancel','',cancelID());return;}const draft=input.value;if(!draft.trim())return;ownSend=true;follow=true;const success=await state.act('message',draft);if(success&&input.value===draft){input.value='';grow();}input.focus({preventScroll:true});};
- const grow=()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';};input.oninput=grow;
+ let composerGeneration=0;
+ form.onsubmit=async e=>{
+  e.preventDefault();
+  if(cancelID()){await state.act('cancel','',cancelID());return;}
+  const draft=input.value,generation=composerGeneration;
+  if(!state.signedIn||state.busy||!draft.trim())return;
+  ownSend=true;follow=true;
+  const success=await state.act('message',draft);
+  if(generation!==composerGeneration)return;
+  if(success&&input.value===draft){input.value='';grow();}
+  if(!host.hidden&&(doc.activeElement===input||doc.activeElement===send))input.focus({preventScroll:true});
+ };
+ const updateSend=()=>{send.disabled=!state.signedIn||(!cancelID()&&(state.busy||!input.value.trim()));};
+ const grow=()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';updateSend();};input.oninput=grow;
+ let composing=false;
+ input.addEventListener('compositionstart',()=>{composing=true;});
+ input.addEventListener('compositionend',()=>{composing=false;});
+ input.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'||composing||e.isComposing||e.keyCode===229||e.ctrlKey||e.altKey)return;
+  if(e.metaKey){
+   e.preventDefault();
+   if(input.disabled||input.value.length-(input.selectionEnd-input.selectionStart)>=input.maxLength)return;
+   input.setRangeText('\n',input.selectionStart,input.selectionEnd,'end');
+   input.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertLineBreak',data:null}));
+   return;
+  }
+  if(e.shiftKey)return;
+  e.preventDefault();
+  if(e.repeat||input.disabled||state.busy||cancelID()||!input.value.trim())return;
+  form.requestSubmit(send);
+ });
  function render(){
   activity.sync(owner,JSON.stringify((state.value?.turns||[]).filter(t=>t.attempt?.assessment_state==='completed').map(t=>t.attempt.id)));
   summary.textContent=l(8);refresh.textContent=l(11);input.placeholder=l(1);input.setAttribute('aria-label',l(1));send.textContent=l(2);
-  input.disabled=!state.signedIn;const pending=cancelID();send.className=pending?'coach-stop':'coach-send';send.textContent=pending?'■':'↑';send.setAttribute('aria-label',pending?({en:'Stop',de:'Stoppen',ru:'Остановить',es:'Detener',fr:'Arrêter'}[locale()]||'Stop'):l(2));send.disabled=!state.signedIn||(state.busy&&!pending);
+  input.disabled=!state.signedIn;const pending=cancelID();send.className=pending?'coach-stop':'coach-send';send.textContent=pending?'■':'↑';send.setAttribute('aria-label',pending?({en:'Stop',de:'Stoppen',ru:'Остановить',es:'Detener',fr:'Arrêter'}[locale()]||'Stop'):l(2));updateSend();
   menuTrigger.setAttribute('aria-label',coachChatLabel('actions',locale()));quick.setAttribute('aria-label',coachChatLabel('actions',locale()));
   const focusedCommand=quick.hidden?-1:[...quick.children].indexOf(doc.activeElement);
   quick.replaceChildren(...coachQuickActions(state.value).map(a=>{const actionOwner=owner;const b=button(a.action==='progress'?coachChatLabel('progressMenu',locale()):coachQuickLabel(a.action,locale()),async()=>{if(owner!==actionOwner||!state.signedIn||state.busy)return;closeMenu(true);ownSend=a.action!=='reveal';if(ownSend)follow=true;await state.act(a.action,a.action==='reveal'?'source':coachQuickLabel(a.action,locale()),a.turn_id);});b.setAttribute('role','menuitem');b.tabIndex=-1;b.disabled=!state.signedIn||state.busy;return b;}));refresh.disabled=!state.signedIn||state.busy;
@@ -211,5 +240,5 @@ export function mountCoach({host,api,locale,unauthorized,account,document:doc=gl
  doc.addEventListener('visibilitychange',()=>{if(doc.visibilityState==='visible')enter();else entered=false;});
  render();
  function enter(){if(host.hidden||!state.signedIn){entered=false;return;}if(doc.visibilityState!=='visible')return;activity.refresh();if(!entered){entered=true;void state.act('entry');}else void state.load();}
- return {identity(session){const id=session?.user?.id||null;if(id!==owner){closeMenu(false);owner=id;input.value='';answerDrafts.clear();signature='';returnSource=null;hydrated=false;showEarlier=false;follow=true;known.clear();seeing.clear();entered=false;}state.identity(session);enter();},route(){if(!host.hidden&&!wasVisible){historyNow=Date.now();showEarlier=false;hydrated=false;follow=true;signature='';render();}wasVisible=!host.hidden;if(host.hidden){entered=false;closeMenu(false);}resize();enter();if(!host.hidden&&returnSource){const link=[...messages.querySelectorAll('[data-coach-source]')].find(e=>e.dataset.coachSource===returnSource);link?.closest('details')?.setAttribute('open','');link?.focus({preventScroll:true});}},localize(){signature='';render();grow();}};
+ return {identity(session){const id=session?.user?.id||null;if(id!==owner){composerGeneration++;composing=false;closeMenu(false);owner=id;input.value='';answerDrafts.clear();signature='';returnSource=null;hydrated=false;showEarlier=false;follow=true;known.clear();seeing.clear();entered=false;}state.identity(session);enter();},route(){if(!host.hidden&&!wasVisible){historyNow=Date.now();showEarlier=false;hydrated=false;follow=true;signature='';render();}wasVisible=!host.hidden;if(host.hidden){entered=false;closeMenu(false);}resize();enter();if(!host.hidden&&returnSource){const link=[...messages.querySelectorAll('[data-coach-source]')].find(e=>e.dataset.coachSource===returnSource);link?.closest('details')?.setAttribute('open','');link?.focus({preventScroll:true});}},localize(){signature='';render();grow();}};
 }

@@ -27,6 +27,7 @@ import KeineMagieCore
     var holdStatus = false
     var statusRelease: CheckedContinuation<Void, Never>?
     var degradedCatalog = false
+    var sessionError: URLError?
     var holdSession = false
     var translationError: URLError?
     var translationStatus = 200
@@ -42,6 +43,7 @@ import KeineMagieCore
     var historyRelease: CheckedContinuation<Void, Never>?
     func send(_ r: URLRequest) async throws -> AuthResponse {
         var body = "{}"
+        if r.url!.path == "/v1/auth/session", let sessionError { throw sessionError }
         if r.url!.path == "/v1/auth/session", holdSession { await withCheckedContinuation { sessionRelease = $0 } }
         switch r.url!.path {
         case "/v1/auth/session": body = "{\"user\":{\"id\":\"\(owner)\"},\"expires_at\":\"2099-01-01T00:00:00Z\"}"
@@ -99,6 +101,36 @@ final class PendingObservation: @unchecked Sendable {
     private var changed = false
     func record() { lock.withLock { changed = true } }
     var didChange: Bool { lock.withLock { changed } }
+}
+@Test @MainActor func localReadOnlyRefreshNeverFabricatesServer401() async throws {
+    let gate = Gate(); let model = await fixture(gate)
+    model.draft = "retain my draft"
+    model.session.recordNetworkFailure(URLError(.timedOut))
+    let generation = model.session.generation
+    await model.refreshTranslator()
+    #expect(model.session.phase == .signedIn)
+    #expect(model.session.user?.id == "synthetic")
+    #expect(model.session.generation == generation)
+    #expect(model.draft == "retain my draft")
+    #expect(gate.historyCalls == 0 && gate.statusCalls == 0)
+    do { _ = try model.podcastAPI(); Issue.record("Read-only client must be denied") }
+    catch { if case APIError.http(401) = error { Issue.record("Local denial is not a server 401") } }
+    await model.session.restore()
+    await model.refreshTranslator()
+    #expect(model.session.canWrite)
+    #expect(gate.historyCalls == 1)
+    #expect(gate.translationRequests.isEmpty)
+}
+@Test @MainActor func cancelledRequestDoesNotMarkVerifiedSessionOffline() async throws {
+    let gate = Gate(); let model = await fixture(gate)
+    model.session.recordNetworkFailure(URLError(.cancelled))
+    #expect(model.session.canWrite)
+    #expect(!model.session.isOffline)
+    gate.sessionError = URLError(.cancelled)
+    await model.session.restore()
+    #expect(model.session.canWrite)
+    #expect(!model.session.isOffline)
+    #expect(model.session.message == nil)
 }
 @Test @MainActor func idleResumeNeverPublishesFalsePending() async throws {
     let gate = Gate(); let model = await fixture(gate)

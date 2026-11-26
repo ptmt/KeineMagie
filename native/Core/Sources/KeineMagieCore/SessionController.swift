@@ -190,13 +190,16 @@ public final class SessionController {
         } catch {
             guard version == generation else { return }
             if user == nil { phase = .offline }
+            // Cancellation is caller lifecycle, not evidence of lost network or
+            // revoked identity. Cold saved identities remain read-only.
+            if error is CancellationError || (error as? URLError)?.code == .cancelled { return }
             if error is URLError { isOffline = true }
             verifiedOnline = false
             message = CoreL10n.text("session.offline")
         }
     }
     public func recordNetworkFailure(_ error: Error) {
-        guard error is URLError, phase == .signedIn else { return }
+        guard let error = error as? URLError, error.code != .cancelled, phase == .signedIn else { return }
         isOffline = true; verifiedOnline = false
     }
     public func rejectUnauthorized() { invalidateCredential() }

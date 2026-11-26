@@ -82,7 +82,7 @@ final class AppModel {
     private(set) var historyPhase: DatasetPhase = .idle
     private(set) var historyLoadError: String?
     func podcastAPI() throws -> PodcastAPI {
-        guard session.canWrite else { throw APIError.http(401) }
+        guard session.canWrite else { throw CancellationError() }
         if let injectedPodcastClient { return injectedPodcastClient }
         #if targetEnvironment(simulator)
         if let fixtureTransport { return PodcastAPI(endpoint: try ServerEndpoint(session.serverURL), token: "synthetic-session-not-a-credential", transport: fixtureTransport) }
@@ -175,6 +175,9 @@ final class AppModel {
             coachHydratedGeneration = version
             if coach == nil, let data { coach = try? JSONDecoder().decode(CoachSnapshot.self, from: data) }
         }
+        // Retry identity with a GET before read-only recovery; never infer or
+        // weaken write admission. A changed/revoked owner invalidates this read.
+        if current(), !session.canWrite { await session.restore() }
         guard current(), session.canWrite else { return }
         do {
             let value = try await podcastAPI().coach()
@@ -842,7 +845,7 @@ final class AppModel {
     func api(translation: Bool = false) throws -> APIClient {
         // Only explicit translation may use the trusted local-owner credential
         // during advisory verification. The server still authenticates every POST.
-        guard translation ? (session.phase == .signedIn && session.user != nil) : session.canWrite else { throw APIError.http(401) }
+        guard translation ? (session.phase == .signedIn && session.user != nil) : session.canWrite else { throw CancellationError() }
         if let injectedClient { return injectedClient }
         #if targetEnvironment(simulator)
         if let fixtureTransport {
