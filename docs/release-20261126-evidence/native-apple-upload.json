@@ -1,0 +1,21 @@
+{
+  "source_sha": "22791e6fb872e18cbe084883d3d73a920623b5d9",
+  "version": "1.0",
+  "build": "2847.89.95",
+  "run_id": 45813372354,
+  "validate_job_id": 139892114149,
+  "upload_job_id": 139895700895,
+  "upload_step": "success",
+  "cleanup": "success",
+  "apple_processing": "not verified",
+  "testflight_availability": "not verified",
+  "receipt_lines": [
+    "2026-11-26T12:03:36.7724370Z Archiving build 2847.89.95 with manually validated signing",
+    "2026-11-26T12:05:18.2333280Z ** ARCHIVE SUCCEEDED **",
+    "2026-11-26T12:05:21.2125300Z ** EXPORT SUCCEEDED **",
+    "2026-11-26T12:06:25.2930680Z 2026-11-26 12:06:25.288  WARN: [altool.B48C58380] SDK version issue. This app was built with the iOS 26.5 SDK. Starting April 2027, iOS and iPadOS apps must be built with the iOS 27 SDK or later, included in Xcode 27 or later, in order to be uploaded to App Store Connect or submitted for distribution. (90725)",
+    "2026-11-26T12:07:32.4126110Z UPLOAD SUCCEEDED with no errors, 1 warning",
+    "2026-11-26T12:07:32.4138990Z 2026-11-26 12:07:32.413  WARN: [altool.888C58380] SDK version issue. This app was built with the iOS 26.5 SDK. Starting April 2027, iOS and iPadOS apps must be built with the iOS 27 SDK or later, included in Xcode 27 or later, in order to be uploaded to App Store Connect or submitted for distribution. (90725)",
+    "2026-11-26T12:07:32.4221300Z Apple upload command succeeded. Check App Store Connect processing and TestFlight availability."
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "conclusion": "success",
+  "databaseId": 45813372354,
+  "event": "workflow_dispatch",
+  "headSha": "22791e6fb872e18cbe084883d3d73a920623b5d9",
+  "jobs": [
+    {
+      "completedAt": "2026-11-26T12:02:39Z",
+      "conclusion": "success",
+      "databaseId": 139892114149,
+      "name": "validate",
+      "startedAt": "2026-11-26T11:55:45Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-26T11:55:46Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-26T11:55:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T11:56:01Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 2,
+          "startedAt": "2026-11-26T11:55:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T11:56:04Z",
+          "conclusion": "success",
+          "name": "Select and report stable Xcode",
+          "number": 3,
+          "startedAt": "2026-11-26T11:56:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T11:56:07Z",
+          "conclusion": "success",
+          "name": "Install Go for actual server-to-Swift wire contracts",
+          "number": 4,
+          "startedAt": "2026-11-26T11:56:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T11:58:20Z",
+          "conclusion": "success",
+          "name": "Validate CI configuration",
+          "number": 5,
+          "startedAt": "2026-11-26T11:56:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T11:59:34Z",
+          "conclusion": "success",
+          "name": "Swift core tests",
+          "number": 6,
+          "startedAt": "2026-11-26T11:58:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T11:59:48Z",
+          "conclusion": "success",
+          "name": "Install XcodeGen and generate project",
+          "number": 7,
+          "startedAt": "2026-11-26T11:59:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:02:30Z",
+          "conclusion": "success",
+          "name": "Unsigned simulator build",
+          "number": 8,
+          "startedAt": "2026-11-26T11:59:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:02:31Z",
+          "conclusion": "success",
+          "name": "Verify effective app export-compliance metadata",
+          "number": 9,
+          "startedAt": "2026-11-26T12:02:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:02:32Z",
+          "conclusion": "success",
+          "name": "Post Install Go for actual server-to-Swift wire contracts",
+          "number": 17,
+          "startedAt": "2026-11-26T12:02:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:02:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 18,
+          "startedAt": "2026-11-26T12:02:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:02:36Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 19,
+          "startedAt": "2026-11-26T12:02:33Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ptmt/KeineMagie/actions/runs/45813372354/job/139892114149"
+    },
+    {
+      "completedAt": "2026-11-26T12:07:37Z",
+      "conclusion": "success",
+      "databaseId": 139895700895,
+      "name": "testflight",
+      "startedAt": "2026-11-26T12:02:43Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-26T12:02:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-26T12:02:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:03:05Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 2,
+          "startedAt": "2026-11-26T12:02:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:03:14Z",
+          "conclusion": "success",
+          "name": "Select and report stable Xcode; generate project",
+          "number": 3,
+          "startedAt": "2026-11-26T12:03:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:07:32Z",
+          "conclusion": "success",
+          "name": "Manually sign, export, validate, and upload",
+          "number": 4,
+          "startedAt": "2026-11-26T12:03:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:07:33Z",
+          "conclusion": "success",
+          "name": "Remove signing material and restore keychain search list",
+          "number": 5,
+          "startedAt": "2026-11-26T12:07:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:07:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 10,
+          "startedAt": "2026-11-26T12:07:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-26T12:07:35Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-11-26T12:07:33Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ptmt/KeineMagie/actions/runs/45813372354/job/139895700895"
+    }
+  ],
+  "status": "completed"
+}
