@@ -1,0 +1,20 @@
+{
+  "added_native_line_scan": {
+    "secret_assignment": false,
+    "shell_injection": false,
+    "eval_or_exec": false,
+    "unsafe_deserialization": false
+  },
+  "conflict_markers": false,
+  "original_preservation": {
+    "KeineMagie": {
+      "matched_files": 304,
+      "mismatches": []
+    },
+    "AnyProgress": {
+      "matched_files": 13,
+      "mismatches": []
+    }
+  },
+  "review": "Scoped source self-review; no independent reviewer claim for this recovery follow-up."
+}

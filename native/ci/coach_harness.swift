@@ -55,6 +55,43 @@ import KeineMagieCore
     #expect(!model.consumeCoachEntryPermission(), "A readiness task restart is not an entry intent")
     #expect(model.consumeCoachEntryPermission(), "A later ordinary foreground keeps the established admission policy")
 }
+@Test @MainActor func coachRestartedViewReadSupersedesCanceledRead() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root); gate.hold = true
+    let old = Task { await model.loadCoach() }
+    while gate.replies.isEmpty { await Task.yield() }
+    old.cancel()
+    gate.bodyOverride = gate.body.replacingOccurrences(of: "saved", with: "fresh")
+    let latest = Task { await model.loadCoach(replacingRead: true) }
+    for _ in 0..<100 { if gate.replies.count == 2 { break }; await Task.yield() }
+    #expect(gate.calls == ["GET", "GET"])
+    if gate.replies.count == 2 { gate.replies.removeLast().resume() }
+    await latest.value
+    gate.replies.removeFirst().resume(); await old.value
+    #expect(model.coach?.turns.first?.id == "fresh")
+}
+@Test @MainActor func coachStaleCompletionCannotReleaseReplacementAdmission() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root); gate.hold = true
+    let old = Task { await model.loadCoach() }
+    while gate.replies.isEmpty { await Task.yield() }
+    gate.bodyOverride = gate.body.replacingOccurrences(of: "saved", with: "fresh")
+    let latest = Task { await model.loadCoach(replacingRead: true) }
+    while gate.replies.count < 2 { await Task.yield() }
+    // Even a non-cooperative predecessor completing first must not write state
+    // or release the newer request's admission to an ordinary duplicate read.
+    gate.replies.removeFirst().resume(); await old.value
+    #expect(model.coach == nil)
+    #expect(!model.coachLoaded)
+    model.coachDraft = "retain replacement draft"
+    await model.loadCoach()
+    #expect(gate.calls == ["GET", "GET"])
+    gate.replies.removeFirst().resume(); await latest.value
+    #expect(model.coach?.turns.first?.id == "fresh")
+    #expect(model.coachDraft == "retain replacement draft")
+}
 @Test @MainActor func coachTransportFailureDoesNotChurnSessionReadiness() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }

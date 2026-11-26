@@ -1,0 +1,5 @@
+No blockers found in the integrated diff against local `origin/main`.
+
+The Coach fix closes the reported GET-recovery entry-inference path. Canceled transport preserves verified-session state; owner boundaries, real 401 invalidation, and read-only write guards remain intact. No new accidental paid-inference path found.
+
+Validation: 50 local web tests and the Coach readiness regression passed. Native runtime harness was inspected, not rerun under the read-only constraint. No edits or external requests.

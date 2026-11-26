@@ -12,7 +12,7 @@ final class ActivityUITests: XCTestCase {
   let days=app.buttons.matching(NSPredicate(format:"identifier BEGINSWITH %@","activity-day-"))
   XCTAssertTrue(days.element(boundBy:2).waitForExistence(timeout:8))
   days.element(boundBy:2).tap()
-  let message=app.alerts.staticTexts.matching(NSPredicate(format:"label CONTAINS %@","Translator: Completed activities: at least 1"))
+  let message=app.alerts.staticTexts.matching(NSPredicate(format:"label CONTAINS %@","Translator: ≥1"))
   XCTAssertTrue(message.firstMatch.waitForExistence(timeout:5))
   XCTAssertTrue(message.firstMatch.label.contains("Completion not tracked"))
   XCTAssertTrue(message.firstMatch.label.contains("Saved completions without a date (all history): 1"))

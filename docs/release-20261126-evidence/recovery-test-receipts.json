@@ -1,0 +1,17 @@
+{
+  "coach-read-restart-red": [
+    "\u2718 Test coachRestartedViewReadSupersedesCanceledRead() recorded an issue at CoachTests.swift:68:5: Expectation failed: gate.calls == [\"GET\", \"GET\"]",
+    "\u2718 Test coachRestartedViewReadSupersedesCanceledRead() recorded an issue at CoachTests.swift:72:5: Expectation failed: model.coach?.turns.first?.id == \"fresh\"",
+    "\u2718 Test run with 130 tests in 0 suites failed after 0.293 seconds with 2 issues."
+  ],
+  "native-final-discovery": [
+    "\u2714 Test run with 131 tests in 0 suites passed after 0.313 seconds.",
+    "Ran 74 tests in 25.685s",
+    "OK (skipped=1)"
+  ],
+  "native-resume-core": [
+    "\t Executed 116 tests, with 6 tests skipped and 0 failures (0 unexpected) in 3.762 (3.776) seconds",
+    "\t Executed 116 tests, with 6 tests skipped and 0 failures (0 unexpected) in 3.762 (3.781) seconds",
+    "\u2714 Test run with 89 tests in 2 suites passed after 10.697 seconds."
+  ]
+}

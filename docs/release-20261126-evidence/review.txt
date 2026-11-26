@@ -1,0 +1,9 @@
+**Verdict: hold — one release blocker.**
+
+- **P1: Native read-only Coach recovery can trigger inference.** [AppModel.swift:180](/Users/tinyserve/Projects/KeineMagie-release-20261126/native/App/AppModel.swift:180) calls `restore()`, changing `canWrite` to true. This restarts [CoachView.swift:173](/Users/tinyserve/Projects/KeineMagie-release-20261126/native/App/CoachView.swift:173), whose task sends `entry`. With no current daily claim or unfinished exercise, that POST generates practice and consumes quota.
+
+  **Reproduction:** Keep Coach foregrounded while offline across midnight, with the previous exercise settled. Restore connectivity and pull to refresh. Identity recovery triggers `entry` despite refresh being intended as GET-only. The new harness tests `loadCoach()` without the SwiftUI task, so it misses this interaction.
+
+No other release blockers identified in the diff, including uncommitted changes.
+
+Independent web tests: **197 passed, 1 skipped**. Native finding is source-traced; native/server tests were inspected but not executed under the read-only constraint. No files modified, external requests, secrets, or production access.

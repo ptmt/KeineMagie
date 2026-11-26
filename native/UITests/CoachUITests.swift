@@ -397,6 +397,7 @@ final class CoachUITests: XCTestCase {
         app.buttons["coach-latest"].tap(); XCTAssertTrue(last.isHittable)
     }
     @MainActor func testOfflineRecoveryDoesNotAdmitEntryButNextNavigationDoes() {
+        continueAfterFailure = false
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-recovery-lifecycle"
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -404,13 +405,25 @@ final class CoachUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Synthetic entry count: 1; validations: 1"].waitForExistence(timeout: 8))
         let composer = app.textFields["coach-composer"]
         composer.tap(); composer.typeText("keep recovery draft")
+        // Explicit synthetic timeout retains the draft and dismisses the keyboard.
+        // Never tap an occluded tab-bar AX node: its coordinate can hit emoji keys.
+        app.buttons["coach-send"].tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 5))
         XCUIDevice.shared.press(.home); sleep(1); app.activate()
         sleep(3) // The fixture's second identity check times out after two seconds.
         XCTAssertFalse(app.buttons["coach-send"].isEnabled)
-        app.tabBars.buttons["Translator"].tap(); app.tabBars.buttons["Coach"].tap()
+        func visitTranslatorThenCoach() {
+            app.tabBars.buttons["Translator"].tap()
+            shot(app, "recovery-translator-navigation")
+            let visible = NSPredicate(format: "isHittable == true")
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: visible, object: app.textViews["translator-input"])], timeout: 5), .completed)
+            app.tabBars.buttons["Coach"].tap()
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: visible, object: composer)], timeout: 5), .completed)
+        }
+        visitTranslatorThenCoach()
         XCTAssertTrue(app.staticTexts["Synthetic entry count: 1; validations: 3"].waitForExistence(timeout: 10))
         XCTAssertEqual(composer.value as? String, "keep recovery draft")
-        app.tabBars.buttons["Translator"].tap(); app.tabBars.buttons["Coach"].tap()
+        visitTranslatorThenCoach()
         XCTAssertTrue(app.staticTexts["Synthetic entry count: 2; validations: 3"].waitForExistence(timeout: 8))
         XCTAssertEqual(composer.value as? String, "keep recovery draft")
         shot(app, "coach-readonly-recovery-no-entry")

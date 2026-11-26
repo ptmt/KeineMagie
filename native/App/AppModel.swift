@@ -168,10 +168,13 @@ final class AppModel {
         coachReadOnlyRecovery = false
         return permitted
     }
-    func loadCoach() async {
+    func loadCoach(replacingRead: Bool = false) async {
         guard session.phase == .signedIn else { return }
         scopeCoach()
-        guard session.phase == .signedIn, coachReadID == nil, !coachBusy else { return }
+        // A restarted view task owns a fresh read even while its canceled predecessor
+        // is unwinding. Request identity fences both completion and deferred release.
+        guard !Task.isCancelled, session.phase == .signedIn,
+              (coachReadID == nil || replacingRead), !coachBusy else { return }
         let version = session.generation, epoch = coachEpoch, id = UUID()
         coachReadID = id
         defer { if coachReadID == id { coachReadID = nil; coachLoaded = coach != nil } }

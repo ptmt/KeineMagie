@@ -7,9 +7,9 @@ class CoachReadinessTests(unittest.TestCase):
         source = (Path(__file__).resolve().parents[1]/'App/CoachView.swift').read_text()
         task = source.split('.task(id: "\\(model.session.generation)', 1)[1].split('.refreshable', 1)[0]
         self.assertIn('\\(model.session.canWrite)', task)  # Preserve foreground validation lifecycle.
-        self.assertIn('await model.loadCoach()', task)
+        self.assertIn('await model.loadCoach(replacingRead: true)', task)
         self.assertIn('&& model.consumeCoachEntryPermission()', task)
-        self.assertLess(task.index('await model.loadCoach()'), task.index('model.consumeCoachEntryPermission()'))
+        self.assertLess(task.index('await model.loadCoach(replacingRead: true)'), task.index('model.consumeCoachEntryPermission()'))
         self.assertLess(task.index('model.consumeCoachEntryPermission()'), task.index('model.sendCoach("entry")'))
 
 if __name__ == '__main__': unittest.main()

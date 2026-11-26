@@ -1,0 +1,214 @@
+{
+  "source_sha": "046099dfa71f8b1880b2fd8b3575ab47c7246efe",
+  "https_certificate_validation": true,
+  "asset_count": 33,
+  "assets": [
+    {
+      "path": "/app.mjs",
+      "sha256": "1d644027542897106635b826d5b158ea0ba57750eef928cba674f1df00b83342",
+      "exact": true
+    },
+    {
+      "path": "/apple-sign-in-de.png",
+      "sha256": "5dbc8ad730f76f5665a5ec09f7e9ad73cd8007aad82b04d99c57cedeff5e2fd2",
+      "exact": true
+    },
+    {
+      "path": "/apple-sign-in-en.png",
+      "sha256": "d89a231a4b3a3ba0dc6b86b3e35ec2dbb8748af3b745ef2ecbd8f8239e9cdac2",
+      "exact": true
+    },
+    {
+      "path": "/apple-sign-in-es.png",
+      "sha256": "5eb555f999acebbbf37b60fade5fd804ca2d265533e12aa4b375dc6960f860f0",
+      "exact": true
+    },
+    {
+      "path": "/apple-sign-in-fr.png",
+      "sha256": "1ecdb24a8b11088c5593104999d08101fff6b3cee89ff2477a690f8d69252eb3",
+      "exact": true
+    },
+    {
+      "path": "/apple-sign-in-ru.png",
+      "sha256": "a7e33bfb90122c4d4114690061f64700010357e18b8d1fabb9e612bb207deaf7",
+      "exact": true
+    },
+    {
+      "path": "/bootstrap.js",
+      "sha256": "e97d531503a4f04adc0b0417713e60217e40cf88022496cde655c4a0f38c3e02",
+      "exact": true
+    },
+    {
+      "path": "/coach-activity.mjs",
+      "sha256": "87e513a22032bc4419a0194d6b0f15f8e2a64dfb28d21a824c5111b5147276c5",
+      "exact": true
+    },
+    {
+      "path": "/coach-chat.mjs",
+      "sha256": "56b2e9d522bf8a9fc1288ef56bac5400bb97039bc9eabda2fd3a8e6cf2ef7051",
+      "exact": true
+    },
+    {
+      "path": "/coach-presentation.mjs",
+      "sha256": "25ed925efbd838a641d1ef3e7cafdbefc0a9cb36b7103feae4cac7bad666ce03",
+      "exact": true
+    },
+    {
+      "path": "/coach-state.mjs",
+      "sha256": "118f263373dc11df42e0be6f77b90ddea01429d333ce6e126e72213adb968613",
+      "exact": true
+    },
+    {
+      "path": "/coach.css",
+      "sha256": "53a8830e68f8be0060425ca33cff7852f0d88fd4b03391dce73804000bb35794",
+      "exact": true
+    },
+    {
+      "path": "/coach.mjs",
+      "sha256": "41e98b0c58084732ae0aceae7ce03bd073833937715dc363dfc00efaf24d123c",
+      "exact": true
+    },
+    {
+      "path": "/core.mjs",
+      "sha256": "e6aba95ecd6ae5a898266ef90827207bd366f516c1524f6fe5f11aa15db684f6",
+      "exact": true
+    },
+    {
+      "path": "/dictation-assessment.mjs",
+      "sha256": "af880ca303de0d08d9fd1df61b103cb02443964bdbd66842b42f1017252d00cd",
+      "exact": true
+    },
+    {
+      "path": "/dictation-cache.mjs",
+      "sha256": "cd221b39774f95e627fe0e782888575e167b7025b3de49065b188ca359ad5982",
+      "exact": true
+    },
+    {
+      "path": "/dictation-i18n.mjs",
+      "sha256": "93ca7068095489e5c96610c86aff7efeae71bac6b4b955aad01ec37522902d22",
+      "exact": true
+    },
+    {
+      "path": "/dictation-journal.mjs",
+      "sha256": "7fc92ddf3d1d017feeaef72b381caf8980a42901cbd0ae0b1163d723d37d2f6b",
+      "exact": true
+    },
+    {
+      "path": "/dictation-playback.mjs",
+      "sha256": "7f416034e8ccf51809ca2ea327ea173f158194967ea3ba125f83d40489905608",
+      "exact": true
+    },
+    {
+      "path": "/dictation-state.mjs",
+      "sha256": "7f16a823a081dc89ba86bfa36a7f7e93b4945c4dca4213d7ea217bbb781a8044",
+      "exact": true
+    },
+    {
+      "path": "/dictation.css",
+      "sha256": "7ac614a0185a527b71bafb101604b90a19f75404ad1b3c7e2381e26dc0626a78",
+      "exact": true
+    },
+    {
+      "path": "/dictation.mjs",
+      "sha256": "c794183e5c7ce8e64a66c16a7d82d12e2b9f569a597910691cadab286084b2b9",
+      "exact": true
+    },
+    {
+      "path": "/episode-i18n.mjs",
+      "sha256": "ae0c702d493fca710598cc87ca1bac62a6510e748c26fb0cf39b5805f17a79b6",
+      "exact": true
+    },
+    {
+      "path": "/episode-view.mjs",
+      "sha256": "9b9d55943689c11552470f1a21e14967a28be6a1a6a8baa4bde6fae3916c5e41",
+      "exact": true
+    },
+    {
+      "path": "/episode.css",
+      "sha256": "5fbcc6e0ab87a582cad8b3a717615423a16e18943a5442fdd8975f8962c37864",
+      "exact": true
+    },
+    {
+      "path": "/episode.mjs",
+      "sha256": "a0409f12ebce101a1f9e0e9321a9d654902dd8f62aea1d018e993da1f1930381",
+      "exact": true
+    },
+    {
+      "path": "/favicon.svg",
+      "sha256": "5e089d1a95402447b6674402b80945b220a1ed93c9f482bef37fefa0d2874ecd",
+      "exact": true
+    },
+    {
+      "path": "/i18n.mjs",
+      "sha256": "9fdad201e83ae46c874b4cc65f99e07a4e5fa820136d73fe46dad67a3b750994",
+      "exact": true
+    },
+    {
+      "path": "/index.html",
+      "sha256": "bb998e696d351753ea161563ad9ca3e86670003b7fcf9dc4765dedae2dcfa4ef",
+      "exact": true
+    },
+    {
+      "path": "/profile-sync.mjs",
+      "sha256": "c72a014e3ad8216c0e85c5ebc0a9ba3bb0ca60f9a3c80f93fb98c8a80c328a80",
+      "exact": true
+    },
+    {
+      "path": "/styles.css",
+      "sha256": "2f80e7010ef6a6dae8da6658e3f83b6992a4ad0125c9173783c54456874caa2b",
+      "exact": true
+    },
+    {
+      "path": "/translator-followup.css",
+      "sha256": "8d531a13a7e2ac1eb5f2bcac2abd8f3a0b47c97b37ee5b50c6b723844092c95d",
+      "exact": true
+    },
+    {
+      "path": "/translator-followup.mjs",
+      "sha256": "779ea7cf382a01bbd572f6ce8c442d474a3a1afe65bf603461d99052bb315371",
+      "exact": true
+    }
+  ],
+  "checks": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/v1/web/session",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "path": "/v1/learning/coach",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "path": "/v1/learning/activity?start=2026-11-26&time_zone=UTC",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "path": "/v1/learning/dictations",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "path": "/v1/web/logout",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "path": "/.env",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "path": "/server/main.go",
+      "method": "GET",
+      "status": 404
+    }
+  ]
+}

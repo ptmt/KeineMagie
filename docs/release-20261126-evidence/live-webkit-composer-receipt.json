@@ -1,0 +1,446 @@
+{
+  "live_origin": "https://keinemagie.tinyserve.org",
+  "suite": "coach_composer_keyboard_browser.py",
+  "private_api_interceptions": [
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/learning/coach",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    }
+  ]
+}

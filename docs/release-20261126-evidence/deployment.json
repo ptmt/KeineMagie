@@ -1,0 +1,28 @@
+{
+  "source_sha": "046099dfa71f8b1880b2fd8b3575ab47c7246efe",
+  "backend_image": "sha256:787a9833a964fc886ad5f32c670ba8f122d8bf5d52b8ba6d7eb83dc4ff3b838d",
+  "architecture": "arm64",
+  "worker_image": "sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382",
+  "backend_only": true,
+  "unrelated_and_worker_ids_unchanged": true,
+  "config_resources_mounts_networks_preserved": true,
+  "locked_nonruntime_files_unchanged": 66,
+  "state": {
+    "states": {
+      "completed": 1
+    },
+    "jobs": 1,
+    "active": 0,
+    "segments": 2113,
+    "translations": 2113,
+    "ledger": {
+      "entries": 10,
+      "reserved_micro_usd": 10000000,
+      "unsettled_entries": 10,
+      "ledger_sha256": "c01aee58778bee3e51f34869cdea71831d703c3621463f2a52ec647b090ededc",
+      "cap_micro_usd": 10000000,
+      "reported_cost_micro_usd": 40404
+    }
+  },
+  "backup": "/Users/tinyserve/Library/Application Support/tinyserve/services/keinemagie/deployment/release-podcast-month-font-20261126T095037Z"
+}

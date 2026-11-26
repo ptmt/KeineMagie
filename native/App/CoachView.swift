@@ -172,7 +172,7 @@ struct CoachView: View {
         .animation(reduceMotion || !hydrated ? nil : .easeOut(duration: 0.2), value: model.coach?.turns.map(\.id))
         .task(id: "\(model.session.generation)-\(model.session.canWrite)-\(isSelected)") {
             guard isSelected else { return }
-            await model.loadCoach()
+            await model.loadCoach(replacingRead: true)
             if !Task.isCancelled && model.session.canWrite && scenePhase == .active && presented && model.consumeCoachEntryPermission() { model.sendCoach("entry") }
         }
         .refreshable { await Task { await model.loadCoach() }.value }

@@ -314,6 +314,7 @@ actor SimulatorSessionFixture {
             }
             if request.httpMethod == "POST", let data = request.httpBody {
                 let action = try JSONDecoder().decode(CoachAction.self, from: data)
+                if mode == "coach-recovery-lifecycle", action.action == "message" { throw URLError(.timedOut) }
                 // Opt-in transport receipt: actual commands, excluding visibility acknowledgments.
                 if mode == "coach-menu-probe", action.action != "seen" {
                     coachActionJournal.append("\(action.action)|\(action.text)|\(action.turnID)")

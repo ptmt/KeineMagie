@@ -1,0 +1,526 @@
+{
+  "live_origin": "https://keinemagie.tinyserve.org",
+  "suite": "podcast_study_browser.py",
+  "private_api_interceptions": [
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/episodes/the-nut-sisters-synthetic-fixture-0b88eace5511",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/analysis",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/profiles/de",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/vocabulary",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/subscriptions",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/studied",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/episodes/the-nut-sisters-synthetic-fixture-0b88eace5511",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/analysis",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/profiles/de",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/vocabulary",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/subscriptions",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/episodes/the-nut-sisters-synthetic-fixture-0b88eace5511",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/analysis",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/profiles/de",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/vocabulary",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/subscriptions",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/studied",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/episodes/the-nut-sisters-synthetic-fixture-0b88eace5511",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/analysis",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/profiles/de",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/vocabulary",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/subscriptions",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/episodes/the-nut-sisters-synthetic-fixture-0b88eace5511",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/analysis",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/profiles/de",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/vocabulary",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/subscriptions",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/studied",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/episodes/the-nut-sisters-synthetic-fixture-0b88eace5511",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/analysis",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/profiles/de",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/vocabulary",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/subscriptions",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/episodes/the-nut-sisters-synthetic-fixture-0b88eace5511",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/analysis",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/profiles/de",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/vocabulary",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/subscriptions",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/studied",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/config",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/web/session",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/activity",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translations",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/translation-profiles",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/episodes/the-nut-sisters-synthetic-fixture-0b88eace5511",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/episodes/Navigation_Fixture_2113/analysis",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/profiles/de",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/learning/vocabulary",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/subscriptions",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts",
+      "isolated": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/podcasts/Navigation_Fixture_2113",
+      "isolated": true
+    }
+  ]
+}

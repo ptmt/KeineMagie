@@ -1,0 +1,30 @@
+{
+  "tests": 56,
+  "failed": 0,
+  "skipped": 0,
+  "source_hashes_verified": 238,
+  "devices": [
+    {
+      "uuid": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+      "theme": "light",
+      "passed": 14
+    },
+    {
+      "uuid": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+      "theme": "dark",
+      "passed": 14
+    },
+    {
+      "uuid": "56A70197-59DE-4410-9E76-25272244E9C8",
+      "theme": "light",
+      "passed": 14
+    },
+    {
+      "uuid": "56A70197-59DE-4410-9E76-25272244E9C8",
+      "theme": "dark",
+      "passed": 14
+    }
+  ],
+  "fixture": "synthetic; real Release runtime, no paid provider calls",
+  "retained_failure": "final-replacement/normal-light.xcresult: 13 passed, 1 obsolete literal failure; complete rerun above passed"
+}

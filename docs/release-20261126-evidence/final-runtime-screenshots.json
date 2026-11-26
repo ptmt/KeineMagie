@@ -1,0 +1,50 @@
+[
+  {
+    "file": "final-normal-coach-readonly-recovery-no-entry.png",
+    "sha256": "b315a0b72fea7b8f522a2fb87725749cda57cad3a78e897fb7ca626cb6cfabf1",
+    "test": "CoachUITests/testOfflineRecoveryDoesNotAdmitEntryButNextNavigationDoes()",
+    "device": "93E1113F-6736-4CCB-827D-0E2F1C3876EA"
+  },
+  {
+    "file": "final-normal-podcast-study-activity-detail-synthetic.png",
+    "sha256": "19f4bdd1402ea942ea41e0164cfff8ad3e6bccf11e5c7f335d06845028180631",
+    "test": "PassageGroupsUITests/testExplicitTranscriptStudyPersists()",
+    "device": "93E1113F-6736-4CCB-827D-0E2F1C3876EA"
+  },
+  {
+    "file": "final-normal-typography-false-typed-unfocused.png",
+    "sha256": "9cf12a0e811cb6ab1e996b3fe443aa83b2d407f3d4c67b433128e5f3633936f7",
+    "test": "TranslatorTypographyUITests/testPromptMatchesTypedTextNormal()",
+    "device": "93E1113F-6736-4CCB-827D-0E2F1C3876EA"
+  },
+  {
+    "file": "final-normal-typography-false-empty-unfocused.png",
+    "sha256": "2d14ca8ad0cf4401aa7ba2ec04d7175a811abf33e9c0892ea324ffbabb22ef3b",
+    "test": "TranslatorTypographyUITests/testPromptMatchesTypedTextNormal()",
+    "device": "93E1113F-6736-4CCB-827D-0E2F1C3876EA"
+  },
+  {
+    "file": "final-SE-coach-readonly-recovery-no-entry.png",
+    "sha256": "0eadc02f936fcde1bba4e6fda2f34c9c87d40bb3750da57f145ca04684b526cc",
+    "test": "CoachUITests/testOfflineRecoveryDoesNotAdmitEntryButNextNavigationDoes()",
+    "device": "56A70197-59DE-4410-9E76-25272244E9C8"
+  },
+  {
+    "file": "final-SE-podcast-study-activity-detail-synthetic.png",
+    "sha256": "5b866ff4ca6ef05a7e0cd79bdf96808bbc81dce1ab6a7f14362dc90b1dc86531",
+    "test": "PassageGroupsUITests/testExplicitTranscriptStudyPersists()",
+    "device": "56A70197-59DE-4410-9E76-25272244E9C8"
+  },
+  {
+    "file": "final-SE-typography-false-typed-unfocused.png",
+    "sha256": "33246df7915c6d7c39bfe0354aa6a570d4212df7d95be9b0b4e623f1f8057114",
+    "test": "TranslatorTypographyUITests/testPromptMatchesTypedTextNormal()",
+    "device": "56A70197-59DE-4410-9E76-25272244E9C8"
+  },
+  {
+    "file": "final-SE-typography-false-empty-unfocused.png",
+    "sha256": "08f24fc65b2a1b0aa8a269c598215cf3e721e37a74203147111ae21f76e8be65",
+    "test": "TranslatorTypographyUITests/testPromptMatchesTypedTextNormal()",
+    "device": "56A70197-59DE-4410-9E76-25272244E9C8"
+  }
+]
