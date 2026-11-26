@@ -24,9 +24,13 @@ type activitySnapshot struct {
 }
 
 func (cfg *serverConfig) activityWeek(owner string, start time.Time, loc *time.Location) activitySnapshot {
+	return cfg.activityRange(owner, start, loc, 7)
+}
+
+func (cfg *serverConfig) activityRange(owner string, start time.Time, loc *time.Location, days int) activitySnapshot {
 	result := activitySnapshot{Version: 1, TimeZone: loc.String(), Days: []activityDay{}, Sources: map[string]string{"translator": "unavailable", "podcasts": "unavailable", "coach": "unavailable", "dictation": "unavailable"}}
 	index := map[string]int{}
-	for i := 0; i < 7; i++ {
+	for i := 0; i < days; i++ {
 		key := start.AddDate(0, 0, i).Format("2006-01-02")
 		index[key] = i
 		result.Days = append(result.Days, activityDay{Date: key, Coverage: "partial", Counts: map[string]int{"coach": 0, "dictation": 0, "translator": 0, "podcasts": 0}})

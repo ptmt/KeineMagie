@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -221,7 +222,16 @@ func (cfg *serverConfig) handleLearning(w http.ResponseWriter, r *http.Request) 
 			writeError(w, 400, "valid start date required")
 			return
 		}
-		writeJSON(w, 200, cfg.activityWeek(owner, start, loc))
+		days := 7 // Existing native clients retain their seven-day contract.
+		if raw, exists := r.URL.Query()["days"]; exists {
+			var err error
+			days, err = strconv.Atoi(raw[0])
+			if err != nil || len(raw) != 1 || days < 1 || days > 31 {
+				writeError(w, 400, "days must be between 1 and 31")
+				return
+			}
+		}
+		writeJSON(w, 200, cfg.activityRange(owner, start, loc, days))
 		return
 	}
 	if r.URL.Path == "/v1/learning/coach" {

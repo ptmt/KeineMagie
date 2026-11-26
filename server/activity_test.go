@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -83,6 +84,9 @@ func TestActivityHTTPReadOnlyContract(t *testing.T) {
 		status                     int
 	}{
 		{"GET", "/v1/learning/activity?start=2026-10-19&time_zone=Europe%2FBerlin", session.UserID, token, 200},
+		{"GET", "/v1/learning/activity?start=2026-10-01&time_zone=Europe%2FBerlin&days=31", session.UserID, token, 200},
+		{"GET", "/v1/learning/activity?start=2026-10-01&time_zone=UTC&days=32", session.UserID, token, 400},
+		{"GET", "/v1/learning/activity?start=2026-10-01&time_zone=UTC&days=0", session.UserID, token, 400},
 		{"POST", "/v1/learning/activity?start=2026-10-19&time_zone=UTC", session.UserID, token, 405},
 		{"GET", "/v1/learning/activity?start=bad&time_zone=UTC", session.UserID, token, 400},
 		{"GET", "/v1/learning/activity?start=2026-10-19&time_zone=bad", session.UserID, token, 400},
@@ -98,13 +102,22 @@ func TestActivityHTTPReadOnlyContract(t *testing.T) {
 			t.Fatalf("%s: got %d want %d: %s", tt.path, w.Code, tt.status, w.Body.String())
 		}
 		if w.Code == 200 {
-			if path := os.Getenv("ACTIVITY_WIRE_PATH"); path != "" {
+			if path := os.Getenv("MONTHLY_ACTIVITY_WIRE_PATH"); path != "" && r.URL.Query().Get("days") == "31" {
+				if err := os.WriteFile(path, w.Body.Bytes(), 0600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if path := os.Getenv("ACTIVITY_WIRE_PATH"); path != "" && r.URL.Query().Get("days") == "" {
 				if err := os.WriteFile(path, w.Body.Bytes(), 0600); err != nil {
 					t.Fatal(err)
 				}
 			}
 			var got activitySnapshot
-			if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil || len(got.Days) != 7 || w.Header().Get("Cache-Control") != "no-store" {
+			expectedDays := 7
+			if raw := r.URL.Query().Get("days"); raw != "" {
+				expectedDays, _ = strconv.Atoi(raw)
+			}
+			if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil || len(got.Days) != expectedDays || w.Header().Get("Cache-Control") != "no-store" {
 				t.Fatal("wire contract", err)
 			}
 		}
