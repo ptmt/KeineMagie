@@ -1,0 +1,54 @@
+{
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "architecture": "arm64",
+        "deviceId": "93E1113F-6736-4CCB-827D-0E2F1C3876EA",
+        "deviceName": "KeineMagie Dictation final isolated",
+        "modelName": "iPhone 17",
+        "osBuildNumber": "24B8117",
+        "osVersion": "27.2",
+        "platform": "iOS Simulator"
+      },
+      "expectedFailures": 0,
+      "failedTests": 2,
+      "passedTests": 1,
+      "skippedTests": 0,
+      "testPlanConfiguration": {
+        "configurationId": "1",
+        "configurationName": "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+  "expectedFailures": 0,
+  "failedTests": 2,
+  "finishTime": 1795684546.661,
+  "passedTests": 1,
+  "result": "Failed",
+  "runtimeWarnings": [],
+  "skippedTests": 0,
+  "startTime": 1795684422.931,
+  "statistics": [],
+  "testFailures": [
+    {
+      "failureText": "XCTAssertGreaterThan failed: (\"0.2392115898349202\") is not greater than (\"0.9\") - Same words must share font, baselines, wrapping and insets; glyph overlap=0.2392115898349202",
+      "targetName": "KeineMagieUITests",
+      "testIdentifier": 2,
+      "testIdentifierString": "TranslatorTypographyUITests/testPromptMatchesTypedTextAccessibility()",
+      "testIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorTypographyUITests/testPromptMatchesTypedTextAccessibility",
+      "testName": "testPromptMatchesTypedTextAccessibility()"
+    },
+    {
+      "failureText": "XCTAssertGreaterThan failed: (\"0.1382636655948553\") is not greater than (\"0.9\") - Same words must share font, baselines, wrapping and insets; glyph overlap=0.1382636655948553",
+      "targetName": "KeineMagieUITests",
+      "testIdentifier": 3,
+      "testIdentifierString": "TranslatorTypographyUITests/testPromptMatchesTypedTextNormal()",
+      "testIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorTypographyUITests/testPromptMatchesTypedTextNormal",
+      "testName": "testPromptMatchesTypedTextNormal()"
+    }
+  ],
+  "title": "Test - KeineMagie",
+  "topInsights": [],
+  "totalTestCount": 3
+}

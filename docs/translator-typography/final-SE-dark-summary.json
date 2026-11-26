@@ -1,0 +1,43 @@
+{
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "architecture": "arm64",
+        "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+        "deviceName": "KeineMagie profiles integrated isolated",
+        "modelName": "iPhone SE (3rd generation)",
+        "osBuildNumber": "24B8117",
+        "osVersion": "27.2",
+        "platform": "iOS Simulator"
+      },
+      "expectedFailures": 0,
+      "failedTests": 0,
+      "passedTests": 7,
+      "skippedTests": 0,
+      "testPlanConfiguration": {
+        "configurationId": "1",
+        "configurationName": "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+  "expectedFailures": 0,
+  "failedTests": 0,
+  "finishTime": 1795683805.63,
+  "passedTests": 7,
+  "result": "Passed",
+  "runtimeWarnings": [
+    {
+      "issueType": "Runtime Warning",
+      "message": "This method can lead to UI unresponsiveness if called on the main thread. Consider using the asynchronous activate/deactivate API instead for calls from the main thread.",
+      "sourceURL": "file:///Users/tinyserve/Projects/KeineMagie-translator-placeholder-font/native/App/DictationPlayer.swift"
+    }
+  ],
+  "skippedTests": 0,
+  "startTime": 1795683678.741,
+  "statistics": [],
+  "testFailures": [],
+  "title": "Test - KeineMagie",
+  "topInsights": [],
+  "totalTestCount": 7
+}

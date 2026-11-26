@@ -36,10 +36,14 @@ struct TranslatorView: View {
                     .padding(8)
                     .overlay(alignment: .topLeading) {
                         if model.draft.isEmpty {
-                            Text("Text zum Übersetzen")
+                            // Match the editor's native glyph layout, Dynamic Type and
+                            // text-container insets, rather than approximating with Text.
+                            TextEditor(text: .constant(String(localized: "Text zum Übersetzen")))
+                                .font(.title3)
+                                .scrollContentBackground(.hidden)
                                 .foregroundStyle(.secondary)
-                                .padding(.horizontal, 13).padding(.vertical, 16)
                                 .padding(.trailing, 44)
+                                .padding(8)
                                 .allowsHitTesting(false)
                                 .accessibilityIdentifier("translator-placeholder")
                                 .accessibilityHidden(true)

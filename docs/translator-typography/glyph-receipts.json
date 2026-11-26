@@ -1,0 +1,114 @@
+[
+  {
+    "phase": "baseline",
+    "device": "SE",
+    "theme": "light",
+    "size": "false",
+    "receipt": "glyphIntersectionOverUnion=0.14154200230149597; frame=(28.0, 94.0, 275.0, 160.0)"
+  },
+  {
+    "phase": "baseline",
+    "device": "SE",
+    "theme": "light",
+    "size": "true",
+    "receipt": "glyphIntersectionOverUnion=0.2604130069875473; frame=(28.0, 94.0, 275.0, 302.5)"
+  },
+  {
+    "phase": "after",
+    "device": "SE",
+    "theme": "light",
+    "size": "false",
+    "receipt": "glyphIntersectionOverUnion=1.0; frame=(28.0, 94.0, 275.0, 160.0)"
+  },
+  {
+    "phase": "after",
+    "device": "SE",
+    "theme": "light",
+    "size": "true",
+    "receipt": "glyphIntersectionOverUnion=0.9930439952437574; frame=(28.0, 94.0, 275.0, 302.5)"
+  },
+  {
+    "phase": "baseline",
+    "device": "SE",
+    "theme": "dark",
+    "size": "false",
+    "receipt": "glyphIntersectionOverUnion=0.14154200230149597; frame=(28.0, 94.0, 275.0, 160.0)"
+  },
+  {
+    "phase": "baseline",
+    "device": "SE",
+    "theme": "dark",
+    "size": "true",
+    "receipt": "glyphIntersectionOverUnion=0.2604130069875473; frame=(28.0, 94.0, 275.0, 302.5)"
+  },
+  {
+    "phase": "after",
+    "device": "SE",
+    "theme": "dark",
+    "size": "false",
+    "receipt": "glyphIntersectionOverUnion=1.0; frame=(28.0, 94.0, 275.0, 160.0)"
+  },
+  {
+    "phase": "after",
+    "device": "SE",
+    "theme": "dark",
+    "size": "true",
+    "receipt": "glyphIntersectionOverUnion=0.9930439952437574; frame=(28.0, 94.0, 275.0, 302.5)"
+  },
+  {
+    "phase": "baseline",
+    "device": "normal",
+    "theme": "light",
+    "size": "false",
+    "receipt": "glyphIntersectionOverUnion=0.1382636655948553; frame=(28.0, 136.0, 302.0, 160.0)"
+  },
+  {
+    "phase": "baseline",
+    "device": "normal",
+    "theme": "light",
+    "size": "true",
+    "receipt": "glyphIntersectionOverUnion=0.2392115898349202; frame=(28.0, 136.0, 302.0, 451.0)"
+  },
+  {
+    "phase": "after",
+    "device": "normal",
+    "theme": "light",
+    "size": "false",
+    "receipt": "glyphIntersectionOverUnion=1.0; frame=(28.0, 136.0, 302.0, 160.0)"
+  },
+  {
+    "phase": "after",
+    "device": "normal",
+    "theme": "light",
+    "size": "true",
+    "receipt": "glyphIntersectionOverUnion=0.9932725924356394; frame=(28.0, 136.0, 302.0, 451.0)"
+  },
+  {
+    "phase": "baseline",
+    "device": "normal",
+    "theme": "dark",
+    "size": "false",
+    "receipt": "glyphIntersectionOverUnion=0.1382636655948553; frame=(28.0, 136.0, 302.0, 160.0)"
+  },
+  {
+    "phase": "baseline",
+    "device": "normal",
+    "theme": "dark",
+    "size": "true",
+    "receipt": "glyphIntersectionOverUnion=0.2392115898349202; frame=(28.0, 136.0, 302.0, 451.0)"
+  },
+  {
+    "phase": "after",
+    "device": "normal",
+    "theme": "dark",
+    "size": "false",
+    "receipt": "glyphIntersectionOverUnion=1.0; frame=(28.0, 136.0, 302.0, 160.0)"
+  },
+  {
+    "phase": "after",
+    "device": "normal",
+    "theme": "dark",
+    "size": "true",
+    "receipt": "glyphIntersectionOverUnion=0.9932725924356394; frame=(28.0, 136.0, 302.0, 451.0)"
+  }
+]

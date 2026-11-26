@@ -1,0 +1,54 @@
+{
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "architecture": "arm64",
+        "deviceId": "56A70197-59DE-4410-9E76-25272244E9C8",
+        "deviceName": "KeineMagie profiles integrated isolated",
+        "modelName": "iPhone SE (3rd generation)",
+        "osBuildNumber": "24B8117",
+        "osVersion": "27.2",
+        "platform": "iOS Simulator"
+      },
+      "expectedFailures": 0,
+      "failedTests": 2,
+      "passedTests": 1,
+      "skippedTests": 0,
+      "testPlanConfiguration": {
+        "configurationId": "1",
+        "configurationName": "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription": "KeineMagie \u00b7 Built with macOS 27.2.1",
+  "expectedFailures": 0,
+  "failedTests": 2,
+  "finishTime": 1795684826.108,
+  "passedTests": 1,
+  "result": "Failed",
+  "runtimeWarnings": [],
+  "skippedTests": 0,
+  "startTime": 1795684757.91,
+  "statistics": [],
+  "testFailures": [
+    {
+      "failureText": "XCTAssertGreaterThan failed: (\"0.2604130069875473\") is not greater than (\"0.9\") - Same words must share font, baselines, wrapping and insets; glyph overlap=0.2604130069875473",
+      "targetName": "KeineMagieUITests",
+      "testIdentifier": 2,
+      "testIdentifierString": "TranslatorTypographyUITests/testPromptMatchesTypedTextAccessibility()",
+      "testIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorTypographyUITests/testPromptMatchesTypedTextAccessibility",
+      "testName": "testPromptMatchesTypedTextAccessibility()"
+    },
+    {
+      "failureText": "XCTAssertGreaterThan failed: (\"0.14154200230149597\") is not greater than (\"0.9\") - Same words must share font, baselines, wrapping and insets; glyph overlap=0.14154200230149597",
+      "targetName": "KeineMagieUITests",
+      "testIdentifier": 3,
+      "testIdentifierString": "TranslatorTypographyUITests/testPromptMatchesTypedTextNormal()",
+      "testIdentifierURL": "test://com.apple.xcode/KeineMagie/KeineMagieUITests/TranslatorTypographyUITests/testPromptMatchesTypedTextNormal",
+      "testName": "testPromptMatchesTypedTextNormal()"
+    }
+  ],
+  "title": "Test - KeineMagie",
+  "topInsights": [],
+  "totalTestCount": 3
+}
