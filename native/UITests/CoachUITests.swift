@@ -396,6 +396,25 @@ final class CoachUITests: XCTestCase {
         XCTAssertTrue(app.buttons["coach-latest"].waitForExistence(timeout: 5))
         app.buttons["coach-latest"].tap(); XCTAssertTrue(last.isHittable)
     }
+    @MainActor func testOfflineRecoveryDoesNotAdmitEntryButNextNavigationDoes() {
+        let app = XCUIApplication()
+        app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-recovery-lifecycle"
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch(); XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 10)); app.tabBars.buttons["Coach"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic entry count: 1; validations: 1"].waitForExistence(timeout: 8))
+        let composer = app.textFields["coach-composer"]
+        composer.tap(); composer.typeText("keep recovery draft")
+        XCUIDevice.shared.press(.home); sleep(1); app.activate()
+        sleep(3) // The fixture's second identity check times out after two seconds.
+        XCTAssertFalse(app.buttons["coach-send"].isEnabled)
+        app.tabBars.buttons["Translator"].tap(); app.tabBars.buttons["Coach"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic entry count: 1; validations: 3"].waitForExistence(timeout: 10))
+        XCTAssertEqual(composer.value as? String, "keep recovery draft")
+        app.tabBars.buttons["Translator"].tap(); app.tabBars.buttons["Coach"].tap()
+        XCTAssertTrue(app.staticTexts["Synthetic entry count: 2; validations: 3"].waitForExistence(timeout: 8))
+        XCTAssertEqual(composer.value as? String, "keep recovery draft")
+        shot(app, "coach-readonly-recovery-no-entry")
+    }
     @MainActor func testBackgroundReturnConsultsServerAdmissionAndKeepsDraft() {
         let app = XCUIApplication()
         app.launchEnvironment["KM_SIMULATOR_SESSION_FIXTURE"] = "coach-entry-lifecycle"

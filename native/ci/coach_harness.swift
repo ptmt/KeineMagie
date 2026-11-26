@@ -10,6 +10,7 @@ import KeineMagieCore
     var proof: SavedNativeIdentity?
     var offline = false
     var failPost = false
+    var failGet = false
     var owner = "coach-fixture"
     var actions: [CoachAction] = []
     var status = 200
@@ -21,6 +22,7 @@ import KeineMagieCore
             return AuthResponse(data: Data("{\"user\":{\"id\":\"\(owner)\"},\"expires_at\":\"2099-01-01T00:00:00Z\"}".utf8), status: 200)
         }
         calls.append(r.httpMethod!)
+        if failGet && r.httpMethod == "GET" { throw URLError(.timedOut) }
         if r.httpMethod == "POST" {
             actions.append(try JSONDecoder().decode(CoachAction.self, from: r.httpBody!))
             if failPost { throw URLError(.timedOut) }
@@ -50,6 +52,36 @@ import KeineMagieCore
     #expect(model.coachDraft == "keep literal draft")
     #expect(gate.calls == ["GET"])
     #expect(gate.actions.isEmpty)
+    #expect(!model.consumeCoachEntryPermission(), "A readiness task restart is not an entry intent")
+    #expect(model.consumeCoachEntryPermission(), "A later ordinary foreground keeps the established admission policy")
+}
+@Test @MainActor func coachTransportFailureDoesNotChurnSessionReadiness() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let gate = CoachGate(); let model = try await gate.model(root)
+    gate.failGet = true
+    let generation = model.session.generation
+    for _ in 0..<3 {
+        await model.loadCoach()
+        #expect(model.coachError == "coach.error.timeout")
+        #expect(model.session.canWrite)
+        #expect(!model.session.isOffline && model.session.generation == generation)
+    }
+    #expect(gate.calls == ["GET", "GET", "GET"])
+    #expect(gate.actions.isEmpty)
+}
+@Test @MainActor func coachRecoveryPermissionCannotCrossResetOrOwnerReplacement() async throws {
+    for replaceOwner in [false, true] {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let gate = CoachGate(); let model = try await gate.model(root)
+        model.session.recordNetworkFailure(URLError(.timedOut))
+        await model.loadCoach()
+        if replaceOwner {
+            gate.owner = "replacement-owner"; await model.session.restore(); await model.loadCoach()
+        } else { model.resetSessionContent() }
+        #expect(model.consumeCoachEntryPermission(), "The prior owner's recovery cannot suppress new identity entry")
+    }
 }
 @Test @MainActor func coachWriteDominatesStaleReadAndCancellation() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

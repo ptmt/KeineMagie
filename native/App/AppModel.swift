@@ -157,9 +157,16 @@ final class AppModel {
     private func scopeCoach() {
         let scope = session.serverURL + "\u{0}" + (session.user?.id ?? "")
         guard coachOwnerScope != scope else { return }
+        coachReadOnlyRecovery = false
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
         coachLoaded = false; coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil
         coachOwnerScope = scope
+    }
+    private var coachReadOnlyRecovery = false
+    func consumeCoachEntryPermission() -> Bool {
+        let permitted = !coachReadOnlyRecovery
+        coachReadOnlyRecovery = false
+        return permitted
     }
     func loadCoach() async {
         guard session.phase == .signedIn else { return }
@@ -177,7 +184,13 @@ final class AppModel {
         }
         // Retry identity with a GET before read-only recovery; never infer or
         // weaken write admission. A changed/revoked owner invalidates this read.
-        if current(), !session.canWrite { await session.restore() }
+        if current(), !session.canWrite {
+            // A routine in-flight foreground check is not offline recovery.
+            // Preserve its existing entry admission, but consume the task restart
+            // caused by a genuine read-only recovery without generating practice.
+            if !session.checking || session.isOffline { coachReadOnlyRecovery = true }
+            await session.restore()
+        }
         guard current(), session.canWrite else { return }
         do {
             let value = try await podcastAPI().coach()
@@ -1113,6 +1126,7 @@ final class AppModel {
         let previousDirection = outbox.direction
         outbox = TranslationOutbox(); outbox.direction = previousDirection; outboxScope = nil
         dictationChecking.removeAll();dictationDrafts.reset(); dictationHydratedGeneration = nil
+        coachReadOnlyRecovery = false
         coachEpoch += 1; coachReadID = nil; coachTask?.cancel(); coachTask = nil
         coachLoaded = false; coach = nil; coachError = nil; coachBusy = false; coachPendingID = nil; coachDraft = ""; coachHydratedGeneration = nil; coachOwnerScope = nil
         if let lease = cacheLease {

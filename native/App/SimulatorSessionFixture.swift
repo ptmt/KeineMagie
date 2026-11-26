@@ -355,6 +355,7 @@ actor SimulatorSessionFixture {
             }
             if mode == "coach-menu-probe" { turn["message"] = "Synthetic commands: " + coachActionJournal.joined(separator: ";") }
             if mode == "coach-entry-lifecycle" { turn["message"] = "Synthetic entry count: \(coachEntryCount)" }
+            if mode == "coach-recovery-lifecycle" { turn["message"] = "Synthetic entry count: \(coachEntryCount); validations: \(validations)" }
             if coachPending || coachCanceled { turn["state"] = coachPending ? "pending" : "canceled"; turn.removeValue(forKey: "kind") }
             var turns = [turn]
             if coachClarified { turns.append(["id": "synthetic-clarification", "text": "Can you clarify this?", "state": "completed", "at": ISO8601DateFormatter().string(from: Date()), "assisted": false, "language": "de", "message": "Synthetic clarification, not live AI.", "kind": "clarification", "prompt": "", "target": "verb_government", "source_id": "translation:synthetic", "quote": "Ich warte auf den Bus.", "explanation": "warten auf + Akkusativ"]) }
@@ -413,6 +414,7 @@ actor SimulatorSessionFixture {
             if validations > 1 {
                 if mode == "coach-menu-offline" { throw URLError(.notConnectedToInternet) }
                 try await Task.sleep(for: .seconds(2))
+                if mode == "coach-recovery-lifecycle", validations == 2 { throw URLError(.timedOut) }
                 if mode == "revoked" { return AuthResponse(data: Data(), status: 401) }
             }
             let user = mode == "account-change" && validations > 1 ? "synthetic-account-B" : (mode == "translation-controls" ? "synthetic-quiet-controls" : "synthetic-ui-fixture")
