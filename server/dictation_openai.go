@@ -12,13 +12,14 @@ import (
 )
 
 type dictationOpenAIConfig struct {
+	beforeAttempt                                                            func(context.Context) error
 	completedUsage                                                           func(string, dictationSpeechUsage) error
 	usage                                                                    func(dictationSpeechUsage) error
 	key, model, voice                                                        string
 	seconds, tokens, timeout, chars, dailyChars, dailySeconds, dailyRequests int
 }
 
-var errDictationSpeech = errors.New("speech generation failed or outcome uncertain; a new explicit attempt may incur another charge")
+var errDictationSpeech = errors.New("speech generation failed or outcome uncertain; automatic paid retry is blocked when an attempt was sent")
 
 // One bounded, non-retrying server-side connection per uncached asset. The URL
 // seam is only used by local tests; production always supplies the fixed host.
@@ -94,6 +95,11 @@ func dictationRealtime(ctx context.Context, cfg dictationOpenAIConfig, text, end
 	if err = await("conversation.item.done"); err != nil {
 		return nil, err
 	}
+	if cfg.beforeAttempt != nil {
+		if err = cfg.beforeAttempt(ctx); err != nil {
+			return nil, err
+		}
+	}
 	if err = send(map[string]any{"type": "response.create", "response": map[string]any{"output_modalities": []string{"audio"}, "max_output_tokens": cfg.tokens}}); err != nil {
 		return nil, errDictationSpeech
 	}
@@ -107,6 +113,7 @@ func dictationRealtime(ctx context.Context, cfg dictationOpenAIConfig, text, end
 	var pcm []byte
 	responseID, itemID, transcript := "", "", ""
 	audioDone, transcriptDone := false, false
+	invalidAudio := false
 	for i := 0; i < 10000; i++ {
 		e, err := receive()
 		if err != nil {
@@ -121,38 +128,43 @@ func dictationRealtime(ctx context.Context, cfg dictationOpenAIConfig, text, end
 		}
 		if strings.HasPrefix(e.Type, "response.output_audio") {
 			if responseID == "" || e.ResponseID != responseID || e.ItemID == "" {
-				return nil, errDictationSpeech
+				invalidAudio = true
+				continue
 			}
 			if itemID == "" {
 				itemID = e.ItemID
 			}
 			if itemID != e.ItemID {
-				return nil, errDictationSpeech
+				invalidAudio = true
+				continue
 			}
 		}
 		switch e.Type {
 		case "response.output_audio.delta":
-			if audioDone {
-				return nil, errDictationSpeech
+			if audioDone || invalidAudio {
+				invalidAudio = true
+				continue
 			}
 			chunk, err := base64.StdEncoding.DecodeString(e.Delta)
 			if err != nil || len(pcm)+len(chunk) > cfg.seconds*48000 {
-				return nil, errDictationSpeech
+				invalidAudio = true
+				pcm = nil
+				continue
 			}
 			pcm = append(pcm, chunk...)
 		case "response.output_audio.done":
 			audioDone = true
 		case "response.output_audio_transcript.done":
 			if transcriptDone || len(e.Transcript) > 32000 {
-				return nil, errDictationSpeech
+				invalidAudio = true
+				continue
 			}
 			transcript = e.Transcript
 			transcriptDone = true
 		case "response.done":
 			finished = true
-			complete := ctx.Err() == nil && responseID != "" && e.Response.ID == responseID && e.Response.Status == "completed" && audioDone && transcriptDone && len(pcm) > 0 && len(pcm)%2 == 0 && dictationNarrationMatches(text, transcript)
 			if responseID != "" && e.Response.ID == responseID && e.Response.Usage != nil {
-				if complete && cfg.completedUsage != nil && cfg.model == "gpt-realtime-2.1-mini" {
+				if e.Response.Status == "completed" && cfg.completedUsage != nil && cfg.model == "gpt-realtime-2.1-mini" {
 					if err := cfg.completedUsage(responseID, *e.Response.Usage); err != nil {
 						return nil, errDictationSpeech
 					}
@@ -162,6 +174,7 @@ func dictationRealtime(ctx context.Context, cfg dictationOpenAIConfig, text, end
 					}
 				}
 			}
+			complete := !invalidAudio && ctx.Err() == nil && responseID != "" && e.Response.ID == responseID && e.Response.Status == "completed" && audioDone && transcriptDone && len(pcm) > 0 && len(pcm)%2 == 0 && dictationNarrationMatches(text, transcript)
 			if !complete {
 				return nil, errDictationSpeech
 			}

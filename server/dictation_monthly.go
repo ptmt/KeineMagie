@@ -36,6 +36,7 @@ type dictationSpeechUsage struct {
 	} `json:"output_token_details"`
 }
 type dictationMonthlyEntry struct {
+	Attempt          *dictationAttempt          `json:"attempt,omitempty"`
 	OperatorRecovery *dictationOperatorRecovery `json:"operator_recovery,omitempty"`
 	OwnerHash        string                     `json:"owner_hash,omitempty"`
 	ID               string                     `json:"id"`
@@ -45,7 +46,8 @@ type dictationMonthlyEntry struct {
 	Settlement       *dictationSettlement       `json:"settlement,omitempty"`
 }
 type dictationMonthlyLedger struct {
-	Entries []dictationMonthlyEntry `json:"entries"`
+	AttemptPolicy int                     `json:"attempt_policy,omitempty"`
+	Entries       []dictationMonthlyEntry `json:"entries"`
 }
 type dictationBudgetTicket struct{ month, id string }
 
@@ -56,7 +58,7 @@ func dictationMonthlyTransaction(root, month string, fn func(*dictationMonthlyLe
 	}
 	store := &historyStore{path: filepath.Join(root, "paid-months", month+".json")}
 	return store.locked(func() error {
-		d := dictationMonthlyLedger{}
+		d := dictationMonthlyLedger{Entries: []dictationMonthlyEntry{}}
 		b, e := os.ReadFile(store.path)
 		if e == nil {
 			if len(b) > dictationMonthlyMaxBytes {
@@ -68,7 +70,13 @@ func dictationMonthlyTransaction(root, month string, fn func(*dictationMonthlyLe
 		} else if !errors.Is(e, os.ErrNotExist) {
 			return e
 		}
+		if _, e = dictationMonthlyAccounted(&d, month); e != nil {
+			return e
+		}
 		if e = fn(&d); e != nil {
+			return e
+		}
+		if _, e = dictationMonthlyAccounted(&d, month); e != nil {
 			return e
 		}
 		encoded, err := json.Marshal(d)
@@ -85,6 +93,7 @@ func dictationReserveMonthly(root string) (dictationBudgetTicket, error) {
 	return dictationReserveMonthlyBefore(root, nil)
 }
 
+// Legacy reservation helper; live audio uses dictationPrepareAttempt instead.
 // Hold the monthly lock through the daily admission. Ordinary limit rejection
 // changes neither allowance. A filesystem failure after the daily commit keeps
 // that conservative reservation; no provider call is made until all commits pass.

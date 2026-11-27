@@ -1,0 +1,84 @@
+=== RUN   TestDictationInjectedAtomicKillWindows
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/before-write
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/after-write
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/before-file-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/after-file-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/before-close
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/after-close
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/before-rename
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/after-rename
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/before-dir-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/prepare/after-dir-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/before-write
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/after-write
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/before-file-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/after-file-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/before-close
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/after-close
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/before-rename
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/after-rename
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/before-dir-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/dispatch/after-dir-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/before-write
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/after-write
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/before-file-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/after-file-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/before-close
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/after-close
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/before-rename
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/after-rename
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/before-dir-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/complete/after-dir-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/release/before-write
+=== RUN   TestDictationInjectedAtomicKillWindows/release/after-write
+=== RUN   TestDictationInjectedAtomicKillWindows/release/before-file-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/release/after-file-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/release/before-close
+=== RUN   TestDictationInjectedAtomicKillWindows/release/after-close
+=== RUN   TestDictationInjectedAtomicKillWindows/release/before-rename
+=== RUN   TestDictationInjectedAtomicKillWindows/release/after-rename
+=== RUN   TestDictationInjectedAtomicKillWindows/release/before-dir-sync
+=== RUN   TestDictationInjectedAtomicKillWindows/release/after-dir-sync
+--- PASS: TestDictationInjectedAtomicKillWindows (1.71s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/before-write (0.01s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/after-write (0.01s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/before-file-sync (0.02s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/after-file-sync (0.01s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/before-close (0.02s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/after-close (0.01s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/before-rename (0.02s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/after-rename (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/before-dir-sync (0.04s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/prepare/after-dir-sync (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/before-write (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/after-write (0.06s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/before-file-sync (0.06s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/after-file-sync (0.07s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/before-close (0.06s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/after-close (0.06s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/before-rename (0.07s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/after-rename (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/before-dir-sync (0.06s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/dispatch/after-dir-sync (0.06s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/before-write (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/after-write (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/before-file-sync (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/after-file-sync (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/before-close (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/after-close (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/before-rename (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/after-rename (0.06s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/before-dir-sync (0.06s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/complete/after-dir-sync (0.07s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/before-write (0.04s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/after-write (0.05s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/before-file-sync (0.04s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/after-file-sync (0.04s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/before-close (0.02s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/after-close (0.04s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/before-rename (0.03s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/after-rename (0.03s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/before-dir-sync (0.03s)
+    --- PASS: TestDictationInjectedAtomicKillWindows/release/after-dir-sync (0.03s)
+PASS
+ok  	diktat/server	1.830s

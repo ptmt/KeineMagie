@@ -17,9 +17,9 @@ type dictationPaidBudget struct {
 
 var errDictationBudget = errors.New("speech application limit reached")
 
-// Global project-wide durable reservation, not a provider invoice. Reserve the
-// full output-duration ceiling before sending and NEVER refund uncertain calls.
-// A failed or killed request consumes its reservation even if nothing was sent.
+// Legacy daily reservation writer, retained for compatibility and offline tests.
+// Live audio now commits daily quota together with per-attempt intent in the
+// monthly ledger; it includes these legacy counters without rewriting them.
 func dictationReservePaid(root string, c dictationOpenAIConfig, text string) error {
 	n := runeCount(text)
 	if n < 1 || n > c.chars {

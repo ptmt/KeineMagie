@@ -15,7 +15,7 @@ import (
 )
 
 func TestDictationRealtimeSettlementReceiptBoundary(t *testing.T) {
-	for _, mode := range []string{"complete", "incomplete", "cancelled", "wrong-response", "missing-usage", "missing-breakdown", "negative", "overflow", "disconnect-before-receipt", "receipt-write-failure"} {
+	for _, mode := range []string{"complete", "wrong-narration", "no-audio", "incomplete", "cancelled", "wrong-response", "missing-usage", "missing-breakdown", "negative", "overflow", "disconnect-before-receipt", "receipt-write-failure"} {
 		t.Run(mode, func(t *testing.T) {
 			root := t.TempDir()
 			ticket, err := dictationReserveMonthly(root)
@@ -46,6 +46,12 @@ func TestDictationRealtimeSettlementReceiptBoundary(t *testing.T) {
 					{"type": "response.output_audio.done", "response_id": "r", "item_id": "i"},
 					{"type": "response.output_audio_transcript.done", "response_id": "r", "item_id": "i", "transcript": "Hallo."},
 				} {
+					if mode == "no-audio" {
+						continue
+					}
+					if mode == "wrong-narration" && event["transcript"] != nil {
+						event["transcript"] = "Falsch."
+					}
 					websocket.JSON.Send(ws, event)
 				}
 				if mode == "disconnect-before-receipt" {
@@ -102,7 +108,7 @@ func TestDictationRealtimeSettlementReceiptBoundary(t *testing.T) {
 				t.Fatal(e)
 			}
 			want := dictationAttemptMicroUSD
-			if mode == "complete" {
+			if mode == "complete" || mode == "wrong-narration" || mode == "no-audio" {
 				want, _ = dictationUsageMicroUSD(u)
 			}
 			if got != want {

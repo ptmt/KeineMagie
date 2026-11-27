@@ -83,6 +83,9 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
+	// Unrecognized accounting blocks paid generation, while cached assets remain
+	// usable without changing any accounting evidence.
+	recoveryErr := dictationRecoverPrepared(root)
 	if _, e = os.Stat(path); e == nil {
 		e = cfg.dictationWrite(r, owner, func(d *dictationData) error {
 			if err := r.Context().Err(); err != nil {
@@ -107,39 +110,38 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 		writeJSON(w, 200, map[string]any{"ready": true})
 		return
 	}
+	if recoveryErr != nil {
+		dictationError(w, recoveryErr)
+		return
+	}
 	speechConfig, configErr := dictationLoadOpenAI()
 	if configErr != nil {
 		writeError(w, 503, "OpenAI speech is not configured with an approved budget. No fallback.")
 		return
 	}
-	var ticket dictationBudgetTicket
-	e = cfg.dictationWrite(r, owner, func(d *dictationData) error {
-		if err := r.Context().Err(); err != nil {
-			return err
-		}
-		day := time.Now().UTC().Format("2006-01-02")
-		if d.Day != day {
-			d.Day = day
-			d.Generations = 0
-		}
-		if d.Generations >= 120 {
-			return errDictationBudget
-		}
-		var err error
-		ticket, err = dictationReserveMonthlyBefore(root, func() error { return dictationReservePaid(root, speechConfig, text) }, owner)
-		if err != nil {
-			return err
-		}
-		d.Generations++
-		return nil
-	})
+	ticket, e := dictationPrepareAttempt(root, owner, id+"/"+strconv.Itoa(index))
 	if e != nil {
 		dictationError(w, e)
 		return
 	}
-	if e = r.Context().Err(); e != nil {
-		dictationError(w, e)
-		return
+	defer dictationReleasePrepared(root, ticket)
+	speechConfig.beforeAttempt = func(ctx context.Context) error {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		return cfg.dictationAuthorized(r, owner, false, func(d *dictationData) error {
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+			if dictationFind(d, id) == nil {
+				return errDictationMissing
+			}
+			legacyOwner := 0
+			if d.Day == time.Now().UTC().Format("2006-01-02") {
+				legacyOwner = d.Generations
+			}
+			return dictationMarkAttempted(root, ticket, speechConfig, text, owner, legacyOwner)
+		})
 	}
 	speechConfig.usage = func(u dictationSpeechUsage) error { return dictationRecordUsage(root, ticket, u) }
 	speechConfig.completedUsage = func(id string, u dictationSpeechUsage) error {
@@ -153,7 +155,7 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 	}
 	audio, e := synthesize(r.Context(), speechConfig, text)
 	if e != nil {
-		dictationError(w, e)
+		dictationError(w, dictationAttemptFailure(root, ticket, e))
 		return
 	}
 	// Revalidate identity and cancellation at publication, including after logout.
@@ -204,7 +206,7 @@ func (cfg *serverConfig) dictationAudio(w http.ResponseWriter, r *http.Request, 
 		return nil
 	})
 	if e != nil {
-		dictationError(w, e)
+		dictationError(w, dictationAttemptFailure(root, ticket, e))
 		return
 	}
 	writeJSON(w, 200, map[string]any{"ready": true})

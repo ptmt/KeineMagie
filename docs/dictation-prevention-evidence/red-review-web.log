@@ -1,0 +1,31 @@
+✔ busy audio engine is not mislabeled as exhausted budget (6.777709ms)
+✔ audio application limit is not disguised as preparation failure or auto retried (0.966708ms)
+✔ retained audio attempt explains recovery, blocks repeated preparation, and preserves draft (0.997708ms)
+✖ late recovery rejection from previous owner cannot block current owner audio (1.5305ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.901291
+
+✖ failing tests:
+
+test at web/tests/dictation-budget.test.mjs:22:1
+✖ late recovery rejection from previous owner cannot block current owner audio (1.5305ms)
+  AssertionError [ERR_ASSERTION]: owner B must remain eligible
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/tinyserve/Projects/KeineMagie-dictation-prevention/web/tests/dictation-budget.test.mjs:37:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

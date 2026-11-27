@@ -1,5 +1,7 @@
 # Local candidate: conservative speech receipt settlement
 
+**Follow-up:** [Durable attempt prevention](dictation-attempt-prevention.md) supersedes the transport-completion and prospective admission behavior described below. This document retains the earlier settlement evidence and limitations.
+
 Base: `ec47272`; confined to the dictation-manual-pacing worktree. No deployment, push, paid provider call, production ledger read/write, Coach edit, assessment edit, or Simulator use.
 
 ## Outcome and remaining historical blocker

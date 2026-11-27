@@ -1,0 +1,7 @@
+--- FAIL: TestDictationReleasedAttemptIsNotUnsettledSpend (0.04s)
+    dictation_attempt_spend_test.go:14: proven never-sent release misleadingly pending: {Month:2026-11 Currency:USD Scope:owner_attributed_speech_receipts ReportedMicroUSD:<nil> UnsettledReservations:1 ReservedMicroUSD:1000000}
+--- FAIL: TestDictationAttemptedUsageStillHasUncertainLiability (0.05s)
+    dictation_attempt_spend_test.go:27: partial usage hid unresolved liability: {Month:2026-11 Currency:USD Scope:owner_attributed_speech_receipts ReportedMicroUSD:0x413523c98928 UnsettledReservations:0 ReservedMicroUSD:1000000}
+FAIL
+FAIL	diktat/server	0.346s
+FAIL

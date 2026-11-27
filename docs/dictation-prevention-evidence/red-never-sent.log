@@ -1,0 +1,5 @@
+--- FAIL: TestDictationNeverSentDoesNotConsumeAllowance (0.07s)
+    dictation_attempt_test.go:17: never-sent request 2 consumed allowance: 429 {"code":"speech_budget_exhausted","error":"Speech application limit reached. Cached playback is still available."}
+FAIL
+FAIL	diktat/server	0.338s
+FAIL

@@ -87,6 +87,12 @@ func (cfg *serverConfig) dictationTransaction(owner string, write bool, fn func(
 
 // Serialize mutations against logout. No synthesis runs while the identity/store locks are held.
 func (cfg *serverConfig) dictationWrite(r *http.Request, owner string, fn func(*dictationData) error) error {
+	return cfg.dictationAuthorized(r, owner, true, fn)
+}
+
+// Read-only admission revalidation uses the same logout fence as publication,
+// without a second owner-file commit after durable attempted intent.
+func (cfg *serverConfig) dictationAuthorized(r *http.Request, owner string, write bool, fn func(*dictationData) error) error {
 	return cfg.auth.store.lock.locked(func() error {
 		d, e := cfg.auth.store.read()
 		if e != nil {
@@ -96,7 +102,7 @@ func (cfg *serverConfig) dictationWrite(r *http.Request, owner string, fn func(*
 		if s.UserID != owner || !cfg.auth.now().Before(s.Expires) {
 			return errCoachUnauthorized
 		}
-		return cfg.dictationTransaction(owner, true, fn)
+		return cfg.dictationTransaction(owner, write, fn)
 	})
 }
 func dictationFind(d *dictationData, id string) *dictationRecord {
@@ -135,12 +141,21 @@ func dictationError(w http.ResponseWriter, e error) {
 	if errors.Is(e, errCoachUnauthorized) {
 		code = 401
 	}
+	if errors.Is(e, errDictationRecovery) {
+		reason := "asset_attempt_retained"
+		var detail *dictationRecoveryError
+		if errors.As(e, &detail) {
+			reason = detail.Reason
+		}
+		writeJSON(w, 409, map[string]any{"code": "speech_recovery_needed", "recovery_needed": true, "reason": reason, "error": "This audio attempt needs recovery. A paid retry is blocked. Cached audio remains available."})
+		return
+	}
 	if errors.Is(e, errDictationBudget) {
 		code = 429
 	}
 	msg := "Dictation unavailable. Retry explicitly."
 	if errors.Is(e, errDictationSpeech) {
-		msg = "Audio generation failed or was interrupted. Retrying may incur another OpenAI charge."
+		msg = "Audio preparation failed before a completed result was available."
 	}
 	if code == 429 {
 		msg = "Speech application limit reached. Cached playback is still available."

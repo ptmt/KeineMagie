@@ -1,0 +1,2 @@
+# Preserve exact test output, including Node's blank diagnostic lines.
+*.log -whitespace

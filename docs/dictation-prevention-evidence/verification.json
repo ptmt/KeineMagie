@@ -1,0 +1,79 @@
+{
+  "base_sha": "63e8a1689df43591829960123c007c84e313306a",
+  "recorded_at_utc": "2026-11-27T12:13:39.610477+00:00",
+  "checks": [
+    {
+      "name": "go-full",
+      "exit_code": 0,
+      "log_sha256": "33455ed37b8dbfd2b0def204f046bdecf0d72af33408aaeda96f8aa01f0f6132"
+    },
+    {
+      "name": "go-race",
+      "exit_code": 0,
+      "log_sha256": "b3b0d3241edafdb7d33ee228527f6eaf925c0f31e98998660573f285edc172b1"
+    },
+    {
+      "name": "go-vet",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "node",
+      "exit_code": 0,
+      "log_sha256": "3e6b0047eaf31d88299cd25c62dd71a235e39899664268a3f0f1ea25ece21fc3"
+    },
+    {
+      "name": "sigkill",
+      "exit_code": 0,
+      "log_sha256": "b4975ef30bbcbd06a7f12d18613d72b939f40c4a5f4b7919539c3b012c99e956"
+    }
+  ],
+  "node": {
+    "tests": 200,
+    "pass": 199,
+    "fail": 0,
+    "skipped": 1
+  },
+  "sigkill_windows": 40,
+  "review": {
+    "passed": true,
+    "security_concerns": [],
+    "logic_errors": [],
+    "suggestions": [
+      "Refresh the document hash in scratch/dictation-review-fixes-20261127/verification.json: docs/dictation-attempt-prevention.md no longer matches it. Checked implementation and log hashes match."
+    ],
+    "summary": "All four findings are resolved, with behavioral regressions covering the fixes. Focused Go race checks, 36 web tests, and all 40 SIGKILL windows passed. No remaining substantive issues found within this bounded review. Documentation correctly distinguishes process-crash evidence from power-loss durability and real provider billing. Review remained read-only, using only loopback fixtures; no paid endpoints, production access, commits, or Docker."
+  },
+  "source_file_sha256": {
+    "scripts/fixtures/dictation_atomic_windows_test.go": "ee36aa6f828f2719bbefeb4b2804a31ed71bae6817c18e972ffd77ba0f0fa65e",
+    "scripts/test_dictation_atomic_windows.py": "aa29fbfc5e35519658d0dda8e4a5f5d652ed282df825dc1e610394447d1a2a86",
+    "server/dictation_attempt.go": "105b28852589d1b2e6e6cc617a2d6d15b5df6812cff6a56046fdfffccbdc4121",
+    "server/dictation_attempt_crash_test.go": "ed0f74560879de663c1c61a3f323e46acfcddbba771ec67f7d81c9b4b2f3629d",
+    "server/dictation_attempt_spend_test.go": "20a0324ae6e6b5c51914fba1022019afaf638932ed883d07ef79cc4e2581968d",
+    "server/dictation_attempt_test.go": "9c8fed6f84c7149447049572cd3ce4914ded5d46b601d719dfdb72415fe8a839",
+    "server/dictation_attempt_transport_test.go": "0ff76377a7c663f51b54c0421e8fabf8c30bbbe09423e42ceb052431eb4b881a",
+    "server/dictation_ledger_json.go": "1d70c8080eb5520c5a4997afe462e3287fb575aa738f3fad7ca09123e5e29d77",
+    "server/dictation_review_regression_test.go": "d65c5d5c8b458696f9e4d715f91557689d2bf3c6051b5e177f1017dd1d14ef92",
+    "server/dictation.go": "d844f80245796185dea5a6150f3861be39fd601c13407e1d61fbd064a98764e0",
+    "server/dictation_audio.go": "0695a0045f075ddd7864505e9135198f6446c0c2c900c1431fe51f0ab7cd5bbd",
+    "server/dictation_budget.go": "b53f64a1ee958375610d8b765377b37f1189812f79a99435ee40d4e028684f9e",
+    "server/dictation_monthly.go": "166504122ea654afdcdcd466abf6c308cdd7806d65155492dcfc5b7de2e4bdf3",
+    "server/dictation_openai.go": "173c89917cc46286e990403d3d9e817e0d4366faec7e047bebaa8b31948de4f5",
+    "server/dictation_paid_http_test.go": "83b945667c69ceba3945a04a84e53133c9a09cac7a8c8b913c3dcaf7c74fdaa1",
+    "server/dictation_settlement.go": "620d3bcc9ec1490d2e7d391a27f755051e5c15d6e0796755cf984ece9bee1305",
+    "server/dictation_settlement_transport_test.go": "fa475d2efea7bc191b48b8aebff493062ad12116053f76be0799ef29c9d42919",
+    "server/dictation_spend.go": "ca17020749c76ff28bcdbc38c848099428427cad881515217aa28f3eac269eff",
+    "web/dictation-i18n.mjs": "18112cd1decc0832de47e59b2df8439fa377d068637475ba17bdcbdbcabf5048",
+    "web/dictation.mjs": "2a5d773398fcb0b7190c305aa3ff8d5585bb16c8c118956b87a3c0bd4792f224",
+    "web/tests/dictation-budget.test.mjs": "36cdf4aea6735c734f7849e0ee286ed59568c47aa1c9a820a8c8cf86819b713b"
+  },
+  "full_raw_command_receipt": "/Users/tinyserve/.hermes/cache/scratch/dictation-prevention-final-tests/verification.json",
+  "paid_provider_calls": false,
+  "deployment_status": "not yet deployed; locked idle preflight approval pending",
+  "limitations": [
+    "Process SIGKILL is not physical power-loss proof.",
+    "Intent/send and receipt/persistence gaps remain uncertain; no TTL release or automatic paid retry.",
+    "Legacy operator adjustments unchanged; no new production reconciliation.",
+    "Native feedback candidate not included; backend prevention applies to both clients."
+  ]
+}

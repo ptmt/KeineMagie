@@ -40,6 +40,12 @@ func dictationRecordCompletedUsage(root string, ticket dictationBudgetTicket, re
 			if v.Settlement != nil && *v.Settlement != proof {
 				return errDictationBudget
 			}
+			if v.Attempt != nil {
+				if v.Attempt.State != "attempted" && v.Attempt.State != "completed" {
+					return errDictationBudget
+				}
+				v.Attempt.State = "completed"
+			}
 			v.Usage = &u
 			v.ActualMicroUSD = cost
 			v.Settlement = &proof
@@ -53,9 +59,15 @@ func dictationRecordCompletedUsage(root string, ticket dictationBudgetTicket, re
 // Pure accounting/dry-run: no writes, refunds, deletion, owner inference or
 // provider calls. The original reservation remains immutable for audit/recovery.
 func dictationMonthlyAccounted(d *dictationMonthlyLedger, month string) (int64, error) {
+	if d.AttemptPolicy != 0 && d.AttemptPolicy != 1 {
+		return 0, errDictationBudget
+	}
 	var total int64
 	ids, responses := map[string]bool{}, map[string]bool{}
 	for _, v := range d.Entries {
+		if !dictationAttemptValid(v) || (v.Attempt != nil && d.AttemptPolicy != 1) {
+			return 0, errDictationBudget
+		}
 		if v.ID == "" || ids[v.ID] || v.MicroUSD != dictationAttemptMicroUSD || v.ActualMicroUSD < 0 || (v.Usage != nil && v.Usage.incomplete) {
 			return 0, errDictationBudget
 		}
@@ -63,6 +75,9 @@ func dictationMonthlyAccounted(d *dictationMonthlyLedger, month string) (int64, 
 		charge, recoveryErr := dictationOperatorRecoveryCharge(v, month)
 		if recoveryErr != nil {
 			return 0, recoveryErr
+		}
+		if v.Attempt != nil && v.Attempt.State == "released" {
+			charge = 0
 		}
 		if s := v.Settlement; s != nil {
 			if s.Version != 1 || s.Currency != "USD" || s.Model != "gpt-realtime-2.1-mini" || s.RateCard != dictationRateCard || s.Status != "completed" || s.ResponseID == "" || len(s.ResponseID) > 256 || responses[s.ResponseID] || s.Month != month || s.ReservationID != v.ID || v.Usage == nil {

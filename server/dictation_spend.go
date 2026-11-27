@@ -49,6 +49,10 @@ func (cfg *serverConfig) dictationSpeechSpend(owner string) dictationSpeechSpend
 			// Preserve the public receipt-display contract: this is the sum of
 			// original reservations, not global admission or outstanding holds.
 			out.ReservedMicroUSD += entry.MicroUSD
+			if entry.Attempt != nil && entry.Attempt.State == "released" {
+				// Retain the original reservation in audit totals, not pending spend.
+				continue
+			}
 			if entry.Usage == nil {
 				out.UnsettledReservations++
 				continue
@@ -57,6 +61,10 @@ func (cfg *serverConfig) dictationSpeechSpend(owner string) dictationSpeechSpend
 			if !ok || cost != entry.ActualMicroUSD {
 				out.UnsettledReservations++
 				continue
+			}
+			if entry.Attempt != nil && entry.Attempt.State == "attempted" {
+				// A partial usage report does not establish final billable cost.
+				out.UnsettledReservations++
 			}
 			receipts++
 			total += cost

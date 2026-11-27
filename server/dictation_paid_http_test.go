@@ -73,6 +73,9 @@ func TestDictationPaidCachedReplayAndUncertainRetry(t *testing.T) {
 	var calls atomic.Int32
 	cfg.dictationSpeech = func(ctx context.Context, c dictationOpenAIConfig, text string) ([]byte, error) {
 		calls.Add(1)
+		if err := c.beforeAttempt(ctx); err != nil {
+			return nil, err
+		}
 		if text == "Fehler." {
 			return nil, errors.New("synthetic lost connection after send")
 		}
@@ -100,13 +103,13 @@ func TestDictationPaidCachedReplayAndUncertainRetry(t *testing.T) {
 	if calls.Load() != 1 {
 		t.Fatal("cache replay called paid provider")
 	}
-	if w := call("POST", "/uncertain/audio/0", "{}"); w.Code != 503 {
+	if w := call("POST", "/uncertain/audio/0", "{}"); w.Code != 409 {
 		t.Fatal(w.Code)
 	}
 	if calls.Load() != 2 {
 		t.Fatal("hidden provider retry")
 	}
-	if w := call("POST", "/uncertain/audio/0", "{}"); w.Code != 429 {
+	if w := call("POST", "/uncertain/audio/0", "{}"); w.Code != 409 {
 		t.Fatal("uncertain call refunded or budget ignored", w.Code)
 	}
 	if calls.Load() != 2 {
@@ -115,7 +118,7 @@ func TestDictationPaidCachedReplayAndUncertainRetry(t *testing.T) {
 	if w := call("POST", "/cached/audio/0", "{}"); w.Code != 200 {
 		t.Fatal("cache blocked by spent budget", w.Code)
 	}
-	if _, err := os.Stat(filepath.Join(filepath.Dir(cfg.historyPath), "dictations", "paid-budget.json")); err != nil {
+	if _, err := os.Stat(filepath.Join(filepath.Dir(cfg.historyPath), "dictations", "paid-months")); err != nil {
 		t.Fatal("missing durable budget", err)
 	}
 }

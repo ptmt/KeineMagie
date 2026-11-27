@@ -1,0 +1,68 @@
+=== RUN   TestDictationReviewPersistedSchemaAliases
+=== RUN   TestDictationReviewPersistedSchemaAliases/upper-usage
+    dictation_review_regression_test.go:62: ambiguous persisted schema accepted by production transaction
+    dictation_review_regression_test.go:69: original persisted evidence rewritten
+=== RUN   TestDictationReviewPersistedSchemaAliases/nested-alias
+    dictation_review_regression_test.go:62: ambiguous persisted schema accepted by production transaction
+    dictation_review_regression_test.go:69: original persisted evidence rewritten
+=== RUN   TestDictationReviewPersistedSchemaAliases/root-alias
+    dictation_review_regression_test.go:62: ambiguous persisted schema accepted by production transaction
+    dictation_review_regression_test.go:69: original persisted evidence rewritten
+=== RUN   TestDictationReviewPersistedSchemaAliases/duplicate-usage-alias
+    dictation_review_regression_test.go:62: ambiguous persisted schema accepted by production transaction
+    dictation_review_regression_test.go:69: original persisted evidence rewritten
+=== RUN   TestDictationReviewPersistedSchemaAliases/duplicate-usage
+    dictation_review_regression_test.go:62: ambiguous persisted schema accepted by production transaction
+    dictation_review_regression_test.go:69: original persisted evidence rewritten
+=== RUN   TestDictationReviewPersistedSchemaAliases/duplicate-nested
+    dictation_review_regression_test.go:62: ambiguous persisted schema accepted by production transaction
+    dictation_review_regression_test.go:69: original persisted evidence rewritten
+=== RUN   TestDictationReviewPersistedSchemaAliases/duplicate-policy
+    dictation_review_regression_test.go:62: ambiguous persisted schema accepted by production transaction
+    dictation_review_regression_test.go:69: original persisted evidence rewritten
+=== RUN   TestDictationReviewPersistedSchemaAliases/upper-usage-unknown
+    dictation_review_regression_test.go:62: ambiguous persisted schema accepted by production transaction
+    dictation_review_regression_test.go:69: original persisted evidence rewritten
+--- FAIL: TestDictationReviewPersistedSchemaAliases (0.14s)
+    --- FAIL: TestDictationReviewPersistedSchemaAliases/upper-usage (0.01s)
+    --- FAIL: TestDictationReviewPersistedSchemaAliases/nested-alias (0.01s)
+    --- FAIL: TestDictationReviewPersistedSchemaAliases/root-alias (0.02s)
+    --- FAIL: TestDictationReviewPersistedSchemaAliases/duplicate-usage-alias (0.07s)
+    --- FAIL: TestDictationReviewPersistedSchemaAliases/duplicate-usage (0.01s)
+    --- FAIL: TestDictationReviewPersistedSchemaAliases/duplicate-nested (0.01s)
+    --- FAIL: TestDictationReviewPersistedSchemaAliases/duplicate-policy (0.01s)
+    --- FAIL: TestDictationReviewPersistedSchemaAliases/upper-usage-unknown (0.01s)
+=== RUN   TestDictationReviewUnreadableEnumeration
+    dictation_review_regression_test.go:111: unreadable enumeration mutated ledger / created duplicate active key
+    dictation_review_regression_test.go:114: subsequent recovery poisoned: speech application limit reached
+    dictation_review_regression_test.go:117: original attempted identity lost: speech application limit reached
+--- FAIL: TestDictationReviewUnreadableEnumeration (0.02s)
+=== RUN   TestDictationReviewStorageHeadroom
+=== RUN   TestDictationReviewStorageHeadroom/10ns
+    dictation_review_regression_test.go:155: prepared admitted without room for all release/dispatch/completed evidence
+    dictation_review_regression_test.go:158: never-sent release stranded: speech application limit reached
+    dictation_review_regression_test.go:161: subsequent recovery stranded: speech application limit reached
+    dictation_review_regression_test.go:184: storage refusal changed original ledger
+=== RUN   TestDictationReviewStorageHeadroom/100ns
+    dictation_review_regression_test.go:155: prepared admitted without room for all release/dispatch/completed evidence
+    dictation_review_regression_test.go:172: completed settlement stranded: speech application limit reached
+    dictation_review_regression_test.go:184: storage refusal changed original ledger
+=== RUN   TestDictationReviewStorageHeadroom/1.7µs
+    dictation_review_regression_test.go:155: prepared admitted without room for all release/dispatch/completed evidence
+    dictation_review_regression_test.go:172: completed settlement stranded: speech application limit reached
+    dictation_review_regression_test.go:184: storage refusal changed original ledger
+--- FAIL: TestDictationReviewStorageHeadroom (0.50s)
+    --- FAIL: TestDictationReviewStorageHeadroom/10ns (0.19s)
+    --- FAIL: TestDictationReviewStorageHeadroom/100ns (0.15s)
+    --- FAIL: TestDictationReviewStorageHeadroom/1.7µs (0.15s)
+=== RUN   TestDictationReviewStorageAdmittedLifecycle
+=== RUN   TestDictationReviewStorageAdmittedLifecycle/release
+=== RUN   TestDictationReviewStorageAdmittedLifecycle/recover
+=== RUN   TestDictationReviewStorageAdmittedLifecycle/complete
+--- PASS: TestDictationReviewStorageAdmittedLifecycle (0.47s)
+    --- PASS: TestDictationReviewStorageAdmittedLifecycle/release (0.14s)
+    --- PASS: TestDictationReviewStorageAdmittedLifecycle/recover (0.15s)
+    --- PASS: TestDictationReviewStorageAdmittedLifecycle/complete (0.18s)
+FAIL
+FAIL	diktat/server	1.450s
+FAIL

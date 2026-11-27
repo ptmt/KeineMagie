@@ -1,0 +1,8 @@
+--- FAIL: TestDictationRealtimeSettlementReceiptBoundary (0.20s)
+    --- FAIL: TestDictationRealtimeSettlementReceiptBoundary/wrong-narration (0.02s)
+        dictation_settlement_transport_test.go:115: charged=1000000 want=406
+    --- FAIL: TestDictationRealtimeSettlementReceiptBoundary/no-audio (0.02s)
+        dictation_settlement_transport_test.go:115: charged=1000000 want=406
+FAIL
+FAIL	diktat/server	0.466s
+FAIL
