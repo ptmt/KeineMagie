@@ -1,0 +1,24 @@
+{
+  "applied": true,
+  "source_sha": "c3334db432e18ee81c50723fe2e0d312494124bb",
+  "ci_run": 46070502476,
+  "backend_image": "sha256:57498133cac0543e10628184bec345446978556fa3a91d4a08e6d8c40a2dd0e1",
+  "registry_digests": [
+    "ghcr.io/ptmt/diktat-server@sha256:57498133cac0543e10628184bec345446978556fa3a91d4a08e6d8c40a2dd0e1"
+  ],
+  "backend_container": "f89fc6b9b8627d032d8f8ab2f3b2cdec8a966e0ffe70ac2d07c318326267ef01",
+  "worker_image": "sha256:a61794a3d7e74b63d9626c453f3b0bac1b9f9f1351b0bb6349ccf564bded9382",
+  "worker_and_unrelated_ids_preserved": true,
+  "config_resources_mounts_networks_secrets_preserved": true,
+  "all_nonruntime_files_byte_preserved": 76,
+  "changed_files": [],
+  "https": {
+    "/health": 200,
+    "/v1/learning/dictations": 401,
+    "/v1/web/session": 401
+  },
+  "paid_generation_tested": false,
+  "backup": "/Users/tinyserve/Library/Application Support/tinyserve/services/keinemagie/deployment/coherent-release-20261127T213043Z",
+  "forward_recovery_compose": "/Users/tinyserve/Library/Application Support/tinyserve/services/keinemagie/deployment/coherent-release-20261127T213043Z/compose.policy-safe-recovery.yml",
+  "verified_at_utc": "2026-11-27T21:30:47.334037+00:00"
+}

@@ -1,4 +1,6 @@
-# Dictation options: partial candidate, not deployed
+# Dictation options — shipped web modal and new-attempt defaults
+
+**Current delivery:** implemented and deployed in `c3334db432e18ee81c50723fe2e0d312494124bb`; the earlier modal approval blocker below is resolved. See [current release and exact verification](COHERENT-OPTIONS-RELEASE.md). Native still uses its previous menu; native modal parity is not claimed. The remainder is the preserved RED/partial-candidate checkpoint.
 
 Base: `0db893ecc3078dc45345482361ecf5c3470e6ff7` (freshly fetched origin/main), including prevention `990040f0f70579aa15b31e600f9f8f07a5857cb1`.
 

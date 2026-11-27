@@ -1,4 +1,6 @@
-# Durable Dictation attempts — image published, deployment pending
+# Durable Dictation attempts — deployed in coherent release
+
+**Current delivery:** prevention is live in source `c3334db432e18ee81c50723fe2e0d312494124bb`, server CI `46070502476`, image `sha256:57498133cac0543e10628184bec345446978556fa3a91d4a08e6d8c40a2dd0e1`. The renewed authorization and fresh idle/lock checks completed; 76 current durable files were byte-preserved. See [current release receipt](COHERENT-OPTIONS-RELEASE.md). The pending-approval checkpoint below is historical, not an outstanding gate.
 
 Base `63e8a16`, including operator recovery `67da4fb`. Scope is backend, web, tests, and documentation only; no native or unrelated UI candidate is included. All new test receipts are explicitly synthetic local WebSocket fixtures. Production rollout status is tracked separately below; local tests are not deployment evidence.
 

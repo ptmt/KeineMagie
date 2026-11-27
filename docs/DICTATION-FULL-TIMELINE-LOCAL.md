@@ -1,6 +1,6 @@
 # Dictation: full ordered timeline — local candidate
 
-**2026-11-27 · not published / not deployed / no Apple upload.**
+**Shipped 2026-11-27:** integrated into `c3334db432e18ee81c50723fe2e0d312494124bb`, web/backend deployed and iOS 1.0 (2860.1.40) uploaded to Apple. See [coherent release receipt](COHERENT-OPTIONS-RELEASE.md). Below is the earlier local verification checkpoint.
 
 Branch `fix/dictation-full-timeline`, isolated worktree `/Users/tinyserve/Projects/KeineMagie-full-timeline`.
 Base is fetched `origin/main` **`0db893ecc3078dc45345482361ecf5c3470e6ff7`**, verified to contain recovery `67da4fb3b883a0a61b890fa1e823775abb7ce5ac`, recovery documentation `63e8a1689df43591829960123c007c84e313306a`, and the paid-attempt prevention changes. The original dirty worktree was not edited. No backend, schema, budget, deployment or provider configuration changes.

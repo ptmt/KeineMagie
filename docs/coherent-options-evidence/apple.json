@@ -1,0 +1,28 @@
+{
+  "run": 46070865447,
+  "source": "c3334db432e18ee81c50723fe2e0d312494124bb",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "validate",
+      "databaseId": 140748662289,
+      "conclusion": "success"
+    },
+    {
+      "name": "testflight",
+      "databaseId": 140750797741,
+      "conclusion": "success"
+    }
+  ],
+  "receipt_lines": [
+    "2026-11-27T21:43:51.5806800Z ** ARCHIVE SUCCEEDED **",
+    "2026-11-27T21:43:55.5224160Z ** EXPORT SUCCEEDED **",
+    "2026-11-27T21:46:59.6429890Z UPLOAD SUCCEEDED with no errors, 1 warning",
+    "2026-11-27T21:42:35.3201120Z Archiving build 2860.1.40 with manually validated signing",
+    "2026-11-27T21:45:28.0387890Z 2026-11-27 21:45:28.038  WARN: [altool.B09040380] SDK version issue. This app was built with the iOS 26.5 SDK. Starting April 2027, iOS and iPadOS apps must be built with the iOS 27 SDK or later, included in Xcode 27 or later, in order to be uploaded to App Store Connect or submitted for distribution. (90725)",
+    "2026-11-27T21:45:28.0398720Z       code : 90725",
+    "2026-11-27T21:46:59.6441620Z 2026-11-27 21:46:59.643  WARN: [altool.875040380] SDK version issue. This app was built with the iOS 26.5 SDK. Starting April 2027, iOS and iPadOS apps must be built with the iOS 27 SDK or later, included in Xcode 27 or later, in order to be uploaded to App Store Connect or submitted for distribution. (90725)",
+    "2026-11-27T21:46:59.6444490Z       code : 90725"
+  ],
+  "build": "2860.1.40"
+}

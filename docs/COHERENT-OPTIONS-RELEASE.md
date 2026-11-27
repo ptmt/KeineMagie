@@ -18,6 +18,15 @@ Native ships the implemented complete timeline and receives new-attempt server d
 
 ## Publication
 
-Pending at this source commit. Update with exact image/CI/deployment and Apple upload receipts after actual publication. Do not infer deployment from image CI.
+**Web/backend deployed; iOS uploaded to Apple.** Release source `c3334db432e18ee81c50723fe2e0d312494124bb` was pushed normally from the isolated release tree, remote ref read back.
+
+- Server CI **46070502476** succeeded. Exact ARM64 registry/live image: `sha256:57498133cac0543e10628184bec345446978556fa3a91d4a08e6d8c40a2dd0e1`.
+- Deployment verified **2026-11-27 21:30:47 UTC**. Fresh idle/store/account checks, locked backup and final hashes preserved **all 76 non-runtime durable files byte-for-byte**, worker/unrelated IDs, full configuration, mounts, resources, routing and networks. Only backend image changed. Established Compose workaround retained; this is not automatic tinyserve deployment.
+- HTTPS `/health` **200**, private Dictation/session **401**. **33 public assets** matched exact committed bytes and expected cache headers. Real guest browser inspected. Live HTTPS modules with fully intercepted synthetic Go APIs passed modal playback/settings/locale/keyboard checks and successful reveal → New attempt (3×) → confirmed delete; no production owner action or paid provider call.
+- Native UPLOAD run **46070865447**, exact same source, **success**: validate job **140748662289**, upload job **140750797741**. Version **1.0**, archived build **2860.1.40**; signed archive/export succeeded, Apple **`UPLOAD SUCCEEDED with no errors, 1 warning` at 21:46:59 UTC**. Processing, tester availability and installation are not verified.
+- Apple warning **90725** remains: move hosted build to iOS 27 SDK / Xcode 27 before April 2027. Existing local main-thread audio-session runtime warning also remains. Neither blocks this accepted upload.
+- Private backup/forward-recovery pin: service deployment `coherent-release-20261127T213043Z/`. Use its `compose.policy-safe-recovery.yml` only with the documented base; old pre-policy writer is forensic-only and its restart was disabled before replacement. Never restore historical data or rerun the prior reserve release.
+
+Receipts and inspected runtime previews: `docs/coherent-options-evidence/`. Original 304-file manifest was checked unchanged again. Prior candidate documents remain historical local-stage reports, superseded by this release receipt.
 
 Deployment must retain current user activity, all durable data and the existing $10 cap / prior unknown-cost reservation recovery. No extra releases, cap increase, paid test or old-writer rollback is authorized. Use the documented base + durable override and strict idle/store/account locks; preserve private worker and unrelated containers.

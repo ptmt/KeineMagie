@@ -1,4 +1,6 @@
-# Web activity: week in Coach, month in Profile — local candidate
+# Web activity: week in Coach, month in Profile — shipped
+
+**Current delivery:** deployed in `c3334db432e18ee81c50723fe2e0d312494124bb`; see [coherent release receipt](COHERENT-OPTIONS-RELEASE.md). The local-only/preview statements below describe the earlier candidate checkpoint, not current production.
 
 ## Current contract (27 November 2026)
 
