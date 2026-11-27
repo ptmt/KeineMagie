@@ -36,15 +36,15 @@ func TestManualPacingCreation(t *testing.T) {
 	if v.Mode != "sentences" || v.Playback.Cursor != 0 {
 		t.Fatalf("must default to explicit whole introduction: %+v", v)
 	}
-	if len(v.Plan) != 8 {
-		t.Fatalf("intro, three fragments each twice, final: %+v", v.Plan)
+	if len(v.Plan) != 11 {
+		t.Fatalf("intro, three fragments each three times, final: %+v", v.Plan)
 	}
-	for i := 1; i < 7; i += 2 {
-		if v.Plan[i].Asset != v.Plan[i+1].Asset {
+	for i := 1; i < 10; i += 3 {
+		if v.Plan[i].Asset != v.Plan[i+1].Asset || v.Plan[i].Asset != v.Plan[i+2].Asset {
 			t.Fatalf("repeat must reuse audio: %+v", v.Plan)
 		}
 	}
-	if v.Plan[0].Kind != "whole" || v.Plan[7].Kind != "final" {
+	if v.Plan[0].Kind != "whole" || v.Plan[10].Kind != "final" {
 		t.Fatal(v.Plan)
 	}
 	if len(v.Ready) != 0 {

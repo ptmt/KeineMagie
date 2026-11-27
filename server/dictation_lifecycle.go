@@ -53,8 +53,8 @@ func (cfg *serverConfig) dictationAttempt(w http.ResponseWriter, r *http.Request
 		plan, mode, cursor := source.Plan, "whole", 1
 		var pacing *dictationPacing
 		if policy == 2 {
-			pacing = &dictationPacing{Repeats: 2, GapSeconds: 3}
-			plan = dictationPacingPlan(source.Text, source.Plan, 2)
+			pacing = &dictationPacing{Repeats: 3, GapSeconds: 3}
+			plan = dictationPacingPlan(source.Text, source.Plan, pacing.Repeats)
 			mode, cursor = "sentences", 0
 		}
 		if policy != 2 && source.PlaybackPolicyVersion == 2 {

@@ -42,12 +42,12 @@ func TestManualPlaybackActualHandlerFreezesHybridAssistance(t *testing.T) {
 	if ledger.Cursor != 0 || ledger.WholeStarts != 1 || len(ledger.Stops) != 1 {
 		t.Fatal(ledger)
 	}
-	for step := 0; step <= 2; step++ {
+	for step := 0; step <= 3; step++ {
 		id := fmt.Sprint("planned-", step)
 		playback(id, "start", step, 0, "planned")
 		playback(id, "ended", step, ledger.Active.Fence, "")
 	}
-	if ledger.Cursor != 3 || ledger.WholeStarts != 2 {
+	if ledger.Cursor != 4 || ledger.WholeStarts != 2 {
 		t.Fatal(ledger)
 	}
 	playback("extra", "start", 1, 0, "extra")
@@ -56,7 +56,7 @@ func TestManualPlaybackActualHandlerFreezesHybridAssistance(t *testing.T) {
 	playback("extra", "release", 1, fence, "")
 	playback("extra", "resume", 1, ledger.Active.Fence, "")
 	playback("extra", "ended", 1, ledger.Active.Fence, "")
-	if ledger.Cursor != 3 || ledger.WholeStarts != 2 {
+	if ledger.Cursor != 4 || ledger.WholeStarts != 2 {
 		t.Fatal(ledger)
 	}
 	call("PUT", "/manual", map[string]any{"revision": 0, "mode": "sentences", "draft": "Die Katze schläft."})
@@ -95,7 +95,7 @@ func TestManualPlaybackActualHandlerFreezesHybridAssistance(t *testing.T) {
 	for _, s := range response.Assessment.Assistance.Segments {
 		if s.Step == 1 {
 			found = true
-			if s.Planned != 2 || s.Extra != 1 || s.Started != 3 || s.Completed != 3 || s.Resumes != 1 || s.Interruptions != 1 {
+			if s.Planned != 3 || s.Extra != 1 || s.Started != 4 || s.Completed != 4 || s.Resumes != 1 || s.Interruptions != 1 {
 				t.Fatalf("wrong actual fragment evidence: %+v", s)
 			}
 		}

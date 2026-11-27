@@ -226,11 +226,16 @@ func (cfg *serverConfig) dictationHTTP(w http.ResponseWriter, r *http.Request, o
 		mode, cursor := "whole", 1
 		var pacing *dictationPacing
 		if policy == 2 {
-			pacing = &dictationPacing{Repeats: 2, GapSeconds: 3}
+			pacing = &dictationPacing{Repeats: 3, GapSeconds: 3}
 			plan = dictationPacingPlan(in.Text, nil, pacing.Repeats)
 			mode, cursor = "sentences", 0
 		}
-		if len(plan) > 120 {
+		maxSteps := 120
+		if policy == 2 {
+			// Preserve the existing 59-fragment bound independently of repeats.
+			maxSteps = 2 + 59*pacing.Repeats
+		}
+		if len(plan) > maxSteps {
 			writeError(w, 400, "Too many sentences; use a shorter text.")
 			return
 		}
