@@ -1,4 +1,4 @@
-# Durable Dictation attempts — local candidate
+# Durable Dictation attempts — image published, deployment pending
 
 Base `63e8a16`, including operator recovery `67da4fb`. Scope is backend, web, tests, and documentation only; no native or unrelated UI candidate is included. All new test receipts are explicitly synthetic local WebSocket fixtures. Production rollout status is tracked separately below; local tests are not deployment evidence.
 
@@ -6,7 +6,9 @@ Base `63e8a16`, including operator recovery `67da4fb`. Scope is backend, web, te
 
 The final combined source passed `go test -count=1 ./...`, `go test -race -count=1 ./...`, `go vet ./...`, Node **199 passed / 1 opt-in skipped**, and all **40** injected SIGKILL windows. Independent re-review passed after four reproduced findings were fixed. Tracked evidence: `docs/dictation-prevention-evidence/verification.json` and adjacent real RED/GREEN outputs. The final receipt supersedes earlier test-stage documentation hashes; implementation hashes were checked unchanged throughout the final run.
 
-**Not deployed at this checkpoint.** The production read-only preflight tool request is awaiting command approval. Do not replace the backend until the fresh idle/store/account/generation lock checks pass; do not infer current capacity from the earlier recovery snapshot. The prepared deployment runner preserves all fresh durable bytes, changes only the pinned CI backend image, keeps worker/config unchanged, and prohibits old-writer rollback. It does not release any historical holds or restore any data. Backend prevention will apply to both clients; native-specific feedback remains a separate unpublished candidate.
+Source `990040f0f70579aa15b31e600f9f8f07a5857cb1` was pushed non-force to main. Server CI **45997270178**, job **140499696340**, succeeded and published the verified ARM64 image `ghcr.io/ptmt/diktat-server@sha256:e19f11b6a44d4bd9516fd1cac25d6c3a60c5a936e1a36ef7146600d32d9dbffd`. A disposable keyless container using that registry image returned health 200, private Dictation/web session 401, source path 404; both changed web assets matched committed bytes with no-store. The disposable container had no production mounts and was removed/read-back absent. These were isolated local HTTP checks, not deployed public HTTPS checks. Details: `docs/dictation-prevention-evidence/publication.json`.
+
+**Not deployed at this checkpoint.** The production read-only preflight tool request is awaiting command approval (two identical requests returned `pending_approval`, without execution). Do not replace the backend until the fresh idle/store/account/generation lock checks pass; do not infer current capacity from the earlier recovery snapshot. The prepared deployment runner preserves all fresh durable bytes, changes only the pinned CI backend image, keeps worker/config unchanged, and prohibits old-writer rollback. It does not release any historical holds or restore any data. Backend prevention will apply to both clients; native-specific feedback remains a separate unpublished candidate.
 
 ## Protocol boundary
 

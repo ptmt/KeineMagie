@@ -1,0 +1,40 @@
+{
+  "recorded_at_utc": "2026-11-27T12:19:39.420220+00:00",
+  "source_sha": "990040f0f70579aa15b31e600f9f8f07a5857cb1",
+  "ci_run": 45997270178,
+  "ci_job": 140499696340,
+  "ci_conclusion": "success",
+  "registry_image_id": "sha256:e19f11b6a44d4bd9516fd1cac25d6c3a60c5a936e1a36ef7146600d32d9dbffd",
+  "registry_digests": [
+    "ghcr.io/ptmt/diktat-server@sha256:e19f11b6a44d4bd9516fd1cac25d6c3a60c5a936e1a36ef7146600d32d9dbffd"
+  ],
+  "architecture": "arm64",
+  "local_image_smoke": {
+    "source_sha": "990040f0f70579aa15b31e600f9f8f07a5857cb1",
+    "registry_image": "ghcr.io/ptmt/diktat-server@sha256:e19f11b6a44d4bd9516fd1cac25d6c3a60c5a936e1a36ef7146600d32d9dbffd",
+    "isolated_local_image_http": {
+      "/health": 200,
+      "/v1/learning/dictations": 401,
+      "/v1/web/session": 401,
+      "/server/dictation_attempt.go": 404
+    },
+    "changed_asset_sha256": {
+      "dictation.mjs": "2a5d773398fcb0b7190c305aa3ff8d5585bb16c8c118956b87a3c0bd4792f224",
+      "dictation-i18n.mjs": "18112cd1decc0832de47e59b2df8439fa377d068637475ba17bdcbdbcabf5048"
+    },
+    "no_production_mounts": true,
+    "provider_credentials": false,
+    "paid_calls": false,
+    "production_deployed": false
+  },
+  "production_deployed": false,
+  "blocker": "Read-only live idle/ledger preflight command returned pending_approval twice; no bypass or production replacement.",
+  "production_data_mutations": false,
+  "original_dirty_files_hash_preserved": 304,
+  "deployment_runner": "/Users/tinyserve/.hermes/cache/scratch/deploy-dictation-prevention.py",
+  "deployment_runner_args": [
+    "990040f0f70579aa15b31e600f9f8f07a5857cb1",
+    "45997270178"
+  ],
+  "deployment_runner_validation": "Synthetic local holder tests passed idle, active playback, pending Coach, active podcast, changed-data rejection."
+}
