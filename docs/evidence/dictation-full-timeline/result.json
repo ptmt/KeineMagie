@@ -1,0 +1,32 @@
+{
+  "result": "PASS",
+  "boundary": "local real web modules + Go ledger + synthetic WAV; no paid provider",
+  "captures": [
+    "chromium-midway-390-light.png",
+    "chromium-midway-390-dark.png",
+    "chromium-midway-1100-light.png",
+    "chromium-midway-1100-dark.png",
+    "webkit-midway-390-light.png",
+    "webkit-midway-390-dark.png",
+    "webkit-midway-1100-light.png",
+    "webkit-midway-1100-dark.png"
+  ],
+  "results": [
+    {
+      "engine": "chromium",
+      "phases": 9,
+      "completed": 5,
+      "stable_rows": true,
+      "restored": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "phases": 9,
+      "completed": 5,
+      "stable_rows": true,
+      "restored": true,
+      "errors": []
+    }
+  ]
+}

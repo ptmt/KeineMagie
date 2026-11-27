@@ -4,7 +4,7 @@ import UIKit
 /// Actual loopback Go handler and cached generated PCM. Provider transport alone
 /// is synthetic; this is not a live-account or speech-quality acceptance test.
 final class DictationManualUITests:XCTestCase {
-    @MainActor private func launch(locale:String="en", large:Bool=false, titlePrefix:String="Manual", theme:String?=nil) throws -> XCUIApplication {
+    @MainActor private func launch(locale:String="en", large:Bool=false, titlePrefix:String="Manual", theme:String?=nil, source:String="Die kleine Katze schläft, weil sie sehr müde ist. Der Hund wartet.") throws -> XCUIApplication {
         let path=ProcessInfo.processInfo.environment["KM_DICTATION_NATIVE_FIXTURE_PATH"] ?? "/Users/tinyserve/.hermes/cache/scratch/dictation-acceptance-resume/fixture.json"
         let config=try JSONDecoder().decode([String:String].self,from:Data(contentsOf:URL(fileURLWithPath:path)))
         let app=XCUIApplication()
@@ -20,7 +20,7 @@ final class DictationManualUITests:XCTestCase {
         XCTAssertTrue(app.tabBars.buttons[tab].waitForExistence(timeout:10));app.tabBars.buttons[tab].tap()
         app.buttons["dictation-add"].tap()
         let title=app.textFields["dictation-title"];XCTAssertTrue(title.waitForExistence(timeout:5));title.tap();title.typeText(titlePrefix+" "+UUID().uuidString.prefix(5))
-        let original=app.textViews["dictation-original"];original.tap();original.typeText("Die kleine Katze schläft, weil sie sehr müde ist. Der Hund wartet.")
+        let original=app.textViews["dictation-original"];original.tap();original.typeText(source)
         app.buttons["dictation-create"].tap()
         XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"dictation-pacing-timeline").firstMatch.waitForExistence(timeout:10))
         return app
@@ -73,6 +73,25 @@ final class DictationManualUITests:XCTestCase {
             darkest=min(darkest,light);lightest=max(lightest,light)
         }
         XCTAssertGreaterThan(lightest-darkest,100,"Next label must contrast with its real rendered button, not only exist in AX")
+    }
+    @MainActor func testEntirePlanBeforeAndAfterMiddlePlayback() throws {
+        continueAfterFailure = false
+        let app=try launch(titlePrefix:"FullTimeline",source:"Heute bleiben wir zu Hause. Morgen gehen wir spazieren. Danach besuchen wir Freunde. Am Abend lesen wir. Später trinken wir Tee. Zum Schluss schlafen wir.")
+        defer { app.terminate() }
+        func fullPlan() {
+            for n in 1...6 { XCTAssertTrue(app.staticTexts["Fragment \(n).1"].exists,"Full plan must retain fragment \(n) before and after current") }
+            XCTAssertTrue(app.staticTexts["Whole text first"].exists)
+            XCTAssertTrue(app.staticTexts["Optional final reading"].exists)
+        }
+        fullPlan()
+        let transport=app.buttons["dictation-manual-transport"]
+        visible(app,transport);transport.tap();wait(transport,"label == 'Play' AND enabled == true")
+        transport.tap();wait(transport,"label == 'Next' AND enabled == true")
+        for _ in 0..<2 { transport.tap();wait(transport,"label == 'Next' AND enabled == true",timeout:25);fullPlan() }
+        transport.tap();wait(transport,"label == 'Stop' AND enabled == true");fullPlan()
+        visible(app,app.staticTexts["Fragment 3.1"]);shot(app,"native-full-timeline-middle")
+        wait(transport,"label == 'Next' AND enabled == true",timeout:25);fullPlan()
+        visible(app,app.staticTexts["Fragment 6.1"]);shot(app,"native-full-timeline-future")
     }
     @MainActor func testManualNextExtraReplayAndProgressiveHybrid() throws {
         let app=try launch(titlePrefix:"Timeline")

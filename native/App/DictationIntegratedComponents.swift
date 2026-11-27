@@ -13,8 +13,12 @@ struct DictationPacingTimeline: View {
         let end=anchors.first(where:{$0 > anchor}) ?? record.plan.count
         return Array(anchor..<end)
     }
-    private func complete(_ anchor: Int) -> Bool {
-        steps(anchor).allSatisfy { step in record.playback?.listens?.contains(where:{$0.step == step && $0.ended == true && $0.stopped != true && $0.intent == "planned"}) == true }
+    private func completedCount(_ anchor: Int) -> Int {
+        steps(anchor).filter { step in record.playback?.listens?.contains(where:{$0.step == step && $0.ended == true && $0.stopped != true && $0.intent == "planned"}) == true }.count
+    }
+    private func complete(_ anchor: Int) -> Bool { completedCount(anchor) == steps(anchor).count }
+    private func progress(_ anchor: Int) -> String {
+        dictationText("pacing.progress",["n":String(completedCount(anchor)),"total":String(steps(anchor).count)])
     }
     private var current: Int {
         let next = anchors.last(where:{$0 <= record.policyStep}) ?? 0
@@ -32,24 +36,13 @@ struct DictationPacingTimeline: View {
         let number = segment.sentence.flatMap { sentence in segment.fragment.map { "\(sentence).\($0)" } } ?? String(anchors.firstIndex(of:anchor) ?? 1)
         return dictationText("pacing.fragment",["n":number])
     }
-    private var groups: [Int] { Array(Set(anchors.compactMap { record.plan[$0].sentence })).sorted() }
-    private var visibleGroups: [Int] {
-        let group = record.plan.indices.contains(current) ? record.plan[current].sentence : nil
-        let index = group.flatMap { groups.firstIndex(of:$0) } ?? (current == 0 ? 0 : max(0,groups.count-2))
-        return Array(groups.dropFirst(index).prefix(2))
-    }
-    private func visibleChildren(_ group:Int) -> [Int] {
-        let children=anchors.filter { record.plan[$0].sentence == group }
-        let index=children.firstIndex(of:current) ?? 0
-        return Array(children.dropFirst(max(0,index-1)).prefix(5))
-    }
     private func status(_ anchor:Int) -> String {
         guard anchor == current else { return AppL10n.text(complete(anchor) ? "pacing.completed" : "pacing.upcoming") }
         if record.checked { return AppL10n.text(complete(anchor) ? "pacing.completed" : "pacing.current") }
         if record.playback?.active?.intent == "extra" { return AppL10n.text("pacing.extra") }
         if waiting { return dictationText("pacing.gap",["n":String(Int(record.repeatGap))]) }
         if record.needsManualNext { return AppL10n.text("pacing.writing") }
-        if record.plan.indices.contains(record.policyStep), record.plan[record.policyStep].kind.hasPrefix("sentence") {
+        if record.playback?.active != nil, record.plan.indices.contains(record.policyStep), record.plan[record.policyStep].kind.hasPrefix("sentence") {
             return dictationText("pacing.repeat",["n":String(record.policyStep-anchor+1),"total":String(steps(anchor).count)])
         }
         return AppL10n.text("pacing.current")
@@ -60,30 +53,25 @@ struct DictationPacingTimeline: View {
                 .font(.caption).accessibilityHidden(true)
             Text(title(anchor)).fontWeight(anchor == current ? .semibold : .regular)
             if anchor == current { Text(status(anchor)).font(.caption).foregroundStyle(Color.secondary) }
+            else if completedCount(anchor) > 0 && !complete(anchor) { Text(progress(anchor)).font(.caption).foregroundStyle(Color.secondary) }
         }.foregroundStyle(complete(anchor) ? Color.green : anchor == current ? Color.primary : Color.secondary)
             .padding(.leading,indented ? 22 : 0)
             .accessibilityElement(children:.contain)
-            .accessibilityValue(status(anchor))
+            .accessibilityValue(status(anchor) + " · " + progress(anchor))
             .accessibilityIdentifier("dictation-timeline-step-\(anchor)")
     }
     var body: some View {
         VStack(alignment:.leading,spacing:8) {
-            if !anchors.isEmpty { row(0) }
-            if record.mode == "sentences" {
-                if groups.isEmpty {
-                    // Saved plans without provenance remain flat, never fabricated sentences.
-                    ForEach(anchors.filter { $0 != 0 && record.plan[$0].kind != "final" && abs($0-current) <= 6 },id:\.self) { row($0) }
-                } else {
-                    if visibleGroups.first != groups.first { Text(verbatim:"…").foregroundStyle(.secondary) }
-                    ForEach(visibleGroups,id:\.self) { group in
-                        Text(dictationText("pacing.sentence",["n":String(group)])).font(.subheadline.weight(.medium)).foregroundStyle(record.plan[current].sentence == group ? .primary : .secondary)
-                        if visibleChildren(group).first != anchors.first(where:{record.plan[$0].sentence == group}) { Text(verbatim:"…").padding(.leading,22) }
-                        ForEach(visibleChildren(group),id:\.self) { row($0,indented:true) }
-                        if visibleChildren(group).last != anchors.last(where:{record.plan[$0].sentence == group}) { Text(verbatim:"…").padding(.leading,22) }
-                    }
-                    if visibleGroups.last != groups.last { Text(verbatim:"…").foregroundStyle(.secondary) }
+            ForEach(record.mode == "sentences" ? anchors : Array(anchors.prefix(1)),id:\.self) { anchor in
+                let segment=record.plan[anchor]
+                let group=segment.fragment == nil ? nil : segment.sentence
+                let previous=anchors.last(where:{$0 < anchor})
+                let previousGroup=previous.flatMap { record.plan[$0].fragment == nil ? nil : record.plan[$0].sentence }
+                if let group, group != previousGroup {
+                    Text(dictationText("pacing.sentence",["n":String(group)])).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
                 }
-                if let final=anchors.last, final != 0 { row(final) }
+                // Keep the exact plan order, including unmapped legacy fragments.
+                row(anchor,indented:group != nil)
             }
         }.font(.subheadline).accessibilityElement(children:.contain)
             .accessibilityIdentifier("dictation-pacing-timeline")

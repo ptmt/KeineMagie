@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Full timeline · synthetic records</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="../dictation.css"><main></main><script type="module">
+import {mountDictation} from '../dictation.mjs';
+window.calls=[];
+window.fixtureController=mountDictation({host:document.querySelector('main'),locale:()=>window.fixtureLocale||'en',unauthorized:()=>{},api:{request:async(path,options={})=>{
+ calls.push({path,method:options.method||'GET'});
+ if(options.method==='PUT'){Object.assign(window.fixtureRecord,options.body);return structuredClone(window.fixtureRecord)}
+ if(options.method==='POST'&&path.endsWith('/attempts')){
+  window.fixtureRecord={...window.fixtureRecord,id:options.body.id,draft:'',checked:false,revision:1,playback:{revision:0,cursor:0,whole_starts:0,listens:[]}};
+  return structuredClone(window.fixtureRecord);
+ }
+ if(options.method&&options.method!=='GET')throw Error('Fixture forbids media preparation, playback admission, checking and provider calls');
+ return path==='/v1/learning/dictations'?{items:[structuredClone(window.fixtureRecord)]}:structuredClone(window.fixtureRecord);
+}}});
+fixtureController.identity({user:{id:'timeline-owner'},csrf_token:'synthetic'});
+</script></html>

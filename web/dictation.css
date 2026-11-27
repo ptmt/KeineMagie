@@ -62,4 +62,10 @@
 
 .dictation-timeline .dictation-fragment{padding-left:28px}
 .dictation-timeline .dictation-sentence{font-weight:600;padding-top:8px}
-.dictation-now{font-size:.8em;font-weight:400}
+.dictation-now,.dictation-phase-status{font-size:.8em;font-weight:400}
+@media(prefers-color-scheme:dark){
+ .dictation-page:has(.dictation-timeline){color:#ededf0}
+ .dictation-page:has(.dictation-timeline) .dictation-back,
+ .dictation-page:has(.dictation-timeline) .dictation-spend{color:#babac2}
+ .dictation-page:has(.dictation-timeline) :focus-visible{outline-color:#d4d4dd}
+}

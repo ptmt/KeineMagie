@@ -1,0 +1,16 @@
+{
+  "base": "0db893ecc3078dc45345482361ecf5c3470e6ff7",
+  "files": {
+    "web/dictation.mjs": "410fc37156c3889a0ef315f253e948841054a0dd0215f4e316998e06d11efde3",
+    "web/dictation-playback.mjs": "d64029d2885ce4f299de83135db2cd2039fb2fb8e81f1fdf8ec583444edddd3e",
+    "web/dictation-i18n.mjs": "9816c36b5db76381fdbc3e7ae1717868a1b959d06ee6aae374364a88a5d95e80",
+    "web/dictation.css": "cefb72ff4cfe0f0b03bad54a2958e7106d87a4016206a36b48089ed5babcfab5",
+    "native/App/DictationIntegratedComponents.swift": "166d93c71da90b219fc5df1671989902f87c79cbd8b012705b53b228d5492022",
+    "native/App/Localizable.xcstrings": "501ba12e3fc62671c4d60e6f28e95721298704ea9f05783f4fbc3d1ee71ced73",
+    "native/UITests/DictationManualUITests.swift": "8b4d27f6bb59ad141bcb5ec6fe5ad646f98128fe5ed69fa122afe8a8f5859b8e",
+    "web/tests/dictation-pacing-timeline.test.mjs": "f5366af101f522b2f58c3947b4e12f0cab67f472ec36eb0462f79d5d95485586",
+    "web/tests/dictation_full_timeline_browser.py": "e9e2a87e3bfda43f71b52a1cf1da4b2bfd45ea65e0ab41665300412a5fca1234",
+    "web/tests/dictation_timeline_states_browser.py": "4f3f04dad6179bfd8a15c4eda921022520de475c61505592208d7920f3308a35",
+    "web/tests/dictation-timeline-fixture.html": "7b59d9e73a727b920c7240aa23aecf26e58c6eee8bb126fffc724a155a7fa876"
+  }
+}

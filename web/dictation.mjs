@@ -11,7 +11,7 @@ export function mountDictation({host,api,unauthorized,locale=()=>'en'}){
  const cache=createOwnerDraftCache(indexedDraftStorage());let lease=null,hydrating=false;
  const journal=createDraftJournal({persist:value=>lease?.save(value),send:(id,body)=>request('/'+id,{method:'PUT',body})});
  function accept(value){const e=epoch;record=journal.accept(value);void journal.persist().catch(()=>{if(e===epoch){error=l('Could not save. Retry.');renderStatus();}});}
- let speechSpend=null,selectedManualStep=null;
+ let speechSpend=null,selectedManualStep=null,timelineView=null,renderedAttempt=null;
  let updatePlayer=()=>{},originalVisible=null,activeAttemptMenu=null,policyView='';
  const blockedAudio=new Set();
  const audioKey=(id,asset)=>`${id}/${asset}`;
@@ -103,29 +103,39 @@ export function mountDictation({host,api,unauthorized,locale=()=>'en'}){
   const rebased=await journal.rebase(id,value);if(e!==epoch)return;record=rebased;render();
  }
  function pacingUI(v,panel){
-  const phases=pacingPhases(v),timeline=el('ol');timeline.className='dictation-timeline';timeline.setAttribute('aria-label',l('pacing.plan'));panel.append(timeline);
+  const phases=pacingPhases(v),key=JSON.stringify([epoch,v.id,v.plan,locale()]);
   const label=p=>{const segment=v.plan[p.steps[0]];return l(p.kind==='whole'?'pacing.intro':p.kind==='final'?'Optional final reading':'pacing.fragment',{n:segment.sentence&&segment.fragment?`${segment.sentence}.${segment.fragment}`:p.fragment})};
+  // Keep every actual phase and its DOM identity, independent of the cursor.
+  // The document scrolls; there is no window, collapsed history or nested viewport.
+  if(timelineView?.key!==key){
+   const timeline=el('ol'),rows=[];timeline.className='dictation-timeline';timeline.setAttribute('aria-label',l('pacing.plan'));
+   let previous=null;
+   for(const p of phases){
+    const segment=v.plan[p.steps[0]],group=segment.sentence&&segment.fragment?segment.sentence:null;
+    if(group&&group!==previous){const heading=el('li',l('pacing.sentence',{n:group}));heading.className='dictation-sentence';timeline.append(heading);}
+    previous=group;
+    const row=el('li'),name=el('span'),status=el('span');status.className='dictation-now';row.append(name,status);timeline.append(row);rows.push({row,name,status,group});
+   }
+   timelineView={key,timeline,rows};
+  }
+  const view=timelineView;panel.append(view.timeline);
   function update(){
-   const step=policyStep(v),index=Math.max(0,phases.findIndex(p=>p.steps.includes(step))),next=pacingNeedsNext(v)&&!policy.waiting&&selectedManualStep!==v.id+':'+v.playback.cursor;
-   const current=next?Math.max(0,index-1):index,groups=[...new Set(phases.map(p=>v.plan[p.steps[0]].sentence).filter(Boolean))];
-   const group=v.plan[phases[current].steps[0]].sentence,start=group?groups.indexOf(group):current===0?0:Math.max(0,groups.length-2),visible=groups.slice(start,start+2);
-   timeline.replaceChildren();let previous=null;
+   const phases=pacingPhases(v),step=policyStep(v),index=Math.max(0,phases.findIndex(p=>p.steps.includes(step))),next=pacingNeedsNext(v)&&!policy.waiting&&selectedManualStep!==v.id+':'+v.playback.cursor;
+   const current=next?Math.max(0,index-1):index;
    phases.forEach((p,i)=>{
-    const segment=v.plan[p.steps[0]],group=segment.sentence;
-    if(p.fragment&&(group?!visible.includes(group):Math.abs(i-current)>2))return;
-    const siblings=group?phases.filter(q=>v.plan[q.steps[0]].sentence===group):[],activeSibling=siblings.indexOf(phases[current]),first=Math.max(0,activeSibling-1),childIndex=siblings.indexOf(p);
-    if(group&&(childIndex<first||childIndex>=first+5))return;
-    if(group&&group!==previous){const heading=el('li',l('pacing.sentence',{n:group}));heading.className='dictation-sentence';timeline.append(heading);previous=group;}
-    const row=el('li');row.className=(p.complete?'is-complete ':'')+(i===current?'is-current ':'')+(group?'dictation-fragment':'');
-    const state=i===current?(v.pending_stop?l('pacing.stopPending'):next?l('pacing.writing'):v.playback?.active?.intent==='extra'?l('pacing.extra'):policy.waiting?l('pacing.gap',{n:v.pacing.gap_seconds}):p.fragment?l('pacing.repeat',{n:p.steps.indexOf(step)+1,total:p.steps.length}):l('pacing.current')):l(p.complete?'pacing.completed':'pacing.upcoming');
-    row.textContent=(p.complete?'✓ ':'')+label(p);row.setAttribute('aria-label',label(p)+' · '+state);
-    if(i===current){row.setAttribute('aria-current','step');const status=el('span',' · '+state);status.className='dictation-now';row.append(status)}
-    timeline.append(row);
+    const {row,name,status,group}=view.rows[i],active=i===current;
+    row.className=(p.complete?'is-complete ':'')+(active?'is-current ':'')+(group?'dictation-fragment':'');
+    const state=active?(v.checked?l(p.complete?'pacing.completed':'pacing.current'):v.pending_stop?l('pacing.stopPending'):next?l('pacing.writing'):v.playback?.active?.intent==='extra'?l('pacing.extra'):policy.waiting?l('pacing.gap',{n:v.pacing.gap_seconds}):p.fragment&&v.playback?.active?l('pacing.repeat',{n:p.steps.indexOf(step)+1,total:p.steps.length}):l('pacing.current')):l(p.complete?'pacing.completed':'pacing.upcoming');
+    const progress=p.fragment?l('pacing.progress',{n:p.completed,total:p.steps.length}):'';
+    name.textContent=(p.complete?'✓ ':'')+label(p);row.setAttribute('aria-label',[label(p),state,progress].filter(Boolean).join(' · '));
+    status.className=active?'dictation-now':'dictation-phase-status';
+    status.textContent=active?' · '+state:p.completed>0&&!p.complete?' · '+progress:'';
+    if(active)row.setAttribute('aria-current','step');else row.removeAttribute('aria-current');
    });
   }
   update();return update;
  }
- function render(){const focused=practice.contains(document.activeElement)&&document.activeElement.tagName==='TEXTAREA', selection=focused?[document.activeElement.selectionStart,document.activeElement.selectionEnd]:null;renderStatus();list.replaceChildren();practice.replaceChildren();list.hidden=!!record;practice.hidden=!record;
+ function render(){const scroll=record?.id===renderedAttempt?[globalThis.scrollX??0,globalThis.scrollY??0]:null;renderedAttempt=record?.id??null;const focused=practice.contains(document.activeElement)&&document.activeElement.tagName==='TEXTAREA', selection=focused?[document.activeElement.selectionStart,document.activeElement.selectionEnd]:null;renderStatus();list.replaceChildren();practice.replaceChildren();list.hidden=!!record;practice.hidden=!record;
   if(!record){
    activeAttemptMenu=null;
    if(session&&error&&!hydrating)list.append(refresh);
@@ -192,6 +202,7 @@ export function mountDictation({host,api,unauthorized,locale=()=>'en'}){
    again.className='dictation-primary';practice.append(again);
   }
   if(focused&&!draft.disabled){draft.focus({preventScroll:true});draft.setSelectionRange(...selection);}
+  if(scroll)globalThis.scrollTo?.({left:scroll[0],top:scroll[1],behavior:'instant'});
  }
  audio.onended=()=>{if(supportedPolicy(record)){void policy.ended();return;}if(!record||!playback||playback.epoch!==epoch||playback.id!==record.id||playback.asset!==(record.plan[record.mode==='whole'?0:record.step]?.asset))return;playback=null;record=practiceTransition(record,'ended');void journal.edit(record.id,record);dirty++;save().catch(()=>{});render();};audio.onerror=async()=>{
   if(supportedPolicy(record)){if(!policy.ownsMedia||!audio.error)return;const e=epoch,id=record.id,asset=record.plan[policyStep(record)]?.asset;policy.interrupted(Error('media error'));try{await request(`/${id}/audio/${asset}`,{method:'HEAD'})}catch(err){if(e!==epoch||record?.id!==id)return;if(err.status===401)unauthorized(err);else if(err.status===404){record.ready=record.ready.filter(n=>n!==asset);error=l('Saved audio unavailable. Prepare it again.');render();}}return;}
@@ -204,5 +215,5 @@ export function mountDictation({host,api,unauthorized,locale=()=>'en'}){
   catch(err){if(failed.epoch!==epoch||mediaTicket!==mediaEpoch||failed.id!==record?.id||src!==audio.getAttribute('src'))return;if(err.status===401)unauthorized(err);else if(err.status===404){record.ready=record.ready.filter(asset=>asset!==failed.asset);error=l('Saved audio unavailable. Prepare it again.');render();}}
  };
  document.addEventListener('visibilitychange',()=>{if(document.hidden){policy.stop();audio.pause();playback=null;save().catch(()=>{});}});
- syncForm();render();return {identity(value){const next=value?.user?.id?value:null;const changed=session?.user?.id!==next?.user?.id;if(changed){epoch++;checking=false;completeAttempts.clear();blockedAudio.clear();originalVisible=null;stop();void cache.clear();lease=null;journal.reset();clearTimeout(timer);items=[];speechSpend=null;selectedManualStep=null;record=null;busy=false;loading=false;loaded=false;hydrating=false;error='';conflict=null;syncForm();dialog.close();}session=next;if(changed&&next){hydrating=true;lease=cache.open(next);const e=epoch;lease.load().then(value=>{if(e!==epoch)return;if(value){journal.restore(value);syncForm();items=Object.values(value.entries).map(v=>v.local);}hydrating=false;}).catch(()=>{if(e===epoch)error=l('Could not save. Retry.');}).finally(()=>{if(e===epoch){render();if(!hydrating&&!host.hidden)void load();}});}if(changed)render();else renderStatus();if(!host.hidden&&!record)void load();},route(){if(host.hidden){policy.stop();audio.pause();playback=null;save().catch(()=>{});}else if(!record)void load();},localize(){localizeStatic();render();}};
+ syncForm();render();return {identity(value){const next=value?.user?.id?value:null;const changed=session?.user?.id!==next?.user?.id;if(changed){epoch++;checking=false;completeAttempts.clear();blockedAudio.clear();originalVisible=null;stop();void cache.clear();lease=null;journal.reset();clearTimeout(timer);items=[];speechSpend=null;selectedManualStep=null;timelineView=null;record=null;busy=false;loading=false;loaded=false;hydrating=false;error='';conflict=null;syncForm();dialog.close();}session=next;if(changed&&next){hydrating=true;lease=cache.open(next);const e=epoch;lease.load().then(value=>{if(e!==epoch)return;if(value){journal.restore(value);syncForm();items=Object.values(value.entries).map(v=>v.local);}hydrating=false;}).catch(()=>{if(e===epoch)error=l('Could not save. Retry.');}).finally(()=>{if(e===epoch){render();if(!hydrating&&!host.hidden)void load();}});}if(changed)render();else renderStatus();if(!host.hidden&&!record)void load();},route(){if(host.hidden){policy.stop();audio.pause();playback=null;save().catch(()=>{});}else if(!record)void load();},localize(){localizeStatic();render();}};
 }

@@ -3,7 +3,7 @@ export const supportedPolicy=r=>[1,2].includes(r?.playback_policy_version);
 export function pacingPhases(r){
  const phases=[];let fragment=0;
  r.plan.forEach((s,step)=>{if(s.kind==='sentence_repeat'&&phases.length){phases.at(-1).steps.push(step);return}phases.push({kind:s.kind,fragment:s.kind==='sentence'?++fragment:0,steps:[step]})});
- return phases.map(p=>({...p,complete:p.steps.every(step=>r.playback?.listens?.some(a=>a.step===step&&a.ended===true&&!a.stopped))}));
+ return phases.map(p=>{const completed=p.steps.filter(step=>r.playback?.listens?.some(a=>a.step===step&&a.ended===true&&!a.stopped&&(r.playback_policy_version!==2||a.intent==='planned'))).length;return {...p,completed,complete:completed===p.steps.length}});
 }
 export const pacingNeedsNext=r=>r.playback_policy_version===2&&r.mode==='sentences'&&!r.playback?.active&&(r.playback?.cursor??0)>0&&r.plan[r.playback.cursor]?.kind==='sentence';
 export const policyStep=r=>r.playback?.active?.step??(r.mode==='whole'?0:r.playback?.cursor??1);

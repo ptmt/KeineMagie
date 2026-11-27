@@ -1,0 +1,10 @@
+✓ Whole text first
+Sentence 3
+Fragment 3.1 · Play 1 of 2
+Sentence 4
+Fragment 4.1
+Optional final reading
+Traceback (most recent call last):
+  File "/Users/tinyserve/.hermes/cache/scratch/full-timeline-middle-red.py", line 72, in <module>
+    assert 'Fragment 1.1' in actual and 'Fragment 6.1' in actual, 'MIDDLE RED: earlier Fragment 1.1 and later Fragment 6.1 missing'
+AssertionError: MIDDLE RED: earlier Fragment 1.1 and later Fragment 6.1 missing

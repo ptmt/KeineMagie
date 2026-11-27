@@ -1,0 +1,366 @@
+{
+  "result": "PASS",
+  "boundary": "synthetic ledgers rendered by actual mounted UI, gap timing covered separately by natural-media suite",
+  "cases": [
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "ready",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "unprepared",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "middle",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "repeat-ready",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "writing",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "stopped",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "pending-stop",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "checked",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "final",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mapped",
+      "state": "final-ended",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "ready",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "unprepared",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "middle",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "repeat-ready",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "writing",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "stopped",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "pending-stop",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "checked",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "final",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "flat",
+      "state": "final-ended",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "ready",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "unprepared",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "middle",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "repeat-ready",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "writing",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "stopped",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "pending-stop",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "checked",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "final",
+      "rows": 26
+    },
+    {
+      "engine": "chromium",
+      "variant": "mixed",
+      "state": "final-ended",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "ready",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "unprepared",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "middle",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "repeat-ready",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "writing",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "stopped",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "pending-stop",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "checked",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "final",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mapped",
+      "state": "final-ended",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "ready",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "unprepared",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "middle",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "repeat-ready",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "writing",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "stopped",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "pending-stop",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "checked",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "final",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "flat",
+      "state": "final-ended",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "ready",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "unprepared",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "middle",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "repeat-ready",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "writing",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "stopped",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "pending-stop",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "checked",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "final",
+      "rows": 26
+    },
+    {
+      "engine": "webkit",
+      "variant": "mixed",
+      "state": "final-ended",
+      "rows": 26
+    }
+  ]
+}

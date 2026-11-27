@@ -1,6 +1,7 @@
 // Interface language never changes the German source or a learner's draft.
 const rows=[
  ['dictation.audio.recovery','Dieser Audio-Versuch muss geprüft werden. Ein weiterer kostenpflichtiger Versuch ist gesperrt. Gespeichertes Audio und dein Entwurf bleiben verfügbar.','This audio attempt needs recovery. Another paid attempt is blocked. Saved audio and your draft remain available.','Эта попытка аудио требует проверки. Повторная платная попытка заблокирована. Сохранённое аудио и черновик доступны.','Este intento de audio necesita revisión. Otro intento de pago está bloqueado. El audio guardado y tu borrador siguen disponibles.','Cette tentative audio nécessite une vérification. Un nouvel essai payant est bloqué. L’audio enregistré et votre brouillon restent disponibles.'],
+['pacing.progress','Abgespielt: {n} von {total}','Played through: {n} of {total}','Прослушано: {n} из {total}','Completadas: {n} de {total}','Écoutes terminées : {n} sur {total}'],
 ['pacing.extra','Zusätzliche Wiederholung','Extra replay','Дополнительный повтор','Repetición adicional','Répétition supplémentaire'],
 ['dictation.audio.busy','Audio-Vorbereitung ist gerade belegt. Versuche es später erneut.','Audio preparation is busy. Try again later.','Подготовка аудио сейчас занята. Попробуйте позже.','La preparación de audio está ocupada. Inténtalo más tarde.','La préparation audio est occupée. Réessayez plus tard.'],
 ['pacing.extraReplay','Abschnitt noch einmal hören','Replay fragment once','Повторить фрагмент ещё раз','Repetir fragmento una vez','Réécouter le fragment une fois'],
