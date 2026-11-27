@@ -60,7 +60,10 @@ func dictationMonthlyAccounted(d *dictationMonthlyLedger, month string) (int64, 
 			return 0, errDictationBudget
 		}
 		ids[v.ID] = true
-		charge := v.MicroUSD
+		charge, recoveryErr := dictationOperatorRecoveryCharge(v, month)
+		if recoveryErr != nil {
+			return 0, recoveryErr
+		}
 		if s := v.Settlement; s != nil {
 			if s.Version != 1 || s.Currency != "USD" || s.Model != "gpt-realtime-2.1-mini" || s.RateCard != dictationRateCard || s.Status != "completed" || s.ResponseID == "" || len(s.ResponseID) > 256 || responses[s.ResponseID] || s.Month != month || s.ReservationID != v.ID || v.Usage == nil {
 				return 0, errDictationBudget

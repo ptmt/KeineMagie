@@ -36,12 +36,13 @@ type dictationSpeechUsage struct {
 	} `json:"output_token_details"`
 }
 type dictationMonthlyEntry struct {
-	OwnerHash      string                `json:"owner_hash,omitempty"`
-	ID             string                `json:"id"`
-	MicroUSD       int64                 `json:"reserved_micro_usd"`
-	Usage          *dictationSpeechUsage `json:"reported_usage,omitempty"`
-	ActualMicroUSD int64                 `json:"reported_cost_micro_usd,omitempty"`
-	Settlement     *dictationSettlement  `json:"settlement,omitempty"`
+	OperatorRecovery *dictationOperatorRecovery `json:"operator_recovery,omitempty"`
+	OwnerHash        string                     `json:"owner_hash,omitempty"`
+	ID               string                     `json:"id"`
+	MicroUSD         int64                      `json:"reserved_micro_usd"`
+	Usage            *dictationSpeechUsage      `json:"reported_usage,omitempty"`
+	ActualMicroUSD   int64                      `json:"reported_cost_micro_usd,omitempty"`
+	Settlement       *dictationSettlement       `json:"settlement,omitempty"`
 }
 type dictationMonthlyLedger struct {
 	Entries []dictationMonthlyEntry `json:"entries"`
