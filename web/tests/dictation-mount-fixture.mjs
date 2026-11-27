@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {mountDictation} from '../dictation.mjs';
 export const tick=()=>new Promise(resolve=>setImmediate(resolve));
 class Element {
- constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attributes={};this.value='';this.hidden=false;this.disabled=false;this.listeners={};this._text='';}
+ constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attributes={};this.value='';this.hidden=false;this.disabled=false;this.listeners={};this.dataset={};this._text='';}
  set textContent(value){this._text=String(value);this.children=[];}
  get textContent(){return this._text+this.children.map(c=>typeof c==='string'?c:c.textContent).join('');}
  append(...children){this.children.push(...children);}
@@ -14,8 +14,11 @@ class Element {
  removeAttribute(k){delete this.attributes[k];}
  addEventListener(k,fn){this.listeners[k]=fn;}
  querySelector(selector){return this.all().find(e=>selector==='button'?e.tagName==='BUTTON':e.tagName===selector.toUpperCase())??null;}
+ querySelectorAll(selector){return this.all().filter(e=>selector.split(',').some(s=>s==='details[open]'?e.tagName==='DETAILS'&&e.open:e.tagName===s.toUpperCase()));}
  all(){return this.children.filter(c=>typeof c!=='string').flatMap(c=>[c,...c.all()]);}
  contains(e){return this.all().includes(e);}
+ focus(){document.activeElement=this;}
+ setSelectionRange(start,end){this.selectionStart=start;this.selectionEnd=end;}
  showModal(){this.open=true;}
  close(){this.open=false;}
 }

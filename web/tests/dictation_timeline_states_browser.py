@@ -59,7 +59,7 @@ with sync_playwright() as pw:
          return sum(w*(c/12.92 if c<=.04045 else ((c+.055)/1.055)**2.4) for w,c in zip([.2126,.7152,.0722],values))
         a,b=sorted([luminance(colors['fg']),luminance(colors['bg'])]);assert (b+.05)/(a+.05)>=4.5,colors
        page.screenshot(path=str(out/f'{engine}-long-{width}-{theme}.png'),full_page=True)
-     page.get_by_label('More options').click();page.get_by_role('button',name='New attempt',exact=True).click()
+     page.get_by_role('button',name='More options',exact=True).click();page.get_by_role('button',name='New attempt',exact=True).click()
      expect(page.locator('.dictation-timeline .is-complete')).to_have_count(0);expect(rows).to_have_count(26)
      expect(draft).to_have_value('');assert page.evaluate('savedRows.every(e=>!e.isConnected)')
      page.evaluate('window.savedRows=Array.from(document.querySelectorAll(".dictation-timeline li"))')
