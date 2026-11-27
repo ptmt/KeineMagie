@@ -46,27 +46,16 @@ export function activityMonth(now,locale){
 }
 export function activityIntensity(day){const n=day?.known_count;return !Number.isInteger(n)||n<0?'unknown':n===0?'none':n<3?'1':n<5?'2':n<10?'3':'4';}
 const monthLabels={en:['Activity','Previous month','Next month','This month','Refresh','Recorded · lower bound','Active days · at least','No recorded activity ≠ zero','Refresh failed · saved view','Loading','Limited coverage'],ru:['Активность','Предыдущий месяц','Следующий месяц','Этот месяц','Обновить','Учтено · не менее','Активных дней · не менее','Нет записей ≠ нет активности','Обновление не удалось · сохранённые данные','Загрузка','Неполное покрытие'],de:['Aktivität','Voriger Monat','Nächster Monat','Dieser Monat','Aktualisieren','Erfasst · mindestens','Aktive Tage · mindestens','Keine Einträge ≠ keine Aktivität','Aktualisierung fehlgeschlagen · gespeicherte Ansicht','Laden','Unvollständige Abdeckung'],es:['Actividad','Mes anterior','Mes siguiente','Este mes','Actualizar','Registradas · al menos','Días activos · al menos','Sin registros ≠ sin actividad','Error al actualizar · vista guardada','Cargando','Cobertura limitada'],fr:['Activité','Mois précédent','Mois suivant','Ce mois','Actualiser','Enregistrées · au moins','Jours actifs · au moins','Aucune entrée ≠ aucune activité','Échec de mise à jour · vue conservée','Chargement','Couverture limitée']};
-export function mountCoachActivity({host,api,locale,document:doc,now=()=>new Date()}){
+export function mountCoachActivity({host,api,locale,document:doc,now=()=>new Date(),mode='week',active=()=>!doc.hidden&&!host.closest('[hidden]')}){
  const bar=doc.createElement('div');bar.className='coach-activity';const detail=doc.createElement('div');detail.className='coach-activity-detail';detail.hidden=true;detail.setAttribute('role','dialog');const body=doc.createElement('p'),close=doc.createElement('button');close.type='button';detail.append(body,close);host.append(bar,detail);
  const header=doc.createElement('div'),summary=doc.createElement('div'),legend=doc.createElement('div');header.className='activity-month-header';summary.className='activity-month-summary';legend.className='activity-legend';host.insertBefore(header,bar);host.append(summary,legend);
- const viewport=doc.defaultView?.matchMedia('(min-width: 1000px)');
- let wide=viewport?.matches??false,resizeTimer;
+ // Placement, not viewport width, owns the range. Coach is always a week.
+ const wide=mode==='month';
  let owner=null,selected=null,month=now(),follow=true,revision='',dayKey=calendarKey();const state=createActivityState(api,render);
  function calendarKey(){return localDate(now())+'|'+Intl.DateTimeFormat().resolvedOptions().timeZone;}
  const copy=()=>monthLabels[locale().split('-')[0]]||monthLabels.en;
  function range(){return wide?activityMonth(month,locale()).dates:activityWeek(month,locale());}
- function load(){doc.defaultView?.clearTimeout(resizeTimer);if(owner){const dates=range();void state.load(owner,dates[0],Intl.DateTimeFormat().resolvedOptions().timeZone,revision,dates.length);}}
- function resize(){
-  if(wide===viewport.matches)return;
-  wide=viewport.matches;
-  // Preserve an explicitly selected day; otherwise return to the current period.
-  month=selected?new Date(selected+'T12:00:00'):now();follow=!selected;
-  // Fence the old range immediately, even during the debounce window.
-  state.clear();
-  doc.defaultView.clearTimeout(resizeTimer);
-  resizeTimer=doc.defaultView.setTimeout(()=>{if(!doc.hidden&&!host.closest('[hidden]'))load();},150);
- }
- viewport?.addEventListener('change',resize);
+ function load(){if(owner&&active()){const dates=range();void state.load(owner,dates[0],Intl.DateTimeFormat().resolvedOptions().timeZone,revision,dates.length);}}
  function move(delta){dismiss();month=new Date(month.getFullYear(),month.getMonth()+delta,1,12);follow=false;render();load();}
  function dismiss(restore=false){const date=selected;detail.hidden=true;selected=null;if(restore)[...bar.children].find(b=>b.dataset.activityDate===date)?.focus({preventScroll:true});}
  close.onclick=()=>dismiss(true);detail.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();dismiss(true);}});
@@ -90,5 +79,5 @@ export function mountCoachActivity({host,api,locale,document:doc,now=()=>new Dat
  }
  function tick(){const next=calendarKey();if(next!==dayKey){dayKey=next;if(follow)month=now();state.invalidate();render();load();}}
  const timer=doc.defaultView?.setInterval(tick,30000);doc.addEventListener('visibilitychange',()=>{if(!doc.hidden)tick();});
- render();return {refresh(){state.invalidate();load();},sync(id,nextRevision=''){revision=nextRevision;if(owner!==id){owner=id;month=now();follow=true;dismiss();state.clear();}tick();render();load();},clear(){owner=null;dismiss();state.clear();},destroy(){doc.defaultView?.clearInterval(timer);doc.defaultView?.clearTimeout(resizeTimer);viewport?.removeEventListener('change',resize);owner=null;state.clear();}};
+ render();return {refresh(){state.invalidate();load();},sync(id,nextRevision=''){revision=nextRevision;if(owner!==id){owner=id;month=now();follow=true;dismiss();state.clear();}tick();render();load();},dismiss(){dismiss();},clear(){owner=null;dismiss();state.clear();},destroy(){doc.defaultView?.clearInterval(timer);owner=null;state.clear();}};
 }

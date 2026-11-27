@@ -1,0 +1,12 @@
+[
+  {
+    "engine": "chromium",
+    "status": "passed",
+    "scenario": "range-owner-close-destroy-late-success-error-locale-resize"
+  },
+  {
+    "engine": "webkit",
+    "status": "passed",
+    "scenario": "range-owner-close-destroy-late-success-error-locale-resize"
+  }
+]

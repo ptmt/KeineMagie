@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "variants": [
+    {
+      "variant": "chromium-1280-light",
+      "passed": true
+    },
+    {
+      "variant": "chromium-390-light",
+      "passed": true
+    },
+    {
+      "variant": "chromium-1280-dark",
+      "passed": true
+    },
+    {
+      "variant": "chromium-390-dark",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

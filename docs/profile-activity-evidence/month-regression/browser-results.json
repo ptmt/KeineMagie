@@ -1,0 +1,106 @@
+[
+  {
+    "engine": "chromium",
+    "width": 1280,
+    "theme": "light",
+    "colors": {
+      "1": "rgb(223, 206, 239)",
+      "2": "rgb(195, 163, 221)",
+      "3": "rgb(155, 113, 185)",
+      "4": "rgb(112, 70, 143)",
+      "none": "rgb(240, 237, 243)"
+    },
+    "status": "passed"
+  },
+  {
+    "engine": "chromium",
+    "width": 1280,
+    "theme": "dark",
+    "colors": {
+      "1": "rgb(81, 64, 96)",
+      "2": "rgb(115, 80, 142)",
+      "3": "rgb(142, 93, 171)",
+      "4": "rgb(194, 154, 218)",
+      "none": "rgb(48, 45, 53)"
+    },
+    "status": "passed"
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "theme": "light",
+    "colors": {
+      "1": "rgb(223, 206, 239)",
+      "2": "rgb(195, 163, 221)",
+      "3": "rgb(155, 113, 185)",
+      "4": "rgb(112, 70, 143)",
+      "none": "rgb(240, 237, 243)"
+    },
+    "status": "passed"
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "theme": "dark",
+    "colors": {
+      "1": "rgb(81, 64, 96)",
+      "2": "rgb(115, 80, 142)",
+      "3": "rgb(142, 93, 171)",
+      "4": "rgb(194, 154, 218)",
+      "none": "rgb(48, 45, 53)"
+    },
+    "status": "passed"
+  },
+  {
+    "engine": "webkit",
+    "width": 1280,
+    "theme": "light",
+    "colors": {
+      "1": "rgb(223, 206, 239)",
+      "2": "rgb(195, 163, 221)",
+      "3": "rgb(155, 113, 185)",
+      "4": "rgb(112, 70, 143)",
+      "none": "rgb(240, 237, 243)"
+    },
+    "status": "passed"
+  },
+  {
+    "engine": "webkit",
+    "width": 1280,
+    "theme": "dark",
+    "colors": {
+      "1": "rgb(81, 64, 96)",
+      "2": "rgb(115, 80, 142)",
+      "3": "rgb(142, 93, 171)",
+      "4": "rgb(194, 154, 218)",
+      "none": "rgb(48, 45, 53)"
+    },
+    "status": "passed"
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "theme": "light",
+    "colors": {
+      "1": "rgb(223, 206, 239)",
+      "2": "rgb(195, 163, 221)",
+      "3": "rgb(155, 113, 185)",
+      "4": "rgb(112, 70, 143)",
+      "none": "rgb(240, 237, 243)"
+    },
+    "status": "passed"
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "theme": "dark",
+    "colors": {
+      "1": "rgb(81, 64, 96)",
+      "2": "rgb(115, 80, 142)",
+      "3": "rgb(142, 93, 171)",
+      "4": "rgb(194, 154, 218)",
+      "none": "rgb(48, 45, 53)"
+    },
+    "status": "passed"
+  }
+]

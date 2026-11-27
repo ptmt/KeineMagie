@@ -1,0 +1,243 @@
+{
+  "synthetic": true,
+  "variants": 4,
+  "errors": [],
+  "actions": [
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "441072da-dceb-4a9c-ad8c-94a8946c17f6",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "answer",
+      "text": "  gather 🙂  ",
+      "turn_id": "task",
+      "request_id": "1c61cda1-07ca-4b0e-a3a7-3cae73bcadf9",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "reveal",
+      "text": "answer",
+      "turn_id": "old",
+      "request_id": "afb229f2-7420-42d6-9761-10726d322f9d",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "5f448faf-4bd9-432a-8f57-fae27c35532b",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "f7b0557e-8dd7-4c92-b5cd-a3ae9cf12bc3",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "answer",
+      "text": "  gather 🙂  ",
+      "turn_id": "task",
+      "request_id": "1241cd0d-85b6-4c6a-93a7-16c36475c37c",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "cancel",
+      "text": "",
+      "turn_id": "1241cd0d-85b6-4c6a-93a7-16c36475c37c",
+      "request_id": "a8837167-c63e-4332-920b-3d87ddf0e11c",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "91e5394f-1d2b-4ba6-a9ce-6f4775b4fffc",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "answer",
+      "text": "  gather 🙂  ",
+      "turn_id": "task",
+      "request_id": "d2457519-8d0e-4c37-b077-c12203c4538b",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "reveal",
+      "text": "answer",
+      "turn_id": "old",
+      "request_id": "c0c2f56a-03b9-40b1-9b92-63f0cae9d77d",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "f31b96de-1a87-49b9-8d71-51e552d27ffe",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "99f6f36d-1c57-4ea5-a1b8-12384b867541",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "answer",
+      "text": "  gather 🙂  ",
+      "turn_id": "task",
+      "request_id": "d9dbdb6f-73ee-4166-8d9d-4fc8d4975dc6",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "cancel",
+      "text": "",
+      "turn_id": "d9dbdb6f-73ee-4166-8d9d-4fc8d4975dc6",
+      "request_id": "c0a9b23c-dabe-40b9-b8d3-20275b82907e",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "fb16230a-97c8-4f24-aca5-6def9a116ef4",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "answer",
+      "text": "  gather 🙂  ",
+      "turn_id": "task",
+      "request_id": "ace35deb-2eed-4d43-9095-33a6e462a632",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "reveal",
+      "text": "answer",
+      "turn_id": "old",
+      "request_id": "3208b6e9-4d89-41cb-8e54-9d96e9d7336b",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "5ba80001-c732-411c-9278-157d214be39f",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "c89a16a4-a4f7-45d0-a5e4-21a448911218",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "answer",
+      "text": "  gather 🙂  ",
+      "turn_id": "task",
+      "request_id": "8f7cc82c-0fdc-4af3-97ad-06234b166e2d",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "cancel",
+      "text": "",
+      "turn_id": "8f7cc82c-0fdc-4af3-97ad-06234b166e2d",
+      "request_id": "906ece03-27ae-4470-acc0-162c595991c5",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "83933407-beac-4134-858b-cae599a5e148",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "answer",
+      "text": "  gather 🙂  ",
+      "turn_id": "task",
+      "request_id": "701edbbf-760b-4131-a25d-4c5bd035269b",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "reveal",
+      "text": "answer",
+      "turn_id": "old",
+      "request_id": "32be1aa2-7652-4d04-a97b-71d7e9eb647a",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "333af25d-a8bd-44db-85f3-d51bca09ae6a",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "entry",
+      "text": "",
+      "turn_id": "",
+      "request_id": "9807f5cd-1367-4b71-97fe-c9a078b8ae38",
+      "locale": "en",
+      "owner_id": "fixture-owner",
+      "time_zone": "Europe/Berlin"
+    },
+    {
+      "action": "answer",
+      "text": "  gather 🙂  ",
+      "turn_id": "task",
+      "request_id": "2f3a0a73-d615-43fb-8238-07062ef7f753",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    },
+    {
+      "action": "cancel",
+      "text": "",
+      "turn_id": "2f3a0a73-d615-43fb-8238-07062ef7f753",
+      "request_id": "aceb4905-91bf-4c2b-9d27-86215f015ccd",
+      "locale": "en",
+      "owner_id": "fixture-owner"
+    }
+  ]
+}

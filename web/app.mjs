@@ -4,6 +4,7 @@ async function episodePath(job) { return (await import('./episode.mjs')).episode
 import { createProfileSync, readLegacyProfiles } from './profile-sync.mjs';
 import { mountTranslatorFollowup } from './translator-followup.mjs';
 import { mountCoach } from './coach.mjs';
+import { mountCoachActivity } from './coach-activity.mjs';
 import { mountDictation } from './dictation.mjs';
 import { t, interfaceCatalog, getInterfaceLanguage, setInterfaceLanguage, bindInterfaceText, unbindInterfaceText, applyInterfaceLanguage, registerStaticInterface } from './i18n.mjs';
 import { copyText, reconcileDOM, latestPodcastEpisodes, createPodcasts, podcastRoute, podcastError, isActive, apiID, createAPI, readiness, inputPayload, swapDraft, validDirection, startProviderConnection, startBrowserPairing, startAppleLogin, promptStore, translationPresets } from './core.mjs';
@@ -181,13 +182,27 @@ $('delete-prompt').addEventListener('click', () => {
   catch { setText('prompt-error', 'Löschen nicht möglich. Bitte den Browser-Speicher prüfen.'); }
 });
 
+// Activity stays in the existing account, loaded only by explicit disclosure.
+const profileActivityHost=$('profile-activity');
+const profileActivityDisclosure=$('profile-activity-disclosure');
+let profileActivity=null;
+function renderProfileActivity(){
+ const label={en:'Activity',de:'Aktivität',ru:'Активность',es:'Actividad',fr:'Activité'}[getInterfaceLanguage().split('-')[0]]||'Activity';
+ if($('profile-activity-toggle'))$('profile-activity-toggle').textContent=label;
+ if(profileActivityDisclosure?.open&&$('account-dialog').open&&session?.user?.id){
+  profileActivity??=mountCoachActivity({host:profileActivityHost,api,locale:getInterfaceLanguage,document,mode:'month',active:()=>!document.hidden&&$('account-dialog').open&&profileActivityDisclosure.open});
+  profileActivity.sync(session.user.id);
+ }
+}
+profileActivityDisclosure?.addEventListener('toggle',()=>{if(profileActivityDisclosure.open)renderProfileActivity();else profileActivity?.dismiss();});
 // Learning settings use the existing owner-scoped server profile, never browser storage.
 $('profile-sync-status')?.addEventListener('click', scheduleProfileSync);
 $('profile-conflict-copy')?.addEventListener('click',()=>profileSync?.resolveConflict(true));
 $('profile-conflict-remote')?.addEventListener('click',()=>profileSync?.resolveConflict(false));
 let profileEpoch=0, profileOwner=null, profileLanguage='de', profileValue=null, profileLoading=false,profileFailed=false;
-function resetLearningProfile(){profileEpoch++;profileOwner=null;profileValue=null;profileLoading=false;profileFailed=false;$('learning-profile').hidden=true;$('profile-cefr').value='unknown';$('profile-cefr').disabled=true;$('profile-history').replaceChildren();setText('profile-error','');}
+function resetLearningProfile(){profileActivity?.clear();if(profileActivityDisclosure)profileActivityDisclosure.open=false;profileEpoch++;profileOwner=null;profileValue=null;profileLoading=false;profileFailed=false;$('learning-profile').hidden=true;$('profile-cefr').value='unknown';$('profile-cefr').disabled=true;$('profile-history').replaceChildren();setText('profile-error','');}
 function renderLearningProfile(){
+ renderProfileActivity();
  $('learning-profile').hidden=!session?.user?.id;
  $('profile-language').value=profileLanguage;
  $('profile-language').disabled=profileLoading;
@@ -199,6 +214,7 @@ function renderLearningProfile(){
 }
 async function loadLearningProfile({cefr,focus=false}={}){
  if(!session?.user?.id)return;
+ const focusOrigin=document.activeElement;
  const epoch=++profileEpoch,owner=session.user.id,language=profileLanguage;profileOwner=owner;profileLoading=true;profileFailed=false;setText('profile-error','Profil wird geladen …');renderLearningProfile();
  const valid=()=>epoch===profileEpoch&&session?.user?.id===owner&&profileLanguage===language;
  try{
@@ -210,7 +226,7 @@ async function loadLearningProfile({cefr,focus=false}={}){
   profileValue=value;profileOwner=owner;setText('profile-error','');
   if(cefr!==undefined)window.dispatchEvent(new CustomEvent('learning-profile-changed',{detail:{language}}));
  }catch(error){if(valid()){if(error.status===401)handleUnauthorized(error);else {profileFailed=true;setText('profile-error','Profil konnte nicht gespeichert oder geladen werden.');}}}
- finally{if(valid()){profileLoading=false;renderLearningProfile();if(focus&&$('account-dialog').open)$('profile-cefr').focus({preventScroll:true});}}
+ finally{if(valid()){profileLoading=false;renderLearningProfile();if(focus&&$('account-dialog').open&&document.activeElement===focusOrigin)$('profile-cefr').focus({preventScroll:true});}}
 }
 function openLearningProfile(language='de'){
  if(!['de','ru'].includes(language))language='de';
@@ -628,7 +644,7 @@ function openAppleSignIn() {
   if (!session?.user?.id && config?.apple_available === true) $('apple-login').click();
 }
 $('connection-action').addEventListener('click', () => { if (sessionError || providerError || readiness(session) === 'model-unavailable') return recheckConnection(); if (!config || (!config.apple_available && !config.pairing_available && !session?.user?.id)) return restore(); openAppleSignIn(); if (session?.user?.id && !session.provider) void loadProvider(); });
-function resetAccountDialog() { accountRun++; cancelAppleLogin(); clearBootstrap(); clearPairing(); setText('account-error', ''); renderConnection(); }
+function resetAccountDialog() { profileActivity?.clear();if(profileActivityDisclosure)profileActivityDisclosure.open=false;accountRun++; cancelAppleLogin(); clearBootstrap(); clearPairing(); setText('account-error', ''); renderConnection(); }
 $('close-account').addEventListener('click', () => { resetAccountDialog(); $('account-dialog').close(); });
 $('account-dialog').addEventListener('cancel', resetAccountDialog);
 $('account-dialog').addEventListener('close', resetAccountDialog);

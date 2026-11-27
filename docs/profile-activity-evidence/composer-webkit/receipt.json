@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "variants": [
+    {
+      "variant": "webkit-1280-light",
+      "passed": true
+    },
+    {
+      "variant": "webkit-390-light",
+      "passed": true
+    },
+    {
+      "variant": "webkit-1280-dark",
+      "passed": true
+    },
+    {
+      "variant": "webkit-390-dark",
+      "passed": true
+    }
+  ],
+  "errors": []
+}
